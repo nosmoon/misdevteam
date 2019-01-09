@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo/>
+						<uprc_yn/>
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</fac_clsf>
+							<ref_clsf>
+								<item/>
+							</ref_clsf>
+						</comboSet>
+					</initData>
+					<resData>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<duty_dt/>
+								<fac_clsf/>
+								<ref_clsf/>
+								<seq/>
+								<ref_matt/>
+								<seq1/>
+							</record>
+						</gridData>
+					</resData>
+					<reqData>
+						<searchData>
+							<duty_dt/>
+							<fac_clsf/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<reqForm>
+							<multiUpData/>
+							<duty_dt/>
+							<fac_clsf/>
+							<clos_clsf/>
+							<matt_01/>
+							<matt_02/>
+							<matt_03/>
+						</reqForm>
+					</reqData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function pageInit(){
+						model.copyNode("/root/initData/comboSet/fac_clsf",parent.root.initData.comboSet.fac_clsf);
+						var nodeList = instance1.selectNodes("/root/initData/comboSet/ref_clsf/item");
+						//alert(nodeList.length);
+						//for (var i=0; i<nodeList.length; i++){
+						//	datagrid1.addRow();
+						//	datagrid1.valueMatrix((i+1), 2) = nodeList.item(i).getElementsByTagName("label").item(0).value;
+						//	datagrid1.valueMatrix((i+1), 3) = nodeList.item(i).getElementsByTagName("value").item(0).value;
+						//}
+						model1.refresh();
+					}
+					
+					function page_reset(){
+						model1.reset();
+						btnA2.disabled = true;
+						button1.disabled = true;
+						//button12.disabled = true;
+						//button13.disabled = true;
+					}
+					
+					function fac(){
+						model1.send("mt_submatrout_1101");
+						model1.copyNode("/root/initData/comboSet/fac_clsf", "/root/tempData/fac_clsf");  //공장 코드 셋팅
+					//	model1.copyNode("/root/initData/comboSet/medi_cd" , "/root/tempData/medi_cd");
+						model1.setValue("/root/initData/uprc_yn", model1.getValue("/root/tempData/uprc_yn"));
+						model1.refresh();
+					}
+					
+					function Split(temp,temp1){
+						var a=new Array();
+						a=temp.split("#");
+						var b=new Array();
+						b=temp1.split("#");
+						var cnt=1;
+						var cnt1=1;
+						for(i=0; i<a.length; i++){
+						
+							model1.makeNode("/root/initData/comboSet/unit/item["+cnt+"]/label");
+							model1.makeNode("/root/initData/comboSet/unit/item["+cnt+"]/value");
+							model1.setValue("/root/initData/comboSet/unit/item["+cnt+"]/label",a[i])
+							model1.setValue("/root/initData/comboSet/unit/item["+cnt+"]/value",b[i])
+							cnt++;
+						}
+						model1.refresh();
+					}
+				
+					function loadData(duty_dt, fac_clsf, clos_clsf){
+						model1.setValue("/root/reqData/searchData/duty_dt",duty_dt);
+						model1.setValue("/root/reqData/searchData/fac_clsf",fac_clsf);
+						model.setValue("/root/reqData/reqForm/clos_clsf", clos_clsf);
+						
+						model.setValue("/root/reqData/reqForm/matt_01", "");
+						model.setValue("/root/reqData/reqForm/matt_02", "");
+						model.setValue("/root/reqData/reqForm/matt_03", "");
+						
+						model1.send("pr_papmake_1031");
+						model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+						
+						var nodeList = instance1.selectNodes("/root/resData/gridData/record");
+						
+						for (var i=0; i<nodeList.length; i++){
+							if (nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value == "01"){
+								model.setValue("/root/reqData/reqForm/matt_01", nodeList.item(i).getElementsByTagName("ref_matt").item(0).value);
+							} else if (nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value == "02"){
+								model.setValue("/root/reqData/reqForm/matt_02", nodeList.item(i).getElementsByTagName("ref_matt").item(0).value);
+							} else if (nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value == "03"){
+								model.setValue("/root/reqData/reqForm/matt_03", nodeList.item(i).getElementsByTagName("ref_matt").item(0).value);
+							}
+						}
+						
+						//datagrid1.refresh();
+						
+						//alert("clos_clsf=" + clos_clsf);
+						if (clos_clsf == "01") {
+							group1.disabled = true;
+							//datagrid1.isReadOnly(1,1, datagrid1.rows, 3) = true;
+						} else {
+							group1.disabled = false;
+							//datagrid1.isReadOnly(1,1, datagrid1.rows, 3) = false;
+						}
+						btnA2.disabled = false;
+						button1.disabled = false;
+						model1.refresh();
+						//button12.disabled = false;
+						//button13.disabled = false;
+					}
+					
+					function setData(){
+						//model.removenode("/root/resData/gridData/record");
+						//datagrid1.refresh();
+						
+						btnA2.disabled = false;
+						button1.disabled = false;
+						//button12.disabled = false;
+						//button13.disabled = false;
+						
+						//datagrid1.isReadOnly(1,1,1,3) = true;
+					}
+					
+					//행입력
+					function addRow() {
+						var rowCnt      = 0;
+						var selectedIdx = datagrid1.rows-1;
+						var ref_clsf     = model1.getValue("/root/resData/gridData/record[1]/ref_clsf");	
+						
+						if (selectedIdx == 1){
+							model1.makeNode("/root/resData/gridData/record[1]/ref_clsf");
+						}
+						
+						if(ref_clsf=="") {
+							rowCnt = datagrid1.rows;
+							
+							if(rowCnt > 1) {
+								datagrid1.isReadOnly(1, 1, 1, 3)  =false;
+								datagrid1.addStatus(selectedIdx, "insert");
+								return false;
+							} else {
+								datagrid1.addRow(true, true);
+								return true;
+							}
+						}else{
+							datagrid1.addRow(true, true);
+							return true;
+						}
+					}
+					]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.copyNode("/root/initData/pageInfo",parent.root.initData.pageInfo);
+				btnA2.disabled = true;
+				button1.disabled = true;
+				//model.removenode("/root/resData/gridData/record");
+				//datagrid1.refresh();
+			]]>
+			</script>
+			<submission id="mt_submatrout_1101" action="/mt/submatrout/1101" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="pr_papmake_1031" action="/mt/papmake/1031" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="pr_papmake_1030" action="/mt/papmake/1030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="905" pageheight="400">
+		<group id="group1" style="left:10px; top:40px; width:885px; height:270px; ">
+			<!--
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="caption5^구분^구분^내용" colsep="#" colwidth="59, 138, 100, 483" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:25px; width:865px; height:165px; ">
+				<col ref="seq" visibility="hidden"/>
+				<col ref="ref_clsf_nm"/>
+				<col ref="ref_clsf" visibility="hidden"/>
+				<col ref="ref_matt" type="input" style="text-align:left; "/>
+			</datagrid>
+			-->
+			<caption id="caption51" class="list_cap01" style="left:10px; top:78px; width:111px; height:69px; text-align:center; ">쇄출사항</caption>
+			<caption id="caption41" class="list_cap02" style="left:120px; top:10px; width:755px; height:69px; text-align:center; "/>
+			<caption id="caption42" class="list_cap01" style="left:10px; top:10px; width:111px; height:69px; text-align:center; ">지절사항</caption>
+			<caption id="caption31" class="list_cap02" style="left:120px; top:146px; width:755px; height:69px; text-align:center; "/>
+			<caption id="caption54" class="list_cap02" style="left:120px; top:78px; width:755px; height:69px; text-align:center; "/>
+			<caption id="caption48" class="list_cap01" style="left:10px; top:146px; width:111px; height:69px; text-align:center; ">특기사항</caption>
+			<textarea id="textarea1" ref="/root/reqData/reqForm/matt_01" maxlength="1000" style="left:125px; top:15px; width:745px; height:60px; "/>
+			<textarea id="textarea2" ref="/root/reqData/reqForm/matt_02" maxlength="1000" style="left:125px; top:82px; width:745px; height:60px; "/>
+			<textarea id="textarea3" ref="/root/reqData/reqForm/matt_03" maxlength="1000" style="left:125px; top:150px; width:745px; height:60px; "/>
+		</group>
+		<group id="group2" style="left:10px; top:10px; width:885px; height:25px; ">
+			<button id="button1" class="btn02" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var duty_dt = model.getValue("/root/reqData/searchData/duty_dt");
+					var fac_clsf = model.getValue("/root/reqData/searchData/fac_clsf");
+					var clos_clsf = model.getValue("/root/reqData/reqForm/clos_clsf");
+					
+					model.reset();
+					
+					loadData(duty_dt, fac_clsf, clos_clsf);
+				]]>
+				</script>
+			</button>
+			<button id="btnA2" class="btn02" style="left:763px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (model.getValue("/root/reqData/reqForm/clos_clsf") == "01"){
+						alert("마감된 정보는 수정할 수 없습니다.");
+						return;
+					}
+					//if(!commGridReqCheck("datagrid1")) return;
+					
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					model1.setValue("/root/reqData/reqForm/duty_dt", model.getValue("/root/reqData/searchData/duty_dt"));
+					model1.setValue("/root/reqData/reqForm/fac_clsf", model.getValue("/root/reqData/searchData/fac_clsf"));
+					
+					var headData = "gubun#ref_clsf#seq#ref_matt";
+					var nodeList = instance1.selectNodes("/root/resData/gridData/record");
+					var gridData = "";
+					var updataStr = "";
+					
+					for (var i=0; i<nodeList.length; i++){
+						if (nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value == "01"){
+							if (model.getValue("/root/reqData/reqForm/matt_01") != ""){
+								nodeList.item(i).getElementsByTagName("ref_matt").item(0).value = model.getValue("/root/reqData/reqForm/matt_01");
+							}
+							if (gridData == "") {
+								gridData = "I#" + nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value + "#" + nodeList.item(i).getElementsByTagName("seq").item(0).value + "#" + nodeList.item(i).getElementsByTagName("ref_matt").item(0).value;
+							} else {
+								gridData = gridData + "|"+ "I#" + nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value + "#" + nodeList.item(i).getElementsByTagName("seq").item(0).value + "#" + nodeList.item(i).getElementsByTagName("ref_matt").item(0).value;
+							}
+						} else if (nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value == "02"){
+							if (model.getValue("/root/reqData/reqForm/matt_02") != ""){
+								nodeList.item(i).getElementsByTagName("ref_matt").item(0).value = model.getValue("/root/reqData/reqForm/matt_02");
+							}
+							if (gridData == "") {
+								gridData = "I#" + nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value + "#" + nodeList.item(i).getElementsByTagName("seq").item(0).value + "#" + nodeList.item(i).getElementsByTagName("ref_matt").item(0).value;
+							} else {
+								gridData = gridData + "|"+ "I#" + nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value + "#" + nodeList.item(i).getElementsByTagName("seq").item(0).value + "#" + nodeList.item(i).getElementsByTagName("ref_matt").item(0).value;
+							}
+						} else if (nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value == "03"){
+							if (model.getValue("/root/reqData/reqForm/matt_03") != ""){
+								nodeList.item(i).getElementsByTagName("ref_matt").item(0).value = model.getValue("/root/reqData/reqForm/matt_03");
+							}
+							if (gridData == "") {
+								gridData = "I#" + nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value + "#" + nodeList.item(i).getElementsByTagName("seq").item(0).value + "#" + nodeList.item(i).getElementsByTagName("ref_matt").item(0).value;
+							} else {
+								gridData = gridData + "|"+ "I#" + nodeList.item(i).getElementsByTagName("ref_clsf").item(0).value + "#" + nodeList.item(i).getElementsByTagName("seq").item(0).value + "#" + nodeList.item(i).getElementsByTagName("ref_matt").item(0).value;
+							}
+						}
+						
+					}
+					updataStr = headData + "|" + gridData;
+					model1.makeNode("/root/reqData/reqForm/multiUpData")
+					model1.setValue("/root/reqData/reqForm/multiUpData", updataStr);
+				
+					model1.send("pr_papmake_1030");
+						
+					if(submit_completed()) {
+						alert("저장되었습니다.");
+						model1.destroy("/root/reqData/reqForm/multiUpData");
+						//datagrid1.clearStatus();
+					}
+				]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

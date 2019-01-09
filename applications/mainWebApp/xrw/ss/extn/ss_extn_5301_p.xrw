@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>센터 정보</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<searchData>
+							<search_form>
+								<valmm/>
+								<bocd/>
+								<area/>
+								<bonm/>
+							</search_form>
+						</searchData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<search_form>
+								<valmm/>
+								<bocd/>
+								<area/>
+								<bonm/>
+							</search_form>
+						</searchData>
+						<reqform/>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<gubun/>
+									<dncomp/>
+									<dncompnm/>
+									<valmm/>
+									<bonm/>
+									<rdr_no/>
+									<rdrnm/>
+									<qty/>
+									<subsuprc/>
+									<cnfm_amt/>
+								</record>
+							</listGrid>
+							<detailData>
+								<rdr_no/>
+								<bocd/>
+							</detailData>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID5301search" ref="/root/reqData/searchData/search_form" action="/ss/extn/5330" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+				
+				function init()
+				{
+					model.copyNode("/root/reqData/searchData/search_form","/root/initData/searchData/search_form");
+		
+					caption2.text = model.getValue("/root/reqData/searchData/search_form/area")+" "+model.getValue("/root/reqData/searchData/search_form/bonm")+"센터 ("+model.getValue("/root/reqData/searchData/search_form/valmm")+")";
+					
+					search();
+				}
+				
+				function search()
+				{
+					remakeNode("/root/tempData/resTemp");
+					model.send("PID5301search", false);					
+					if(!submit_completed())
+						return;
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/dataTemp/listGrid");
+											 	
+				 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/gubun").length == 0)
+						model.alert("데이터가 없습니다.");
+														
+					model.removenode("/root/tempData/resTemp");	
+					PID5301datagrid.rebuild();						
+				}
+				
+				function detailSearch()
+				{					
+					if(PID5301datagrid.textMatrix(PID5301datagrid.row, PID5301datagrid.colRef("rdr_no")) == "")
+						return;
+						
+					model.setValue("/root/resData/gridData/detailData/rdr_no",PID5301datagrid.textMatrix(PID5301datagrid.row, PID5301datagrid.colRef("rdr_no")));
+					model.setValue("/root/resData/gridData/detailData/bocd",PID5301datagrid.textMatrix(PID5301datagrid.row, PID5301datagrid.colRef("bocd")));					
+					openReaderDetailView("/root/resData/gridData/detailData");
+				}
+								
+				function close()
+				{
+					window.close();
+				}			
+				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="830" pageheight="400" style="font-family:굴림; ">
+		<caption id="caption2" style="left:5px; top:5px; width:810px; height:25px; text-align:left; ">
+			<B>상세 내역</B>
+		</caption>
+		<button id="button1" class="btn02" style="left:758px; top:7px; width:52px; height:21px; ">
+			<caption>닫기</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					close();		
+				]]>
+			</script>
+		</button>
+		<datagrid id="PID5301datagrid" nodeset="/root/resData/gridData/listGrid/record" caption="구분^기업코드^기업명^유가월^센터명^독자번호^독자명^부수^단가^금액" colwidth="80,80,80,80,80,80,80,80,80,80" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" selectionmode="free" rowsep="|" colsep="^" tooltip="true" style="left:10px; top:30px; width:800px; height:350px; ">
+			<col ref="gubun" format="yyyy-mm"/>
+			<col ref="dncomp" style="text-align:center; "/>
+			<col ref="dncompnm" style="text-align:center; "/>
+			<col ref="valmm" style="text-align:center; "/>
+			<col ref="bonm" style="text-align:center; "/>
+			<col ref="rdr_no" style="color:blue; cursor:hand; ">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID5301datagrid.mouseCol>PID5301datagrid.fixedCols-1 && PID5301datagrid.mouseRow>PID5301datagrid.fixedRows-1)
+					       {
+							detailSearch();
+					       }
+					}			
+					]]>
+				</script>
+			</col>
+			<col ref="rdrnm" style="text-align:center; "/>
+			<col ref="qty" format="(-)#,###" style="text-align:right; "/>
+			<col ref="subsuprc" format="(-)#,###" style="text-align:right; "/>
+			<col ref="cnfm_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="bocd" visibility="hidden"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

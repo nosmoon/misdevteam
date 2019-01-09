@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_BNS_1900.xrw
+* 기능 : 판매 - 배달용품관리 - 배달용품 (세금) 계산서 생성
+* 작성일자 : 2009.04.30
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var bgn_yymm		= model.getValue("/root/reqData/searchData/bgn_yymm");
+					var end_yymm		= model.getValue("/root/reqData/searchData/end_yymm");
+					
+					if ( bgn_yymm == ""  ){
+						commAlert("기준시작년월이 없습니다");
+						return;
+					}
+					
+					if ( end_yymm == ""  ){
+						model.setValue("/root/reqData/searchData2/end_yymm", bgn_yymm);
+
+					}
+					
+					if ( bgn_yymm > end_yymm){
+						commAlert("기준시작년월이 기준종료년월보다 클 수 없습니다");
+						return;
+					}
+					
+					var stmt_issu_clsf	= model.getValue("/root/reqData/searchData/stmt_issu_clsf");
+					model.setValue("/root/reqData/searchData2/stmt_issu_clsf", stmt_issu_clsf);
+					
+					var action = "se_bns_1910_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					model.refresh();
+				}
+				
+				function goClos(clos_yn, clos_gbn){
+					var msg				= "";
+					var stmt_issu_clsf	= model.getValue("/root/reqData/searchData2/stmt_issu_clsf");
+					
+					if ( clos_yn == "" ){
+						commAlert("생성/취소 구분이 없습니다.");
+						return;
+					}
+					
+					if ( clos_gbn == "1" ){
+						msg = "1차";
+					} else {
+						msg = "2차";
+					}
+					
+					if ( stmt_issu_clsf == "2" ){
+						msg += " 세금";
+					} 
+					
+					if ( clos_yn == "Y" ){
+						msg += " 계산서 생성";
+					} else {
+						msg += " 계산서 취소";
+					}
+					
+					var row = datagrid1.row;
+					if ( row == "" || row == -1 ){
+						commAlert(msg + "할 대상이 없습니다.");
+						return;
+					}
+					
+					var val = window.alert(msg + " 하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+
+					var tms_yn_1 = datagrid1.valueMatrix(row, 2);
+					var tms_yn_2 = datagrid1.valueMatrix(row, 3);
+					
+					if ( clos_gbn == "1" ){
+						if ( clos_yn == "Y" && tms_yn_1 == "Y" ) {
+							commAlert("이미 1차 (세금)계산서가 생성 되었습니다.");
+							return;
+						}
+						if ( clos_yn == "N" && tms_yn_1 == "N" ) {
+							commAlert("1차 (세금)계산서가 생성 되지 않았습니다.");
+							return;
+						}
+						if ( clos_yn == "N" && tms_yn_2 == "Y" ) {
+							commAlert("2차 (세금)계산서가 생성되어 취소 할 수 없습니다.");
+							return;
+						}
+						
+					} else if ( clos_gbn == "2" ){
+						if ( clos_yn == "Y" && tms_yn_1 != "Y" ) {
+							commAlert("1차 (세금)계산서가 생성 되지 않았습니다.");
+							return;
+						}
+						if ( clos_yn == "Y" && tms_yn_2 == "Y" ) {
+							commAlert("이미 2차 (세금)계산서가 생성 되었습니다.");
+							return;
+						}
+						if ( clos_yn == "N" && tms_yn_2 == "N" ) {
+							commAlert("2차 (세금)계산서가 생성되지 않았습니다.");
+							return;
+						}
+					}
+                    
+					var yymm = datagrid1.valueMatrix(row, 1);
+					
+					if ( yymm == "" ){
+						commAlert(msg + "년월이 없습니다");
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData2/clos_yn"	, clos_yn	);
+					model.setValue("/root/reqData/searchData2/tms"		, clos_gbn	);
+					model.setValue("/root/reqData/searchData2/yymm"		, yymm		);
+					
+					var action = "se_bns_1920_a";
+					model.send(action);
+					goSearch();
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<rowInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<bgn_yymm/>
+							<end_yymm/>
+							<stmt_issu_clsf>1</stmt_issu_clsf>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData2>
+							<yymm/>
+							<clos_yn/>
+							<tms/>
+							<stmt_issu_clsf/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<yymm/>
+									<clos_yn_1/>
+									<clos_yn_2/>
+									<qunt/>
+									<uprc/>
+									<sale_amt/>
+									<fpymt_amt/>
+									<net_sale_amt/>
+									<vat_amt/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				/*
+					var action 		= "se_bns_1900_m";
+					model.send(action);
+					
+					var bgn_yymm		= model.getValue("/root/initData/bgn_yymm");			  
+					var end_yymm		= model.getValue("/root/initData/end_yymm");			  
+					
+					model.setValue("/root/reqData/searchData/bgn_yymm"	, bgn_yymm);
+					model.setValue("/root/reqData/searchData/end_yymm"	, end_yymm);
+					*/
+					var prvyymm = dateAdd('m', -3, getCurrentMonth() +"01");		  
+					prvyymm = prvyymm.substring(0,6);
+					
+					model.setValue("/root/reqData/searchData/bgn_yymm"	, prvyymm);
+					model.setValue("/root/reqData/searchData/end_yymm"	, getCurrentMonth());
+					//model.setValue("/root/reqData/searchData2/yymm"		, yymm);
+					
+					model.refresh();
+
+					
+				]]>
+			</script>
+			<submission id="se_bns_1900_m" action="/se/bns/1900" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/initData/comboSet"/>
+			<submission id="se_bns_1910_l" ref="/root/reqData/searchData" action="/se/bns/1910" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData"/>
+			<submission id="se_bns_1920_a" ref="/root/reqData/searchData2" action="/se/bns/1920" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" datatype="xml" allowselection="false" caption="기준년월^생성여부^생성여부^부수^단가^매출액^공제금^순매출액^부가세|기준년월^1차^2차^부수^단가^매출액^공제금^순매출액^부가세" colwidth="80, 50, 50, 100, 100, 130, 130, 130, 130, 130" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" colsep="#" style="left:11px; top:120px; width:926px; height:605px; ">
+			<col ref="yymm" format="yyyy-mm"/>
+			<col ref="clos_yn_1"/>
+			<col ref="clos_yn_2"/>
+			<col ref="qunt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="uprc" format="(-)#,###" style="text-align:right; "/>
+			<col ref="sale_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="fpymt_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="net_sale_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="vat_amt" format="(-)#,###" style="text-align:right; "/>
+		</datagrid>
+		<group id="group_scr" ref="/root/reqData/searchData/medi_cd" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">기준년월</caption>
+			<input id="input3" ref="/root/reqData/searchData/bgn_yymm" navindex="1" class="req" format="yyyy-mm" caption="마감시작년월" style="left:87px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/bgn_yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<input id="input1" ref="/root/reqData/searchData/end_yymm" navindex="1" format="yyyy-mm" caption="마감종료년월" style="left:192px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input1.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/end_yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<caption id="caption91" style="left:178px; top:3px; width:15px; height:20px; ">~</caption>
+			<caption id="caption1" class="list_cap01" style="left:293px; top:0px; width:70px; height:26px; ">구분</caption>
+			<select1 id="radio1" ref="/root/reqData/searchData/stmt_issu_clsf" overflow="visible" appearance="full" cols="2" style="left:368px; top:6px; width:400px; height:22px; border-style:none; ">
+				<choices>
+					<item>
+						<label>계산서</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>세금계산서</label>
+						<value>2</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn04" crud="C" style="left:782px; top:44px; width:90px; height:21px; ">
+			<caption>2차생성취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goClos("N", "2");
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" crud="R" style="left:487px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" crud="C" style="left:555px; top:44px; width:63px; height:21px; ">
+			<caption>1차생성</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goClos("Y", "1");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn04" crud="C" style="left:623px; top:44px; width:90px; height:21px; ">
+			<caption>1차생성취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goClos("N", "1");
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn03" crud="C" style="left:714px; top:44px; width:63px; height:21px; ">
+			<caption>2차생성</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goClos("Y", "2");
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>특별가감내역 팝업 화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+						</searchData>
+						<reqForm>
+							<evlu_yy/>
+							<tms_clsf/>
+							<emp_no/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<sum_str/>
+							<point_str/>
+							<sum/>
+							<spcl_plus_point/>
+							<spcl_minus_point/>
+						</resForm>
+						<gridData>
+							<record>
+								<proc_stat_nm/>
+								<main_insp_dt/>
+								<prz_pnsh_nm/>
+								<point/>
+								<remk/>
+								<case_nm/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.setValue("/root/reqData/reqForm/evlu_yy",window.opener.model1.getValue("/root/reqData/fwdData/evlu_yy"));
+					model1.setValue("/root/reqData/reqForm/tms_clsf",window.opener.model1.getValue("/root/reqData/fwdData/tms_clsf"));
+					model1.setValue("/root/reqData/reqForm/emp_no",window.opener.model1.getValue("/root/reqData/fwdData/emp_no"));
+					//model1.setValue("/root/resData/resForm/sum_str","0 점");
+					//model1.setValue("/root/resData/resForm/point_str","최대가산점 0점, 최대감산점 0점");
+					model1.send("hd_evlu_2801_l");
+					
+					if(submit_completed()){
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.setValue("/root/resData/resForm/sum_str",model1.getValue("/root/dataSet/sum") + " 점");
+						model1.setValue("/root/resData/resForm/point_str","MAX ("+model1.getValue("/root/dataSet/spcl_plus_point")+"점), MIN ("+model1.getValue("/root/dataSet/spcl_minus_point")+"점)");
+						caption4.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+						model1.removeNode("/root/dataSet");
+						model.refresh();
+						datagrid1.subtotalPosition = "below";
+						datagrid1.subtotal("sum", datagrid1.row, datagrid1.colRef("point"), "format:#,###; ", "background-color:#ffff00; font-weight:bold; ", 1, "소계");
+					}
+				]]>
+			</script>
+			<submission id="hd_evlu_2801_l" action="/servlet/hd/evlu/2801" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;2,30;2,39;2,746;2,59;1,936;1,231;1,290;1,437;2,352;2,358;" style="font-family:굴림; ">
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<!--group id="group_line" class="gro_line" style="left:10px; top:72px; width:926px; height:5px; "/-->
+		<!-- 피평가자 평가표 작성 -->
+		<caption id="maintitle" class="tit01" style="left:1.33%; top:2.50%; width:66.67%; height:27px; ">특별가감 내역</caption>
+		<caption id="caption16" class="tit02" visibility="hidden" style="left:2.22%; top:9.75%; width:95.56%; height:5.00%; ">특별가감 내역</caption>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" allowselection="false" allowuserresize="false" autoresize="true" caption="포상(징계)명^건명^점수" colsep="^" colwidth="110, 240,55" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:2.22%; top:16.75%; width:95.11%; height:68.00%; ">
+			<col ref="prz_pnsh_nm"/>
+			<col autonext="true" ref="case_nm" style="text-align:left; "/>
+			<col ref="point"/>
+		</datagrid>
+		<caption id="caption1" class="list_cap01" style="left:2.22%; top:84.50%; width:49.11%; height:5.00%; ">반영점수</caption>
+		<caption id="caption2" ref="/root/resData/resForm/sum_str" class="list_cap02" style="left:51.11%; top:84.50%; width:13.56%; height:5.00%; "/>
+		<caption id="caption3" ref="/root/resData/resForm/point_str" class="list_cap02" style="left:64.44%; top:84.50%; width:32.89%; height:5.00%; "/>
+		<caption id="caption4" style="left:75.56%; top:90.75%; width:22.22%; height:5.00%; text-align:right; "/>
+		<button id="button1" class="btn02" style="left:85.56%; top:3.25%; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+						window.close();		
+					]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

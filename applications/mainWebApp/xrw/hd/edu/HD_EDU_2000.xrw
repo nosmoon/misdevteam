@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>사내어학과정신청</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_edu_2000_m>
+							<dataSet>
+								<xx_emp_no_010/>
+								<xx_proc_stat_010/>
+								<xx_proc_stat_020/>
+								<xx_pr_job_clsf_20/>
+								<xx_annc_clsf/>
+							</dataSet>
+						</hd_edu_2000_m>
+						<session/>
+						<comboSet>
+							<combo1>
+								<item/>
+							</combo1>
+							<combo2>
+								<item/>
+							</combo2>
+							<combo3>
+								<item/>
+							</combo3>
+							<combo4>
+								<item/>
+							</combo4>
+							<combo5>
+								<item/>
+							</combo5>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchInfoData>
+							<emp_no/>
+							<nm_korn/>
+							<dept_nm/>
+							<posi_nm/>
+						</searchInfoData>
+						<searchData>
+							<cour_yyyymm/>
+							<cour_lng_cd/>
+							<cour_obj_cd/>
+							<cour_tm_cd/>
+							<lv_cd/>
+							<lv_test_req_cd/>
+							<tel_no/>
+							<remk/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<searchData2>
+							<fr_cour_yyyymm/>
+							<to_cour_yyyymm/>
+						</searchData2>
+						<multiUpDate/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<msg/>
+						<gridData2>
+							<record>
+								<proc_stat/>
+								<proc_stat_nm/>
+								<cancel_yn/>
+								<cour_yyyymm/>
+								<cour_lng_cd/>
+								<cour_lng_cd_nm/>
+								<cour_obj_cd/>
+								<cour_obj_cd_nm/>
+								<cour_tm_cd/>
+								<cour_tm_cd_nm/>
+								<lv_cd/>
+								<lv_cd_nm/>
+								<lv_test_req_cd/>
+								<lv_test_req_cd_nm/>
+								<tel_no/>
+								<emp_no/>
+								<occr_dt/>
+								<seq/>
+							</record>
+						</gridData2>
+						<del_process>
+							<emp_no/>
+							<occr_dt/>
+							<seq/>
+						</del_process>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setEmp_no(emp_no, nm_korn){
+						model1.setValue("/root/reqData/searchInfoData/emp_no", emp_no);
+						//개인정보 가꼬오기.. 대표직책으로 
+						model1.send("hd_duty_1113");
+						model1.copyNode("/root/reqData/searchInfoData", "/root/dataSet/CURLIST/record");
+						model1.removenode("/root/dataSet");
+						group1.refresh();
+						//결재자 셋팅
+						getApp_emp_no_getRef("/root/reqData/searchInfoData/emp_no");
+						//신청부분 초기화
+						//model1.setValue("/root/reqData/searchData/cour_yyyymm","");
+						model1.setValue("/root/reqData/searchData/cour_lng_cd","");
+						model1.setValue("/root/reqData/searchData/cour_obj_cd","");
+						model1.setValue("/root/reqData/searchData/cour_tm_cd","");
+						model1.setValue("/root/reqData/searchData/lv_cd","");
+						model1.setValue("/root/reqData/searchData/lv_test_req_cd","");
+						model1.setValue("/root/reqData/searchData/tel_no","");
+						model1.setValue("/root/reqData/searchData/remk","");
+						caption17.value = "";
+						caption18.value = "";
+						caption19.value = "";
+						caption20.value = "";
+						caption23.value = "";
+						group2.refresh();
+						// 하단그리드 조회
+						button2.dispatch("onclick");
+					}
+					
+					function datagrid2_search(){
+						group3.refresh();
+       					//색,이미지 초기화
+						for(i = datagrid2.fixedRows; i < datagrid2.rows; i++){
+							datagrid2.rowStyle(i,"all","color")="";	
+							datagrid2.cellstyle("background-image", i, datagrid2.colRef("cancel_yn")) = "";
+						}
+						model1.removenode("/root/resData/gridData2");
+						model1.makeNode("/root/resData/gridData2");
+						group3.refresh();
+						model1.send("hd_edu_2010");
+						model1.copyNode("/root/resData/gridData2","/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						group3.refresh();
+						rowCnt.value = "총 "+ (parseInt(datagrid2.rows - datagrid2.fixedRows)) + " 건";
+						
+						changeGrid();
+					}
+					
+					function changeGrid(){
+						
+						//진행상태 삭제가능할 시 파란색으로 
+						//삭제버튼 만들기
+						for(i = datagrid2.fixedRows; i < datagrid2.rows; i++){
+							var tmp1 = datagrid2.valueMatrix(i,datagrid2.colRef("proc_stat"));
+							//if( tmp1 < "15" && tmp1 != ""){
+							if( tmp1 < model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_proc_stat_010") && tmp1 != ""){
+								datagrid2.rowStyle(i,"all","color")="#0000FF";	
+								datagrid2.cellstyle("background-image", i, datagrid2.colRef("cancel_yn")) = "../../../images/btn_s_5.gif";
+							}
+						}
+					}
+					
+					function datagrid2_refresh(){
+						//하단 그리드부분 refresh
+						model1.setValue("/root/reqData/searchData2/fr_cour_yyyymm",commCurDate("y")+"01" );
+						model1.setValue("/root/reqData/searchData2/to_cour_yyyymm",addDate("m", 1, commCurDate("ymd"), "").substr(0,6)  );
+						group3.refresh();
+						datagrid2_search();
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//콤보가꼬오기.
+					model1.send("hd_edu_2000");
+					
+					model1.copyNode("/root/initData/comboSet/combo1", "/root/dataSet/combo1");
+					model1.copyNode("/root/initData/comboSet/combo2", "/root/dataSet/combo2");
+					model1.copyNode("/root/initData/comboSet/combo3", "/root/dataSet/combo3");
+					model1.copyNode("/root/initData/comboSet/combo4", "/root/dataSet/combo4");
+					model1.copyNode("/root/initData/comboSet/combo5", "/root/dataSet/combo5");
+					
+					model1.setValue("/root/initData/hd_edu_2000_m/dataSet/xx_emp_no_010",model1.getValue("/root/dataSet/xx_emp_no_010"));
+					model1.setValue("/root/initData/hd_edu_2000_m/dataSet/xx_proc_stat_010",model1.getValue("/root/dataSet/xx_proc_stat_010"));
+					model1.setValue("/root/initData/hd_edu_2000_m/dataSet/xx_proc_stat_020",model1.getValue("/root/dataSet/xx_proc_stat_020"));
+					model1.setValue("/root/initData/hd_edu_2000_m/dataSet/xx_pr_job_clsf_20",model1.getValue("/root/dataSet/xx_pr_job_clsf_20"));
+					model1.setValue("/root/initData/hd_edu_2000_m/dataSet/xx_annc_clsf",model1.getValue("/root/dataSet/xx_annc_clsf"));
+					
+					model.refresh();
+					
+					/*
+					alert(model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_emp_no_010"));
+					alert(model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_proc_stat_010"));
+					alert(model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_proc_stat_020"));
+					alert(model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_pr_job_clsf_20"));
+					alert(model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_annc_clsf"));
+					*/
+					
+					model1.removenode("/root/dataSet");
+					
+					
+					
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "사내어학과정신청";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					//node셋팅
+					setResetRef();
+					//session의 결재자 정보
+					getApp_emp_no_ready();
+					//session에따라 대상자변경가능자
+					var obj = htmldocument.SessionInfo;
+					model1.setValue("/root/reqData/searchInfoData/emp_no",obj.emp_no.value);
+					output10.refresh();
+					//if(obj.emp_no.value =="it0022"||obj.emp_no.value =="202029"||obj.emp_no.value =="209043"){
+						
+					var pattern = ","+obj.emp_no.value+",";
+					//var pattern = ","+"it0022"+",";
+					var validation  = (","+model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_emp_no_010")+",").indexOf(pattern)>-1;
+					//alert(validation);
+					if(validation){
+						//접근권한부서
+						setDeptCdCombo(combo200);
+						//부서정보 보이기
+						input100.visible = true;
+						caption203.visible = true;
+						combo200.visible = true;
+						caption204.visible = true;
+						//조회자 보이기
+						input8.visible = true;
+						//output1.visible = true;
+					}
+					//개인정보 가꼬오기.. 대표직책으로 
+					model1.send("hd_duty_1113");
+					model1.copyNode("/root/reqData/searchInfoData", "/root/dataSet/CURLIST/record");
+					model1.removenode("/root/dataSet");
+					group1.refresh();
+					
+					var first_date = commCurDate("ymd").substr(0,6)+"01" ;
+					//radio1.attribute("background-color") = "#eaeaea";
+					model1.setValue("/root/reqData/searchData/cour_yyyymm",  addDate("m", 1, commCurDate("ymd"), "").substr(0,6) );
+					//model1.setValue("/root/reqData/searchData/cour_yyyymm",  first_date.substr(0,6) );   //최원형씨 요청 
+					model1.setValue("/root/reqData/searchData2/fr_cour_yyyymm",commCurDate("y")+"01" );
+					//model1.setValue("/root/reqData/searchData2/to_cour_yyyymm",addDate("m", 1, commCurDate("ymd"), "").substr(0,6) );
+					model1.setValue("/root/reqData/searchData2/to_cour_yyyymm",first_date.substr(0,6) );
+					group3.refresh();
+					
+					
+					
+					
+					combo2.disabled = true;
+					combo2.attribute("class") = "";
+					model1.refresh();
+					// 하단그리드 조회
+					button2.dispatch("onclick");
+				]]>
+			</script>
+			<submission id="hd_duty_1108" action="/hd/duty/1108" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1109" action="/hd/duty/1109" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_edu_2030" action="/hd/edu/2030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/del_process" resultref="/root/tempData"/>
+			<submission id="hd_edu_2020" action="/hd/edu/2020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1113" action="/hd/duty/1113" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchInfoData/emp_no" resultref="/root/tempData"/>
+			<submission id="hd_edu_2010" action="/hd/edu/2010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_edu_2000" action="/hd/edu/2000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_edu_2002" action="/hd/edu/2002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_edu_2003" action="/hd/edu/2003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/HD_Common.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,936;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<group id="group3" style="left:10px; top:377px; width:926px; height:328px; ">
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="진행상태코드^진행상태^삭제^수강월^COUR_LNG_CD^신청언어^COUR_OBJ_CD^신청과목^COUR_TM_CD^교육시간^LV_CD^레벨^LV_TEST_REQ_CD^레벨테스트신청^연락처^EMP_NO^OCCR_DT^SEQ" colsep="#" colwidth="50, 100, 72, 90, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" frozencols="4" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:0px; top:50px; width:900px; height:235px; ">
+				<col ref="proc_stat" visibility="hidden"/>
+				<col ref="proc_stat_nm"/>
+				<col ref="cancel_yn"/>
+				<col ref="cour_yyyymm" format="yyyy-mm"/>
+				<col ref="cour_lng_cd" visibility="hidden"/>
+				<col ref="cour_lng_cd_nm" style="text-align:left; "/>
+				<col ref="cour_obj_cd" visibility="hidden"/>
+				<col ref="cour_obj_cd_nm" style="text-align:left; "/>
+				<col ref="cour_tm_cd" visibility="hidden"/>
+				<col ref="cour_tm_cd_nm" style="text-align:left; "/>
+				<col ref="lv_cd" visibility="hidden"/>
+				<col ref="lv_cd_nm" style="text-align:left; "/>
+				<col ref="lv_test_req_cd" visibility="hidden"/>
+				<col ref="lv_test_req_cd_nm" style="text-align:left; "/>
+				<col ref="tel_no" style="text-align:left; "/>
+				<col ref="emp_no" visibility="hidden"/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var col = datagrid2.col;
+						var row = datagrid2.row;
+						
+						if( col == datagrid2.colRef("cancel_yn") ){ //삭제버튼 클릭시.
+							//if( datagrid2.valueMatrix(row, datagrid2.colRef("proc_stat")) < "14" ){
+								if( datagrid2.valueMatrix(row, datagrid2.colRef("proc_stat")) < model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_proc_stat_020") ){
+								datagrid2.rowStyle(row,"all","color")="#CC0000";
+								
+								//삭제값 셋팅
+								model1.setValue("/root/resData/del_process/emp_no",datagrid2.valueMatrix(row, datagrid2.colRef("emp_no") ) );
+								model1.setValue("/root/resData/del_process/occr_dt",datagrid2.valueMatrix(row, datagrid2.colRef("occr_dt") ) );
+								model1.setValue("/root/resData/del_process/seq",datagrid2.valueMatrix(row, datagrid2.colRef("seq") ) );
+								//return;
+								//삭제 실행한다...
+								if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+									return;
+								}
+								model1.send("hd_edu_2030");
+								if(submit_completed()) {
+									// 하단그리드 조회
+									model1.refresh();
+									//datagrid2_refresh();
+									button2.dispatch("onclick");
+									//model1.removenode("/root/resData/gridData2");
+   								    //model1.makeNode("/root/resData/gridData2");
+									//model1.refresh();
+								}
+							}
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="onmouseout">
+					<![CDATA[
+						changeGrid();
+					]]>
+				</script>
+			</datagrid>
+			<caption id="caption3" class="tit02" style="left:0px; top:0px; width:205px; height:20px; font-weight:bold; ">지난 신청내역 조회 및 삭제</caption>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:20px; width:90px; height:26px; text-align:center; ">수강월</caption>
+			<caption id="caption6" class="list_cap02" style="left:89px; top:20px; width:301px; height:26px; text-align:center; "/>
+			<input id="input3" ref="/root/reqData/searchData2/fr_cour_yyyymm" class="req" inputtype="date" format="yyyy-mm" style="left:94px; top:24px; width:100px; height:18px; "/>
+			<input id="input4" ref="/root/reqData/searchData2/to_cour_yyyymm" class="req" inputtype="date" format="yyyy-mm" style="left:217px; top:24px; width:100px; height:18px; "/>
+			<caption id="caption11" style="left:191px; top:26px; width:25px; height:15px; text-align:center; ">~</caption>
+			<caption id="rowCnt" style="left:815px; top:295px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+			<button id="button2" class="btn02" style="left:325px; top:24px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var fr_dt = model1.getValue("/root/reqData/searchData2/fr_cour_yyyymm");
+						var to_dt = model1.getValue("/root/reqData/searchData2/to_cour_yyyymm");
+						if(fr_dt == "" || to_dt == ""){
+							alert("기간설정을 입력 후 조회해주세요.");
+							return;
+						}
+						if(fr_dt.length != 6 || to_dt.length != 6){
+							alert("기간설정을 정확히 입력해주세요.");
+							return;
+						}
+						if(fr_dt > to_dt){
+							alert("기간설정을 확인해 주세요.");
+							return;
+						}
+						datagrid2_search();
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA2" class="btn02" style="left:787px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						caption17.value = "";
+						caption18.value = "";
+						caption19.value = "";
+						caption20.value = "";
+						caption23.value = "";
+						group2.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:845px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(window.type == "mdi"){
+							viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" style="left:10px; top:170px; width:926px; height:195px; background-color:#ffffff; border-color:#ff0000; border-style:solid; ">
+			<caption id="caption26" class="list_cap02" style="left:244px; top:156px; width:676px; height:26px; text-align:center; "/>
+			<caption id="caption22" class="list_cap02" style="left:15px; top:6px; width:220px; height:26px; text-align:center; "/>
+			<caption id="caption16" class="list_cap02" style="left:15px; top:156px; width:220px; height:26px; text-align:center; "/>
+			<caption id="caption14" class="list_cap02" style="left:15px; top:131px; width:220px; height:26px; text-align:center; "/>
+			<caption id="caption12" class="list_cap02" style="left:15px; top:106px; width:220px; height:26px; text-align:center; "/>
+			<caption id="caption8" class="list_cap02" style="left:15px; top:81px; width:220px; height:26px; text-align:center; "/>
+			<caption id="caption5" class="list_cap02" style="left:15px; top:56px; width:220px; height:26px; text-align:center; "/>
+			<caption id="caption37" class="list_cap02" style="left:15px; top:31px; width:220px; height:26px; text-align:center; "/>
+			<caption id="caption1" class="list_cap03" style="left:5px; top:31px; width:90px; height:26px; ">신청언어</caption>
+			<button id="button16" class="btn04" style="left:295px; top:6px; width:88px; height:21px; ">
+				<caption>결재신청</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!commReqCheck("group2")) return;
+						if (window.alert("결재신청 하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						model1.send("hd_edu_2020");
+						model1.removenode("/root/dataSet");
+						if(submit_completed()) {
+							//eip공지 신청
+							//noticeEipSub("HD_EDU_2100", "사내어학과정승인", "/xrw/hd/edu/HD_EDU_2100.xrw", "20", "사내어학과정", "20");
+							noticeEipSub("HD_EDU_2100", "사내어학과정승인", "/xrw/hd/edu/HD_EDU_2100.xrw", model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_pr_job_clsf_20"), "사내어학과정", model1.getValue("/root/initData/hd_edu_2000_m/dataSet/xx_annc_clsf"));
+							
+							//하단그리드 조회
+							datagrid2_refresh();
+							
+							var first_date = commCurDate("ymd").substr(0,6)+"01" ;
+							//신청부분 초기화
+							model1.setValue("/root/reqData/searchData/cour_yyyymm",  addDate("m", 1, commCurDate("ymd"), "").substr(0,6) );
+							//model1.setValue("/root/reqData/searchData/cour_yyyymm", first_date.substr(0,6) ); //최원형씨 요청 
+							
+							model1.setValue("/root/reqData/searchData/cour_lng_cd","");
+							model1.setValue("/root/reqData/searchData/cour_obj_cd","");
+							model1.setValue("/root/reqData/searchData/cour_tm_cd","");
+							model1.setValue("/root/reqData/searchData/lv_cd","");
+							model1.setValue("/root/reqData/searchData/lv_test_req_cd","");
+							model1.setValue("/root/reqData/searchData/tel_no","");
+							model1.setValue("/root/reqData/searchData/remk","");
+							caption17.value = "";
+							caption18.value = "";
+							caption19.value = "";
+							caption20.value = "";
+							caption23.value = "";
+							
+							combo2.disabled = true;
+							combo2.attribute("class") = "";
+							
+							group2.refresh();
+						}
+					]]>
+				</script>
+			</button>
+			<select1 id="combo1" ref="/root/reqData/searchData/cour_lng_cd" class="req" appearance="minimal" caption="신청언어" style="left:100px; top:36px; width:125px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/combo1/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var tmp = combo1.focusIndex+1;
+						var mang_cd_12 = model1.getValue("/root/initData/comboSet/combo1/item["+tmp+"]/mang_cd_12");
+						caption17.value = mang_cd_12;
+						caption17.refresh();
+						
+						model1.setValue("/root/reqData/searchData/cour_obj_cd","");
+						caption18.value = "";
+						combo2.refresh();
+						
+//						if(combo1.value != "101"){
+//							combo2.disabled = true;
+//							combo2.attribute("class") = "";
+//						}else if(combo1.value = "101"){
+	                         
+							
+							var getComboLabel = combo1.label;
+							var getComboValue = combo1.value;
+							
+						//	model1.setValue("/root/reqData/searchData/cour_lng_cd", getComboValue);
+							model1.removenode("/root/tempData");
+							model1.send("hd_edu_2002");
+							model1.copyNode("/root/initData/comboSet/combo2", "/root/dataSet/combo2");
+					        model1.removenode("/root/dataSet");
+					
+							combo2.refresh();
+							combo2.disabled = false;
+							combo2.attribute("class") = "req";
+//						}
+//						combo2.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption2" class="list_cap03" style="left:5px; top:56px; width:90px; height:26px; ">신청과목</caption>
+			<select1 id="combo2" ref="/root/reqData/searchData/cour_obj_cd" class="req" appearance="minimal" caption="신청과목" style="left:100px; top:61px; width:125px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/combo2/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var getComboLabel = combo2.label;
+							var getComboValue = combo2.value;
+							
+						//	model1.setValue("/root/reqData/searchData/cour_lng_cd", getComboValue);
+							model1.removenode("/root/tempData");
+							model1.send("hd_edu_2003");
+							model1.copyNode("/root/initData/comboSet/combo3", "/root/dataSet/combo3");
+							model1.copyNode("/root/initData/comboSet/combo4", "/root/dataSet/combo4");
+
+					        model1.removenode("/root/dataSet");
+							
+						var tmp = combo2.focusIndex+1;
+						var mang_cd_12 = model1.getValue("/root/initData/comboSet/combo2/item["+tmp+"]/mang_cd_12");
+						caption18.value = mang_cd_12;
+						caption18.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption7" class="list_cap03" style="left:5px; top:81px; width:90px; height:26px; ">교육시간</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/cour_tm_cd" class="req" appearance="minimal" caption="교육시간" style="left:100px; top:86px; width:125px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/combo3/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var tmp = combo3.focusIndex+1;
+						var mang_cd_12 = model1.getValue("/root/initData/comboSet/combo3/item["+tmp+"]/mang_cd_12");
+						caption19.value = mang_cd_12;
+						caption19.refresh();
+					]]>
+				</script>
+			</select1>
+			<select1 id="combo4" ref="/root/reqData/searchData/lv_cd" class="req" appearance="minimal" caption="레벨선택" style="left:100px; top:111px; width:125px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/combo4/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var tmp = combo4.focusIndex+1;
+						var mang_cd_12 = model1.getValue("/root/initData/comboSet/combo4/item["+tmp+"]/mang_cd_12");
+						caption20.value = mang_cd_12;
+						caption20.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption10" class="list_cap03" style="left:5px; top:106px; width:90px; height:26px; ">레벨선택</caption>
+			<caption id="caption13" class="list_cap03" style="left:5px; top:131px; width:90px; height:26px; ">레벨테스트신청</caption>
+			<select1 id="combo5" ref="/root/reqData/searchData/lv_test_req_cd" class="req" appearance="minimal" caption="레벨테스트신청" style="left:100px; top:136px; width:125px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/combo5/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var tmp = combo5.focusIndex+1;
+						var mang_cd_12 = model1.getValue("/root/initData/comboSet/combo5/item["+tmp+"]/mang_cd_12");
+						caption23.value = mang_cd_12;
+						caption23.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption15" class="list_cap03" style="left:5px; top:156px; width:90px; height:26px; ">핸드폰번호</caption>
+			<input id="input1" ref="/root/reqData/searchData/tel_no" caption="연락처" style="left:100px; top:161px; width:125px; height:18px; text-align:left; "/>
+			<caption id="caption17" style="left:295px; top:36px; width:450px; height:20px; "/>
+			<caption id="caption18" style="left:295px; top:61px; width:450px; height:20px; "/>
+			<caption id="caption19" style="left:295px; top:86px; width:450px; height:20px; "/>
+			<caption id="caption20" style="left:295px; top:111px; width:450px; height:20px; "/>
+			<caption id="caption21" class="list_cap03" style="left:5px; top:6px; width:90px; height:26px; ">수강월</caption>
+			<input id="input2" ref="/root/reqData/searchData/cour_yyyymm" class="req" disabled="true" inputtype="date" format="yyyy-mm" caption="수강월" style="left:100px; top:11px; width:125px; height:18px; text-align:center; "/>
+			<caption id="caption23" style="left:295px; top:135px; width:450px; height:20px; "/>
+			<caption id="caption24" class="list_cap03" style="left:234px; top:156px; width:90px; height:26px; ">비고</caption>
+			<input id="input5" ref="/root/reqData/searchData/remk" style="left:330px; top:161px; width:585px; height:18px; "/>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:370px; width:926px; height:5px; "/>
+		<group id="group100" style="left:9px; top:75px; width:856px; height:29px; ">
+			<caption id="caption204" class="list_cap02" visibility="hidden" style="left:433px; top:0px; width:182px; height:26px; text-align:center; "/>
+			<caption id="caption100" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; text-align:center; ">결재자</caption>
+			<caption id="caption101" class="list_cap02" style="left:69px; top:0px; width:296px; height:26px; text-align:center; "/>
+			<input id="input100" visibility="hidden" inputtype="button" style="left:154px; top:4px; width:18px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no_tm");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+			</input>
+			<caption id="caption102" class="list_cap01" style="left:175px; top:0px; width:80px; height:26px; text-align:center; ">직책/직급</caption>
+			<output id="output100" ref="/root/reqData/appData/app_emp_nm" class="req" style="left:72px; top:4px; width:82px; height:18px; text-align:center; "/>
+			<output id="output101" ref="/root/reqData/appData/app_posi_dty" style="left:258px; top:4px; width:100px; height:18px; text-align:center; "/>
+			<caption id="caption203" class="list_cap01" visibility="hidden" style="left:364px; top:0px; width:70px; height:26px; text-align:center; ">부   서</caption>
+			<select1 id="combo200" ref="/root/reqData/appData/app_dept_cd" class="req" visibility="hidden" appearance="minimal" style="left:438px; top:4px; width:170px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/combo200/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-select">
+					<![CDATA[
+						getApp_emp_no("/root/reqData/appData/app_dept_cd");
+					]]>
+				</script>
+			</select1>
+			<output id="output1" ref="/root/reqData/appData/app_emp_no" visibility="hidden" style="left:625px; top:5px; width:100px; height:18px; "/>
+		</group>
+		<caption id="caption9" class="tit02" style="left:10px; top:107px; width:205px; height:20px; font-weight:bold; ">사내어학과정 신청</caption>
+		<group id="group1" style="left:6px; top:125px; width:915px; height:35px; ">
+			<caption id="caption29" class="list_cap02" style="left:20px; top:5px; width:675px; height:25px; "/>
+			<output id="output9" ref="/root/reqData/searchInfoData/posi_nm" style="left:582px; top:9px; width:98px; height:18px; text-align:center; "/>
+			<output id="output10" ref="/root/reqData/searchInfoData/emp_no" appearance="output" style="left:85px; top:9px; width:60px; height:18px; text-align:center; "/>
+			<output id="output11" ref="/root/reqData/searchInfoData/nm_korn" inputtype="button" appearance="output" style="left:150px; top:9px; width:69px; height:18px; text-align:center; "/>
+			<output id="output12" ref="/root/reqData/searchInfoData/dept_nm" style="left:331px; top:9px; width:135px; height:18px; text-align:center; "/>
+			<caption id="caption25" class="list_cap01" style="left:223px; top:5px; width:100px; height:25px; ">부    서</caption>
+			<caption id="caption28" class="list_cap01" style="left:475px; top:5px; width:100px; height:25px; ">직     책</caption>
+			<caption id="caption30" class="list_cap01" style="left:5px; top:5px; width:76px; height:25px; ">사번/성명</caption>
+			<input id="input8" visibility="hidden" inputtype="button" style="left:139px; top:9px; width:18px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+			</input>
+		</group>
+	</xhtml:body>
+</xhtml:html>

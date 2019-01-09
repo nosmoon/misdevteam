@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>공통코드</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<title>약정해지</title>
+					</initData>
+					<reqData>
+						<formData>
+							<promisecode/>
+							<promiseidx/>
+							<memberidx/>
+							<promiseprice/>
+							<stopdate/>
+							<cmsstopdate/>
+							<stopresn/>
+							<cmsstatus/>
+							<mode/>
+							<paymethodcode/>
+						</formData>
+						<aplcForm>
+							<cmpy_cd/>
+							<aplcclsf/>
+							<promiseidx/>
+						</aplcForm>
+					</reqData>
+					<resData>
+						<resform/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					if (model.property("TN_DNS_1060_popup_flag") == "Y" ) {
+						promisecode.value = model.property("TN_DNS_1060_promisecode"); 
+						promiseidx.value = model.property("TN_DNS_1060_promiseidx"); 
+						memberidx.value = model.property("TN_DNS_1060_memberidx"); 
+						promiseprice.value = model.property("TN_DNS_1060_promiseprice"); 
+						cmsstatus.value = model.property("TN_DNS_1060_cmsstatus"); 
+						model.setValue("/root/reqData/formData/paymethodcode",model.property("TN_DNS_1060_paymethodcode")) ;
+						model.setValue("/root/reqData/formData/mode",model.property("TN_DNS_1060_mode")) ;
+						if (model.property("TN_DNS_1060_mode")  == "S"){
+							model.setValue("/root/initData/title","약정해지");							
+						}else{
+							model.setValue("/root/initData/title","약정해지취소");					
+						}
+					}
+					var status = model.property("TN_DNS_1060_cmsstatus");
+					var paymethodcode = model.property("TN_DNS_1060_paymethodcode");
+					stopdate.value = commCurDate();
+					if (status == "3" || status == "4" || status == "5"|| status == "6"|| status == "10"|| status == "11"){
+						caption7.visible = true;
+						cmsstopdate.visible = true;
+						caption8.visible = true;
+						cmsstopdate.value = commCurDate();						
+					}	
+					if (paymethodcode == "M002"){
+						caption7.visible = true;
+						cmsstopdate.visible = true;
+						caption8.visible = true;
+						cmsstopdate.value = commCurDate();						
+					}
+					model.refresh();
+				]]>
+			</script>
+			<submission id="tn_dns_1045_u" action="/tn/dns/1045" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/formData" resultref="/root/resData/MsgData"/>
+			<submission id="tn_lnk_6090_a" action="/tn/lnk/6090" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/aplcForm" resultref="/root/resData/resform"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/fcmc_common.js"/>
+		<script type="javascript">
+			<![CDATA[	
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop400" pagewidth="450" pageheight="150" guideline="1,10;1,440;" style="font-family:굴림; ">
+		<caption id="caption8" class="list_cap02" style="left:10px; top:120px; width:430px; height:26px; ">납입방법이 CMS일 경우, CMS해지도 실행됩니다.</caption>
+		<group id="group_tit" class="gro_tit1_400" style="left:10px; top:5px; width:430px; height:29px; ">
+			<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:0px; top:0px; width:430px; height:32px; ">제목 - Main Title</caption>
+		</group>
+		<caption id="caption4" class="list_cap02" style="left:10px; top:95px; width:430px; height:26px; "/>
+		<caption id="caption2" class="list_cap02" style="left:10px; top:70px; width:430px; height:26px; "/>
+		<button id="button1" class="btn03" style="left:308px; top:9px; width:63px; height:21px; ">
+			<caption>실행</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.setValue("/root/reqData/formData/mode",model.getValue("/root/reqData/formData/mode"));
+					var pay_type = model.getValue("/root/reqData/formData/paymethodcode");
+					model.send("tn_dns_1045_u");
+					if(submit_completed()){	
+						if (model.getValue("/root/reqData/formData/mode") =="S"){
+							show_message("약정해지 되었습니다.","");
+							if(pay_type =="M004"){								
+								set_refvalue("/root/reqData/aplcForm/cmpy_cd", 	  getProperty("ss_cmpycd"));
+								set_refvalue("/root/reqData/aplcForm/aplcclsf",   "D");
+								set_refvalue("/root/reqData/aplcForm/promiseidx", model.getValue("/root/reqData/formData/promiseidx"));
+								model.send("tn_lnk_6090_a");
+								return;
+							}
+						}else{
+							show_message("약정해지취소 되었습니다.","");	
+							if(pay_type =="M004"){								
+								set_refvalue("/root/reqData/aplcForm/cmpy_cd", 	  getProperty("ss_cmpycd"));
+								set_refvalue("/root/reqData/aplcForm/aplcclsf",   "I");
+								set_refvalue("/root/reqData/aplcForm/promiseidx", model.getValue("/root/reqData/formData/promiseidx"));
+								model.send("tn_lnk_6090_a");
+								return;
+							}
+						}
+						model.property("TN_DNS_1060_end") = "N";
+						model.close();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" style="left:375px; top:9px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.property("TN_DNS_1060_end") = "Y";
+					window.close();							
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:70px; width:80px; height:26px; ">해약일자</caption>
+		<caption id="caption9" class="list_cap01" style="left:10px; top:95px; width:80px; height:26px; ">해약사유</caption>
+		<input id="stopresn" ref="/root/reqData/formData/stopresn" imemode="hangul" style="left:95px; top:99px; width:295px; height:18px; "/>
+		<input id="stopdate" ref="/root/reqData/formData/stopdate" inputtype="date" style="left:95px; top:75px; width:100px; height:18px; "/>
+		<caption id="caption5" class="list_cap02" style="left:10px; top:45px; width:430px; height:26px; "/>
+		<caption id="caption3" class="list_cap01" style="left:10px; top:45px; width:80px; height:26px; ">약정코드</caption>
+		<output id="promisecode" ref="/root/reqData/formData/promisecode" style="left:95px; top:50px; width:100px; height:20px; "/>
+		<caption id="caption6" class="list_cap01" style="left:205px; top:45px; width:80px; height:26px; ">약정금액</caption>
+		<output id="promiseprice" format="(-)#,###" style="left:290px; top:49px; width:100px; height:18px; "/>
+		<output id="promiseidx" ref="/root/reqData/formData/promiseidx" visibility="hidden" style="left:299px; top:120px; width:66px; height:18px; "/>
+		<output id="cmsstatus" ref="/root/reqData/formData/cmsstatus" visibility="hidden" style="left:370px; top:120px; width:66px; height:18px; "/>
+		<caption id="caption7" class="list_cap01" visibility="hidden" style="left:205px; top:70px; width:80px; height:26px; ">CMS해지일자</caption>
+		<input id="cmsstopdate" ref="/root/reqData/formData/cmsstopdate" visibility="hidden" inputtype="date" style="left:290px; top:75px; width:100px; height:18px; "/>
+		<output id="memberidx" ref="/root/reqData/formData/memberidx" visibility="hidden" style="left:229px; top:120px; width:66px; height:18px; "/>
+	</xhtml:body>
+</xhtml:html>

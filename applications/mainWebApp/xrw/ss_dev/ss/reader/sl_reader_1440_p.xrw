@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>중지내역</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<postData>
+							<readerStopHisForm>
+								<!-- 실제 데이터 노드들은 유효성 검증을 위해 만들어 놓지 않는다. -->
+								<!--rdr_no/>
+								<medicd/-->
+							</readerStopHisForm>
+						</postData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<nwspsubscntrListSearchForm>
+								<bocd/>
+								<rdr_no/>
+								<medicd/>
+							</nwspsubscntrListSearchForm>
+							<nwspsubscntrDetailSearchForm>
+								<bocd/>
+								<rdr_no/>
+								<medicd/>
+								<cntrno/>
+								<mangno/>
+							</nwspsubscntrDetailSearchForm>
+							<subsCntrListForm/>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<rdr_no/>
+									<medicd/>
+									<cntrno/>
+									<mangno/>
+									<medinm/>
+									<suspdt/>
+									<suspresncd/>
+									<suspresn/>
+									<rdr_extndt/>
+									<valmm/>
+									<rdr_extnno/>
+									<rdr_extntypecd/>
+									<rdr_extntype/>
+									<extnnm/>
+									<subsuprc/>
+									<subsqty/>
+									<dscnamt/>
+									<rdr_extncost/>
+									<freeyn/>
+									<freeclsf/>
+									<bns_itemnm/>
+									<cancposbyn/>
+									<!--추가-->
+									<freeyn_s/>
+									<idx/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-model-destruct">
+				<![CDATA[
+				//종료시에 셋팅.
+				setRdrNo();
+				]]>
+			</script>
+			<submission id="PID1440subSearch" action="/ss/slreader/1445" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/nwspsubscntrListSearchForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1440subCancelStop" action="/ss/slreader/1450" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/subsCntrListForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{					
+					if(instance1.selectNodes("/root/initData/postData/readerStopHisForm/rdr_no").length == 0)
+					{
+						model.alert("유효하지 않은 arguments 입니다.");
+						close();
+					}
+					if(model.getValue("/root/initData/postData/readerStopHisForm/rdr_no") == "" || model.getValue("/root/initData/postData/readerStopHisForm/medicd") == "")
+					{
+						model.alert("독자번호나 매체코드가 셋팅되지 않았습니다.");
+						close();
+					}
+					
+					search(model.getValue("/root/initData/postData/readerStopHisForm/rdr_no"), model.getValue("/root/initData/postData/readerStopHisForm/medicd"));
+				}
+				
+				function search(rdr_no, medicd)
+				{					
+					model.setValue("/root/reqData/reqform/nwspsubscntrListSearchForm/rdr_no", rdr_no);
+					model.setValue("/root/reqData/reqform/nwspsubscntrListSearchForm/medicd", medicd);
+					
+					model.send("PID1440subSearch", false);
+					
+					//기존 매체 그룹버튼 삭제
+					removeAllGroupButton(PID1700group_btnT, "tab");
+					
+					//매체 그룹버튼 생성.
+					var selIdx = 0;
+					var medis = instance1.selectNodes("/root/tempData/resTemp/medicurData/record");
+					if(medis != null)
+					{
+						for(var i=0; i<medis.length; i++)
+						{
+							//group button 생성.
+							var tabMedicd = medis.item(i).selectSingleNode("medicd").nodeValue;
+							var tabAbrv = medis.item(i).selectSingleNode("abrv").nodeValue;
+							var tabDlvqty = medis.item(i).selectSingleNode("dlvqty").nodeValue;
+							var tabCaption = tabAbrv + "-" + tabDlvqty;
+							var prop = "class=tab05; left:" + (92*i+1) + "px; top:0px; width:92px; height:23px; text-align:center; "; 
+							addGroupButton(PID1700group_btnT, "mediBtn"+i, "tab", tabCaption, "search('" + rdr_no + "','" + tabMedicd + "','')", prop);
+							
+							//button 속성 추가.
+							var btn = document.controls("mediBtn"+i);
+							btn.attribute("medicd") = tabMedicd;
+							btn.attribute("abrv") = tabAbrv;
+							btn.attribute("dlvqty") = tabDlvqty;
+							//btn.hint = medis.item(i).selectSingleNode("medinm").nodeValue + ", 배달부수("+ tabDlvqty + "), 구독중인 계약건수("+ medis.item(i).selectSingleNode("cntrcnt").nodeValue + ")";
+							
+							if((medicd == "" && i == 0) || medicd == tabMedicd)
+								btn.selected = true;
+						}
+						
+					}
+					//list.
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+					
+					PID1700group_btnT.refresh();
+					datagrid1.refresh();
+					
+					//선택박스 disable.
+					for(var i=0; i<datagrid1.rows; i++)
+						if(gridRefColValue(datagrid1, i, "cancposbyn") == "N")
+							gridReadOnly(datagrid1, i, "idx");
+							
+					if(instance1.selectNodes("/root/resData/gridData/listGrid/record/rdr_no").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					model.removenode("/root/tempData/resTemp");
+				}
+				
+				function setRdrNo()
+				{
+					var resPath = model.property("RDRSTOPHIS_RES_XPATH");
+	
+					opener.model.removenode(resPath);
+					opener.model.makeNode(resPath + "/rdr_no");
+					opener.model.setValue(resPath + "/rdr_no", model.getValue("/root/initData/postData/readerStopHisForm/rdr_no"));	//받은 rdr_no를 그대로 돌려줌.
+				}
+								
+				function close()
+				{
+					window.close();
+				}
+				
+				function cancelStop()
+				{
+					//servlet에서 권한 없음으로 막혀 있음. 사용 안함.
+					//필요할 경우, makeNodesetToArrayFormNamed 사용.
+					model.send("PID1440subCancelStop", false);
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="900" pageheight="350" idprefix="PID1440" style="font-family:굴림; ">
+		<group id="group1" style="left:10px; top:15px; width:880px; height:25px; ">
+			<caption id="PID1901caption4" class="list_cap03" style="left:0px; top:0px; width:880px; height:25px; text-align:center; ">중지내역</caption>
+		</group>
+		<group id="group2" style="left:10px; top:315px; width:880px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:880px; height:25px; text-align:center; "/>
+			<button id="button1" class="btn_grid02" style="left:440px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="매체명^계약번호^관리번호^구독구분^부수^구독단가^유가월^확장일자^중지일자^중지사유^선택" colsep="^" colwidth="110, 80, 81, 80, 62, 80, 65, 90, 90, 90, 50" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:75px; width:880px; height:235px; ">
+			<col ref="medinm" style="text-align:left; "/>
+			<col ref="cntrno"/>
+			<col ref="mangno"/>
+			<col ref="freeyn_s"/>
+			<col ref="subsqty" format="#,###" style="text-align:right; "/>
+			<col ref="subsuprc" format="#,###" style="text-align:right; "/>
+			<col ref="valmm" format="yyyy/mm/"/>
+			<col ref="rdr_extndt" format="yyyy/mm/dd"/>
+			<col ref="suspdt" format="yyyy/mm/dd"/>
+			<col ref="suspresn" style="text-align:left; "/>
+			<col checkvalue="Y,N" ref="idx" type="checkbox"/>
+			<col ref="rdr_no" visibility="hidden"/>
+			<col ref="medicd" visibility="hidden"/>
+		</datagrid>
+		<button id="button2" class="btn_grid04" style="left:825px; top:55px; width:64px; height:17px; ">
+			<caption>중지취소</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				cancelStop();
+				]]>
+			</script>
+		</button>
+		<group id="PID1700group_btnT" class="gro_tab" style="left:10px; top:50px; width:795px; height:25px; ">
+			<caption id="PID1700caption37" class="tabline" style="left:0px; top:22px; width:390px; height:1px; "/>
+			<!--button id="PID1700btnT1" class="tab05" group="tab" selected="true" style="left:1px; top:0px; width:92px; height:23px; ">
+				<caption>case1</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						model.toggle("case1");
+						model.refresh();
+					]]>
+				</script>
+			</button-->
+		</group>
+	</xhtml:body>
+</xhtml:html>

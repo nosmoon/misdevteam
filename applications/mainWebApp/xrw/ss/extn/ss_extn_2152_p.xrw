@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>기관신규등록</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<eduCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</eduCombo>
+						</comboSet>
+						<pageInfo/>
+						<defaultData>
+							<uid/>
+							<bocd/>
+							<today/>
+						</defaultData>
+						<postData>
+							<readerDsctForm/>
+						</postData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<saveForm>
+								<edutype/>
+								<type1>A</type1>
+								<insttnm/>
+								<ldgrnm/>
+								<tel_no/>
+								<zip/>
+								<addr/>
+								<dtlsaddr/>
+								<cntrbgndd/>
+								<cntrto_dd/>
+								<rdr_extndd/>
+								<bocd/>
+								<bonm/>
+								<subsuprc/>
+								<bns_itemuprc/>
+								<comsuprc/>
+								<remk/>
+							</saveForm>
+							<zipForm>
+								<bocd/>
+								<zip/>
+								<pageno/>
+								<pagesize/>
+								<job_flag/>
+							</zipForm>
+							<bo_enter_search_form>
+								<deptcd/>
+								<areacd/>
+								<bonm/>
+							</bo_enter_search_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID2152subInit" action="/ss/extn/2150" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/resTemp"/>
+			<submission id="PID2152subSave" action="/ss/extn/2170" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/saveForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					commEventHandler(PID2152group_scr);
+					
+					model.send("PID2152subInit", false);
+					model.copyNode("/root/initData/comboSet/eduCombo","/root/initData/codeData/eduCombo"); // 에듀
+					
+					modelCopyValue("/root/reqData/reqform/saveForm/cntrbgndd", "/root/initData/codeData/fromDate");
+					modelCopyValue("/root/reqData/reqform/saveForm/cntrto_dd", "/root/initData/codeData/fromDate");
+					modelCopyValue("/root/reqData/reqform/saveForm/rdr_extndd", "/root/initData/codeData/fromDate");
+					
+					PID2152combo1.select(0);
+					PID2152combo2.value= model.getValue("/root/initData/comboSet/eduCombo/item/value");
+				}
+				
+				function save()
+				{
+					if(!commValidate("PID2152group_scr"))
+						return;
+					 
+					remakeNode("/root/tempData/resTemp");
+					model.send("PID2152subSave", false);
+					
+					if(!submit_completed())
+						return;
+					
+					window.opener.javaScript.init();
+					close();
+				}
+								
+				function onClickZipPopup()
+				{
+					model.setValue("/root/reqData/reqform/zipForm/job_flag", "A");
+					model.setValue("/root/reqData/reqform/zipForm/zip", PID2152input5.value);	//"/root/reqData/reqform/detailForm/vaca_areazip"
+					
+					//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+					openZip("/root/reqData/reqform/zipForm", "/root/tempData/tempZip");
+					
+					if(model.getValue("/root/tempData/tempZip/zip") == "")
+						return;
+					
+					PID2152input5.value = model.getValue("/root/tempData/tempZip/zip");
+					PID2152input4.value = model.getValue("/root/tempData/tempZip/addr");
+				}
+				
+				function onZipKeyDown(pageNo)
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID2152button1");
+						
+						//우편번호 패턴이 아니라면 zip_search 함수를 call 한다.
+						if(!validate_zip(PID2152input5.value))
+							onClickZipPopup();
+						else
+						{
+							model.setValue("/root/reqData/reqform/zipForm/zip", PID2152input5.value);
+							model.setValue("/root/reqData/reqform/zipForm/pageno", pageNo);
+							model.setValue("/root/reqData/reqform/zipForm/pagesize", "10000");
+							
+							searchZip("/root/reqData/reqform/zipForm", "/root/tempData/resTemp/zipGrid");
+							
+							if((instance1.selectNodes("/root/tempData/resTemp/zipGrid/record/zip")).length == 1)
+							{
+								PID2152input5.value = model.getValue("/root/tempData/resTemp/zipGrid/record/zip");
+								PID2152input4.value = model.getValue("/root/tempData/resTemp/zipGrid/record/addr");
+							}
+							else
+								onClickZipPopup();
+						}
+					}
+				}
+				
+				function onKeyDown()
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID2152button2");
+		
+						if(PID2152input10.value == '')
+							onClickBranchPopup();
+						 else
+						{
+							searchBranchByName("/root/reqData/reqform/saveForm", "/root/tempData/resTemp/branchGrid");
+	
+							if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+							{
+								//cmbCommonTeamQ.value = model.getValue("/root/tempData/resTemp/branchGrid/record/deptcd");
+								modelCopyValue("/root/reqData/reqform/saveForm/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");								
+								PID2152input10.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+									
+								//search();
+								//area combo reset
+	
+								//clearSelectCombo(cmbCommonAreaQ, model.getValue("/root/tempData/resTemp/branchGrid/record/areanm"), model.getValue("/root/tempData/resTemp/branchGrid/record/areacd"));
+								//PID1200combo4.select(0);
+							}
+							else {
+								onClickBranchPopup();
+							}
+						}
+					}
+				}
+				
+				function onClickBranchPopup()
+				{
+					openBranch("/root/reqData/reqform/saveForm", "/root/tempData/tempBranch");
+					
+					if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+						return;
+
+					//cmbCommonTeamQ.value = model.getValue("/root/tempData/tempBranch/deptcd");
+					modelCopyValue("/root/reqData/reqform/saveForm/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+					PID2152input10.value = model.getValue("/root/tempData/tempBranch/bonm");
+				}
+								
+				function close()
+				{
+					window.close();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="420" pageheight="350" idprefix="PID2152" style="font-family:굴림; ">
+		<group id="PID2152group_scr" class="gro_sel" style="left:10px; top:45px; width:400px; height:265px; ">
+			<caption id="PID2152caption7" class="list_cap02" style="left:277px; top:0px; width:123px; height:25px; "/>
+			<caption id="PID2152caption5" class="list_cap02" style="left:79px; top:0px; width:120px; height:25px; "/>
+			<select1 id="PID2152combo1" ref="/root/reqData/reqform/saveForm/type1" appearance="minimal" style="left:83px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<label>에듀기관</label>
+						<value>A</value>
+					</item>
+				</choices>
+			</select1>
+			<select1 id="PID2152combo2" ref="/root/reqData/reqform/saveForm/edutype" appearance="minimal" style="left:281px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/eduCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption2" class="list_cap03" style="left:0px; top:24px; width:80px; height:25px; text-align:left; ">구독단체</caption>
+			<caption id="caption3" class="list_cap02" style="left:79px; top:24px; width:321px; height:25px; "/>
+			<caption id="caption14" class="list_cap03" style="left:0px; top:48px; width:80px; height:25px; text-align:left; ">원장명</caption>
+			<caption id="caption15" class="list_cap02" style="left:79px; top:48px; width:321px; height:25px; "/>
+			<caption id="caption18" class="list_cap03" style="left:0px; top:72px; width:80px; height:25px; text-align:left; ">연락처</caption>
+			<caption id="caption20" class="list_cap03" style="left:0px; top:96px; width:80px; height:73px; text-align:left; ">주소</caption>
+			<caption id="caption21" class="list_cap02" style="left:79px; top:96px; width:321px; height:25px; "/>
+			<caption id="PID2152caption1" class="list_cap02" style="left:79px; top:72px; width:321px; height:25px; "/>
+			<input id="PID2152input2" ref="/root/reqData/reqform/saveForm/insttnm" class="req" caption="구독단체" style="left:83px; top:28px; width:200px; height:18px; "/>
+			<input id="PID2152input1" ref="/root/reqData/reqform/saveForm/ldgrnm" class="req" caption="원장명" style="left:83px; top:52px; width:200px; height:18px; "/>
+			<input id="PID2152input3" ref="/root/reqData/reqform/saveForm/tel_no" class="req" caption="연락처" style="left:83px; top:76px; width:200px; height:18px; "/>
+			<input id="PID2152input5" ref="/root/reqData/reqform/saveForm/zip" class="req" caption="우편번호" style="left:83px; top:100px; width:200px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						onZipKeyDown(1);
+					]]>
+				</script>
+			</input>
+			<caption id="PID2152caption2" class="list_cap02" style="left:79px; top:120px; width:321px; height:25px; "/>
+			<caption id="PID2152caption3" class="list_cap02" style="left:79px; top:144px; width:321px; height:25px; "/>
+			<input id="PID2152input4" ref="/root/reqData/reqform/saveForm/addr" class="req" editable="false" caption="주소" style="left:83px; top:124px; width:300px; height:18px; "/>
+			<input id="PID2152input6" ref="/root/reqData/reqform/saveForm/dtlsaddr" class="req" caption="상세주소" style="left:83px; top:148px; width:300px; height:18px; "/>
+			<button id="PID2152button1" class="btn02" style="left:286px; top:99px; width:52px; height:21px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						onClickZipPopup();
+					]]>
+				</script>
+			</button>
+			<caption id="PID2152caption4" class="list_cap03" style="left:0px; top:0px; width:80px; height:25px; text-align:left; ">유형</caption>
+			<caption id="PID2152caption6" class="list_cap03" style="left:198px; top:0px; width:80px; height:25px; text-align:left; ">유형2</caption>
+			<caption id="PID2152caption8" class="list_cap03" style="left:0px; top:168px; width:80px; height:25px; text-align:left; ">계약시작일</caption>
+			<caption id="PID2152caption9" class="list_cap02" style="left:79px; top:168px; width:120px; height:25px; "/>
+			<caption id="PID2152caption10" class="list_cap03" style="left:198px; top:168px; width:80px; height:25px; text-align:left; ">계약종료일</caption>
+			<caption id="PID2152caption11" class="list_cap02" style="left:277px; top:168px; width:123px; height:25px; "/>
+			<input id="PID2152input7" ref="/root/reqData/reqform/saveForm/cntrbgndd" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID2152input8" style="left:83px; top:172px; width:100px; height:18px; "/>
+			<input id="PID2152input8" ref="/root/reqData/reqform/saveForm/cntrto_dd" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="종료일자" setHandler="true" relid="PID2152input7" style="left:281px; top:172px; width:100px; height:18px; "/>
+			<caption id="PID2152caption12" class="list_cap03" style="left:198px; top:192px; width:80px; height:25px; text-align:left; ">지국</caption>
+			<caption id="PID2152caption13" class="list_cap02" style="left:277px; top:192px; width:123px; height:25px; "/>
+			<caption id="PID2152caption14" class="list_cap03" style="left:0px; top:192px; width:80px; height:25px; text-align:left; ">확장일</caption>
+			<caption id="PID2152caption15" class="list_cap02" style="left:79px; top:192px; width:120px; height:25px; "/>
+			<input id="PID2152input9" ref="/root/reqData/reqform/saveForm/rdr_extndd" inputtype="date" format="yyyy-mm-dd" style="left:83px; top:196px; width:100px; height:18px; "/>
+			<input id="PID2152input10" ref="/root/reqData/reqform/saveForm/bonm" style="left:281px; top:196px; width:60px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						onKeyDown();				
+					]]>
+				</script>
+			</input>
+			<button id="PID2152button2" class="btn02" style="left:344px; top:195px; width:52px; height:21px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						onClickBranchPopup();				
+					]]>
+				</script>
+			</button>
+			<caption id="PID2152caption16" class="list_cap03" style="left:198px; top:216px; width:80px; height:25px; text-align:left; ">판촉물단가</caption>
+			<caption id="PID2152caption17" class="list_cap02" style="left:277px; top:216px; width:123px; height:25px; "/>
+			<caption id="PID2152caption18" class="list_cap03" style="left:0px; top:216px; width:80px; height:25px; text-align:left; ">구독단가</caption>
+			<caption id="PID2152caption19" class="list_cap02" style="left:79px; top:216px; width:120px; height:25px; "/>
+			<input id="PID2152input11" ref="/root/reqData/reqform/saveForm/subsuprc" format="#,###" style="left:83px; top:220px; width:100px; height:18px; text-align:right; "/>
+			<input id="PID2152input12" ref="/root/reqData/reqform/saveForm/bns_itemuprc" format="#,###" style="left:281px; top:220px; width:100px; height:18px; text-align:right; "/>
+			<caption id="PID2152caption20" class="list_cap03" style="left:198px; top:240px; width:80px; height:25px; text-align:left; ">비고</caption>
+			<caption id="PID2152caption21" class="list_cap02" style="left:277px; top:240px; width:123px; height:25px; "/>
+			<caption id="PID2152caption22" class="list_cap03" style="left:0px; top:240px; width:80px; height:25px; text-align:left; ">수수료단가</caption>
+			<caption id="PID2152caption23" class="list_cap02" style="left:79px; top:240px; width:120px; height:25px; "/>
+			<input id="PID2152input13" ref="/root/reqData/reqform/saveForm/comsuprc" format="#,###" style="left:83px; top:244px; width:100px; height:18px; text-align:right; "/>
+			<input id="PID2152input14" ref="/root/reqData/reqform/saveForm/remk" style="left:281px; top:244px; width:100px; height:18px; "/>
+		</group>
+		<caption id="PID1901caption4" class="tit01" style="left:10px; top:20px; width:400px; height:25px; text-align:left; ">신규등록</caption>
+		<group id="group2" style="left:10px; top:315px; width:400px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:400px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:216px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn_grid02" style="left:171px; top:4px; width:42px; height:17px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					save();		
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

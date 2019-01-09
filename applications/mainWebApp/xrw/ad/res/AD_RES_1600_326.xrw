@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo/>
+					</initData>
+					<codeData>
+						<SLCRG_PERS>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</SLCRG_PERS>
+						<PUBC_CLSF>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</PUBC_CLSF>
+						<INDT_CLSF>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</INDT_CLSF>
+						<HNDL_CLSF>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</HNDL_CLSF>
+						<GRP_CMPY_CD>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</GRP_CMPY_CD>
+					</codeData>
+					<reqData>
+						<searchData>
+							<frdt/>
+							<todt/>
+							<slcrg_pers/>
+							<slcrg_pers_nm/>
+							<indt_clsf/>
+							<hndl_clsf/>
+							<dlco_no/>
+							<dlco_nm/>
+							<hndl_plac_cd/>
+							<hndl_plac_nm/>
+							<grp_cmpy_cd/>
+							<medi_cd/>
+						</searchData>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<chrg_aprv/>
+								<team_chf_aprv/>
+								<preng_occr_dt/>
+								<preng_occr_seq/>
+								<pubc_side/>
+								<chro_clsf_nm/>
+								<dlco_nm/>
+								<advt_cont/>
+								<uprc/>
+								<advt_fee/>
+								<slcrg_nm/>
+								<hndl_plac_nm/>
+								<indt_clsf_nm/>
+								<grp_cmpy_nm/>
+								<medi_cd/>
+								<tax_email/>
+								<patr_chrg_info/>
+								<remk/>
+							</record>
+						</gridData>
+						<gd_upload>
+							<record>
+								<medi_cd/>
+								<tax_clsf/>
+								<preng_occr_dt/>
+								<advt_clsf/>
+								<dlco_nm/>
+								<advt_fee/>
+								<agn/>
+								<fee/>
+								<slcrg_pers/>
+								<advt_cont/>
+								<remk/>
+								<patr_chrg_info/>
+								<tax_email/>
+							</record>
+						</gd_upload>
+					</resData>
+					<keyData>
+						<cmpy_cd/>
+						<medi_cd/>
+						<preng_occr_dt/>
+						<preng_occr_seq/>
+					</keyData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				var currentdt = getCurrentDate();
+				var frdt = dateAdd("d",1, currentdt);	//현재일자
+				var todt = dateAdd("d",1, currentdt);	//현재일자
+				
+				model.setValue("/root/reqData/searchData/frdt", frdt);
+				model.setValue("/root/reqData/searchData/todt", todt);
+					
+        		model.send("ad_res_1600_m");	
+				model.copyNode("/root/codeData/SLCRG_PERS", "/root/resData/SLCRG_PERS");
+				model.copyNode("/root/codeData/PUBC_CLSF", "/root/resData/PUBC_CLSF");
+				model.copyNode("/root/codeData/INDT_CLSF", "/root/resData/INDT_CLSF");
+				model.copyNode("/root/codeData/HNDL_CLSF", "/root/resData/HNDL_CLSF");
+				model.copyNode("/root/codeData/GRP_CMPY_CD", "/root/resData/GRP_CMPY_CD");
+				model.refresh();
+				
+				var emp_no = model.property("ss_emp_no").substring(0,2);
+				var dept_cd = model.property("ss_deptcd");
+				if(emp_no != "it" && dept_cd != "010500"){
+					cmb_medi_cd.select(1);
+					cmb_medi_cd.disabled = true;
+					cmb_medi_cd.refresh();
+				}					
+				]]>
+			</script>
+			<submission id="ad_res_1600_m" action="/ad/res/1600" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData"/>
+			<submission id="ad_res_1620_l" action="/ad/res/1620" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData"/>
+			<submission id="ad_res_1621_a" action="/ad/res/1621" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			var UPLOAD_HEADER_MAX = 13;
+			var UPLOAD_HEADER	=	["매체코드","계산서구분","게재예정일","광고구분","광고주","광고료","대행사","대행료","영업담당","광고내용","비고","상대담당","이메일"];
+	
+			function setDlcoInfo(dlco_no, dlco_nm){
+				
+				var gnr_advcs_yn 	= model.getValue("/root/reqData/fwdData/gnr_advcs_yn");
+				var agn_yn          	= model.getValue("/root/reqData/fwdData/agn_yn");
+				var advt_bo_yn    	= model.getValue("/root/reqData/fwdData/advt_bo_yn");
+				var bo_bof_yn      	= model.getValue("/root/reqData/fwdData/bo_bof_yn");
+				
+				if(gnr_advcs_yn == "Y"){									
+					model.setValue("/root/reqData/searchData/dlco_no", dlco_no);
+					model.setValue("/root/reqData/searchData/dlco_nm", dlco_nm);					
+					inp_dlco_no.refresh();
+					inp_dlco_nm.refresh();					
+				}else if(agn_yn == "Y" || advt_bo_yn  == "Y" || bo_bof_yn  == "Y"){		
+					model.setValue("/root/reqData/searchData/hndl_plac_cd", dlco_no);
+					model.setValue("/root/reqData/searchData/hndl_plac_nm", dlco_nm);					
+					inp_hndl_plac_no.refresh();
+					inp_hndl_plac_nm.refresh();				
+				}
+			}	
+			
+			function goReport(gubun){
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_RES_1610_P");									
+								
+					var root			= "/root/reqData/searchData";
+					var frdt			= model.getValue(	root + "/frdt");
+					
+					if ( frdt == "" ){
+						commAlert("게재기간이 없습니다.");
+						return;
+					}								
+			
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd"		,model.property("ss_cmpycd"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_frdt"			, frdt	);	
+					
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,936;2,60;2,71;2,152;2,160;2,164;2,174;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:927px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button1" class="btn02" crud="R" style="left:640px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				model1.reset();
+				
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" crud="R" style="left:575px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( validateReq() )
+					{
+						model1.send("ad_res_1620_l");
+						for( var i=datagrid1.fixedRows; i<datagrid1.rows; i++ )
+						{
+							var medi_cd	=	datagrid1.valueMatrix(i, datagrid1.colRef("medi_cd"));
+							if( medi_cd == "150" )
+							{
+								datagrid1.cellstyle("background-color", i, datagrid1.colRef("pubc_side"), i, datagrid1.colRef("pubc_side")) = "#FFF000";
+							}else if(medi_cd == "500" || medi_cd == "530" || medi_cd == "540" || medi_cd == "550"){
+								datagrid1.cellstyle("background-color", i, datagrid1.colRef("pubc_side"), i, datagrid1.colRef("pubc_side")) = "#FFF000";	
+							}
+							else
+							{
+								datagrid1.cellstyle("background-color", i, datagrid1.colRef("pubc_side"), i, datagrid1.colRef("pubc_side")) = "#FFFFFF";
+							}
+						}
+						datagrid1.refresh();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap02" style="left:10px; top:98px; width:927px; height:28px; "/>
+		<caption id="caption10" class="list_cap01" style="left:10px; top:71px; width:80px; height:28px; ">예약일자</caption>
+		<input id="input1" ref="/root/reqData/searchData/todt" class="req" navindex="2" inputtype="date" caption="게재기간" style="left:206px; top:76px; width:85px; height:18px; "/>
+		<caption id="caption2" style="left:192px; top:78px; width:15px; height:17px; ">~</caption>
+		<input id="input3" ref="/root/reqData/searchData/frdt" class="req" navindex="1" inputtype="date" caption="게재기간" style="left:103px; top:76px; width:85px; height:18px; "/>
+		<caption id="caption11" class="list_cap01" style="left:590px; top:71px; width:90px; height:28px; ">매체</caption>
+		<button id="button3" class="btn02" crud="R" style="left:765px; top:40px; width:52px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				if(!checkGridData(datagrid1)){
+					alert("처리할 내역이 없습니다.");
+					return;
+				}
+				var filename = window.fileDialog("save", ",", false, "출판광고예약현황", "xls", "Excel File(*.xls)|*.xls");
+				if(filename!="")
+				{
+					datagrid1.saveExcel(filename, "sheetname: 출판광고예약현황;");
+				}
+				
+				]]>
+			</script>
+		</button>
+		<caption id="caption7" class="list_cap01" style="left:295px; top:71px; width:90px; height:28px; ">영업담당</caption>
+		<caption id="caption14" class="list_cap01" style="left:10px; top:98px; width:80px; height:28px; ">업종</caption>
+		<select1 id="cmb_medi_cd" ref="/root/reqData/searchData/medi_cd" navindex="5" appearance="minimal" style="left:684px; top:76px; width:110px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/PUBC_CLSF/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<select1 id="combo3" ref="/root/reqData/searchData/indt_clsf" navindex="6" appearance="minimal" style="left:103px; top:103px; width:120px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/INDT_CLSF/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<input id="inp_hndl_plac_no" ref="/root/reqData/searchData/hndl_plac_cd" navindex="9" autonext="false" format="99999999" style="left:684px; top:103px; width:55px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var hndl_plac_no = inp_hndl_plac_no.currentText;
+				model.setValue("/root/reqData/searchData/hndl_plac_cd", lpad(hndl_plac_no, 8, "0"));
+				inp_hndl_plac_no.refresh();
+				
+				commonSubmission("9004", inp_hndl_plac_no.currentText,  inp_hndl_plac_no, inp_hndl_plac_nm);				
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					var hndl_plac_no = inp_hndl_plac_no.currentText;
+					model.setValue("/root/reqData/searchData/hndl_plac_cd", lpad(hndl_plac_no, 8, "0"));
+					inp_hndl_plac_no.refresh();
+					
+					commonSubmission("9004", inp_hndl_plac_no.currentText,  inp_hndl_plac_no, inp_hndl_plac_nm);					
+				}
+				]]>
+			</script>
+		</input>
+		<caption id="caption4" class="list_cap01" style="left:590px; top:98px; width:90px; height:28px; ">거래처</caption>
+		<caption id="caption8" class="list_cap01" style="left:295px; top:98px; width:80px; height:28px; ">광고주</caption>
+		<input id="inp_dlco_nm" ref="/root/reqData/searchData/dlco_nm" navindex="8" imemode="hangul" inputtype="button" style="left:450px; top:103px; width:135px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				showAdvcsSearchPopup("Y", "Y", "", "", "", inp_dlco_nm.currentText); 
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[				
+				if(event.keyCode== "13"){
+					findDlcoNoByName("1", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+				}				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				findDlcoNoByName("1", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+				]]>
+			</script>
+		</input>
+		<input id="inp_dlco_no" ref="/root/reqData/searchData/dlco_no" navindex="7" autonext="false" format="99999999" style="left:389px; top:103px; width:55px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var dlco_no = inp_dlco_no.currentText;
+				model.setValue("/root/reqData/searchData/dlco_no", lpad(dlco_no, 8, "0"));
+				inp_dlco_no.refresh();
+				
+				commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);		
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeydown">
+				<![CDATA[
+				if(event.keyCode== "13"){	
+					var dlco_no = inp_dlco_no.currentText;
+					model.setValue("/root/reqData/searchData/dlco_no", lpad(dlco_no, 8, "0"));
+					inp_dlco_no.refresh();
+					
+					commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);	
+				}
+				]]>
+			</script>
+		</input>
+		<input id="inp_hndl_plac_nm" ref="/root/reqData/searchData/hndl_plac_nm" navindex="10" imemode="hangul" inputtype="button" style="left:747px; top:103px; width:135px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				showAdvcsSearchPopup("", "", "Y", "Y", "Y", inp_hndl_plac_nm.currentText); 
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){					
+					findDlcoNoByName("24", inp_hndl_plac_nm.currentText, inp_hndl_plac_no, inp_hndl_plac_nm);	
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				findDlcoNoByName("24", inp_hndl_plac_nm.currentText, inp_hndl_plac_no, inp_hndl_plac_nm);	
+				]]>
+			</script>
+		</input>
+		<caption id="caption3" class="list_cap02" style="left:10px; top:125px; width:927px; height:28px; "/>
+		<caption id="caption9" class="list_cap01" style="left:295px; top:125px; width:80px; height:28px; ">그룹사</caption>
+		<select1 id="combo5" ref="/root/reqData/searchData/grp_cmpy_cd" navindex="12" appearance="minimal" style="left:389px; top:130px; width:140px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/GRP_CMPY_CD/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="승인^승인^매체^게재예정일^순번^면^색도^광고구분^광고주^광고내용^광고료^영업담당^대행사^대행료^업종^그룹사^계산서구분^이메일^상대담당^비고^MEDI_CD|담당^팀장^매체^게재예정일^순번^면^색도^광고구분^광고주^광고내용^광고료^영업담당^대행사^대행료^업종^그룹사^계산서구분^이메일^상대담당^비고^MEDI_CD" colsep="^" colwidth="40, 40, 60,80, 45, 38, 39,60, 100, 100, 80, 60, 80, 80, 65, 80, 80, 80, 160, 150, 60" explorerbar="sort" frozencols="9" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:174px; width:927px; height:566px; ">
+			<col ref="chrg_aprv"/>
+			<col ref="team_chf_aprv"/>
+			<col ref="medi_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="preng_occr_dt" format="yyyy-mm-dd"/>
+			<col ref="preng_occr_seq"/>
+			<col ref="pubc_side" visibility="hidden"/>
+			<col ref="chro_clsf_nm" visibility="hidden"/>
+			<col ref="advt_clsf" style="word-wrap:none; "/>
+			<col ref="dlco_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="advt_cont" style="text-align:left; word-wrap:none; "/>
+			<col ref="advt_fee" format="#,###" style="text-align:right; "/>
+			<col ref="slcrg_nm" style="text-align:left; "/>
+			<col ref="hndl_plac_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="fee" format="#,###" style="text-align:right; "/>
+			<col ref="indt_clsf_nm" format="#,###" style="text-align:left; word-wrap:none; "/>
+			<col ref="grp_cmpy_nm" format="#,###" style="text-align:left; word-wrap:none; "/>
+			<col ref="tax_clsf"/>
+			<col ref="tax_email"/>
+			<col ref="patr_chrg_info"/>
+			<col ref="remk"/>
+			<col ref="medi_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				
+				if(!isDataRegion(datagrid1)) return;
+				
+				var cmpy_cd 			= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("cmpy_cd"));
+				var medi_cd 			= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("medi_cd"));
+				var preng_occr_dt 	= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("preng_occr_dt"));
+				var preng_occr_seq 	= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("preng_occr_seq"));			
+			
+				if( preng_occr_dt == "" && preng_occr_seq == "" ){
+					return;	
+				}
+				//alert(medi_cd+preng_occr_dt+preng_occr_seq);
+			    windowLoadPreng2(medi_cd,preng_occr_dt,preng_occr_seq);  
+//				model.property("RES_2100_MEDI_CD")			=	medi_cd;
+//				model.property("RES_2100_PRENG_OCCR_DT")		=	preng_occr_dt;
+//				model.property("RES_2100_PRENG_OCCR_SEQ")	=	preng_occr_seq;									
+//		     
+//				viewer("mainFrame").window.javaScript.onLoadPage2("AD_RES_2100");
+				
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="dg_upload" nodeset="/root/resData/gd_upload/record" visibility="hidden" scroll="both" caption="매체코드^계산서구분^예약예정일^광고구분^광고주^광고료^대행사^대행료^영업담당^광고내용^비고^상대담당^이메일" colsep="#" colwidth="50,60, 80, 80, 100, 100, 100, 100, 100, 80, 80" explorerbar="sort" extendlastcol="scroll" frozencols="2" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:380px; width:926px; height:339px; ">
+			<col ref="medi_cd"/>
+			<col ref="tax_clsf"/>
+			<col ref="preng_occr_dt" format="yyyy-mm-dd"/>
+			<col ref="advt_clsf"/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="advt_fee"/>
+			<col ref="agn" style="text-align:right; "/>
+			<col ref="fee" format="(-)#,###" style="text-align:right; "/>
+			<col ref="slcrg_pers" format="(-)#,###" style="text-align:right; "/>
+			<col ref="advt_cont"/>
+			<col ref="remk"/>
+			<col ref="patr_chrg_info"/>
+			<col ref="tax_email" format="(-)#,###.9" style="text-align:right; "/>
+		</datagrid>
+		<group id="group_line" class="gro_line" style="left:10px; top:160px; width:927px; height:5px; "/>
+		<button id="btnClose" class="btn02" style="left:885px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(window.type == "mdi"){
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				}else{													
+					window.close();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn02" visibility="hidden" crud="P" style="left:825px; top:40px; width:52px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("P");
+				]]>
+			</script>
+		</button>
+		<select1 id="combo4" ref="/root/reqData/searchData/hndl_clsf" navindex="11" appearance="minimal" style="left:103px; top:130px; width:140px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/HNDL_CLSF/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption5" class="list_cap01" style="left:10px; top:125px; width:80px; height:28px; ">취급구분</caption>
+		<caption id="caption21" class="list_cap01" style="left:10px; top:71px; width:90px; height:28px; ">예약일자</caption>
+		<caption id="caption22" class="list_cap01" style="left:10px; top:125px; width:90px; height:28px; ">취급구분</caption>
+		<caption id="caption23" class="list_cap01" style="left:10px; top:98px; width:90px; height:28px; ">업종</caption>
+		<caption id="caption24" class="list_cap01" style="left:295px; top:98px; width:90px; height:28px; ">광고주</caption>
+		<caption id="caption25" class="list_cap01" style="left:295px; top:125px; width:90px; height:28px; ">그룹사</caption>
+		<input id="inp_slcrg_pers_nm" ref="/root/reqData/searchData/slcrg_pers_nm" navindex="4" imemode="hangul" inputtype="button" caption="영업담당" crud="R" style="left:450px; top:76px; width:81px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				searchEmpno("setSlcrgPers", "/root/reqData/searchData/slcrg_pers", "/root/reqData/searchData/slcrg_pers_nm");
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode == "13"){
+					findEmpNoByName("setSlcrgPers", inp_slcrg_pers_nm.currentText, inp_slcrg_pers, inp_slcrg_pers_nm);
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					findEmpNoByName("setSlcrgPers", inp_slcrg_pers_nm.currentText, inp_slcrg_pers, inp_slcrg_pers_nm);
+				]]>
+			</script>
+		</input>
+		<input id="inp_slcrg_pers" ref="/root/reqData/searchData/slcrg_pers" navindex="3" maxlength="10" style="left:389px; top:76px; width:55px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode == "13"){
+					commonSubmission("9005", inp_slcrg_pers.currentText,  inp_slcrg_pers, inp_slcrg_pers_nm);
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				commonSubmission("9005", inp_slcrg_pers.currentText,  inp_slcrg_pers, inp_slcrg_pers_nm);	
+				]]>
+			</script>
+		</input>
+		<button id="button4" class="btn02" crud="R" style="left:703px; top:40px; width:52px; height:21px; ">
+			<caption>반입</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var i;
+					var headName;
+					var filename = window.fileDialog("open", ",", false, "", "xls*", "Excel File(*.xls*)|*.xls*");
+					if( filename!="" )
+					{
+						model.removeNodeset("/root/resData/gd_upload");
+						
+						dg_upload.loadExcel(filename, 1, true); 
+						
+						// 헤더체크
+						//alert(dg_upload.cols);
+						for( i=1; i<=dg_upload.cols-1; i++ )
+						{
+							if( i > UPLOAD_HEADER_MAX )
+							{
+								alert("반입하시려는 항목이 초과하였습니다.");
+								return;
+							}
+							/* headName 가 나오지 않음 수정해야함*/
+							headName = dg_upload.valueMatrix(dg_upload.fixedRows, i);
+							//alert("UPLOAD_HEADER::"+UPLOAD_HEADER[i-1]);
+							//alert("headName::"+headName);						
+							if( UPLOAD_HEADER[i-1] != headName )
+							{
+								alert( "[" + UPLOAD_HEADER[i-1] + "-" + headName + "] 헤더값오류입니다.");
+								return;
+							}
+							
+						}
+						
+						
+						for( i=dg_upload.fixedRows+1;i<dg_upload.rows; i++ )
+						{
+							dg_upload.addStatus(i, "insert");
+						}
+//						model.setValue("/root/reqData/flag","E");
+						if( !isDataGridUpdated(dg_upload) )
+						{
+							alert("저장할 내역이 없습니다.");
+							return;
+						}
+						
+						if( commGridReqCheck(dg_upload) )
+						{
+							if( window.alert("저장하시겠습니까?", "확인", 1) == 1 )
+							{
+								model.setValue("/root/reqData/multiUpdateData", dg_upload.getUpdateData());
+								model.send("ad_res_1621_a");
+								if( submit_completed() )
+								{
+									model1.send("ad_res_1620_l");
+								}
+							}
+						}	
+					}
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

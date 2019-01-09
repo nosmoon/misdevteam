@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<xhtml:head>
+		<xhtml:title>년도별수령금액</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<reqForm>
+						</reqForm>
+						<multiUpDate/>
+						<searchData>
+						</searchData>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<msg/>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<occr_dt/>
+								<seq/>
+								<rnum/>
+								<tms/>
+								<insr_entr_dt/>
+								<insr_mtry_dt/>
+								<insr_cmpy/>
+								<pymt_insr_fee/>
+								<recp_insr_amt/>
+								<recp_minus_pymt/>
+								<entr_nops/>
+								<pymt_per_npos/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.removenode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					model1.refresh();
+					datagrid1.addRow(true, true);
+				]]>
+			</script>
+			<submission id="hd_insr_1711" action="/hd/insr/1711" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_insr_1712" action="/hd/insr/1712" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function searchList() {
+					model1.reset();
+					model1.send("hd_insr_1711");
+					model1.copyNode("/root/resData/gridData", "/root/tempData/CURLIST");
+					datagrid1.refresh();
+					model1.removenode("/root/tempData");
+					rowCnt.value = "총 "+ (parseInt(datagrid1.rows)- datagrid1.fixedRows) + " 건";
+				}
+				function gridDel(){
+					if(datagrid1.rows == 1){
+						alert("삭제할 테이터가 없습니다");
+						return;
+					}
+					if (!rowDelSubmit(datagrid1)) {
+						return;
+					}
+					if (window.alert("삭제 하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					model1.send("hd_insr_1712");
+					if(submit_completed()) {searchList();}
+				}
+				function gridSave(){
+					if (!rowInSubmit(datagrid1)) {
+						return;
+					}
+					if(datagrid1.rows == 1){
+						alert("저장할 테이터가 없습니다");
+						return;
+					}
+					if(!commGridReqCheck("datagrid1")) return;
+					if (window.alert("저장 하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					model1.send("hd_insr_1712");
+					if(submit_completed()) {searchList();}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<group id="group1" style="left:10px; top:15px; width:885px; height:45px; ">
+			<button id="button1" class="btn02" navindex="-1" style="left:575px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						rowCnt.value = "";
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						model1.refresh();
+						datagrid1.addRow(true, true);
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" navindex="-1" style="left:629px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" navindex="-1" style="left:683px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						gridDel();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" navindex="-1" style="left:737px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						gridSave();
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn04" navindex="-1" style="left:790px; top:0px; width:88px; height:21px; ">
+				<caption>엑셀다운로드</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//excel 파일로 저장한다.
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						
+						if(filePath != "") {
+							datagrid1.saveExcel(filePath);
+							window.exec(filePath);
+						}		
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn_grid02" style="left:821px; top:24px; width:54px; height:17px; background-image:../../../images/btn_s_3.gif; ">
+				<caption>행추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						datagrid1.addRow(true, true);
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn_grid02" visibility="hidden" style="left:717px; top:24px; width:54px; height:17px; background-image:../../../images/btn_s_3.gif; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var row = datagrid1.row;
+						var tmp1 = model1.getValue("/root/resData/gridData/record[" + (row) + "]/cmpy_cd");
+						var tmp2 = model1.getValue("/root/resData/gridData/record[" + (row) + "]/occr_dt");
+						var tmp3 = model1.getValue("/root/resData/gridData/record[" + (row) + "]/seq");
+						if(tmp1==""&&tmp2==""&&tmp3==""){
+							datagrid1.deleteRow(datagrid1.row);
+						}else{
+							datagrid1.addStatus(datagrid1.row, "delete");
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="회사코드^발생일자^일련번호^No^차수^가입시작일자^가입만기일자^보험사^납입보험료^수령보험료^차액^가입인원^1인당보험료^" colsep="#" colwidth="57, 68, 63, 40, 40, 85, 85, 95, 120, 120, 120, 90, 100" mergecellsfixedcols="bycol" mergecellsfixedrows="byrowrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:66px; width:889px; height:510px; ">
+			<col ref="cmpy_cd" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="rnum"/>
+			<col class="req" ref="tms" type="input"/>
+			<col class="req" ref="insr_entr_dt" type="inputdate" format="yyyy-mm-dd"/>
+			<col class="req" ref="insr_mtry_dt" type="inputdate" format="yyyy-mm-dd"/>
+			<col class="req" imemode="hangul" ref="insr_cmpy" type="input"/>
+			<col class="req" ref="pymt_insr_fee" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="recp_insr_amt" type="output" format="#,###" style="text-align:right; "/>
+			<col ref="recp_minus_pymt" type="output" format="#,###" style="text-align:right; "/>
+			<col ref="entr_nops" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="pymt_per_npos" type="output" format="#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					rowStatus(datagrid1);
+				]]>
+			</script>
+		</datagrid>
+		<caption id="rowCnt" style="left:769px; top:578px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

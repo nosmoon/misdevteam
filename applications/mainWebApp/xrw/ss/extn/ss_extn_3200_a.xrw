@@ -1,0 +1,766 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<extncdusage>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</extncdusage>
+							<resitypecd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</resitypecd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<gs_request>N</gs_request>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<search_form>
+								<deptcd/>
+								<common_deptcd/>
+								<bocd/>
+								<partcd/>
+								<areacd/>
+								<corrbocd/>
+								<bonm/>
+								<appr_gubun/>
+								<extncdusage/>
+								<resitypecd/>
+								<temp_check/>
+							</search_form>
+							<appr_form>
+								<bocd/>
+								<extncdusage/>
+								<resitype/>
+							</appr_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<deptnm/>
+									<partnm/>
+									<areanm/>
+									<bonm/>
+									<extncdusagenm/>
+									<resitypenm/>
+									<rflyn00/>
+									<bns1_00/>
+									<bns2_00/>
+									<bns3_00/>
+									<bns4_00/>
+									<bns5_00/>
+									<medi1_00/>
+									<medi2_00/>
+									<medi3_00/>
+									<medi4_00/>
+									<medi5_00/>
+									<medi6_00/>
+									<medi7_00/>
+									<giftcard_00/>
+									<servimm_00/>
+									<bocd/>
+									<extncdusage/>
+									<resitype/>
+									<rflyn01/>
+									<bns1_01/>
+									<bns2_01/>
+									<bns3_01/>
+									<bns4_01/>
+									<bns5_01/>
+									<medi1_01/>
+									<medi2_01/>
+									<medi3_01/>
+									<medi4_01/>
+									<medi5_01/>
+									<medi6_01/>
+									<medi7_01/>
+									<giftcard_01/>
+									<servimm_01/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID3210search" ref="/root/reqData/reqform/search_form" action="/ss/extn/3210" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID3220approve" ref="/root/reqData/reqform/appr_form" action="/ss/extn/3220" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID3230approve_rej" ref="/root/reqData/reqform/appr_form" action="/ss/extn/3230" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID3240delete" ref="/root/reqData/reqform/appr_form" action="/ss/extn/3240" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					commEventHandler(PID3200group_scr);
+					
+					makeTeamSearch("getTeamInit", "/ss/extn/3200", "", "/root/initData/comboSet/codeData", "cmbCommonTeamQ", "cmbCommonPartQ", "cmbCommonAreaQ");
+					//아래는 임시용. makeTeamEvent
+					//makeTeamEvent("getAreaList", "/ss/common/1100", "/root/reqData/reqform/extn_search_form", "/root/initData/comboSet/codeData", "cmbCommonTeamQ", "cmbCommonAreaQ", "preActionTeam();");
+					
+					model.copyNode("/root/initData/defaultData", "/root/initData/comboSet/codeData");
+					
+					model.copyNode("/root/initData/comboSet/extncdusage","/root/initData/comboSet/codeData/extncdusage"); 
+					//model.copyNode("/root/initData/comboSet/resitypecd","/root/initData/comboSet/codeData/resitypecd"); 
+					
+					//현재는 조건용도를 사용하지 않음
+					PID3200combo1.disabled = true;
+																				
+					PID3200group_scr.refresh();
+					
+					PID3200multilinegrid1.fixedcellcheckbox(0, PID3200multilinegrid1.colRef("check"),1, true) = true;
+				}
+				
+				function search()
+				{
+					if(!commValidate("PID3200group_scr"))
+						return;
+				
+					model.setValue("/root/reqData/reqform/search_form/corrbocd", model.getValue("/root/reqData/reqform/search_form/bocd"));
+					//조회
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID3210search", false);
+					
+					if(!submit_completed())
+						return;
+					//데이터셋팅
+					//-조회목록
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/dataTemp/listGrid");					
+						
+					//model.refresh();
+					PID3200multilinegrid1.refresh();
+					//color_check();
+					
+					if(instance1.selectNodes("/root/resData/gridData/listGrid/record/deptnm").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					model.removenode("/root/tempData/dataTemp");
+					
+					//PID3200multilinegrid1.rebuild();
+					
+					//resetDetail();
+				}
+									
+				function preActionTeam()
+				{
+					modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+				}
+				
+				//기존의 bo_list_search
+				function searchWithBranch()
+				{
+					model.setValue("/root/initData/gs_request", "L");
+					
+					if(iptCommonmBranchQ.value == "")
+					{
+						model.setValue("/root/reqData/reqform/search_form/bocd", "");
+						model.setValue("/root/initData/gs_request", "N");
+						search();
+					}
+					else
+					{
+						modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+						searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+					}
+				}
+				
+				function onClickBranchPopup()
+				{
+					//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+					openBranch("/root/reqData/reqform/search_form", "/root/tempData/tempBranch");
+	
+	               		if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+						return;
+					
+					iptCommonmBranchQ.value = model.getValue("/root/tempData/tempBranch/bonm");
+					modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/tempBranch/bocd");
+	
+					if(model.getValue("/root/initData/gs_request") == "L")
+					{
+						model.setValue("/root/initData/gs_request", "N");
+						search();
+					}
+				}
+				
+				function onKeyDown()
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnSearchBranchQ");
+						
+						if(iptCommonmBranchQ.value == '')
+							onClickBranchPopup();
+						else
+						{
+							//화면별 선처리
+							modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+							//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+							//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+							//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+							searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+						}
+					}
+				}
+									
+				//지국 enter key 검색 시 callback 함수. onKeyDown
+				function searchBranchCallBack()
+				{
+					//검색 후처리.
+					if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+					{
+						iptCommonmBranchQ.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+						modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+					}
+					else
+						onClickBranchPopup();
+				}
+					
+				function set_default(flag)
+				{
+					if(flag == '1') {			// 부서(팀),지역,지국 초기화
+						// 부서(팀) 초기화
+						//model.copyNode("/root/initData/comboSet/codeData/teamlist", "/root/initData/defaultData/teamlist");
+						cmbCommonTeamQ.select(0);		//event 등록으로 인해 team을 첫번째로 선택하면 area 역시 reset.
+						
+						// 지역 초기화
+						//model.copyNode("/root/initData/comboSet/codeData/arealist", "/root/initData/defaultData/arealist");
+						
+						// 지국코드,지국명 초기화, 포커스이동
+						model.setValue("/root/reqData/reqform/search_form/bocd", "");
+						iptCommonmBranchQ.value = "";
+						model.setFocus("iptCommonmBranchQ");
+						
+					} else if(flag == '2') {		// 기간 초기화
+					} else if(flag == '3') {		// 기타 초기화
+					}
+				}
+				
+				function resetDetail()
+				{
+					clearChildNodes("/root/resData/gridData/detailData");
+					//setSelectDefault(PID3200combo5, null, 0, false);
+					PID3200group4.refresh();
+				}
+				
+				function excel()
+				{
+					if(!commValidate("PID3200group_scr"))
+						return;
+				
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID3030excel", false);
+					
+					body.disabled = false;
+					progressBarEnd();
+				}
+				
+				function approve()
+				{
+					if(model.getValue("/root/resData/gridData/listGrid/record/bocd")==""){
+						alert("조회 후 실행해주세요.");
+						return;
+					}								
+					
+					makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+					model.setValue("/root/reqData/reqform/appr_form/bocd", model.getValue("/root/tempData/gridTemp/bocd"));
+					model.setValue("/root/reqData/reqform/appr_form/extncdusage", model.getValue("/root/tempData/gridTemp/extncdusage"));
+					model.setValue("/root/reqData/reqform/appr_form/resitype", model.getValue("/root/tempData/gridTemp/resitype"));
+					
+					if(model.getValue("/root/reqData/reqform/appr_form/bocd") == "")
+					{
+						alert("승인할 건을 1건이상 선택해주세요.");
+						return;
+					}
+					
+					if(model.alert("요청된 승인건을 승인처리 하시겠습니까?", "", 4) == "6") {
+						model.send("PID3220approve", false);
+								
+						if(!submit_completed())
+						return;					
+						
+						search();
+					}
+				}
+				
+				function approve_rej()
+				{
+					if(model.getValue("/root/resData/gridData/listGrid/record/bocd")==""){
+						alert("조회 후 실행해주세요.");
+						return;
+					}								
+					
+					makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+					model.setValue("/root/reqData/reqform/appr_form/bocd", model.getValue("/root/tempData/gridTemp/bocd"));
+					model.setValue("/root/reqData/reqform/appr_form/extncdusage", model.getValue("/root/tempData/gridTemp/extncdusage"));
+					model.setValue("/root/reqData/reqform/appr_form/resitype", model.getValue("/root/tempData/gridTemp/resitype"));
+					
+					if(model.getValue("/root/reqData/reqform/appr_form/bocd") == "")
+					{
+						alert("승인거절할 건을 1건이상 선택해주세요.");
+						return;
+					}
+					
+					if(model.alert("요청된 승인건을 승인거절 하시겠습니까?", "", 4) == "6") {
+						model.send("PID3230approve_rej", false);
+								
+						if(!submit_completed())
+						return;					
+						
+						search();
+					}					
+				}
+				
+				function req_del()
+				{
+					if(model.getValue("/root/resData/gridData/listGrid/record/bocd")==""){
+						alert("조회 후 실행해주세요.");
+						return;
+					}								
+					
+					makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+					model.setValue("/root/reqData/reqform/appr_form/bocd", model.getValue("/root/tempData/gridTemp/bocd"));
+					model.setValue("/root/reqData/reqform/appr_form/extncdusage", model.getValue("/root/tempData/gridTemp/extncdusage"));
+					model.setValue("/root/reqData/reqform/appr_form/resitype", model.getValue("/root/tempData/gridTemp/resitype"));
+					
+					if(model.getValue("/root/reqData/reqform/appr_form/bocd") == "")
+					{
+						alert("삭제할 건을 1건이상 선택해주세요.");
+						return;
+					}
+					
+					if(model.alert("사용중인 확장조건을 삭제하시겠습니까?", "", 4) == "6") {
+						model.send("PID3240delete", false);
+								
+						if(!submit_completed())
+						return;					
+						
+						search();
+					}						
+				}
+				
+				function color_check(){
+					var rows = PID3200multilinegrid1.rows;
+					
+					if(PID3200checkbox1.value=='Y'){
+						
+						for(var i=1; i <rows;  i++){
+							bns1_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns1_00"));
+							bns2_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns2_00"));
+							bns3_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns3_00"));
+							bns4_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns4_00"));
+							bns5_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns5_00"));
+							bns1_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns1_01"));
+							bns2_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns2_01"));
+							bns3_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns3_01"));
+							bns4_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns4_01"));
+							bns5_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("bns5_01"));
+							medi1_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi1_00"));
+							medi2_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi2_00"));
+							medi3_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi3_00"));
+							medi4_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi4_00"));
+							medi5_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi5_00"));
+							medi6_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi6_00"));
+							medi7_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi7_00"));
+							medi1_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi1_01"));
+							medi2_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi2_01"));
+							medi3_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi3_01"));
+							medi4_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi4_01"));
+							medi5_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi5_01"));
+							medi6_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi6_01"));
+							medi7_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("medi7_01"));
+							giftcard_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("giftcard_00"));
+							giftcard_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("giftcard_01"));
+							servimm_00 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("servimm_00"));
+							servimm_01 = PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("servimm_01"));
+							
+							if(bns1_01 != "" && bns1_00 != bns1_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns1_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns1_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns1_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns1_01")) = "#ffffff";
+							}				
+										
+							if(bns2_01 != "" && bns2_00 != bns2_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns2_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns2_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns2_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns2_01")) = "#ffffff";
+							}
+							
+							if(bns3_01 != "" && bns3_00 != bns3_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns3_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns3_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns3_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns3_01")) = "#ffffff";
+							}	
+							
+							if(bns4_01 != "" && bns4_00 != bns4_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns4_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns4_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns4_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns4_01")) = "#ffffff";
+							}	
+							
+							if(bns5_01 != "" && bns5_00 != bns5_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns5_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns5_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns5_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("bns5_01")) = "#ffffff";
+							}	
+							
+							if(medi1_01 != "" && medi1_00 != medi1_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi1_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi1_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi1_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi1_01")) = "#ffffff";
+							}	
+							
+							if(medi2_01 != "" && medi2_00 != medi2_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi2_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi2_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi2_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi2_01")) = "#ffffff";
+							}	
+							
+							if(medi3_01 != "" && medi3_00 != medi3_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi3_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi3_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi3_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi3_01")) = "#ffffff";
+							}	
+														
+							if(medi4_01 != "" && medi4_00 != medi4_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi4_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi4_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi4_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi4_01")) = "#ffffff";
+							}
+								
+							if(medi5_01 != "" && medi5_00 != medi5_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi5_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi5_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi5_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi5_01")) = "#ffffff";
+							}	
+							
+							if(medi6_01 != "" && medi6_00 != medi6_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi6_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi6_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi6_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi6_01")) = "#ffffff";
+							}	
+							
+							if(medi7_01 != "" && medi7_00 != medi7_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi7_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi7_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi7_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("medi7_01")) = "#ffffff";
+							}	
+							
+							if(giftcard_01 != "" && giftcard_00 != giftcard_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("giftcard_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("giftcard_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("giftcard_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("giftcard_01")) = "#ffffff";
+							}	
+							
+							if(servimm_01 != "" && servimm_00 != servimm_01){
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("servimm_00")) = "#5cd1e5";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("servimm_01")) = "#5cd1e5";
+							}else{
+								//PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("servimm_00")) = "#ffffff";	
+								PID3200multilinegrid1.cellstyle("background-color", i, PID3200multilinegrid1.colRef("servimm_01")) = "#ffffff";
+							}	
+						}
+					}else{
+						for(var i=1; i <rows;  i++){	
+							PID3200multilinegrid1.rowstyle(i,2,"background-color") = "#ffffff";
+						}	
+					}	
+				}
+				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="1000" idprefix="PID3200" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						searchWithBranch();
+						//search();
+					]]>
+				</script>
+			</button>
+			<!--<button id="btnA3" class="btn02" style="left:690px; top:0px; width:52px; height:21px; ">
+				<caption>승인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						approve();						
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn04" style="left:744px; top:0px; width:72px; height:21px; ">
+				<caption>승인거절</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						approve_rej();						
+					]]>
+				</script>
+			</button>
+			<button id="btnA5" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						req_del();						
+					]]>
+				</script>
+			</button>-->
+			<button id="button2" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID3200group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:49px; ">
+			<group id="grpCommonSelectQ" style="left:0px; top:0px; width:926px; height:25px; ">
+				<caption id="capCommonTeamQ" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">팀</caption>
+				<caption id="capCommonTeamQB" class="list_cap02" style="left:49px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonTeamQ" ref="/root/reqData/reqform/search_form/deptcd" class="req_100" appearance="minimal" style="left:54px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/teamlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonPartQ" class="list_cap01" style="left:158px; top:0px; width:50px; height:25px; ">파트</caption>
+				<caption id="capCommonPartQB" class="list_cap02" style="left:207px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonPartQ" ref="/root/reqData/reqform/search_form/partcd" class="req_100" appearance="minimal" style="left:212px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/partlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonAreaQ" class="list_cap01" style="left:316px; top:0px; width:50px; height:25px; ">지역</caption>
+				<caption id="capCommonAreaQB" class="list_cap02" style="left:365px; top:0px; width:70px; height:25px; "/>
+				<select1 id="cmbCommonAreaQ" ref="/root/reqData/reqform/search_form/areacd" class="req_60" appearance="minimal" style="left:370px; top:4px; width:60px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/arealist/record">
+							<label ref="area_nm"/>
+							<value ref="area_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonmBranchQ" class="list_cap01" style="left:434px; top:0px; width:50px; height:25px; ">센터</caption>
+				<caption id="capCommonmBranchQB" class="list_cap02" style="left:483px; top:0px; width:110px; height:25px; "/>
+				<input id="iptCommonmBranchQ" ref="/root/reqData/reqform/search_form/bonm" class="req" imemode="hangul" style="left:488px; top:4px; width:100px; height:18px; ">
+					<script type="javascript" ev:event="onkeydown">
+						<![CDATA[
+						onKeyDown();				
+						]]>
+					</script>
+				</input>
+				<caption id="capCommonmBranchBB" class="list_cap02" style="left:592px; top:0px; width:334px; height:25px; "/>
+				<button id="btnSearchBranchQ" class="btn05" style="left:596px; top:3px; width:40px; height:20px; ">
+					<caption>찾기</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						onClickBranchPopup();				
+						]]>
+					</script>
+				</button>
+				<button id="btnResetBranchQ" class="btn05" style="left:640px; top:3px; width:20px; height:20px; ">
+					<caption>-</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						set_default("1");				
+						]]>
+					</script>
+				</button>
+			</group>
+			<caption id="PID3200caption6" class="list_cap01" style="left:0px; top:24px; width:80px; height:25px; ">승인구분</caption>
+			<caption id="PID3200caption2" class="list_cap02" style="left:79px; top:24px; width:110px; height:25px; "/>
+			<select1 id="PID3200combo3" ref="/root/reqData/reqform/search_form/appr_gubun" appearance="minimal" style="left:84px; top:28px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>승인요청</label>
+						<value>01</value>
+					</item>
+					<item>
+						<label>승인요청제외</label>
+						<value>00</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:188px; top:24px; width:80px; height:25px; ">조건용도</caption>
+			<caption id="caption2" class="list_cap02" style="left:267px; top:24px; width:110px; height:25px; "/>
+			<select1 id="PID3200combo1" ref="/root/reqData/reqform/search_form/extncdusage" appearance="minimal" style="left:271px; top:28px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/extncdusage/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:376px; top:24px; width:80px; height:25px; ">주거구분</caption>
+			<caption id="caption4" class="list_cap02" style="left:455px; top:24px; width:110px; height:25px; "/>
+			<select1 id="PID3200combo2" ref="/root/reqData/reqform/search_form/resitypecd" appearance="minimal" style="left:459px; top:28px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<![CDATA[>]]>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>아파트</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>주택</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>상가</label>
+						<value>5</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption5" class="list_cap02" style="left:564px; top:24px; width:362px; height:25px; "/>
+			<!--<select id="PID3200checkbox1" ref="/root/reqData/reqform/search_form/temp_check" overflow="visible" appearance="full" style="left:771px; top:27px; width:150px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>변경된 조건 색으로 표시</label>
+						<value>Y</value>
+					</item>
+				</choices>
+			</select>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+						color_check();
+					]]>
+			</script>-->
+		</group>
+		<group id="PID3200group_line" class="gro_line" style="left:10px; top:130px; width:926px; height:5px; "/>
+		<multilinegrid id="PID3200multilinegrid1" nodeset="/root/resData/gridData/listGrid/record" caption="^팀^파트^지역^센터^조건용도^주거구분^구분^판촉물1^판촉물2^판촉물3^판촉물4^판촉물5^세트지1^세트지2^세트지3^세트지4^세트지5^세트지6^세트지7^상품권^서비스개월" colwidth="30,70,60,60,60,60,70,50,70,70,70,70,70,50,50,50,50,50,50,50,55,70" extendlastcol="scroll" rowheader="seq" rowsep="|" colsep="^" ellipsis="true" selectionmode="free" tooltip="true" mergecellsfixedrows="bycolrec" style="left:10px; top:140px; width:926px; height:605px; ">
+			<row>
+				<col ref="check" type="checkbox" rowspan="2" checkvalue="Y,N"/>
+				<col ref="deptnm" rowspan="2"/>
+				<col ref="partnm" rowspan="2"/>
+				<col ref="areanm" rowspan="2"/>
+				<col ref="bonm" rowspan="2"/>
+				<col ref="extncdusagenm" rowspan="2"/>
+				<col ref="resitypenm" rowspan="2"/>
+				<col ref="rflyn00"/>
+				<col ref="bns1_00"/>
+				<col ref="bns2_00"/>
+				<col ref="bns3_00"/>
+				<col ref="bns4_00"/>
+				<col ref="bns5_00"/>
+				<col ref="medi1_00"/>
+				<col ref="medi2_00"/>
+				<col ref="medi3_00"/>
+				<col ref="medi4_00"/>
+				<col ref="medi5_00"/>
+				<col ref="medi6_00"/>
+				<col ref="medi7_00"/>
+				<col ref="giftcard_00"/>
+				<col ref="servimm_00"/>
+				<col ref="bocd" rowspan="2" visibility="hidden"/>
+				<col ref="extncdusage" rowspan="2" visibility="hidden"/>
+				<col ref="resitype" rowspan="2" visibility="hidden"/>
+			</row>
+			<row>
+				<col ref="rflyn01"/>
+				<col ref="bns1_01"/>
+				<col ref="bns2_01"/>
+				<col ref="bns3_01"/>
+				<col ref="bns4_01"/>
+				<col ref="bns5_01"/>
+				<col ref="medi1_01"/>
+				<col ref="medi2_01"/>
+				<col ref="medi3_01"/>
+				<col ref="medi4_01"/>
+				<col ref="medi5_01"/>
+				<col ref="medi6_01"/>
+				<col ref="medi7_01"/>
+				<col ref="giftcard_01"/>
+				<col ref="servimm_01"/>
+			</row>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if(PID3200multilinegrid1.col == 1 && PID3200multilinegrid1.row == 0) {
+						for(var i=1; i<PID3200multilinegrid1.rows; i++) {
+							PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("check")) = "Y";
+						}
+					}					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-deselect">
+				<![CDATA[
+					if(PID3200multilinegrid1.col == 1 && PID3200multilinegrid1.row == 0) {
+						for(var i=1; i<PID3200multilinegrid1.rows; i++) {
+							PID3200multilinegrid1.valueMatrix(i,PID3200multilinegrid1.colRef("check")) = "N";
+						}
+					}
+				]]>
+			</script>
+		</multilinegrid>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,636 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo/>
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</fac_clsf>
+							<dual_out_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</dual_out_clsf>
+						</comboSet>
+						<gubun/>
+					</initData>
+					<resData>
+						<gridData>
+							<record>
+								<seq1/>
+								<issu_dt/>
+								<days/>
+								<medi_cd/>
+								<sect_cd/>
+								<issu_pcnt/>
+								<clr_pcnt/>
+								<slip_qty/>
+								<qunt_out_yn/>
+								<duty_ovt_prt_yn/>
+								<all_slip_qty/>
+								<pap_std/>
+							</record>
+						</gridData>
+						<resForm>
+							<base_servcost/>
+							<basi_excs_servcost/>
+							<basi_sep_prtn_servcost/>
+							<total/>
+							<fac_clsf/>
+							<yymm/>
+							<crps_cost/>
+							<basi_prt_qty/>
+						</resForm>
+						<gridData1>
+							<record>
+								<seq1/>
+								<yymm/>
+								<fac_clsf/>
+								<base_prt_servcost/>
+								<addm_prt_servcost/>
+								<sep_prtn_servcost/>
+								<total/>
+							</record>
+						</gridData1>
+					</resData>
+					<reqData>
+						<searchData>
+							<issu_dt/>
+							<fac_clsf/>
+							<all_slip_qty/>
+							<all_slip_qty1/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<multiUpData/>
+						<reqForm>
+							<base_servcost/>
+							<basi_excs_servcost/>
+							<basi_sep_prtn_servcost/>
+							<total/>
+							<fac_clsf/>
+							<yymm/>
+							<crps_cost/>
+							<multiUpData/>
+							<dduc_cost/>
+						</reqForm>
+						<reqForm2/>
+					</reqData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				 
+				function ondblclick1(duty_dt){
+					
+					
+					model1.setValue("/root/reqData/searchData/duty_dt",duty_dt);
+					model1.send("pr_papmake_1000");
+					model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+					model1.refresh();
+					
+				}
+				
+				function getGridSum(){
+					var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+					var issu_dt = model1.getValue("/root/reqData/searchData/issu_dt");
+					var nodeList = instance1.selectNodes("/root/resData/gridData/record");
+					var all_slip_qty 	= 0;
+					var all_slip_qty_1	= 0;
+					var all_pcnt		= 0;
+
+					for(i=0; i<nodeList.length; i++){
+						//용지규격이 T이면 /2
+						if (nodeList.item(i).getElementsByTagName("all_slip_qty").item(0).value == ""){
+							all_slip_qty += 0;
+						} else {
+							all_slip_qty 	+= eval(nodeList.item(i).getElementsByTagName("all_slip_qty").item(0).value);
+						}
+						if (nodeList.item(i).getElementsByTagName("all_slip_qty_1").item(0).value == ""){
+							all_slip_qty_1 += 0;
+						} else {
+							all_slip_qty_1 += eval(nodeList.item(i).getElementsByTagName("all_slip_qty_1").item(0).value);
+						}
+						if (nodeList.item(i).getElementsByTagName("issu_pcnt").item(0).value == ""){
+							all_pcnt += 0;
+						} else {
+							all_pcnt += eval(nodeList.item(i).getElementsByTagName("issu_pcnt").item(0).value);
+						}
+					}
+					
+					if (fac_clsf == "1010"){
+						var basi_make_servcost 		= eval(model.getValue("/root/resData/resForm/base_make_servcost"));
+						var basi_make_pcnt 			= eval(model.getValue("/root/resData/resForm/basi_make_pcnt"));
+						var basi_excs_pcnt 			= eval(model.getValue("/root/resData/resForm/basi_excs_pcnt"));
+						var basi_excs_make_servcost 	= eval(model.getValue("/root/resData/resForm/basi_excs_make_servcost"));
+						var basi_crps_cost 			= 0;
+						var dduc_cost				= 0;
+						
+						if (model.getValue("/root/reqData/reqForm/dduc_cost") != ""){
+							dduc_cost = eval(model.getValue("/root/reqData/reqForm/dduc_cost"));
+						}
+						if (model.getValue("/root/resData/resForm/crps_cost") == ""){
+							basi_crps_cost = 0;
+						} else {
+							basi_crps_cost = eval(model.getValue("/root/resData/resForm/crps_cost"));
+						}
+						
+						var cost_1 = Math.round((all_pcnt - basi_make_pcnt) / basi_excs_pcnt ) * basi_excs_make_servcost;
+						
+						model1.setValue("/root/reqData/reqForm/yymm",				issu_dt);
+						model1.setValue("/root/reqData/reqForm/fac_clsf",				fac_clsf);
+						model1.setValue("/root/reqData/reqForm/base_servcost",			basi_make_servcost);
+						model1.setValue("/root/reqData/reqForm/basi_excs_servcost", 	cost_1);
+						model1.setValue("/root/reqData/reqForm/basi_sep_prtn_servcost",	0);
+						model1.setValue("/root/reqData/reqForm/crps_cost",			basi_crps_cost);
+						
+						model1.setValue("/root/reqData/reqForm/total",				basi_make_servcost + cost_1 + basi_crps_cost - dduc_cost);
+						
+					} else {
+						var basi_prt_qty = eval(model.getValue("/root/resData/resForm/basi_prt_qty"));
+						var basi_excs_qty = eval(model.getValue("/root/resData/resForm/basi_excs_qty"));
+						var basi_excs_servcost = eval(model.getValue("/root/resData/resForm/basi_excs_servcost"));
+						
+						var basi_ovt_prt_qty = eval(model.getValue("/root/resData/resForm/basi_ovt_prt_qty"));
+						var basi_sep_prtn_servcost = eval(model.getValue("/root/resData/resForm/basi_sep_prtn_servcost"));
+						var basi_crps_cost = eval(model.getValue("/root/resData/resForm/crps_cost"));
+	
+						var cost_1 = Math.ceil(((all_slip_qty + all_slip_qty_1) - basi_prt_qty) / basi_excs_qty ) * basi_excs_servcost;
+						var cost_2 = Math.ceil(all_slip_qty_1 / basi_ovt_prt_qty) * basi_sep_prtn_servcost;
+						var dduc_cost				= 0;
+						
+						if (model.getValue("/root/reqData/reqForm/dduc_cost") != ""){
+							dduc_cost = eval(model.getValue("/root/reqData/reqForm/dduc_cost"));
+						}
+						model1.setValue("/root/reqData/reqForm/yymm",				issu_dt);
+						model1.setValue("/root/reqData/reqForm/fac_clsf",				fac_clsf);
+						model1.setValue("/root/reqData/reqForm/base_servcost",			model1.getValue("/root/resData/resForm/base_servcost"));
+						model1.setValue("/root/reqData/reqForm/basi_excs_servcost", 	cost_1);
+						model1.setValue("/root/reqData/reqForm/basi_sep_prtn_servcost",	cost_2);
+						model1.setValue("/root/reqData/reqForm/crps_cost",			basi_crps_cost);
+						model1.setValue("/root/reqData/reqForm/total",				eval(model1.getValue("/root/resData/resForm/base_servcost")) + cost_1 + cost_2 + basi_crps_cost - dduc_cost);
+					}
+					group4.refresh();
+				}
+				
+				function CurTab(fID, fName, fBool){
+						this.id = fID;
+						this.name = fName;
+						this.status = fBool;
+					}
+					]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model1.send("pr_papmake_3001");
+				model1.copyNode("/root/initData/comboSet/fac_clsf", "/root/tempData/fac_clsf");
+
+				model1.send("pr_papmake_4040");
+				model1.copyNode("/root/initData/comboSet/dual_out_clsf", "/root/tempData/dual_out_clsf");
+				
+				model1.refresh();
+			]]>
+			</script>
+			<submission id="pr_papmake_1001" action="/mt/papmake/1001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="pr_papmake_3001" action="/mt/papmake/3001" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="pr_papmake_4000" action="/mt/papmake/4000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="pr_papmake_4010" action="/mt/papmake/4010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="pr_papmake_4020" action="/mt/papmake/4020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+			<submission id="pr_papmake_4030" action="/mt/papmake/4030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="pr_papmake_4040" action="/mt/papmake/4040" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="pr_papmake_4050" action="/mt/papmake/4050" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728">
+		<group id="group6" class="gro_sel" style="left:10px; top:111px; width:925px; height:164px; ">
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="정산월^자회사^자회사^기본용역비^추가용역비^별쇄용역비^부대비용^용역비합계" colsep="^" colwidth="100, 100, 100, 130, 130, 130, 130, 150" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:0px; top:0px; width:925px; height:155px; ">
+				<col ref="yymm" format="yyyy-mm"/>
+				<col ref="sub_cmpy_clsf" visibility="hidden"/>
+				<col ref="fac_clsf_nm"/>
+				<col ref="base_prt_servcost" format="#,###" style="text-align:right; "/>
+				<col ref="addm_prt_servcost" format="#,###" style="text-align:right; "/>
+				<col ref="sep_prt_servcost" format="(-)#,###" style="text-align:right; "/>
+				<col ref="crps_cost" format="(-)#,###" style="text-align:right; "/>
+				<col ref="total" format="(-)#,###" style="text-align:right; "/>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(datagrid1.rows == 0) return;
+					var selectedIdx = datagrid1.row;
+					
+					var issu_dt = datagrid1.valueMatrix(selectedIdx, 1);
+					var fac_clsf = datagrid1.valueMatrix(selectedIdx, 2);
+					
+					datagrid2.subtotal("clear",1,17);
+					//
+					//fac_clsf = fac_clsf.substr(0,2);
+					
+					model1.setValue("/root/reqData/searchData/issu_dt",issu_dt);
+					model1.setValue("/root/reqData/searchData/fac_clsf",fac_clsf);
+					
+					
+					model1.send("pr_papmake_4000");
+					model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+					model1.copyNode("/root/resData/resForm","/root/tempData/resForm");
+					model1.copyNode("/root/resData/resForm2","/root/tempData/resForm2");
+					model1.setValue("/root/reqData/reqForm/dduc_cost", model.getValue("/root/tempData/resForm2/dduc_cost"));
+					
+					datagrid2.refresh();
+
+					datagrid2.subtotalPosition = "below";
+					datagrid2.subtotal("sum", 17, 7, "#,###", "background-color:#FFAAFF", 3, "소계");
+					datagrid2.subtotal("sum", 17, 8, "#,###", "background-color:#FFAAFF", 3, "소계");
+					datagrid2.subtotal("sum", 17, 9, "#,###", "background-color:#FFAAFF", 3, "소계");
+					datagrid2.subtotal("sum", 17, 12, "#,###", "background-color:#FFAAFF", 3, "소계");
+					datagrid2.subtotal("sum", 17, 13, "#,###", "background-color:#FFAAFF", 3, "소계");
+					
+					//datagrid2.subtotalPosition = "below";
+					datagrid2.subtotal("sum", -1, 7, "#,###", "background-color:#99ff99", 2, "합계");
+					datagrid2.subtotal("sum", -1, 8, "#,###", "background-color:#99ff99", 2, "합계");
+					datagrid2.subtotal("sum", -1, 9, "#,###", "background-color:#99ff99", 2, "합계");
+					datagrid2.subtotal("sum", -1, 12, "#,###", "background-color:#99ff99", 2, "합계");
+					datagrid2.subtotal("sum", -1, 13, "#,###", "background-color:#99ff99", 2, "합계");
+					
+					getGridSum();
+					/*
+					var nodeList = instance1.selectNodes("/root/resData/gridData/record");
+					var all_slip_qty 	= 0;
+					var all_slip_qty_1	= 0;
+					
+					for(i=0; i<nodeList.length; i++){
+						//용지규격이 T이면 /2
+						if (nodeList.item(i).getElementsByTagName("all_slip_qty").item(0).value == ""){
+							all_slip_qty += 0;
+						} else {
+							all_slip_qty 	+= eval(nodeList.item(i).getElementsByTagName("all_slip_qty").item(0).value);
+						}
+						if (nodeList.item(i).getElementsByTagName("all_slip_qty_1").item(0).value == ""){
+							all_slip_qty_1 += 0;
+						} else {
+							all_slip_qty_1 += eval(nodeList.item(i).getElementsByTagName("all_slip_qty_1").item(0).value);
+						}
+						
+						var pap_std = nodeList.item(i).getElementsByTagName("pap_std").item(0).value;
+						var duty_ovt_prt_yn = nodeList.item(i).getElementsByTagName("duty_ovt_prt_yn").item(0).value;
+						var dual_out_clsf = nodeList.item(i).getElementsByTagName("dual_out_clsf").item(0).value;
+						
+						if(pap_std =="T"){
+							all_slip_qty += eval(slip_qty) / 2;
+						} else {
+							all_slip_qty += eval(slip_qty);
+						}
+						
+						if(dual_out_clsf =="01"){
+							all_slip_qty += eval(slip_qty) / 2;
+						} else {
+							all_slip_qty += eval(slip_qty);
+						}
+						
+						if(duty_ovt_prt_yn =="Y"){
+							all_slip_qty += eval(slip_qty);
+						} else {
+							all_slip_qty_1 += eval(slip_qty);
+						}
+					}
+					
+					
+					var basi_prt_qty = eval(model.getValue("/root/resData/resForm/basi_prt_qty"));
+					var basi_excs_qty = eval(model.getValue("/root/resData/resForm/basi_excs_qty"));
+					var basi_excs_servcost = eval(model.getValue("/root/resData/resForm/basi_excs_servcost"));
+					var dduc_cost = eval(model.getValue("/root/reqData/reqForm/dduc_cost"));
+					
+					var basi_ovt_prt_qty = eval(model.getValue("/root/resData/resForm/basi_ovt_prt_qty"));
+					var basi_sep_prtn_servcost = eval(model.getValue("/root/resData/resForm/basi_sep_prtn_servcost"));
+
+					//alert(basi_prt_qty + "\n" + basi_excs_qty + "\n" + basi_excs_servcost);
+					var cost_1 = (Math.round(((all_slip_qty + all_slip_qty_1) - basi_prt_qty) / basi_excs_qty ) * basi_excs_servcost);
+					var cost_2 = Math.round(all_slip_qty_1 / basi_ovt_prt_qty) * basi_sep_prtn_servcost;
+					//alert(all_slip_qty + "\n" + all_slip_qty_1 + "\n" + cost_1 + "\n" + cost_2);
+					
+					model1.setValue("/root/reqData/reqForm/yymm",				issu_dt);
+					model1.setValue("/root/reqData/reqForm/fac_clsf",				fac_clsf);
+					model1.setValue("/root/reqData/reqForm/base_servcost",			model1.getValue("/root/resData/resForm/base_servcost"));
+					model1.setValue("/root/reqData/reqForm/basi_excs_servcost", 	cost_1);
+					model1.setValue("/root/reqData/reqForm/basi_sep_prtn_servcost",	cost_2);
+					model1.setValue("/root/reqData/reqForm/dduc_cost",			dduc_cost);
+					model1.setValue("/root/reqData/reqForm/total",				eval(model1.getValue("/root/resData/resForm/base_servcost")) + cost_1 + cost_2 - dduc_cost);
+					group4.refresh();
+					
+					*/
+					
+					
+					
+					/*
+					model1.send("pr_papmake_4000");
+					model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+					
+					var  nodeList    = instance1.selectNodes("/root/tempData/gridData/record/all_slip_qty");
+					var  nodeList1  = instance1.selectNodes("/root/tempData/gridData/record/duty_ovt_prt_yn");
+					var  pap_std     = instance1.selectNodes("/root/resData/gridData/record/pap_std"  ); //용지규격
+					var all_slip_qty = 0;
+					var all_slip_qty1=0;
+					 for(i=0; i<nodeList.length; i++){
+					 	//용지규격이 T이면 /2
+					 	var temp=pap_std.item(i).value;
+					 	var pap_std1=temp.substr(0,1);
+					        if(pap_std1 =="T"){
+					        	
+					        	nodeList.item(i).value=Number(nodeList.item(i).value)/2;
+					        
+					        	model1.setValue("/root/resData/gridData/record["+(i+1)+"]/all_slip_qty",nodeList.item(i).value);
+					        }
+	                                       if(nodeList1.item(i).value=="Y"){
+				                   all_slip_qty = Number(all_slip_qty) + Number(nodeList.item(i).value);    
+	                                       }else{
+	                                       	all_slip_qty1 = Number(all_slip_qty1) + Number(nodeList.item(i).value);    
+	                                       }
+					
+					}
+					model1.setValue("/root/reqData/searchData/all_slip_qty",all_slip_qty);
+					model1.setValue("/root/reqData/searchData/all_slip_qty1",all_slip_qty1);
+					model1.send("pr_papmake_4030");
+					model1.setValue("/root/resData/resForm/base_servcost",model1.getValue("/root/tempData/resForm/record/base_servcost"));
+					model1.setValue("/root/resData/resForm/basi_excs_servcost",model1.getValue("/root/tempData/resForm/record/basi_excs_servcost1"));
+					model1.setValue("/root/resData/resForm/basi_sep_prtn_servcost",model1.getValue("/root/tempData/resForm/record/basi_sep_prtn_servcost1"));
+					model1.setValue("/root/resData/resForm/total",model1.getValue("/root/tempData/resForm/record/total"));
+					model1.refresh();
+					*/
+					]]>
+				</script>
+			</datagrid>
+		</group>
+		<group id="group3" style="left:10px; top:45px; width:925px; height:21px; ">
+			<button id="button3" class="btn02" style="left:800px; top:0px; width:50px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+					model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:855px; top:0px; width:50px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+      viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+     ]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:690px; top:0px; width:50px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+//					model1.setValue("/root/resData/resForm/fac_clsf",model1.getValue("/root/reqData/searchData/fac_clsf"));
+//					model1.setValue("/root/resData/resForm/yymm",model1.getValue("/root/reqData/searchData/issu_dt"));
+
+					model1.setValue("/root/reqData/reqForm/multiUpData", datagrid2.getUpdateData());
+					model1.send("pr_papmake_4020");
+						
+					if(submit_completed()) {									
+						model1.send("pr_papmake_4010");
+						model1.copyNode("/root/resData/gridData1","/root/tempData/gridData1");
+						model1.refresh();
+					}
+						
+						//model1.setValue("/root/resData/resForm/temp", "");
+					
+				]]>
+				</script>
+			</button>
+			<button id="button7" class="btn02" style="left:635px; top:0px; width:50px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.send("pr_papmake_4010");
+						model1.copyNode("/root/resData/gridData1","/root/tempData/gridData1");
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn04" style="left:540px; top:0px; width:92px; height:21px; ">
+				<caption>용역비생성</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					datagrid2.subtotal("clear",1,17);
+					var issu_dt = model1.getValue("/root/reqData/searchData/issu_dt");
+					var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+					
+					if(issu_dt=="" || fac_clsf==""){
+						alert("정산월과 공장을  입력하세요");
+						return;
+					}
+					
+					model1.send("pr_papmake_4000");
+					
+					var nodeList = instance1.selectNodes("/root/tempData/gridData/record");
+					
+					if (nodeList.length == 0){
+						alert("전체발행내역에 해당월에 대한 정보가 없습니다.확인해주십시오.");
+						return;
+					}
+					
+					model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+					model1.copyNode("/root/resData/resForm","/root/tempData/resForm");
+					datagrid2.refresh();
+					
+					for (var i=1; i<datagrid2.rows; i++){
+						datagrid2.rowStatus(i) = 1;
+					}
+					
+					datagrid2.subtotalPosition = "below";
+					datagrid2.subtotal("sum", 17, 7, "#,###", "background-color:#FFAAFF", 3, "소계");
+					datagrid2.subtotal("sum", 17, 8, "#,###", "background-color:#FFAAFF", 3, "소계");
+					datagrid2.subtotal("sum", 17, 9, "#,###", "background-color:#FFAAFF", 3, "소계");
+					datagrid2.subtotal("sum", 17, 12, "#,###", "background-color:#FFAAFF", 3, "소계");
+					datagrid2.subtotal("sum", 17, 13, "#,###", "background-color:#FFAAFF", 3, "소계");
+					
+					//datagrid2.subtotalPosition = "below";
+					datagrid2.subtotal("sum", -1, 7, "#,###", "background-color:#99ff99", 2, "합계");
+					datagrid2.subtotal("sum", -1, 8, "#,###", "background-color:#99ff99", 2, "합계");
+					datagrid2.subtotal("sum", -1, 9, "#,###", "background-color:#99ff99", 2, "합계");
+					datagrid2.subtotal("sum", -1, 12, "#,###", "background-color:#99ff99", 2, "합계");
+					datagrid2.subtotal("sum", -1, 13, "#,###", "background-color:#99ff99", 2, "합계");
+
+					getGridSum();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:745px; top:0px; width:50px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+
+					model1.send("pr_papmake_4050");
+						
+					if(submit_completed()) {
+						alert("삭제되었습니다.");
+						model1.send("pr_papmake_4010");
+						model1.copyNode("/root/resData/gridData1","/root/tempData/gridData1");
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						
+						model1.setValue("/root/resData/resForm/basi_prt_qty", "");
+						model1.setValue("/root/resData/resForm/basi_make_pcnt", "");
+						model1.setValue("/root/reqData/reqForm/base_servcost", "");
+						model1.setValue("/root/reqData/reqForm/basi_excs_servcost", "");
+						model1.setValue("/root/reqData/reqForm/basi_sep_prtn_servcost", "");
+						model1.setValue("/root/reqData/reqForm/crps_cost", "");
+						model1.setValue("/root/reqData/reqForm/total", "");
+						
+						model1.refresh();
+					}
+					
+				]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group2" style="left:10px; top:280px; width:925px; height:340px; ">
+			<caption id="caption7" class="list_cap02" style="left:99px; top:170px; width:200px; height:24px; text-align:center; "/>
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="발행일자^발행일자^요일^매체^섹션^용지규격^발행면수^칼라면수^인쇄부수^양출구분^시간구분^총인쇄부수^별쇄부수^공장^매체코드^섹션코드^섹션유형" colsep="#" colwidth="20, 100, 60, 140, 100, 70, 80, 80, 80, 80, 70, 90, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:0px; top:0px; width:925px; height:335px; ">
+				<col ref="seq" visibility="hidden"/>
+				<col ref="issu_dt" format="yyyy-mm-dd"/>
+				<col ref="days"/>
+				<col ref="medi_nm"/>
+				<col ref="sect_nm"/>
+				<col ref="pap_std"/>
+				<col ref="issu_pcnt" format="#,###" style="text-align:right; "/>
+				<col ref="clr_pcnt" format="#,###" style="text-align:right; "/>
+				<col ref="slip_qty" format="#,###" style="text-align:right; "/>
+				<col ref="dual_out_clsf" type="combo" style="text-align:left; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/dual_out_clsf/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="duty_ovt_prt_yn"/>
+				<col ref="all_slip_qty" type="input" format="#,###" style="text-align:right; "/>
+				<col ref="all_slip_qty_1" type="input" format="#,###" style="text-align:right; "/>
+				<col ref="fac_clsf" visibility="hidden"/>
+				<col ref="medi_cd" visibility="hidden"/>
+				<col ref="sect_cd" visibility="hidden"/>
+				<col ref="sect_type" visibility="hidden"/>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var cell = datagrid2.selectedCells;
+						
+					if(cell.length < 1){
+						alert("select a Cell");
+						return;
+					}
+					var col 			= cell.item(0).col;
+					var row 			= cell.item(0).row;
+					var all_slip_qty	= 0;
+					var all_slip_qty_se	= 0;
+					
+					if (col == 10){
+						if(datagrid2.valueMatrix(row,10)=="01"){
+							if (datagrid2.valueMatrix(row,11) == "N"){
+								datagrid2.valueMatrix(row,13) = datagrid2.valueMatrix(row, 9) /2;
+							} else {
+								datagrid2.valueMatrix(row,12) = datagrid2.valueMatrix(row, 9) /2;
+							}
+						} else {
+							if (datagrid2.valueMatrix(row, 11) == "N"){
+								datagrid2.valueMatrix(row, 13) = datagrid2.valueMatrix(row, 9);
+							} else {
+								datagrid2.valueMatrix(row, 12) = datagrid2.valueMatrix(row, 9);
+							}
+						}
+					}
+					getGridSum();
+					/*
+					for(i=0; i<datagrid2.rows;i++){
+						if(datagrid2.valueMatrix(i,10)=="01"){
+							if (datagrid2.valueMatrix(i,10) == "N"){
+								datagrid2.valueMatrix(i,13) = datagrid2.valueMatrix(i,9) /2;
+							} else {
+								datagrid2.valueMatrix(i,12) = datagrid2.valueMatrix(i,9) /2;
+							}
+							all_slip_qty = all_slip_qty + eval(datagrid2.valueMatrix(i,12));
+						}else if(datagrid2.valueMatrix(i,10)=="02"){
+							all_slip_qty_se= all_slip_qty_se + eval(datagrid2.valueMatrix(i,12));
+						}
+					}
+					model1.setValue("/root/reqData/searchData/all_slip_qty",all_slip_qty);
+					model1.setValue("/root/reqData/searchData/all_slip_qty1",all_slip_qty_se);
+					*/
+					//model1.send("pr_papmake_4030");
+					//model1.setValue("/root/resData/resForm/base_servcost",model1.getValue("/root/tempData/resForm/record/base_servcost"));
+					//model1.setValue("/root/resData/resForm/basi_excs_servcost",model1.getValue("/root/tempData/resForm/record/basi_excs_servcost1"));
+	              
+					//model1.setValue("/root/resData/resForm/basi_sep_prtn_servcost",model1.getValue("/root/tempData/resForm/record/basi_sep_prtn_servcost1"));
+					//model1.setValue("/root/resData/resForm/total",model1.getValue("/root/tempData/resForm/record/total"));
+					//model1.refresh();		
+					]]>
+				</script>
+			</datagrid>
+		</group>
+		<group id="group1" style="left:10px; top:75px; width:925px; height:30px; ">
+			<caption id="caption42" class="list_cap02" style="left:99px; top:0px; width:826px; height:24px; text-align:center; "/>
+			<caption id="caption1" class="list_cap01" style="left:448px; top:0px; width:100px; height:24px; text-align:center; ">자회사</caption>
+			<input id="input1" ref="/root/reqData/searchData/issu_dt" navindex="1" inputtype="date" format="yyyy-mm" style="left:105px; top:3px; width:100px; height:18px; background-color:#ffffcc; "/>
+			<caption id="caption37" class="list_cap01" style="left:0px; top:0px; width:100px; height:24px; text-align:center; ">정산월</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/fac_clsf" navindex="3" appearance="minimal" style="left:552px; top:3px; width:120px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="group4" style="left:10px; top:630px; width:905px; height:75px; ">
+			<caption id="caption9" class="list_cap02" style="left:99px; top:46px; width:806px; height:24px; text-align:center; "/>
+			<caption id="caption4" class="list_cap02" style="left:99px; top:23px; width:806px; height:24px; text-align:center; "/>
+			<caption id="caption5" class="list_cap01" style="left:325px; top:23px; width:100px; height:24px; text-align:center; ">추가용역비</caption>
+			<caption id="caption6" class="list_cap01" style="left:0px; top:23px; width:100px; height:24px; text-align:center; ">기본용역비</caption>
+			<input id="input2" ref="/root/reqData/reqForm/base_servcost" format="#,###" style="left:109px; top:26px; width:150px; height:18px; text-align:right; "/>
+			<input id="input3" ref="/root/reqData/reqForm/basi_excs_servcost" format="(-)#,###" style="left:435px; top:26px; width:150px; height:18px; text-align:right; "/>
+			<caption id="caption3" class="list_cap01" style="left:0px; top:46px; width:100px; height:24px; text-align:center; ">별쇄용역비</caption>
+			<input id="input4" ref="/root/reqData/reqForm/basi_sep_prtn_servcost" format="#,###" style="left:110px; top:49px; width:150px; height:18px; text-align:right; "/>
+			<caption id="caption10" class="list_cap01" style="left:325px; top:46px; width:100px; height:24px; text-align:center; ">용역비합계</caption>
+			<input id="input5" ref="/root/reqData/reqForm/total" format="#,###" style="left:435px; top:49px; width:150px; height:18px; text-align:right; "/>
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:100px; height:24px; text-align:center; ">기준면수</caption>
+			<caption id="caption8" class="list_cap02" style="left:99px; top:0px; width:806px; height:24px; text-align:right; "/>
+			<input id="input6" ref="/root/resData/resForm/basi_make_pcnt" format="#,###" style="left:110px; top:3px; width:105px; height:18px; text-align:right; "/>
+			<caption id="caption11" class="list_cap01" style="left:593px; top:0px; width:100px; height:24px; text-align:center; ">부대비용</caption>
+			<input id="input7" ref="/root/reqData/reqForm/crps_cost" format="(-)#,###" style="left:702px; top:3px; width:150px; height:18px; text-align:right; "/>
+			<caption id="caption12" class="list_cap01" style="left:325px; top:0px; width:100px; height:24px; text-align:center; ">기준부수</caption>
+			<input id="input8" ref="/root/resData/resForm/basi_prt_qty" format="#,###" style="left:435px; top:3px; width:105px; height:18px; text-align:right; "/>
+			<caption id="caption13" class="list_cap01" style="left:593px; top:23px; width:100px; height:24px; text-align:center; ">공제비용</caption>
+			<input id="input9" ref="/root/reqData/reqForm/dduc_cost" format="(-)#,###" style="left:702px; top:26px; width:150px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					getGridSum();
+					var tmpVal = eval(model.getValue("/root/reqData/reqForm/total")) - eval(model.getValue("/root/reqData/reqForm/dduc_cost"));
+					
+					model.setValue("/root/reqData/reqForm/total", tmpVal);
+					input5.refresh();
+					]]>
+				</script>
+			</input>
+		</group>
+	</xhtml:body>
+</xhtml:html>

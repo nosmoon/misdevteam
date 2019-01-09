@@ -1,0 +1,50 @@
+/***************************************************************************************************
+* 파일명 : SS_L_OTHRPT_INITBUSEOLISTRecord.java
+* 기능 : 정보공유-일지및보고서-타사동향보고-초기화면-부서코드,부서명 목록을 위한 Record
+* 작성일자 : 2004-04-24
+* 작성자 : 김대섭
+***************************************************************************************************/
+/***************************************************************************************************
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업 : 
+***************************************************************************************************/
+
+
+package chosun.ciis.ss.sls.share.rec;
+
+import java.sql.*;
+import chosun.ciis.ss.sls.share.dm.*;
+import chosun.ciis.ss.sls.share.ds.*;
+
+/**
+ * 정보공유-일지및보고서-타사동향보고-초기화면-부서코드,부서명 목록을 위한 Record
+ */
+
+
+public class SS_L_OTHRPT_INITBUSEOLISTRecord extends java.lang.Object implements java.io.Serializable{
+
+	public String deptcd;
+	public String boksnm;
+
+	public SS_L_OTHRPT_INITBUSEOLISTRecord(){}
+
+	public void setDeptcd(String deptcd){
+		this.deptcd = deptcd;
+	}
+
+	public void setBoksnm(String boksnm){
+		this.boksnm = boksnm;
+	}
+
+	public String getDeptcd(){
+		return this.deptcd;
+	}
+
+	public String getBoksnm(){
+		return this.boksnm;
+	}
+}
+
+/* 작성시간 : Fri Jun 11 20:16:17 KST 2004 */

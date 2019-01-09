@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session>
+						</session>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<comboSet>
+							<papcmpy_cd>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</papcmpy_cd>
+						</comboSet>
+					</initData>
+					<reqData>
+						<mang_cd_3/>
+						<searchData>
+							<aply_dt_fr_s/>
+							<aply_dt_to_s/>
+						</searchData>
+						<multiUpData/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<aply_dt/>
+								<papcmpy_cd/>
+								<ordr_ratio/>
+								<occr_dt/>
+								<seq/>
+								<rowCnt/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					funComboSet();	//공장콤보
+					//datagrid1.isReadOnly(1, 1, 1, 4)  = true;		//첫번째 행 readonly
+					model.removenode("/root/resData/gridData/record");
+					datagrid1.refresh();
+				]]>
+			</script>
+			<submission id="mt_papord_2000_m" action="/mt/prnpap/1001" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_papord_2001_l" action="/mt/papord/2001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papord_2002_a" action="/mt/papord/2002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//행입력
+				function addRow() {
+					var rowCnt      = 0;
+					var selectedIdx = datagrid1.rows-1;
+					var aply_dt = model1.getValue("/root/resData/gridData/record[1]/aply_dt");	
+					
+					if(aply_dt=="") {
+						rowCnt = datagrid1.rows;
+						if(rowCnt > 1) {
+							datagrid1.isReadOnly(1, 1, 1, 4)  =false;
+							datagrid1.addStatus(selectedIdx, "insert");
+							model1.setValue("/root/resData/gridData/record[1]/aply_dt", getCurrentDate());
+							return false;
+						} else {
+							datagrid1.addRow(true, true);
+							return true;
+						}
+					}else{				
+						datagrid1.addRow(true, true);
+						return true;
+					}
+				}
+				
+				
+				//제지사combo
+				function funComboSet() {
+					model1.send("mt_papord_2000_m");
+					model1.copyNode("/root/initData/comboSet/papcmpy_cd","/root/tempData/papcmpy_cd");	//제지사콤보
+					
+					model1.refresh();
+				}
+		
+				//조회
+				function funSearch() {
+					var aply_dt_fr = "";
+					var aply_dt_to = "";
+					
+					aply_dt_fr = model1.getValue("/root/reqData/searchData/aply_dt_fr_s");
+					aply_dt_to = model1.getValue("/root/reqData/searchData/aply_dt_to_s");
+					
+					if((aply_dt_fr != "" && aply_dt_to != "") || (aply_dt_fr == "" && aply_dt_to == "")) {
+						datagrid1.isReadOnly(1, 1, 1, 4)  =false;
+						//조회
+						model1.send("mt_papord_2001_l");
+						model1.copyNode("/root/resData","/root/tempData");
+
+						datagrid1.refresh();
+						datagrid1.clearStatus();
+						
+						
+					} else {
+						alert("적용일자 조회시 시작일자 종료일자 모두 입력하시오.");
+						return;
+					}
+				}
+				
+				//저장
+				function funSave() {
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					model1.setValue("/root/reqData/multiUpData",datagrid1.getUpdateData());
+					model1.send("mt_papord_2002_a");
+					
+					if(submit_completed()) {
+						alert("저장 완료되었습니다.");
+						window.reload();
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="1,920;2,126;1,935;">
+		<group id="group1" class="gro_sel" style="left:10px; top:42px; width:926px; height:27px; ">
+			<button id="btnA1" class="btn02" style="left:717px; top:3px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:769px; top:3px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSave();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:821px; top:3px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						datagrid1.isReadOnly(1, 1, 1, 4)  = true;		//첫번째 행 readonly
+						
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:873px; top:3px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group2" style="left:10px; top:75px; width:926px; height:24px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:0px; width:926px; height:24px; text-align:center; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:140px; height:24px; text-align:center; ">적용일자</caption>
+			<caption id="caption4" style="left:255px; top:3px; width:15px; height:20px; ">~</caption>
+			<input id="input1" ref="/root/reqData/searchData/aply_dt_fr_s" navindex="12" inputtype="date" style="left:145px; top:3px; width:100px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/aply_dt_to_s" navindex="12" inputtype="date" style="left:275px; top:3px; width:100px; height:18px; "/>
+		</group>
+		<button id="button9" class="btn_grid03" style="left:827px; top:105px; width:52px; height:17px; ">
+			<caption>행입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var iSelectedRow = 0;
+					if(addRow()) {
+						iSelectedRow = datagrid1.selectedRow(0);
+						
+						model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/aply_dt", getCurrentDate());
+					}
+//						var selectedIdx = 0;
+//
+//						datagrid1.addRow(true, true);
+//						selectedIdx = datagrid1.selectedRow(0);
+//
+//						//model1.send("hd_affr_1200");
+//						//model1.copyNode("/root/initData/comboSet", "/root/tempData");
+//						model1.setValue("/root/resData/resForm/rowCnt_h", selectedIdx);
+//						model1.setValue("/root/resData/resForm/temp_h", "1");
+//						
+//						model1.refresh();
+ 					]]>
+			</script>
+		</button>
+		<button id="button10" class="btn_grid03" style="left:882px; top:105px; width:52px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var iSelectedRow = 0;
+					var sDelGubun = "";
+					
+					iSelectedRow = datagrid1.selectedRow(0);
+					
+					sDelGubun = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/rowCnt");
+					
+					if(sDelGubun != "") {
+						datagrid1.addStatus(datagrid1.row, "delete");
+					} else {
+						datagrid1.deleteRow(iSelectedRow,true);
+					}
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="적용일자^제지사^발주비율^caption2^caption3^caption1" colsep="#" colwidth="249, 264, 200, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:126px; width:926px; height:564px; ">
+			<col ref="aply_dt" format="yyyy-mm-dd"/>
+			<col ref="papcmpy_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/papcmpy_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="ordr_ratio" type="input" maxlength="4"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="rowCnt" visibility="hidden"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

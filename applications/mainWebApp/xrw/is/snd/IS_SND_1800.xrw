@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet_ad.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>배포확인증</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<is_snd_1800_m>
+								<dataSet>
+									<CURLIST1>
+										<record>
+											<cd/>
+											<cdnm/>
+											<cd_abrv_nm/>
+											<cdnm_cd/>
+											<cdabrvnm_cd/>
+										</record>
+									</CURLIST1>
+								</dataSet>
+							</is_snd_1800_m>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<scat_dt_fr/>
+							<scat_dt_to/>
+							<wh_cd/>
+							<advcs_cd/>
+							<advcs_cd_nm/>
+							<advt_nm/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+								<checked/>
+								<scat_dt/>
+								<acwr_reg_dt_seq/>
+								<advcs_cd_nm/>
+								<advt_nm/>
+								<asnt_dstc_cd_nm/>
+								<purc_dlco_nm/>
+								<bo_head_nm/>
+								<qunt/>
+								<send_yn/>
+								<purc_reg_dt/>
+								<purc_reg_seq/>
+								<std_cd_nm/>
+							</record>
+						</gridData1>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="is_snd_1800_m" action="/is/snd/1800" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/is_snd_1800_m/dataSet"/>
+			<submission id="is_snd_1810_l" action="/is/snd/1810" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1/record"/>
+			<submission id="is_com_1201_s" action="/is/com/1201" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.setValue("/root/reqData/searchData/scat_dt_fr", getCurrentDate());	
+				model.setValue("/root/reqData/searchData/scat_dt_to", getCurrentDate());	
+				
+				model.send("is_snd_1800_m");
+				makeComboGubun("A","/root/initData/comboSet/is_snd_1800_m/dataSet/CURLIST1","record","cdnm", "cd"); 
+				
+				datagrid1.fixedcellcheckbox(0, datagrid1.colRef("checked"), false) = true;	/**체크박스 전체**/
+			
+				model.refresh();					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			/**광고주 팝업**/
+			function setAdDlcoInfo(menu_id, menu_nm){
+				model.setValue("/root/reqData/searchData/advcs_cd", menu_id);
+				model.setValue("/root/reqData/searchData/advcs_cd_nm", menu_nm);
+	
+				model.refresh();	
+			}	
+			
+			function goReport(gubun){
+				var cmpy_cd		=	model.property("ss_cmpycd");				
+				var purc_reg_dt 	= 	"";
+				var purc_reg_seq 	= 	"";
+				
+				var bChk			= 	false;
+				
+				for( var i=datagrid1.fixedRows; i<datagrid1.rows; i++ ){
+					if( "Y" == datagrid1.valueMatrix(i, datagrid1.colRef("checked")) )	{
+						bChk = true;
+						if( purc_reg_dt == "" )	purc_reg_dt = datagrid1.valueMatrix(i, datagrid1.colRef("purc_reg_dt"));
+						else				purc_reg_dt = purc_reg_dt + "#" + datagrid1.valueMatrix(i, datagrid1.colRef("purc_reg_dt"));
+						if( purc_reg_seq == "" ) purc_reg_seq = datagrid1.valueMatrix(i, datagrid1.colRef("purc_reg_seq"));
+						else				   purc_reg_seq = purc_reg_seq + "#" + datagrid1.valueMatrix(i, datagrid1.colRef("purc_reg_seq"));
+					}
+				}
+				if( bChk == false ){
+					alert("출력대상을 선택하세요.");
+					return;
+				}
+				//alert(purc_reg_dt+"<<::>>"+purc_reg_seq);
+				
+				makeNodeValue("/root/oz_data/ozrName", "is/SP_IS_SND_1820_P");
+						
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd"		, cmpy_cd);
+				makeNodeValue("/root/oz_data/odiParam/iv_purc_reg_dt"	, purc_reg_dt);
+				makeNodeValue("/root/oz_data/odiParam/iv_purc_reg_seq"	, purc_reg_seq);
+				
+				openOzwin("/root/oz_data");
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,935;2,61;2,71;2,145;2,125;2,131;2,139;2,699;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:108px; width:926px; height:5px; "/>
+		<button id="button4" class="btn02" crud="R" style="left:720px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.send("is_snd_1810_l");										
+				]]>
+			</script>
+		</button>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:70px; height:28px; ">배포일자</caption>
+		<button id="button1" class="btn02" crud="R" style="left:828px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="btn02" crud="C" style="left:774px; top:40px; width:50px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				goReport("P");							
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn02" style="left:882px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));								
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" class="nobg" caption="^배포일자^승낙서번호^광고주^광고명^구역^지국^지국장^부수^발송여부^purc_reg_dt^purc_reg_seq" colsep="^" colwidth="40, 80, 139, 120, 120, 100, 80, 80, 100, 60, 100, 100" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="free" style="left:10px; top:115px; width:925px; height:543px; ">
+			<col checkvalue="Y,N" ref="checked" type="checkbox"/>
+			<col ref="scat_dt" format="yyyy-mm-dd"/>
+			<col ref="acwr_reg_dt_seq"/>
+			<col ref="advcs_cd_nm" style="text-align:left; "/>
+			<col ref="advt_nm" style="text-align:left; "/>
+			<col ref="asnt_dstc_cd_nm" style="text-align:left; "/>
+			<col ref="purc_dlco_nm" style="text-align:left; "/>
+			<col ref="bo_head_nm"/>
+			<col ref="qunt" format="#,###" style="text-align:right; "/>
+			<col ref="send_yn"/>
+			<col ref="purc_reg_dt" visibility="hidden"/>
+			<col ref="purc_reg_seq" visibility="hidden"/>
+		</datagrid>
+		<caption id="caption2" class="list_cap01" style="left:280px; top:71px; width:70px; height:28px; ">물류센터</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/wh_cd" appearance="minimal" style="left:353px; top:75px; width:77px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/is_snd_1800_m/dataSet/CURLIST1/record">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption46" class="list_cap01" style="left:435px; top:71px; width:70px; height:28px; ">광고주</caption>
+		<caption id="caption29" class="list_cap01" style="left:750px; top:71px; width:70px; height:28px; ">광고명</caption>
+		<input id="input2" ref="/root/reqData/searchData/advt_nm" navindex="8" autonext="false" style="left:826px; top:76px; width:99px; height:18px; "/>
+		<caption id="caption14" style="left:173px; top:77px; width:15px; height:17px; ">~</caption>
+		<input id="input1" ref="/root/reqData/searchData/scat_dt_fr" navindex="1" inputtype="date" format="yyyy-mm-dd" style="left:84px; top:76px; width:85px; height:18px; "/>
+		<input id="input3" ref="/root/reqData/searchData/scat_dt_to" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:189px; top:76px; width:85px; height:18px; "/>
+		<input id="inp_advcs_cd" ref="/root/reqData/searchData/advcs_cd" inputtype="button" format="999999" style="left:508px; top:75px; width:70px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				model.makeNode("/root/reqData/fwdData/func_nm");
+				model.setValue("/root/reqData/fwdData/func_nm", "setAdDlcoInfo");//팝업에서 함수호출명 
+				
+				window.load("../com/IS_COM_1000.xrw"
+				                  ,"mdichild"
+				                  , "is_com_1000"
+				                  , "width:645px; height:480px; align:center; caption:hidden;"
+				                  , "/root/reqData/fwdData"
+				                  , "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if (inp_advcs_cd.value.length == 6) {
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/advcs_cd");
+					model.setValue("/root/reqData/fwdData/advcs_cd", inp_advcs_cd.value);
+					model.send("is_com_1201_s");
+							
+					if (model.getValue("/root/tempData/record/advcs_cd") != "") {
+						inp_advcs_cd_nm.value = model.getValue("/root/tempData/record/advcs_nm");
+					}else {
+						inp_advcs_cd_nm.value = "";
+						inp_advcs_cd.value = "";
+					}
+				}else {
+					inp_advcs_cd_nm.value = "";
+					inp_advcs_cd.value = "";
+				}
+				model.refresh();
+				]]>
+			</script>
+		</input>
+		<input id="inp_advcs_cd_nm" ref="/root/reqData/searchData/advcs_cd_nm" style="left:583px; top:75px; width:164px; height:18px; "/>
+	</xhtml:body>
+</xhtml:html>

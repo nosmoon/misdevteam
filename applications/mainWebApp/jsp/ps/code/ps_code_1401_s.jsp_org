@@ -1,0 +1,261 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_code_1401_a.jsp
+* 기능 : 통합코드관리 초기화면
+* 작성일자 : 2004-02-20
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    // 페이지당 보여줄 라인수
+    String records_per_page = "15";
+    int li_per = Integer.parseInt(records_per_page) ;
+    //	dataset 인스턴스 선언부분
+    PS_S_CMPYBO_INTGDataSet ds = (PS_S_CMPYBO_INTGDataSet)request.getAttribute("ds");  // request dataset
+%>
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"-->
+<html>
+<head>
+
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+	setInputBackgroundColor();
+}
+
+// 매체단가 내역 조회처리
+function list_search(){
+    var lo_form1 = list_form;
+	var lo_from2 = detail_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+    lo_form1.action = "/ps/code/1406";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// navigator선택시 페이지 move처리
+function page_move(curr_page_no) {
+    var lo_form = document.list_form;
+
+    if(!curr_page_no) {
+        lo_form.curr_page_no.value = '1';
+    } else {
+        lo_form.curr_page_no.value = curr_page_no;
+    }
+
+    list_search();
+}
+
+
+
+// 상세정보를 표기한다
+function detail_view(str1,str2,str3,str4,str5,str6) {
+    var lo_form1 = document.detail_form;
+
+    // Background 색상을 지정한다
+    //lo_form1.asinbocd.disabled = true;
+    lo_form1.asinbocd.readOnly = true;
+
+    lo_form1.asinbocd.value = str1;			//지국지사명
+    lo_form1.sendintgyn.value = str2;		//발송통합여부
+    lo_form1.clamtintgyn.value = str3;		//수금통합여부
+    lo_form1.alonintgyn.value = str4;		//수당통합여부
+    lo_form1.intgaftboalonpaypoint.value = str5;			//지사수당지급시점
+    lo_form1.intgafthdqtalonpaypoint.value = str6;			//본사수당지급시점
+
+	setEventHandler();
+}
+
+// 상세정보를 신규등록 처리한다
+function detail_insert() {
+    var lo_form1 = document.detail_form;
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+
+    var ls_check = confirm("저장 하시겠습니까?");
+        if(!ls_check) return ;
+    lo_form1.method = "post";
+    lo_form1.action = "/ps/code/1411";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+
+}
+
+
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onload="init()">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+  <td bgcolor="#797777" height="25" class="home"><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" onload="init()"><b>코드
+    &gt; </b>통합코드관리</td>
+</tr>
+<tr>
+  <td height="10">
+    <!--내용을 위한 여백-->
+  </td>
+</tr>
+</table>
+
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+<!--등록?-->
+<form name="detail_form" method="post" action="">
+<input type="hidden" name="accflag" value="">
+<tr>
+   <td valign="top" align="center">
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td bgcolor="#EBE9DC" class="title"><b>지사통합코드관리</b></td>
+          <td bgcolor="#EBE9DC" class="title" align="right" width="250">
+            <img src="/html/comm_img/bu_save.gif" width="39"  align="absmiddle" border="0" style="cursor:hand"
+		 onclick="detail_insert();window.event.returnValue=false;">
+        </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0"  cellpadding="1" cellspacing="0" bgcolor="#FFFFFF" class="gray">
+        <tr>
+          <td  width="110" bgcolor="#dddddd" class="gray">지사 <font color="red">*</font></td>
+          <td class="gray" width="100" >
+            <select name="asinbocd" class="sel_all" caption="지사" notEmpty >
+            <option value="" >선택</option>
+            <%=ds.asinbocdcurOptHtml("")%>
+            </select>
+          </td>
+          <td  width="110" bgcolor="#dddddd" class="gray">지사수당지급시점<font color="red">*</font></td>
+          <td class="gray" width="100" >
+            <select name="intgaftboalonpaypoint" class="sel_all" caption="지사사수당지급시점" notEmpty >
+            <option value="" >선택</option>
+            <%=ds.alonlistOptHtml("")%>
+            </select>
+          </td>
+          <td width="110" bgcolor="#dddddd" class="gray">본사수당지급시점<font color="red">*</font></td>
+          <td class="gray" width="100">
+            <select name="intgafthdqtalonpaypoint" class="sel_all" caption="본사수당지급시점" notEmpty >
+            <option value="" >선택</option>
+            <%=ds.alonlistOptHtml("")%>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td   bgcolor="#dddddd" class="gray">발송통합여부<font color="red">*</font></td>
+          <td class="gray">
+            <select name="sendintgyn" class="sel_all" caption="발송통합여부" notEmpty >
+            <option value="N" selected >&nbsp;N&nbsp;</option>
+            <option value="Y" >&nbsp;Y&nbsp;</option>
+            </select>
+          </td>
+          <td   bgcolor="#dddddd" class="gray">수금통합여부<font color="red">*</font></td>
+          <td class="gray"  >
+            <select name="clamtintgyn" class="sel_all" caption="수금통합여부" notEmpty >
+            <option value="N" selected >&nbsp;N&nbsp;</option>
+            <option value="Y" >&nbsp;Y&nbsp;</option>
+            </select>
+          </td>
+          <td   bgcolor="#dddddd" class="gray">수당통합여부<font color="red">*</font></td>
+          <td class="gray">
+            <select name="alonintgyn" class="sel_all" caption="수당통합여부" notEmpty >
+            <option value="N" selected >&nbsp;N&nbsp;</option>
+            <option value="Y" >&nbsp;Y&nbsp;</option>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </td>
+    </tr>
+    </form>
+      <tr>
+        <td height="10">
+          <!------여백--- -->
+        </td>
+      </tr>
+      <!--search -->
+    <form name="list_form" method="post" action="">
+      <input name="curr_page_no" type="hidden" value ="1"><!--//현재페이지-->
+      <input name="records_per_page" type="hidden" value ="<%=records_per_page%>"> <!--//화면에 보여줄  ROW수-->
+      <input name="js_fn_nm" type="hidden" value ="page_move">
+      <table width="830" border="0" align="center" cellspacing="0" cellpadding="2">
+        <tr bgcolor="#EBE9DC">
+          <td  class="title" width="100"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">출판본사/지사</td>
+          <td  class="title" width="100">
+            <select name="slt_bocd" class="sel_all" caption="지사"  >
+            <option value="" >전체</option>
+            <%=ds.asinbocdcurOptHtml("")%>
+            </select>
+
+          </td>
+          <td  class="title" >
+            <input type="image" src="/html/comm_img/bu_search.gif" width="36"  align="absmiddle" border="0" style="cursor:hand"
+				 onclick="list_search();window.event.returnValue=false;">
+          </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="4">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list -->
+      <table width="830" border="0"  cellpadding="1" align="center"  cellspacing="0" bgcolor="#FFFFFF" class="gray" id="list_info">
+        <tr align="center" bgcolor="#dddddd" >
+          <td width="120" class="gray">지국지사명</td>
+          <td width="120" class="gray">발송통합여부</td>
+          <td width="120" class="gray">수금통합여부</td>
+          <td width="120" class="gray">수당통합여부</td>
+          <td width="120" class="gray">지사수당지급시점</td>
+          <td width="120" class="gray">본사수당지급시점</td>
+        </tr>
+<%
+	for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+        <tr>
+          <td  class="gray">&nbsp;</td>
+          <td  class="gray">&nbsp;</td>
+          <td  align="center" class="gray">&nbsp;</td>
+          <td  align="center" class="gray">&nbsp;</td>
+          <td  align="center" class="gray">&nbsp;</td>
+          <td  align="center" class="gray">&nbsp;</td>
+        </tr>
+<%
+	}
+%>
+
+      </table>
+      <!---button-->
+
+    </td>
+  </tr>
+  </form>
+</table>
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="iframe" width=0 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+</body>
+</html>

@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<codeData>
+								<shiftClsfCombo/>
+							</codeData>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<naviInfo>
+							<pageno>0</pageno>
+							<totalcnt>0</totalcnt>
+							<js_fn_nm>search</js_fn_nm>
+							<pagesize/>
+							<page_set_gubun>0</page_set_gubun>
+						</naviInfo>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<searchForm>
+								<applySession/>
+								<pageno>1</pageno>
+								<pagesize/>
+								<js_fn_nm>search</js_fn_nm>
+								<fr_dt/>
+								<to_dt/>
+								<shftclsf/>
+								<resv1/>
+								<chkresv1/>
+								<rp_clsf>1</rp_clsf>
+							</searchForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<clsf1/>
+									<clsf2/>
+									<a_cnt/>
+									<b_cnt/>
+									<c_cnt/>
+									<d_cnt/>
+									<e_cnt/>
+									<f_cnt/>
+									<g_cnt/>
+									<tot_cnt/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+			<submission id="PID1785subInit" action="/ss/brsup/1785" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/codeData"/>
+			<submission id="PID1785subSearch" action="/ss/brsup/1786" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/searchForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				commEventHandler(PID1785group2);
+				
+				model.send("PID1785subInit", false);
+				
+				//기타 데이터 셋팅
+				modelCopyValue("/root/reqData/reqform/searchForm/applySession", 	"/root/initData/comboSet/codeData/applySession");
+				modelCopyValue("/root/reqData/reqform/searchForm/pagesize", 		"/root/initData/comboSet/codeData/pagesize");
+				modelCopyValue("/root/reqData/reqform/searchForm/fr_dt", 			"/root/initData/comboSet/codeData/fr_dt");
+				modelCopyValue("/root/reqData/reqform/searchForm/to_dt", 			"/root/initData/comboSet/codeData/to_dt");
+				
+				PID1785group2.refresh();
+			}
+			
+			//기존의 list_search
+			function search(pageno, rp_clsf)
+			{
+				if(!commValidate(PID1785group2))
+					return;
+				
+				//조회
+				model.setValue("/root/reqData/reqform/searchForm/pageno", pageno==null ? "1" : pageno);
+				model.setValue("/root/reqData/reqform/searchForm/rp_clsf", rp_clsf==null ? "1" : rp_clsf);
+				model.setValue("/root/reqData/reqform/searchForm/resv1", PID1785checkbox1.value == "false" ? "1" : "");
+				
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1785subSearch", false);
+				
+				//데이터 셋팅.
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+				
+				//page navi 셋팅.
+				modelCopyValue("/root/initData/naviInfo/pageno", "/root/tempData/resTemp/pageno");
+				modelCopyValue("/root/initData/naviInfo/totalcnt", "/root/tempData/resTemp/totalcnt");
+				modelCopyValue("/root/initData/naviInfo/js_fn_nm", "/root/tempData/resTemp/js_fn_nm");
+				modelCopyValue("/root/initData/naviInfo/pagesize", "/root/tempData/resTemp/pagesize");
+				
+				//화면 제어.
+				var curCap = PID1785datagrid1.caption;
+				var grid = null;
+				switch(rp_clsf)
+				{
+					case '2' : model.toggle("PID1785case2");
+							PID1785caption2.value = "지국별 목록";
+							grid = PID1785datagrid2;
+							break;
+					case '3' : model.toggle("PID1785case1");
+							PID1785datagrid1.caption = "접수일자" + curCap.substring(curCap.indexOf("^"));
+							PID1785datagrid1.colAttribute(0, "format") = "yyyy-mm-dd";
+							PID1785caption2.value = "접수일자별 목록";
+							grid = PID1785datagrid1;
+							break;
+					case '4' : model.toggle("PID1785case1");
+							PID1785datagrid1.caption = "구독지종" + curCap.substring(curCap.indexOf("^"));
+							PID1785datagrid1.colAttribute(0, "format") = "";
+							PID1785caption2.value = "구독지종별 목록";
+							grid = PID1785datagrid1;
+							break;
+					case '5' : model.toggle("PID1785case1");
+							PID1785datagrid1.caption = "신청연령" + curCap.substring(curCap.indexOf("^"));
+							PID1785datagrid1.colAttribute(0, "format") = "";
+							PID1785caption2.value = "신청연령별 목록";
+							grid = PID1785datagrid1;
+							break;
+					case '6' : model.toggle("PID1785case1");
+							PID1785datagrid1.caption = "카드사" + curCap.substring(curCap.indexOf("^"));
+							PID1785datagrid1.colAttribute(0, "format") = "";
+							PID1785caption2.value = "카드사별 목록";
+							grid = PID1785datagrid1;
+							break;
+					default : model.toggle("PID1785case1");
+							PID1785datagrid1.caption = "지역별" + curCap.substring(curCap.indexOf("^"));
+							PID1785datagrid1.colAttribute(0, "format") = "";
+							PID1785caption2.value = "지역별 목록";
+							grid = PID1785datagrid1;
+							break;
+				}
+				
+				PID1785switch1.refresh();
+				subtotal(grid);
+				
+				if(instance1.selectNodes("/root/resData/gridData/listGrid/record/clsf1").length == 0)
+					model.alert("검색결과가 없습니다.");
+					
+				model.removenode("/root/tempData/resTemp");
+			}
+			
+			function subtotal(gridCtr)
+			{
+				gridCtr.subtotal("clear", -1, gridCtr.colRef("a_cnt"));
+				gridCtr.subtotal("clear", -1, gridCtr.colRef("b_cnt"));
+				gridCtr.subtotal("clear", -1, gridCtr.colRef("c_cnt"));
+				gridCtr.subtotal("clear", -1, gridCtr.colRef("d_cnt"));
+				gridCtr.subtotal("clear", -1, gridCtr.colRef("e_cnt"));
+				gridCtr.subtotal("clear", -1, gridCtr.colRef("f_cnt"));
+				gridCtr.subtotal("clear", -1, gridCtr.colRef("g_cnt"));
+				gridCtr.subtotal("clear", -1, gridCtr.colRef("tot_cnt"));
+				
+				gridCtr.subtotal("sum", -1, gridCtr.colRef("a_cnt"), "", "", gridCtr.colRef("clsf1"), "계");
+				gridCtr.subtotal("sum", -1, gridCtr.colRef("b_cnt"));
+				gridCtr.subtotal("sum", -1, gridCtr.colRef("c_cnt"));
+				gridCtr.subtotal("sum", -1, gridCtr.colRef("d_cnt"));
+				gridCtr.subtotal("sum", -1, gridCtr.colRef("e_cnt"));
+				gridCtr.subtotal("sum", -1, gridCtr.colRef("f_cnt"));
+				gridCtr.subtotal("sum", -1, gridCtr.colRef("g_cnt"));
+				gridCtr.subtotal("sum", -1, gridCtr.colRef("tot_cnt"));
+			}
+			
+			/*function page_move(pageno)
+			{
+				alert("page 이동");
+			}*/
+			
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="2,43;" idprefix="PID1785" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<switch id="PID1785switch1" style="left:10px; top:155px; width:926px; height:570px; ">
+			<case id="PID1785case1" scroll="none" selected="true">
+				<datagrid id="PID1785datagrid1" nodeset="/root/resData/gridData/listGrid/record" backcolorfrozen="#dddddd" caption="지역별^조선IS^TM^지국^은행^독자우대^출판^기타^계" colsep="^" colwidth="98, 98, 98, 98, 98, 98, 98, 98, 120" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" frozenbottomrows="1" mergecellsfixedrows="bycolrec" multitotal="true" rowheader="seq" rowsep="|" selectionmode="free" subtotalposition="below" tooltip="true" style="left:0px; top:0px; width:926px; height:575px; ">
+					<col ref="clsf1" style="text-align:left; "/>
+					<col ref="a_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="b_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="c_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="d_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="e_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="f_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="g_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="tot_cnt" format="#,###" style="text-align:right; "/>
+				</datagrid>
+			</case>
+			<case id="PID1785case2" scroll="none">
+				<datagrid id="PID1785datagrid2" nodeset="/root/resData/gridData/listGrid/record" backcolorfrozen="#dddddd" caption="지역^지국명^조선IS^TM^지국^은행^독자우대^출판^기타^계" colsep="^" colwidth="96, 95, 89, 89, 89, 89, 89, 89, 89, 90" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" frozenbottomrows="1" mergecellsfixedrows="bycolrec" multitotal="true" rowheader="seq" rowsep="|" selectionmode="free" subtotalposition="below" tooltip="true" style="left:0px; top:0px; width:926px; height:575px; ">
+					<col ref="clsf1" style="text-align:left; "/>
+					<col ref="clsf2" style="text-align:left; "/>
+					<col ref="a_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="b_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="c_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="d_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="e_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="f_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="g_cnt" format="#,###" style="text-align:right; "/>
+					<col ref="tot_cnt" format="#,###" style="text-align:right; "/>
+				</datagrid>
+			</case>
+		</switch>
+		<!--group id="PID1785group9" style="left:10px; top:545px; width:926px; height:25px; ">
+			<iviewer id="PID1785paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group-->
+		<group id="PID1785group2" class="gro_sel" style="left:10px; top:75px; width:926px; height:25px; ">
+			<caption id="PID1785caption10" class="list_cap01" style="left:0px; top:0px; width:100px; height:25px; ">검색일자</caption>
+			<caption id="PID1785caption13" class="list_cap01" style="left:348px; top:0px; width:100px; height:25px; ">이체구분</caption>
+			<caption id="PID1785caption15" class="list_cap02" style="left:99px; top:0px; width:250px; height:25px; "/>
+			<caption id="PID1785caption17" class="list_cap02" style="left:447px; top:0px; width:479px; height:25px; "/>
+			<input id="PID1785input1" ref="/root/reqData/reqform/searchForm/fr_dt" class="req" setHandler="true" relid="PID1785input2" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="검색일자" style="left:103px; top:4px; width:95px; height:18px; "/>
+			<input id="PID1785input2" ref="/root/reqData/reqform/searchForm/to_dt" class="req" setHandler="true" relid="PID1785input1" autonext="false" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="검색일자" style="left:219px; top:4px; width:107px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnA1");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<caption id="PID1785caption1" style="left:198px; top:4px; width:20px; height:20px; text-align:center; ">-</caption>
+			<select1 id="PID1785combo1" ref="/root/reqData/reqform/searchForm/shftclsf" appearance="minimal" style="left:451px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/codeData/shiftClsfCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select id="PID1785checkbox1" ref="/root/reqData/reqform/searchForm/chkresv1" overflow="visible" appearance="full" style="left:557px; top:5px; width:113px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>미확인건수포함</label>
+						<value>false</value>
+					</item>
+				</choices>
+			</select>
+		</group>
+		<group id="PID1785group_btnT" class="gro_tab" style="left:10px; top:104px; width:926px; height:25px; ">
+			<caption id="PID1785caption37" class="tabline" style="left:0px; top:22px; width:925px; height:1px; "/>
+			<button id="PID1785btnT1" class="tab05" group="tab" selected="true" style="left:1px; top:0px; width:92px; height:23px; ">
+				<caption>지역별</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						search("1", '1');
+					]]>
+				</script>
+			</button>
+			<button id="PID1785btnT2" class="tab05" group="tab" style="left:96px; top:0px; width:92px; height:23px; ">
+				<caption>지국별</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						search("1", '2');
+					]]>
+				</script>
+			</button>
+			<button id="PID1785btnT3" class="tab05" group="tab" style="left:191px; top:0px; width:92px; height:23px; ">
+				<caption>접수일자별</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						search("1", '3');
+					]]>
+				</script>
+			</button>
+			<button id="PID1785btnT4" class="tab05" group="tab" style="left:286px; top:0px; width:92px; height:23px; ">
+				<caption>구독지종별</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						search("1", '4');
+					]]>
+				</script>
+			</button>
+			<button id="PID1785button2" class="tab05" group="tab" style="left:381px; top:0px; width:92px; height:23px; ">
+				<caption>신청연령별</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						search("1", '5');
+					]]>
+				</script>
+			</button>
+			<button id="PID1785button3" class="tab05" group="tab" style="left:476px; top:0px; width:92px; height:23px; ">
+				<caption>카드사별</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						search("1", '6');
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1785group1" class="gro_sel" style="left:10px; top:127px; width:926px; height:25px; ">
+			<caption id="PID1785caption2" class="list_cap01" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">지역별목록</caption>
+		</group>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:44px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" crud="R" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					PID1785btnT1.selected = true;
+					search("1", '1');
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>중지처리</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<susptypeCombo>
+								<item>
+									<label>부분중지</label>
+									<value>10</value>
+								</item>
+								<item>
+									<label>전체중지</label>
+									<value>20</value>
+								</item>
+							</susptypeCombo>
+							<suspresncdCombo/>
+							<remkCombo/>
+							<freeclsfCombo/>
+						</comboSet>
+						<pageInfo/>
+						<postData>
+							<readerInfoSearchForm>
+								<!-- 실제 데이터 노드들은 유효성 검증을 위해 만들어 놓지 않는다. -->
+								<!--bocd/>
+								<rdr_no/-->
+							</readerInfoSearchForm>
+						</postData>
+						<defaultData>
+							<bocd/>
+							<today/>
+						</defaultData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<readerInfoForm>
+								<bocd/>
+								<rdr_no/>
+								<susptype/>
+								<suspdt/>
+								<suspresncd/>
+								<remk/>
+							</readerInfoForm>
+							<readerInfoSearchForm>
+								<bocd/>
+								<rdr_no/>
+							</readerInfoSearchForm>
+							<stopObjListForm>
+								<susptype/>
+								<suspdt/>
+								<remk/>
+								<resv1/>
+								<resv2/>
+								<resv3/>
+								<!-- 아래는 대상이 복수가 가능. 배열로 처리됨. -->
+								<!--freeclsf/>
+								<qty/>
+								<idx/>
+								<rdr_no/>
+								<medicd/>
+								<freeyn/>
+								<suspresncd/-->
+							</stopObjListForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform>
+							<readerInfoForm>
+								<rdrnm/>
+								<rdrtel_no/>
+								<addr/>
+							</readerInfoForm>
+						</resform>
+						<gridData>
+							<stopObjGrid>
+								<record>
+									<rdr_no/>
+									<medicd/>
+									<medinm/>
+									<freeyn/>
+									<freeynnm/>
+									<freeclsf/>
+									<qty/>
+									<idx/>
+									<orgqty/>
+								</record>
+							</stopObjGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+						<reqTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-model-destruct">
+				<![CDATA[
+				//종료시에 셋팅.
+				setRdrNo();
+				]]>
+			</script>
+			<submission id="PID1320subInit" action="/ss/slreader/1320" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1320subSearch" action="/ss/slreader/1325" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/readerInfoSearchForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1320subStop" action="/ss/slreader/1330" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/tempData/reqTemp" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					model.send("PID1320subInit", false);
+					childValueCopy("/root/initData/defaultData", "/root/tempData/resTemp");
+					modelCopyValue("/root/reqData/reqform/readerInfoForm/suspdt", "/root/initData/defaultData/today");
+					
+					if(instance1.selectNodes("/root/initData/postData/readerInfoSearchForm/rdr_no").length == 0)
+					{
+						model.alert("유효하지 않은 arguments 입니다.");
+						close();
+					}
+					
+					if(model.getValue("/root/initData/postData/readerInfoSearchForm/rdr_no") != "")
+					{
+						modelCopyValue("/root/reqData/reqform/readerInfoSearchForm/bocd", "/root/initData/defaultData/bocd");
+						modelCopyValue("/root/reqData/reqform/readerInfoSearchForm/rdr_no", "/root/initData/postData/readerInfoSearchForm/rdr_no");
+						
+						remakeNode("/root/tempData/resTemp");
+						
+						model.send("PID1320subSearch", false);
+						if(!submit_completed())
+							return;
+						
+						//이미 중지독자인지 여부
+						if(model.getValue("/root/tempData/resTemp/suspFlag") == "true")
+						{
+							model.alert("이미 중지독자 입니다.");
+							close();
+						}
+						
+						//데이터 셋팅
+						//독자번호
+						modelCopyValue("/root/reqData/reqform/readerInfoForm/rdr_no", "/root/tempData/resTemp/readerInfo/rdr_no");
+						//독자정보 - 독자명, 전화번호, 현주소
+						childValueCopy("/root/resData/resform/readerInfoForm", "/root/tempData/resTemp/readerInfo");
+						//중지유형
+						model.copyNode("/root/initData/comboSet/susptypeCombo", "/root/tempData/resTemp/readerInfo/susptypeCombo");
+						//중지일자
+						modelCopyValue("/root/reqData/reqform/readerInfoForm/suspdt", "/root/tempData/resTemp/readerInfo/suspdt");
+						//중지사유
+						model.copyNode("/root/initData/comboSet/suspresncdCombo", "/root/tempData/resTemp/readerInfo/suspresncdCombo");
+						//중지사유-타지구독사유
+						model.copyNode("/root/initData/comboSet/remkCombo", "/root/tempData/resTemp/readerInfo/remkCombo");
+						//중지유형 - 부분중지정보
+						modelCopyValue("/root/reqData/reqform/stopObjListForm/susptype", "/root/tempData/resTemp/stopObj/susptype");
+						//중지대상리스트 - 부분중지정보
+						model.copyNode("/root/resData/gridData/stopObjGrid", "/root/tempData/resTemp/stopObj/stopObjGrid");
+						//구독구분 - 부분중지정보
+						model.copyNode("/root/initData/comboSet/freeclsfCombo", "/root/tempData/resTemp/stopObj/freeclsfCombo");
+						
+						//중지유형 index=1 에 설정.
+						modelCopyValue("/root/reqData/reqform/readerInfoForm/susptype", "/root/tempData/resTemp/stopObj/susptype");
+						
+						model.refresh();
+						
+						//구독구분 disable.
+						for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++)
+							if(gridRefColValue(datagrid1, i, "freeyn") != "Y")
+								//gridReadOnly(datagrid1, i, "suspqty");		//combo는 readonly가 안되므로 disable.
+								gridCellAttribute(datagrid1, "disabled", "true", i, "freeclsf");
+								//datagrid1.cellattribute("disabled",i,1) = "true";
+						
+						//건수확인
+						if(instance1.selectNodes("/root/resData/gridData/stopObjGrid/record/rdr_no").length == 0)
+							model.alert("중지처리할 구독목록이 없습니다.");
+							
+					}
+					
+					model.removenode("/root/tempData/resTemp");
+				}
+				
+				/*function chkAll()
+				{
+					var chk = "";
+					var chkcnt = instance1.selectNodes("/root/resData/gridData/stopObjGrid/record[idx='Y']").length;
+					if(chkcnt == instance1.selectNodes("/root/resData/gridData/stopObjGrid/record").length)
+						chk = "N";
+					else
+						chk = "Y"
+					
+					var nodes = instance1.selectNodes("/root/resData/gridData/stopObjGrid/record");
+					for(var i=0; i<nodes.length; i++)
+						nodes.item(i).selectSingleNode("idx").nodeValue = chk;
+					datagrid1.refresh();
+				}*/
+				
+				function stopReader()
+				{
+					if(instance1.selectNodes("/root/resData/gridData/stopObjGrid/record/rdr_no").length == 0)
+					{
+						model.alert("중지대상이 존재하지 않습니다.");
+						return;
+					}
+					
+					if(!commValidate(group1))
+						return;
+					if(!validateStopInfo())
+						return;
+					
+					model.setValue("/root/reqData/reqform/stopObjListForm/suspdt", input1.value);
+					model.setValue("/root/reqData/reqform/stopObjListForm/remk", combo1.value);
+					
+					//실제 중지 기능은 servlet에서 막혀 있으므로 데이터 생성하지 않음.
+					//필요시 makeNodesetToArrayFormNamed 로 grid데이터를 별도의 request form으로 구성하고. 여기에 readerInfoForm 데이터를 추가하여 전송 request form을 만든 후 처리할 것.
+					model.send("PID1320subStop", false);
+				}
+				
+				function validateStopInfo()
+				{
+					//실제 중지 기능은 servlet에서 막혀 있으므로 데이터 validation 체크하지 않음. 필요시 추가 구현. 원본 sl_reader_1320_p.jsp 의 validate_stop_info를 참조.
+					return true;
+				}
+				
+				function setPartInfo()
+				{
+					model.setValue("/root/reqData/reqform/stopObjListForm/susptype", radio1.value);
+					if(radio1.value == "10")	//부분중지
+					{
+						checkAllGridChkCol(datagrid1, "idx", false);
+						var nodes = instance1.selectNodes("/root/resData/gridData/stopObjGrid/record");
+						for(var i=0; i<nodes.length; i++)
+							if(nodes.item(i) != null && nodes.item(i).selectSingleNode("qty")!=null)
+								nodes.item(i).selectSingleNode("qty").nodeValue = "";
+								
+						datagrid1.refresh();
+					}
+					else
+					{
+						remakeNode("/root/tempData/resTemp");
+						
+						model.send("PID1320subSearch", false);
+						if(!submit_completed())
+							return;
+						
+						//reset...
+						//hidden 정보
+						clearChildNodes("/root/reqData/reqform/stopObjListForm");
+						modelCopyValue("/root/reqData/reqform/stopObjListForm/susptype", "/root/tempData/resTemp/stopObj/susptype");
+						//중지대상리스트 - 부분중지정보
+						model.copyNode("/root/resData/gridData/stopObjGrid", "/root/tempData/resTemp/stopObj/stopObjGrid");
+						//구독구분 - 부분중지정보
+						model.copyNode("/root/initData/comboSet/freeclsfCombo", "/root/tempData/resTemp/stopObj/freeclsfCombo");
+						
+						datagrid1.refresh();
+					}
+					
+					model.setValue("/root/reqData/reqform/stopObjListForm/susptype", radio1.value);
+					combo2.value = "";
+				}
+				
+				function setRemk()
+				{
+					//stop_obj_list_form 의 suspresncd를 설정하는 부분이 있는데 해당 컨트롤은 존재하지 않음. 구현하지 않음.
+					// 중지사유가 "타지구독"일경우 처리.
+					if(combo2.value == "100")
+					{
+						combo1.value == "";
+						combo1.visible = true;
+						combo1.disabled = false;
+					}
+					else
+					{
+						combo1.visible = false;
+						combo1.disabled = true;
+					}
+				}
+				
+				function setRemkValue()
+				{
+					model.setValue("/root/reqData/reqform/stopObjListForm/remk", combo1.value);
+				}
+				
+				function setRdrNo()
+				{
+					var resPath = model.property("RDRSTOP_RES_XPATH");
+	
+					opener.model.removenode(resPath);
+					opener.model.makeNode(resPath + "/rdr_no");
+					opener.model.setValue(resPath + "/rdr_no", model.getValue("/root/initData/postData/readerInfoSearchForm/rdr_no"));	//받은 rdr_no를 그대로 돌려줌.
+				}
+				
+				function close()
+				{
+					window.close();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="605" pageheight="450" idprefix="PID1320" style="font-family:굴림; ">
+		<group id="group1" style="left:10px; top:15px; width:586px; height:199px; ">
+			<caption id="caption2" class="list_cap02" style="left:499px; top:150px; width:87px; height:25px; text-align:center; "/>
+			<caption id="PID1901caption4" class="tit01" style="left:0px; top:0px; width:585px; height:25px; text-align:left; ">중지처리</caption>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:30px; width:585px; height:25px; text-align:center; ">독자정보</caption>
+			<caption id="caption5" class="list_cap01" style="left:0px; top:54px; width:60px; height:25px; text-align:left; ">독자명</caption>
+			<caption id="caption6" class="list_cap01" style="left:0px; top:78px; width:60px; height:25px; text-align:left; ">전화번호</caption>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:102px; width:60px; height:25px; text-align:left; ">현주소</caption>
+			<caption id="caption8" ref="/root/resData/resform/readerInfoForm/rdrnm" class="list_cap02" style="left:59px; top:54px; width:526px; height:25px; text-align:left; "/>
+			<caption id="caption9" ref="/root/resData/resform/readerInfoForm/rdrtel_no" class="list_cap02" style="left:59px; top:78px; width:526px; height:25px; text-align:left; "/>
+			<caption id="caption10" ref="/root/resData/resform/readerInfoForm/addr" class="list_cap02" style="left:59px; top:102px; width:526px; height:25px; text-align:left; "/>
+			<caption id="caption11" class="list_cap01" style="left:0px; top:126px; width:585px; height:25px; text-align:center; ">중지정보</caption>
+			<caption id="caption12" class="list_cap01" style="left:0px; top:150px; width:60px; height:25px; text-align:left; ">중지유형</caption>
+			<caption id="caption13" class="list_cap02" style="left:59px; top:150px; width:150px; height:25px; text-align:center; "/>
+			<caption id="caption14" class="list_cap01" style="left:208px; top:150px; width:60px; height:25px; text-align:left; ">중지일자</caption>
+			<select1 id="radio1" ref="/root/reqData/reqform/readerInfoForm/susptype" class="req" appearance="full" cols="2" overflow="visible" style="left:64px; top:155px; width:140px; height:17px; border-style:none; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/susptypeCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					setPartInfo();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption15" class="list_cap02" style="left:267px; top:150px; width:88px; height:25px; text-align:center; "/>
+			<input id="input1" ref="/root/reqData/reqform/readerInfoForm/suspdt" class="req" imemode="disabled" maxlength="10" format="yyyy/mm/dd" dataType="date" caption="중지일자" style="left:271px; top:154px; width:80px; height:18px; "/>
+			<caption id="caption16" class="list_cap01" style="left:354px; top:150px; width:60px; height:25px; text-align:left; ">중지사유</caption>
+			<caption id="caption17" class="list_cap02" style="left:413px; top:150px; width:87px; height:25px; text-align:center; "/>
+			<select1 id="combo2" ref="/root/reqData/reqform/readerInfoForm/suspresncd" appearance="minimal" style="left:416px; top:154px; width:80px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/suspresncdCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					setRemk();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption18" class="list_cap01" style="left:0px; top:174px; width:585px; height:25px; text-align:center; ">부분 중지 정보</caption>
+			<select1 id="combo1" ref="/root/reqData/reqform/readerInfoForm/remk" visibility="hidden" appearance="minimal" style="left:502px; top:154px; width:80px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/remkCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					setRemkValue();
+					]]>
+				</script>
+			</select1>
+		</group>
+		<group id="group2" style="left:10px; top:415px; width:585px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:585px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:300px; top:5px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn_grid02" style="left:255px; top:5px; width:42px; height:17px; ">
+				<caption>중지</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						stopReader();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/stopObjGrid/record" caption="매체명^구독구분^무료구분^구독부수^중지부수^∨" colsep="^" colwidth="124, 89, 90, 90, 110, 80" ellipsis="true" explorerbar="move" mergecellsfixedrows="bycolrec" rowsep="|" tooltip="true" style="left:10px; top:213px; width:585px; height:197px; ">
+			<col ref="medinm"/>
+			<col ref="freeynnm"/>
+			<col ref="freeclsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/freeclsfCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="orgqty" format="#,###" style="text-align:right; "/>
+			<col ref="qty" type="input" format="#,###" style="text-align:right; "/>
+			<col checkvalue="Y,N" ref="idx" type="checkbox"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(event.button==1 && datagrid1.row==0 && datagrid1.col==datagrid1.colRef("idx"))
+					//chkAll();
+					checkAllGridChkCol(datagrid1, "idx");
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,957 @@
+package somo.framework.db;
+
+import java.io.*;
+import java.sql.*;
+import java.util.*;
+import java.lang.*;
+
+import somo.framework.prop.*;
+import somo.framework.util.*;
+import somo.framework.expt.*;
+import somo.framework.lib.*;
+
+import oracle.jdbc.driver.*;
+
+/**
+ * <PRE>
+ * Filename : DBManager.java
+ * Class    : DBManager
+ * Function : DBManager
+ * Comment  : DBConnection을 DBManager에서 관리한다.
+ *
+ * History  :
+ * </PRE>
+ * @version   0.9
+ * @author
+ */
+public class DBManager
+{
+
+    private  boolean 			verbose    = false;	// 화면출력여부 flag
+
+
+    //DB Connection을 위한 변수.
+    private String				m_usepool		= null;
+    private String 				m_jdbcDriver 	= null;
+    private String 				m_dbURL         = null;
+    private String     			m_dbUSER        = null;
+    private	String     			m_dbPASS        = null;
+    private String              m_databasename  = null;
+
+    //DBData 처리를 위한 변수를 선언한다.
+    private Connection 			m_conn 			= null;	// DB Connection 객체
+    private Statement 			m_stmt 			= null;	// Statement execute query
+    private PreparedStatement 	m_pstmt 		= null;	// Prepared Statement execute query
+    private CallableStatement   m_cs            = null; // Stored Procedure execute
+    private ResultSet 			m_rs 			= null;	// Statement execute query
+    private int 				m_sqlCheck ;	// Query의 성공 여부 ( 1이면 성공, 0이면 실패)
+    private DBResultSet 		m_result 		= null;
+
+    /*
+    	Weblogic등과 같이 업체에서 Connection Pool이 제공되지 않을 경우 사용한다.
+    */
+    private   DBConnection      dbConn 			= null;
+    private   static Vector     dbConnVect 		= new Vector();
+    private   static boolean    DriverRegistered= false;
+    private   static long       poolConnCount 	= 0;
+    private   static long       lastID 			= 0;
+    private   long              id;
+    private   int               INIT_CONS 		= 0;				//Connection 수의 설정
+
+
+    /**
+     * Constructor DBManager
+     * @exception Exception
+     */
+    public DBManager() throws GeneralException
+    {
+    	m_sqlCheck = 0;
+      	try
+       	{
+    		Property prop 	= PropertyManager.getPropertyInstance();
+
+            // Debug 유무 Setting
+            if( prop.isDebug() ) {
+                verbose = true;
+            }
+
+			m_jdbcDriver 	= (String)prop.getProperty("DATABASE.DRIVER");
+            INIT_CONS       = Integer.parseInt((String)prop.getProperty("DBPOOLCOUNT").trim()) ;
+
+            m_dbURL     = (String)prop.getProperty("DATABASE.URL");
+            m_dbUSER    = (String)prop.getProperty("DATABASE.USERNAME");
+            m_dbPASS    = (String)prop.getProperty("DATABASE.PASSWORD");
+            m_databasename = (String)prop.getProperty("DATABASE.NAME");
+			if( verbose ) {
+                System.out.println("LIB -> m_Database: " + m_databasename);
+	    		System.out.println("LIB -> m_Driver  : " + m_jdbcDriver);
+	    		System.out.println("LIB -> m_dbURL   : " + m_dbURL);
+	    		System.out.println("LIB -> m_dbUSER  : " + m_dbUSER);
+			}
+		}
+		catch(Exception e)
+	    {
+	    	System.out.println("LIB -> DBManager : DBMangaer() "+ e.getMessage());
+            throw new GeneralException("db.",e.getMessage(), e);
+	    }
+	}
+
+	/**
+	 * 기존에 Driver가 등록 되었는 지를 검사 한다.
+	 * 등록 되어 있으면 DriverManager를 바로 사용 한다.
+	 */
+	private void registerDriver(String jdbcDriver) throws Exception {
+        if(DriverRegistered) {
+            System.out.println("LIB -> Already DriverRegister");
+            return;
+        }
+
+        try {
+	        Class.forName(jdbcDriver);
+	        DriverRegistered = true;
+        	System.out.println("LIB -> DriverRegistered");
+        }
+        catch(ClassNotFoundException cne){
+            throw new GeneralException("db","jdbc driver not founded!",cne);
+		}
+    }
+
+    /**
+     * DB Connection을 생성<BR>
+     * @exception Exception jdbc class를 못 찾거나 connection 생성 Error시 발생
+     */
+    public void getConnection() throws Exception
+    {
+		try
+		{
+			//Class.forName(m_jdbcDriver).newInstance();
+			registerDriver(m_jdbcDriver);
+
+            if( dbConn  != null ) {
+                throw new SQLException("LIB -> Connectin previously opened.");
+            }
+            if( lastID < Long.MAX_VALUE - 100 ) {
+                lastID++;
+            } else {
+                lastID  = 1L;
+            }
+
+            id  = lastID;
+            dbConn = getDBConnection();
+            m_conn = dbConn.getConnection();
+		}
+		catch (SQLException e){
+            throw new GeneralException("db","getConnection() SQLException", e);
+		}
+	}
+
+	/**
+	 * Close시 Statement객체, Prepared Statement객체, Connection객체
+	 * 를 확실하게 Close시킨다.
+     * @exception SQLException If database access error occurs
+	 */
+
+	public void disConnection() throws Exception
+	{
+		try
+		{
+			if (m_rs 	!= null) m_rs.close();
+			if (m_stmt 	!= null) m_stmt.close();
+			if (m_pstmt != null) m_pstmt.close();
+            if (m_cs    != null) m_cs.close();
+            if (dbConn  != null) {
+                if(dbConn.isOverConn()) {
+                    dbConn.close();
+                } else {
+                    dbConn.setBusy(false);
+                }
+                dbConn = null;
+            }
+            // m_conn.close을 수행하지 않는 이유 --> 기존 Connection된
+            // 객체의 접속이 완전히 끊기면 재접속을 해야 한다.
+		}
+    	catch (SQLException e){
+            throw new GeneralException("db","disConnection() error...", e);
+    	}
+        finally {
+            m_rs		= null;
+            m_result    = null;
+            m_stmt      = null;
+            m_pstmt     = null;
+            m_cs        = null;
+            m_conn      = null;
+        }
+	}
+
+	/**
+	 * Statement Query를 SELECT인지 아닌지를 구분하여 실행한다.
+	 * @param sql
+	 * @return N/A
+	 */
+	public void executeSql(String sql) throws Exception
+	{
+		//메소드 시작시간
+		String currentDate;
+        try {
+            if( verbose )
+            {
+                System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& executeSql START  &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+                System.out.println("LIB -> SQL Statement  : " + sql);
+                currentDate = Util.getKST("yyyyMMddHHmmss");
+                System.out.println("LIB -> SQL Execute Start Time : " + currentDate );
+                //Log logfile = new Log("session");
+                //logfile.writeLog("SQL 시작시간:"+currentDate,sql);
+            }
+
+            //사용자가 query를 한번하고 또다시 할경우에는 ResultSet에
+            //DATA가 들어 있을 경우가 있으므로 m_rs를 초기화를 시킨다.
+            if(m_rs != null) m_rs.close();
+            m_rs 		= null;
+            m_result    = null;
+
+            m_stmt = m_conn.createStatement();
+
+            //statement Query실행
+            if( sqlCheck(sql) )
+            {
+                //executeQuery값은 결코 null이되지 않는다.
+                m_rs = m_stmt.executeQuery(sql);		//SELECT하는 문장을 실행 한다.
+                m_result = new DBResultSet(m_rs);
+                m_sqlCheck = m_result.getMaxRowCount();
+                //if(  m_nRowCount == 0){ m_sqlCheck = 0; }
+                //else { m_sqlCheck = 1; }
+            }
+            else {
+                m_sqlCheck = m_stmt.executeUpdate(sql); //SELECT를 제외한 문장을 실행한다.
+            }
+
+            //Log를 기록한다.
+            if( verbose ) {
+                currentDate = Util.getKST("yyyyMMddHHmmss");
+                System.out.println("LIB -> SQL Execute end Time : " + currentDate );
+                System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&& executeSql END    &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
+                //Log logfile = new Log("session");
+                //logfile.writeLog("SQL 종료시간:"+currentDate);
+            }
+        }
+        catch(SQLException se) {
+            m_sqlCheck = se.getErrorCode() * -1;
+            throw new GeneralException("db",se.getSQLState() + se.getMessage(), se);
+        }
+ 	}
+
+     /**
+     * Prepared Statement에서 '?'로 치환하는  인자값을 셋팅한다.
+     * @param pt	(Properties)
+     * @return N/A
+     */
+    public void preparedParamSetting(Properties pt) throws SQLException
+    {
+		//Properties의 값을 분해하여 넣는다.
+		Enumeration	enum  	= pt.propertyNames();
+		String 		strKey 	= new String();
+		String 		strIndexKey 	= new String();
+		String 		strKeyValue 	= new String();
+        String      strPosition     = new String();
+
+		int 		index;
+
+        /*
+         * Properties를 Enum하여 순차적으로 prepared statement의 '?'를
+		 * 셋팅하여 준다. 현재 int와 String만 셋팅이 되어 있으므로 향 후 더
+		 * 늘어날 경우 계속 추가하면 될것임.
+         * (Value.Type)
+         * pt.setProperty("1.CHAR.IN","TEST");
+         */
+        while( enum.hasMoreElements() ) {
+			strKey = (String)enum.nextElement();					 //Keyname을 얻어온다.
+			strKeyValue = pt.getProperty(strKey);					 //KeyValue를 얻어온다.
+			index = strKey.indexOf(".");							 //얻어온 KeyName에서 '.'를 찾는다.
+			strPosition = strKey.substring(0,index);                 //Keyname에서 '.'이전의 값을 찾는다.
+			strIndexKey = strKey.substring(index+1,strKey.length()); //keyname에서 '.'이후의 값을 찾는다.
+			strIndexKey.toUpperCase();								 //"모든 문자를 대문자로 치환한다.
+
+			if( strIndexKey.equals("INT") )							 // Int값을 셋팅한다.
+			{
+               double val;
+                if( strKeyValue.equals("") ) {
+                    val = 0;
+                }
+                else {
+                    val = Double.parseDouble(strKeyValue);
+                }
+                m_pstmt.setDouble(Integer.parseInt(strPosition),val);
+			}
+			else if( strIndexKey.equals("CHAR")     || 					//String Value값을 셋팅한다.
+			         strIndexKey.equals("VARCHAR2") ||
+			         strIndexKey.equals("VARCHAR") ) {
+                m_pstmt.setString(Integer.parseInt(strPosition), strKeyValue);
+			}
+
+			if( verbose ) {
+				System.out.println("LIB -> prearedParamSetting() KeyName : " + strKey);
+				System.out.println("LIB -> prearedParamSetting() strIndexKey : " + strKeyValue);
+			}
+		}
+    }
+
+	/**
+	 * Prepared Statement Query를 SELECT인지 아닌지를 구분하여 실행한다.
+	 * @param sql
+	 * @param Properties
+	 */
+	public void executeSql(String sql, Properties pt) throws Exception
+	{
+		//메소드 시작시간
+		String currentDate;
+
+		if( verbose ) {
+            System.out.println("############################### executeSql START  ###############################");
+            System.out.println("LIB -> SQL Statement  : " + sql);
+            currentDate = Util.getKST("yyyyMMddHHmmss");
+			System.out.println("LIB -> SQL Execute Start Time : " + currentDate );
+		}
+		//사용자가 query를 한번하고 또다시 할경우에는
+		//DATA가 들어 있을 경우가 있으므로 m_rs와 m_pstmt를 초기화를 시킨다.
+		if(m_rs 	!= null) 	m_rs.close();
+		if(m_pstmt 	!= null)    m_pstmt.close();
+
+		m_rs 		= null;
+        m_result    = null;
+
+        try {
+            m_pstmt = m_conn.prepareStatement(sql);
+
+            preparedParamSetting(pt);		//Prepared Statement 에서 '?'대입하는 Param을 Setting
+
+            //statement Query실행
+            if( sqlCheck(sql) ) {
+                m_rs 	 = m_pstmt.executeQuery();		//SELECT하는 문장을 실행 한다.
+                m_result = new DBResultSet(m_rs);
+                m_sqlCheck = m_result.getMaxRowCount();
+                //if( m_result.m_nRowCount == 0) { m_sqlCheck = 0; }
+                //else {   m_sqlCheck = 1; }
+            }
+            else {
+                m_sqlCheck = m_pstmt.executeUpdate(); //SELECT를 제외한 문장을 실행한다.
+            }
+            //Log를 기록한다.
+            if( verbose ) {
+                currentDate = Util.getKST("yyyyMMddHHmmss");
+                System.out.println("LIB -> SQL Execute end Time : " + currentDate );
+                System.out.println("############################### executeSql END    ###############################");
+                //Log logfile = new Log("session");
+                //logfile.writeLog("SQL 종료시간:"+currentDate);
+            }
+        }
+        catch(SQLException se) {
+            m_sqlCheck = se.getErrorCode() * -1;
+            throw new GeneralException("db",se.getSQLState() + se.getMessage(), se);
+        }
+
+	}
+
+    /**
+	 * Stored Procedure의 input parameter 값을 Setting한다.
+	 * @param rs        : Column의 정보를 가지고 있는 ResultSet
+	 * @param datamodel : datamodel(VO)의 Instance
+     * 수행 결과         : callableStatement의 값을 Setting한다.
+     *
+	 */
+    private Properties settingParam(ResultSet rs , Object datamodel) throws Exception {
+        int index;
+		int position = 0;
+		int columnDataType;
+		int columnInOutType;
+        // out put Parameter를 가지고 오기 위한 부분
+        // pt . KEY -> targetF의 Column명을 가지고 있는 멤버변수의 위치
+        // pt . Value -> Stored Procedure의 Parameter Position
+        Properties pt   = new Properties();
+  		Double		d   = new Double(0);
+        Long		l   = new Long(0);
+        Integer    	n   = new Integer(0);
+
+        String columnName       = "";
+		String columnFullName   = "";
+        String columnValue      = "";
+        String columnType       = "";
+
+        // MSSQL 또는 ORACLE의 차이점
+        // MSSQL은 Return Parameter가 Default로 생성되고
+        // ORACLE은 없다.
+        if( m_databasename.equalsIgnoreCase("ORACLE") ) {
+            position = 1;
+        }
+        else if( m_databasename.equalsIgnoreCase("MSSQL") ) {
+            position = 0;
+        }
+
+        try {
+            // 저장되어진 Stored Procedure의 Column 속성을 가지고 온다.
+            if( verbose ) {
+                System.out.println("");
+                System.out.println("------------ Parameter Setting Start --------------------------------------------");
+                System.out.println(" Pos\tColumnName\t\tColumnData\t\t\tInout\tFullColumnName\t\tType");
+            }
+			while( rs.next() ) {
+	            columnFullName  = rs.getString("COLUMN_NAME");
+				index           = columnFullName.indexOf("_");
+				columnName      = columnFullName.substring(index+1,columnFullName.length());
+				columnInOutType = rs.getInt("COLUMN_TYPE");
+				columnDataType  = rs.getInt("DATA_TYPE");
+                columnValue     = "" ;
+                // MSSQL은 Position의 0이 RETURN VALUE가 Default로 잡힌다.
+                if( position > 0 ) {
+                    String strPosition  = Integer.toString(position);
+                    java.lang.reflect.Field obj =datamodel.getClass().getField(columnName.toLowerCase());
+
+                    switch ( columnDataType ) {
+                        case Types.VARCHAR:
+                        case Types.CHAR :
+                            if( columnInOutType == java.sql.DatabaseMetaData.procedureColumnIn ) {
+                                m_cs.setString(position, (String)obj.get(datamodel));
+                                if( verbose )   columnValue = obj.get(datamodel).toString();
+                            }
+                            else {
+                                m_cs.registerOutParameter(position, columnDataType);
+                                pt.setProperty(columnName,strPosition);
+                            }
+                            columnType = "VARCHAR/CHAR ";
+                            break;
+                        case Types.DOUBLE:
+                        case Types.REAL:
+                        case Types.FLOAT:
+                        case Types.DECIMAL:
+                        case Types.NUMERIC:
+                            if( columnInOutType == java.sql.DatabaseMetaData.procedureColumnIn  ) {
+                                if( obj.getType().getName().equals("java.lang.Double") ) {
+                                    d = (Double)obj.get(datamodel);
+                                    m_cs.setDouble(position,d.doubleValue());
+                                }
+                                else if( obj.getType().getName().equals("java.lang.Long") ) {
+                                    l = (Long)obj.get(datamodel);
+                                    m_cs.setDouble(position, l.doubleValue());
+                                }
+                                else if( obj.getType().getName().equals("java.lang.Integer") ) {
+                                    n = (Integer)obj.get(datamodel);
+                                    m_cs.setDouble(position, n.doubleValue());
+                                }
+                                if( verbose )   columnValue = obj.get(datamodel).toString();
+                            }
+                            else {
+                                m_cs.registerOutParameter(position, columnDataType);
+                                pt.setProperty(columnName,strPosition);
+                            }
+                            columnType = "NUMERIC.DOUBLE,REAL,FLOAT ";
+                            break;
+                        case Types.BIGINT:
+                        case Types.SMALLINT:
+                        case Types.TINYINT:
+                        case Types.INTEGER:
+                            if( columnInOutType == java.sql.DatabaseMetaData.procedureColumnIn  ) {
+                                n = (Integer)obj.get(datamodel);
+                                m_cs.setInt(position,n.intValue());;
+                                if( verbose )   columnValue = n.toString();
+                            }
+                            else {
+                                m_cs.registerOutParameter(position, columnDataType);
+                                pt.setProperty(columnName,strPosition);
+                            }
+                            columnType = "SMALLINT,TINYINT,INTEGER";
+                            break;
+                        default :
+                            m_cs.registerOutParameter(position, OracleTypes.CURSOR);
+                            // .C --> CURSOR를 뜻한다.
+                            pt.setProperty(columnName + ".C",strPosition);
+                            if( verbose ) {
+                                columnValue = "Oracle Cursor Output " + columnDataType;
+                            }
+                            columnType = "Default Unknown Data Type";
+                            break;
+                    } // switch
+                } // end if
+
+                if( verbose ) {
+                    System.out.print("[" + position + "]\t");
+                    System.out.print("[" + columnName + "]\t\t");
+                    System.out.print("[" + columnValue + "]\t\t\t\t");
+                    if( columnInOutType == java.sql.DatabaseMetaData.procedureColumnIn ) {
+                        System.out.print("IN\t" );
+                    } else {
+                        System.out.print("OUT\t" );
+                    }
+                    System.out.print("[" + columnFullName + "]\t\t" );
+                    System.out.println("[" + columnType + "]" );
+                }
+                position = position + 1;
+			}	// end while
+
+            if( verbose ) {
+                System.out.println("------------ Parameter Setting End   --------------------------------------------");
+                System.out.println("");
+                System.out.println("------------ Output Parameter List Start ------------------------");
+                System.out.println("Output Parameter list : " + pt );
+                System.out.println("------------ Output Parameter List End   ------------------------");
+                System.out.println("");
+            }
+        }
+        catch(IllegalAccessException ie) {
+            throw new GeneralException("db","settingParam : IllegalAccessException" ,ie);
+        }
+        catch(SQLException se ) {
+            throw new GeneralException("db","settingParam : " + se.getSQLState() + se.getMessage(), se);
+        }
+        catch(NoSuchFieldException e) {
+            throw new GeneralException("db.input.param","settingParam : NoSuchFieldException : " + columnName.toLowerCase() ,e);
+        }
+        finally {
+            return pt;
+        }
+    }
+
+
+    private void settingOutputParam(Properties pt, Object datamodel) throws Exception
+    {
+        String  strKey      = "";     // 예 "COLUMNNAME", "COLUMNNAME.C",....
+        String  strCursor   = "";
+        String  strKeyValue = "";
+        String  temp        = "";
+
+        int     intKey;
+        int     index;
+        java.lang.reflect.Field	targetF	    =	null;
+        Double d    = null;
+
+        Enumeration enum =  pt.propertyNames();
+
+        try {
+            if ( verbose ) {
+                System.out.println("------------ Get Output Parameter  After Execute Start  ---------");
+            }
+
+            while( enum.hasMoreElements() )
+            {
+ 			    strKey = (String)enum.nextElement();					 //Keyname을 얻어온다.
+                index       = strKey.indexOf(".");
+                if( index > 0 ) {
+                    strCursor   = strKey.substring(index+1,strKey.length());
+                    //strKey      = strKey.substring(0,index);
+                }
+                else {
+                    strCursor = "";
+                }
+
+                strKeyValue = pt.getProperty(strKey);	//KeyValue를 얻어온다.
+                if (strCursor.equals("C")) {
+                    m_rs = (ResultSet)((OracleCallableStatement)m_cs).getCursor(Integer.parseInt(strKeyValue));
+                    m_result = new DBResultSet(m_rs);
+                }
+                else {
+                    // Numeric일 경우 m_cs.getDouble로 데이터를 가지고 오고 VO의 DataType에 맞게
+                    // 변환을 시킨다.
+                    targetF = datamodel.getClass().getField(strKey.toLowerCase());
+                    if( targetF.getType().getName().equals("java.lang.String") ) {
+                        temp = m_cs.getString(Integer.parseInt(strKeyValue));
+                        if ( temp == null ) temp = "";
+                        targetF.set(datamodel, temp);
+                        if ( verbose ) System.out.print("[" + strKey + " : " + temp + "]\t");
+                    }
+                    else {
+                        d = new Double(m_cs.getDouble(Integer.parseInt(strKeyValue)));
+                        if( targetF.getType().getName().equals("java.lang.Double") ) {
+                            targetF.set(datamodel, d);
+                        }
+                        else if( targetF.getType().getName().equals("java.lang.Long") ) {
+
+                            targetF.set(datamodel, new Long(d.longValue()) );
+                        }
+                        else if( targetF.getType().getName().equals("java.lang.Integer") ) {
+                            targetF.set(datamodel, new Integer(d.intValue()) );
+                        }
+                        if ( verbose ) System.out.print("[" + strKey + " : " + d.toString()  + "]\t");
+                    }
+                }
+            } // while
+            if ( verbose ) {
+                System.out.println("");
+                System.out.println("------------ Get Output Parameter  After Execute End    ---------");
+                System.out.println("");
+            }
+        }
+        catch(NoSuchFieldException e) {
+            throw new GeneralException("db.output.param","NoSuchFieldException : " + strKey.toLowerCase() ,e);
+        }
+    }
+
+    /**
+	 * Stored Procedure  실행한다.
+     *  ( ResultSet이 없는 경우 단 오라클은 Out Parameter를 Cursor로 이용해서 사용한다.)
+	 * @param sql       : call SP_SEL_VOCSTATISTICS_LIST(?,?)
+     * @param procName  : Procedure Name "SP_SEL_VOCSTATISTICS_LIST"
+	 * @param datamodel : datamodel(VO)의 Instance
+     * 수행 결과         : Out Parameter의 Cursor가 있을 경우 수행결과가 오류가 나더라도
+     *                    ResultSet값이 있을 수 있음.
+	 */
+    public void executeCall(String sql, String procName, Object datamodel) throws Exception
+    {
+		String currentDate;  //메소드 시작시간
+
+        //Debug를 기록한다.
+        if( verbose ) {
+            currentDate = Util.getKST("yyyyMMddHHmmss");
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! executeCall START !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            System.out.println("LIB -> SQL Execute Start Time : " + currentDate );
+            System.out.println("LIB -> Call Stored Procedure  : " + procName);
+        }
+
+        Properties          pt  = null;
+        DatabaseMetaData    dmd    = null;
+        ResultSet           rs     = null;
+
+        //사용자가 query를 한번하고 또다시 할경우에는
+        //DATA가 들어 있을 경우가 있으므로 m_rs와 m_cs를 초기화를 시킨다.
+        if(m_cs != null)    m_cs.close();
+        if(m_rs != null)    m_rs.close();
+        m_rs 		= null;
+        m_result    = null;
+
+        try {
+            m_cs    = m_conn.prepareCall(sql);
+            dmd     = m_conn.getMetaData();
+            rs      = dmd.getProcedureColumns(null,null,procName,null);
+
+            // DataModel(VO)에 있는 값을 StoredProcedure의 Parameter에다
+            // Setting을 한다.
+            pt = settingParam(rs, datamodel);
+
+            //Stored Procedure를 실행
+            m_sqlCheck 	 = m_cs.executeUpdate();
+
+            // out parameter에서 온 VO(datamodel)에 값을 넣는다.
+            if( !pt.isEmpty() ) {
+                settingOutputParam(pt,datamodel);
+            }
+
+            //Debug를 기록한다.
+            if( verbose ) {
+                System.out.println("LIB -> Call Stored Procedure Result : " + m_sqlCheck);
+                currentDate = Util.getKST("yyyyMMddHHmmss");
+                System.out.println("LIB -> SQL Execute end Time : " + currentDate );
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! executeCall END   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            }
+		}
+        catch(SQLException se) {
+            m_sqlCheck = se.getErrorCode() * -1;
+            throw new GeneralException("db",se.getSQLState() + se.getMessage(), se);
+        }
+        finally {
+            rs.close();
+        }
+    }
+
+   /**
+	 * Stored Procedure  실행한다.
+     *  ( ResultSet이 없는 경우 단 오라클은 Out Parameter를 Cursor로 이용해서 사용한다.)
+	 * @param sql       : call SP_SEL_VOCSTATISTICS_LIST(?,?)
+     * @param procName  : Procedure Name "SP_SEL_VOCSTATISTICS_LIST"
+	 * @param datamodel : datamodel(VO)의 Instance
+	 */
+    public void executeCallResultSet(String sql, String procName, Object datamodel) throws Exception
+    {
+		String currentDate;  //메소드 시작시간
+
+        //Debug를 기록한다.
+        if( verbose ) {
+            currentDate = Util.getKST("yyyyMMddHHmmss");
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ executeCallResultSet START @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println("LIB -> SQL Execute Start Time : " + currentDate );
+            System.out.println("LIB -> Call Stored Procedure Using ResultSet  : " + procName);
+        }
+
+        Properties          pt  = null;
+        DatabaseMetaData    dmd    = null;
+        ResultSet           rs     = null;
+
+        try {
+            //사용자가 query를 한번하고 또다시 할경우에는
+            //DATA가 들어 있을 경우가 있으므로 m_rs와 m_cs를 초기화를 시킨다.
+            if(m_cs != null)    m_cs.close();
+            if(m_rs != null)    m_rs.close();
+            m_rs 		= null;
+            m_result    = null;
+
+            m_cs    = m_conn.prepareCall(sql);
+            dmd     = m_conn.getMetaData();
+            rs      = dmd.getProcedureColumns(null,null,procName,null);
+
+            // DataModel(VO)에 있는 값을 StoredProcedure의 Parameter에다
+            // Setting을 한다.
+            pt = settingParam(rs,  datamodel);
+
+            //Stored Procedure를 실행
+            m_rs 	 = m_cs.executeQuery();		//SELECT하는 문장을 실행 한다.
+
+            if( m_databasename.equalsIgnoreCase("MSSQL") ) {
+                m_result = new DBResultSet(m_rs);
+            }
+
+            // out parameter에서 온 VO(datamodel)에 값을 넣는다.
+            if( !pt.isEmpty() ) {
+                settingOutputParam(pt,datamodel);
+            }
+
+            m_sqlCheck  = m_result.getMaxRowCount();
+
+            //Debug를 기록한다.
+            if( verbose ) {
+                System.out.println("LIB -> Call Stored Procedure Using ResultSet Result : " + m_sqlCheck);
+                currentDate = Util.getKST("yyyyMMddHHmmss");
+                System.out.println("LIB -> SQL Execute end Time : " + currentDate );
+                System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ executeCallResultSet END  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            }
+		}
+        catch(SQLException se) {
+            m_sqlCheck = se.getErrorCode() * -1;
+            throw new GeneralException("db",se.getSQLState() + se.getMessage(), se);
+        }
+        finally {
+            rs.close();
+        }
+    }
+
+    /**
+	 * DBResultSet으로 값을 가져온다.
+	 * @param N/A
+	 * @return ResultSet
+	 */
+	public DBResultSet getResultSet()
+	{
+		return m_result;
+	}
+
+    /**
+     * SQL문장의 성공여부를 리턴한다.
+     * @param N/A
+     * @return boolean
+     */
+    public boolean isSuccess()
+    {
+        if( m_sqlCheck > 0 ){
+            return true;
+        }else {
+            System.out.println("isSuccess False return");
+	    	return false;
+        }
+    }
+
+    /**
+	 * Gets the metadata regarding this connection's database. <br>
+	 * A Connection's database is able to provide information describing its tables, <br>
+	 * its supported SQL grammar, its stored procedures, the capabilities of <br>
+	 * this connection, and so on. <br>
+	 * This information is made available through a DatabaseMetaData object. <br>
+	 *
+	 * @return DatabaseMetaData a DatabaseMetaData object for this Connection
+     * @exception SQLException If database access error occurs
+     * @exception NullPointerException If connection member variable is null
+     */
+    public DatabaseMetaData getMetaData() throws SQLException, NullPointerException
+    {
+		if (m_conn == null)
+			throw new NullPointerException();
+		else
+			return m_conn.getMetaData();
+    }
+
+	/**
+	 * Makes all changes made since the previous commit/rollback permanent and <br>
+	 * releases any database locks currently held by the Connection. <br>
+	 * This method should be used only when auto-commit mode has been disabled. <br>
+	 *
+     * @exception SQLException If database access error occurs
+     * @exception NullPointerException If connection member variable is null
+     * @see setAutoCommit(boolean autoCommit)
+	 */
+	public void commit() throws SQLException, NullPointerException
+	{
+		if (m_conn == null)
+			throw new NullPointerException();
+		else
+			m_conn.commit();
+	}
+
+	/**
+	 * Drops all changes made since the previous commit/rollback and <br>
+	 * releases any database locks currently held by this Connection. <br>
+	 * This method should be used only when auto- commit has been disabled. <br>
+	 *
+     * @exception SQLException If database access error occurs
+     * @exception NullPointerException If connection member variable is null
+     * @see setAutoCommit(boolean autoCommit)
+	 */
+	public void rollback() throws SQLException, NullPointerException
+	{
+		if (m_conn == null)
+			throw new NullPointerException();
+		else
+			m_conn.rollback();
+	}
+
+    /**
+	 * Tests to see if a Connection is closed.
+	 *
+	 * @return boolean true if the connection is closed; false if it's still open
+     * @exception SQLException If database access error occurs
+     * @exception NullPointerException If connection member variable is null
+     */
+    public boolean isClosed() throws SQLException, NullPointerException
+    {
+		if (m_conn == null)
+			throw new NullPointerException();
+		else
+			return m_conn.isClosed();
+    }
+
+    /**
+     * Sets this connection's auto-commit mode. If a connection is in auto-commit mode, <br>
+     * then all its SQL statements will be executed and committed as individual transactions. <br>
+     * Otherwise, its SQL statements are grouped into transactions that are terminated <br>
+     * by a call to either the method commit or the method rollback. <br>
+     * By default, new connections are in auto-commit mode. <br>
+     * The commit occurs when the statement completes or the next execute occurs, <br>
+     * whichever comes first. In the case of statements returning a ResultSet, <br>
+     * the statement completes when the last row of the ResultSet has been retrieved <br>
+     * or the ResultSet has been closed. In advanced cases, a single statement may <br>
+     * return multiple results as well as output parameter values. <br>
+     * In these cases the commit occurs when all results and <br>
+     * output parameter values have been retrieved. <br>
+	 *
+	 * @param autoCommit true enables auto-commit; false disables auto-commit.
+     * @exception SQLException If database access error occurs
+     * @exception NullPointerException If connection member variable is null
+     */
+    public void setAutoCommit(boolean autoCommit) throws SQLException, NullPointerException
+    {
+		if (m_conn == null)
+			throw new NullPointerException();
+		else
+			m_conn.setAutoCommit(autoCommit);
+    }
+
+    /**
+	 * Gets the current auto-commit state
+	 *
+	 * @return boolean The current auto-commit state
+     * @exception SQLException If database access error occurs
+     * @exception NullPointerException If connection member variable is null
+     */
+    public boolean getAutoCommit() throws SQLException, NullPointerException
+    {
+		if (m_conn == null)
+			throw new NullPointerException();
+		else
+			return m_conn.getAutoCommit();
+    }
+
+    /**
+	 * Puts this connection in read-only mode as a hint to enable database optimizations.
+	 *
+	 * @param readOnly true enables read-only mode; false disables read-only mode.
+     * @exception SQLException If database access error occurs
+     * @exception NullPointerException If connection member variable is null
+     */
+    public void setReadOnly(boolean readOnly) throws SQLException, NullPointerException
+    {
+		if (m_conn == null)
+			throw new NullPointerException();
+		else
+			m_conn.setReadOnly(readOnly);
+    }
+
+    /**
+	 * Tests to see if the connection is in read-only mode.
+	 *
+	 * @return boolean true if connection is read-only and false otherwise
+     * @exception SQLException If database access error occurs
+     * @exception NullPointerException If connection member variable is null
+     */
+    public boolean isReadOnly() throws SQLException, NullPointerException
+    {
+		if (m_conn == null)
+			throw new NullPointerException();
+		else
+			return m_conn.isReadOnly();
+    }
+
+	/**
+	 * Sql문을 분석하여 [SELECT]문인지 아닌지 분석한다.
+	 * @param sql
+	 */
+	public boolean sqlCheck(String sql)
+	{
+		String check = sql.trim().substring(0,6).toUpperCase();
+
+		if( check.equals("SELECT") )
+			return true;
+
+		return false;
+
+		//statement Query실행
+	}
+
+	private synchronized DBConnection getFreeConn() {
+        DBConnection aConn = null;
+
+        for(int i=0 ; i < dbConnVect.size() ; i++) {
+            DBConnection c = (DBConnection)dbConnVect.elementAt(i);
+            if(c.isBusy() == false) {
+                System.out.println("LIB -> found free conn " + i);
+                c.setBusy(true);
+                aConn = c;
+                break;
+            }
+        }
+        return aConn;
+    }
+
+	private DBConnection getDBConnection() throws SQLException {
+    	DBConnection aConn = getFreeConn();
+
+        if(aConn == null) {
+            if( poolConnCount < INIT_CONS) {
+                aConn = addNewConn();
+            } else {
+                aConn = openNewConn();
+            }
+        }
+        else {
+            System.out.println("LIB -> Use Free Connection ");
+        }
+        return aConn;
+    }
+
+	private DBConnection addNewConn() throws SQLException {
+
+        poolConnCount++;
+        DBConnection aConn = null;
+        aConn = new DBConnection(m_dbURL,m_dbUSER, m_dbPASS);
+        aConn.setBusy(true);
+        dbConnVect.addElement(aConn);
+        // connection 초가 여부, false -> 초가 되지 않음
+        aConn.open(false,id);
+        System.out.println("LIB -> Added new Conn ; vector size = " + dbConnVect.size());
+
+        return aConn;
+    }
+
+    private DBConnection openNewConn() throws SQLException {
+        DBConnection aConn = new DBConnection(m_dbURL,m_dbUSER, m_dbPASS);
+        // connection 초가 여부, true -> 초가 되었음
+        aConn.open(true,id);
+        aConn.setBusy(true);
+        System.out.println("LIB -> Opened new Conn; over connection");
+
+        return aConn;
+    }
+}
+

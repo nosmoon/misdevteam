@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>확장자 조회</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<rdrForm/>
+							<pbrdr_search_form>
+								<rdrnm/>
+								<medicd/>
+							</pbrdr_search_form>
+							<rdrForm/>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<rdr_no/>
+									<rdrnm/>
+									<medicd/>
+									<medicd_nm/>
+									<termsubsno/>
+									<bocd/>
+									<bonm/>
+									<subsfrser_no/>
+									<substoser_no/>
+									<rdrtel_no/>
+									<rdrptph_no/>
+									<dlvzip/>
+									<dlvaddr/>
+									<dlvdtlsaddr/>
+									<prn/>
+									<email/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1500init" action="/ss/cns/1500" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/rdrForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1500search" action="/ss/cns/1510" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/pbrdr_search_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					childValueCopy("/root/reqData/reqform/pbrdr_search_form", "/root/reqData/reqform/rdrForm"); // 조회된 노드들을 대상에 한번에 전부 카피한다.	
+					
+					model.send("PID1500init", false);
+
+					model.setValue("/root/reqData/reqform/pbrdr_search_form/rdrnm", model.getValue("/root/reqData/reqform/rdrForm/rdrnm"));
+					model.setValue("/root/reqData/reqform/pbrdr_search_form/medicd", model.getValue("/root/reqData/reqform/rdrForm/medicd"));
+
+					group_scr.refresh();
+					
+					search();
+				}
+				
+				function search()
+				{					
+					if(!commValidate(group_scr))
+						return;
+						
+					//조회
+					remakeNode("/root/tempData/resTemp");
+					model.send("PID1500search", false);	
+					
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+					
+					if(instance1.selectNodes("/root/resData/gridData/listGrid/record/rdr_no").length == 0)
+						model.alert("검색결과가 없습니다.");
+	
+					datagrid1.rebuild();
+		
+					model.removenode("/root/tempData/resTemp");
+				}
+								
+				function close()
+				{
+					window.close();
+				}
+				
+				function onRowChange()
+				{					
+					if(event.button == 1)
+					{
+						var resPath = model.property("RDR_RES_XPATH");
+
+						window.opener.javaScript.remakeNode(resPath);
+						window.opener.javaScript.makeValueNode(resPath+"/rdrnm", curRowRefColValue(datagrid1, "rdrnm"));
+						window.opener.javaScript.makeValueNode(resPath+"/medicd_nm", curRowRefColValue(datagrid1, "medicd_nm"));
+						window.opener.javaScript.makeValueNode(resPath+"/bonm", curRowRefColValue(datagrid1, "bonm"));
+						window.opener.javaScript.makeValueNode(resPath+"/rdrtel_no", curRowRefColValue(datagrid1, "rdrtel_no"));
+						window.opener.javaScript.makeValueNode(resPath+"/rdrptph_no", curRowRefColValue(datagrid1, "rdrptph_no"));
+						window.opener.javaScript.makeValueNode(resPath+"/popAddr", curRowRefColValue(datagrid1, "popAddr"));
+						window.opener.javaScript.makeValueNode(resPath+"/rdr_no", curRowRefColValue(datagrid1, "rdr_no"));
+						window.opener.javaScript.makeValueNode(resPath+"/rdrnm", curRowRefColValue(datagrid1, "rdrnm"));
+						window.opener.javaScript.makeValueNode(resPath+"/medicd", curRowRefColValue(datagrid1, "medicd"));
+						window.opener.javaScript.makeValueNode(resPath+"/termsubsno", curRowRefColValue(datagrid1, "termsubsno"));
+						window.opener.javaScript.makeValueNode(resPath+"/bocd", curRowRefColValue(datagrid1, "bocd"));
+						window.opener.javaScript.makeValueNode(resPath+"/prn", curRowRefColValue(datagrid1, "prn"));
+						window.opener.javaScript.makeValueNode(resPath+"/dlvzip", curRowRefColValue(datagrid1, "dlvzip"));
+						window.opener.javaScript.makeValueNode(resPath+"/dlvaddr", curRowRefColValue(datagrid1, "dlvaddr"));
+						window.opener.javaScript.makeValueNode(resPath+"/dlvdtlsaddr", curRowRefColValue(datagrid1, "dlvdtlsaddr"));
+
+						close();
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="730" pageheight="400" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:10px; width:710px; height:25px; ">
+			<caption id="caption20" class="list_cap03" style="left:0px; top:0px; width:710px; height:25px; "/>
+			<button id="button2" class="btn_grid02" style="left:662px; top:4px; width:42px; height:17px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();		
+					]]>
+				</script>
+			</button>
+			<caption id="caption2" style="left:0px; top:4px; width:40px; height:20px; ">독자명</caption>
+			<select1 id="combo1" ref="/root/reqData/reqform/pbrdr_search_form/medicd" appearance="minimal" style="left:265px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<label>선택</label>
+						<value/>
+					</item>
+					<item>
+						<label>주간조선</label>
+						<value>210</value>
+					</item>
+					<item>
+						<label>월간조선</label>
+						<value>220</value>
+					</item>
+					<item>
+						<label>월간산</label>
+						<value>230</value>
+					</item>
+					<item>
+						<label>월간낚시</label>
+						<value>240</value>
+					</item>
+					<item>
+						<label>여성조선</label>
+						<value>270</value>
+					</item>
+					<item>
+						<label>TEPS</label>
+						<value>420</value>
+					</item>
+					<item>
+						<label>W.Village</label>
+						<value>421</value>
+					</item>
+					<item>
+						<label>ENNOBLE</label>
+						<value>422</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption3" style="left:207px; top:4px; width:28px; height:20px; ">매체</caption>
+			<input id="input1" ref="/root/reqData/reqform/pbrdr_search_form/rdrnm" style="left:74px; top:4px; width:100px; height:18px; "/>
+		</group>
+		<group id="group2" style="left:10px; top:365px; width:710px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:710px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:346px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="독자명^매체^지사명^전화번호^휴대폰^주소" colsep="^" colwidth="70, 89, 80, 100, 100, 268" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:40px; width:710px; height:320px; ">
+			<col ref="rdrnm"/>
+			<col ref="medicd_nm"/>
+			<col ref="bonm"/>
+			<col ref="rdrtel_no"/>
+			<col ref="rdrptph_no"/>
+			<col ref="popAddr"/>
+			<col ref="rdr_no" visibility="hidden"/>
+			<col ref="rdrnm" visibility="hidden"/>
+			<col ref="medicd" visibility="hidden"/>
+			<col ref="termsubsno" visibility="hidden"/>
+			<col ref="bocd" visibility="hidden"/>
+			<col ref="bonm" visibility="hidden"/>
+			<col ref="rdrtel_no" visibility="hidden"/>
+			<col ref="rdrptph_no" visibility="hidden"/>
+			<col ref="dlvzip" visibility="hidden"/>
+			<col ref="dlvaddr" visibility="hidden"/>
+			<col ref="dlvdtlsaddr" visibility="hidden"/>
+			<col ref="prn" visibility="hidden"/>
+			<script type="javascript" ev:event="onrowchanged">
+				<![CDATA[
+				onRowChange();
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

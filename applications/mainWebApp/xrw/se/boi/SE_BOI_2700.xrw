@@ -1,0 +1,509 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_BOI_2700.xrw
+* 기능 : 기준정보관리 - 센터종합정보
+* 작성일자 : 2014-12-01
+* 작성자 : 심정보
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo/>
+						<gs_request>N</gs_request>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team_cd/>
+							<part_cd/>
+							<area_cd/>
+							<bo_cd/>
+							<bonm/>
+							<fr_yymm/>
+							<to_yymm/>
+							<medicd/>
+							<schlevel/>
+							<search_mn/>
+						</searchData>
+						<detailSearch>
+							<bocd/>
+							<yymm/>
+							<flag/>
+						</detailSearch>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<record>
+								<dept_nm/>
+								<part_nm/>
+								<area_nm/>
+								<bo_nm/>
+								<bo_cd/>
+								<yymm/>
+								<rdr_qty/>
+								<vari_qty/>
+								<extn_qty/>
+								<susp_qty/>
+								<clamt/>
+								<net_sale_amt/>
+								<leaf_sales/>
+								<leaf_purc/>
+								<re_freeqty/>
+								<meda_amt/>
+							</record>
+						</gridData>
+						<gridData2>
+							<record>
+								<dept_nm/>
+								<part_nm/>
+								<area_nm/>
+								<bo_cd/>
+								<bo_nm/>
+								<oprenvclsf/>
+								<rdrnm/>
+								<rdr_no/>
+								<qty/>
+								<addr/>
+								<telno/>
+								<ptphno/>
+								<rdr_extndt/>
+								<suspdt/>
+								<valmm/>
+								<clamtmthd/>
+								<rdr_extntype1/>
+								<rdr_extntype2/>
+								<extnnm/>
+								<aplcpath/>
+								<resitype/>
+							</record>
+						</gridData2>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_boi_2710_l" ref="/root/reqData/searchData" action="/se/boi/2710" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/gridData"/>
+			<submission id="se_boi_2720_s" ref="/root/reqData/detailSearch" action="/se/boi/2720" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/gridData2"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					
+					makeTeamSearch(
+						   "se_boi_2700_m"
+						  , "/se/boi/2700"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+					
+					model.setValue("/root/reqData/searchData/fr_yymm", model.getValue("/root/initData/comboSet/yymm"));	
+					model.setValue("/root/reqData/searchData/to_yymm", model.getValue("/root/initData/comboSet/yymm"));	    
+					combo1.select(0);	  
+					cbo_schlevel.select(0);
+					toggleGrid("1");		
+					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//조회
+				function go_search(){
+						
+					if(!commReqCheck(group_scr)) return;
+					
+					toggleGrid("1");		
+						
+					model.send("se_boi_2710_l");
+					se_chkGridCnt("datagrid1");									
+				}
+				
+				function toggleGrid(flag)
+				{
+					if(flag == "1"){					
+						button3.selected = true;					
+						model.toggle("case1");					
+					} else if(flag == "2"){					
+						button4.selected = true;					
+						model.toggle("case2");					
+					}
+				}	
+				
+				function extn_list(flag)
+				{
+					if(datagrid1.textMatrix(datagrid1.row, datagrid1.colRef("bo_cd")) == ""){
+						alert("센터단위로 조회해야 상세목록 조회가 가능합니다.");
+						return;
+					}
+							
+					toggleGrid("2");			    
+					
+					model.setValue("/root/reqData/detailSearch/yymm", datagrid1.textMatrix(datagrid1.row, datagrid1.colRef("yymm")));
+					model.setValue("/root/reqData/detailSearch/bocd", datagrid1.textMatrix(datagrid1.row, datagrid1.colRef("bo_cd")));
+					if(flag == "E"){
+						model.setValue("/root/reqData/detailSearch/flag", "E");
+					}else if(flag == "S"){
+						model.setValue("/root/reqData/detailSearch/flag", "S");
+					}
+					model.send("se_boi_2720_s");
+					
+					//se_chkGridCnt("datagrid2");
+				}	
+				
+				function searchWithBranch()
+				{
+					model.setValue("/root/initData/gs_request", "L");
+					
+					if(bo_input.value == "")
+					{
+						model.setValue("/root/reqData/searchData/bo_cd", "");
+						model.setValue("/root/initData/gs_request", "N");
+						//go_search();
+					}
+					else
+					{
+						//modelCopyValue("/root/reqData/reqform/searchForm/common_deptcd", "/root/reqData/reqform/searchForm/deptcd");
+						searchBranchByName("/root/reqData/searchData", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+					}
+				}
+				
+				function onClickBranchPopup()
+				{
+					//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+					openBranch("/root/reqData/searchData", "/root/tempData/tempBranch");
+	
+	               		if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+						return;
+					
+					bo_input.value = model.getValue("/root/tempData/tempBranch/bonm");
+					modelCopyValue("/root/reqData/searchData/bo_cd", "/root/tempData/tempBranch/bocd");
+	
+					if(model.getValue("/root/initData/gs_request") == "L")
+					{
+						model.setValue("/root/initData/gs_request", "N");
+						//go_search();
+					}
+				}
+				
+				function onKeyDown()
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnSearchBranchQ");
+						
+						if(bo_input.value == '')
+							onClickBranchPopup();
+						else
+						{
+							//화면별 선처리
+							//modelCopyValue("/root/reqData/reqform/searchForm/common_deptcd", "/root/reqData/reqform/searchForm/deptcd");
+							//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+							//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+							//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+							searchBranchByName("/root/reqData/searchData", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+						}
+					}
+				}
+				
+				//지국 enter key 검색 시 callback 함수. onKeyDown
+				function searchBranchCallBack()
+				{
+					//검색 후처리.
+					if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+					{
+						bo_input.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+						modelCopyValue("/root/reqData/searchData/bo_cd", "/root/tempData/resTemp/branchGrid/record/bocd");
+					}
+					else
+						onClickBranchPopup();
+				}
+				
+				function set_default(flag)
+			{
+				if(flag == '1') {			// 부서(팀),지역,지국 초기화
+					// 부서(팀) 초기화
+					//model.copyNode("/root/initData/comboSet/codeData/teamlist", "/root/initData/defaultData/teamlist");
+					team_combo.select(0);		//event 등록으로 인해 team을 첫번째로 선택하면 area 역시 reset.
+					
+					// 지역 초기화
+					//model.copyNode("/root/initData/comboSet/codeData/arealist", "/root/initData/defaultData/arealist");
+					
+					// 지국코드,지국명 초기화, 포커스이동
+					model.setValue("/root/reqData/searchData/bo_cd", "");
+					bo_input.value = "";
+					model.setFocus("iptCommonmBranchQ");
+					
+				} else if(flag == '2') {		// 기간 초기화
+				} else if(flag == '3') {		// 기타 초기화
+				}
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<button id="button8" class="btn03" crud="R" style="left:674px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_search();				
+				]]>
+			</script>
+		</button>
+		<button id="button7" class="btn03" crud="R" style="left:740px; top:44px; width:63px; height:21px; ">
+			<caption>목록엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+					datagrid1.saveExcel(dir);		
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>상세엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+					datagrid2.saveExcel(dir);
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:123px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area_cd" appearance="minimal" style="left:363px; top:4px; width:85px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/schlevel","4");
+						cbo_schlevel.refresh();
+					]]>
+				</script>
+			</select1>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/schlevel","2");
+						cbo_schlevel.refresh();
+					]]>
+				</script>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part_cd" appearance="minimal" style="left:221px; top:4px; width:85px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/schlevel","3");
+						cbo_schlevel.refresh();
+					]]>
+				</script>
+			</select1>
+			<input id="bo_input" ref="/root/reqData/searchData/bonm" style="left:501px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					onKeyDown();				
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/schlevel","4");
+						cbo_schlevel.refresh();
+					]]>
+				</script>
+			</input>
+			<button id="btnSearchBranchQ" class="btn05" style="left:605px; top:3px; width:40px; height:21px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					onClickBranchPopup();				
+					]]>
+				</script>
+			</button>
+			<button id="btnResetBranchQ" class="btn05" style="left:650px; top:3px; width:20px; height:21px; ">
+				<caption>-</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					set_default("1");				
+					]]>
+				</script>
+			</button>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption2" class="list_cap01" style="left:147px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<caption id="caption3" class="list_cap01" style="left:314px; top:0px; width:45px; height:26px; ">지역</caption>
+			<caption id="caption4" class="list_cap01" style="left:453px; top:0px; width:45px; height:26px; ">센터</caption>
+		</group>
+		<group id="group_scr2" class="gro_sel" style="left:10px; top:95px; width:926px; height:26px; ">
+			<caption id="caption8" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption6" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">월분</caption>
+			<input id="input1" ref="/root/reqData/searchData/fr_yymm" inputtype="date" format="yyyy-mm" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID1000input2" style="left:49px; top:4px; width:80px; height:18px; "/>
+			<caption id="caption7" style="left:140px; top:3px; width:10px; height:20px; ">-</caption>
+			<input id="input2" ref="/root/reqData/searchData/to_yymm" inputtype="date" format="yyyy-mm" dataType="dateto" caption="종료일자" setHandler="true" relid="PID1000input1" style="left:160px; top:4px; width:80px; height:18px; "/>
+			<caption id="caption9" class="list_cap01" style="left:250px; top:0px; width:50px; height:26px; ">매체</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/medicd" appearance="minimal" style="left:305px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<!--<choices>
+					<itemset nodeset="/root/initData/comboSet/mcCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>-->
+					<!--본지만 조회 추후 추가할 수도 있음-->
+					<item>
+						<label>조선일보</label>
+						<value>110</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption10" class="list_cap01" style="left:420px; top:0px; width:60px; height:26px; ">조회형태</caption>
+			<select1 id="cbo_schlevel" ref="/root/reqData/searchData/schlevel" class="req" appearance="minimal" caption="조회형태" style="left:485px; top:4px; width:85px; height:18px; ">
+				<choices>
+					<item>
+						<label>팀단위</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>파트/지사단위</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>지역단위</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>센터단위</label>
+						<value>4</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption11" class="list_cap01" style="left:580px; top:0px; width:120px; height:26px; ">소규모센터제외</caption>
+			<select id="checkbox1" ref="/root/reqData/searchData/search_mn" overflow="visible" appearance="full" style="left:710px; top:4px; width:30px; height:18px; border-style:none; ">
+				<choices>
+					<item>
+						<label/>
+						<value>Y</value>
+					</item>
+				</choices>
+			</select>
+		</group>
+		<button id="button3" class="tab05" group="tab" style="left:10px; top:130px; width:92px; height:23px; ">
+			<caption>목록</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					toggleGrid("1");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="tab05" group="tab" selected="true" style="left:105px; top:130px; width:92px; height:23px; ">
+			<caption>상세</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					toggleGrid("2");
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" style="left:10px; top:153px; width:928px; height:520px; ">
+			<case id="case1">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="팀^파트/지사^지역^센터코드^센터^월분^독자부수^확장부수^중지부수^성장부수^재무부수^조정액^수금액^순매출액^전단(매출)^전단(센터)" colwidth="90, 90, 90, 60, 90, 90, 90, 90, 90, 90,  90, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" colsep="^" style="left:0px; top:0px; width:926px; height:510px; ">
+					<col ref="dept_nm" style="text-align:left; "/>
+					<col ref="part_nm" style="text-align:left; "/>
+					<col ref="area_nm" style="text-align:left; "/>
+					<col ref="bo_cd"/>
+					<col ref="bo_nm" style="text-align:left; "/>
+					<col ref="yymm" format="yyyy-mm" style="text-align:left; "/>
+					<col ref="rdr_qty" format="(-)#,###" style="text-align:left; "/>
+					<col ref="extn_qty" format="(-)#,###" style="text-align:right; ">
+						<script type="javascript" ev:event="ondblclick">
+							<![CDATA[
+								extn_list("E");
+							]]>
+						</script>
+					</col>
+					<col ref="susp_qty" format="(-)#,###" style="text-align:right; ">
+						<script type="javascript" ev:event="ondblclick">
+							<![CDATA[
+								extn_list("S");
+							]]>
+						</script>
+					</col>
+					<col ref="vari_qty" format="(-)#,###" style="text-align:right; "/>
+					<col ref="re_freeqty" format="(-)#,###" style="text-align:right; "/>
+					<col ref="meda_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="clamt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="sale_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="leaf_sales" format="(-)#,###" style="text-align:right; "/>
+					<col ref="leaf_purc" format="(-)#,###" style="text-align:right; "/>
+				</datagrid>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="팀^파트/지사^지역^센터코드^센터^판매망^독자명^독자번호^부수^주소^전화번호^휴대폰번호^확장일자^중지일자^유가월^수금방법^확장유형1^확장유형2^확장자^신청경로^주거형태" colwidth="90, 90, 90, 60, 90, 70, 90, 90, 50, 200, 100, 100, 80, 80, 70, 80, 80, 80, 80, 80, 80" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" colsep="^" style="left:0px; top:0px; width:926px; height:510px; ">
+					<col ref="dept_nm" style="text-align:left; "/>
+					<col ref="part_nm" style="text-align:left; "/>
+					<col ref="area_nm" style="text-align:left; "/>
+					<col ref="bo_cd"/>
+					<col ref="bo_nm"/>
+					<col ref="oprenvclsf"/>
+					<col ref="rdrnm"/>
+					<col ref="rdr_no"/>
+					<col ref="qty" style="text-align:right; "/>
+					<col ref="addr" style="text-align:left; "/>
+					<col ref="telno" style="text-align:left; "/>
+					<col ref="ptphno" style="text-align:left; "/>
+					<col ref="rdr_extndt" format="yyyy-mm-dd"/>
+					<col ref="suspdt" format="yyyy-mm-dd"/>
+					<col ref="valmm" format="yyyy-mm"/>
+					<col ref="clamtmthd"/>
+					<col ref="rdr_extntype1"/>
+					<col ref="rdr_extntype2"/>
+					<col ref="extnnm"/>
+					<col ref="aplcpath"/>
+					<col ref="resitype"/>
+				</datagrid>
+			</case>
+		</switch>
+	</xhtml:body>
+</xhtml:html>

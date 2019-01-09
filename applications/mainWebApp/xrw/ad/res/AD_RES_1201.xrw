@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>광고예약순번찾기</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<slcrg_pers>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</slcrg_pers>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+						<appv_clsf>0</appv_clsf>
+						<pubc_dt/>
+						<slcrg_pers/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData1>
+							<record>
+								<checked/>
+								<chrg_aprv/>
+								<team_chf_aprv/>
+								<medi_nm/>
+								<preng_occr_seq/>
+								<sect_nm/>
+								<dn/>
+								<cm/>
+								<chro_clsf_nm/>
+								<hndl_clsf_nm/>
+								<dlco_nm/>
+								<agn_nm/>
+								<hndl_plac_nm/>
+								<slcrg_pers_nm/>
+								<uprc/>
+								<advt_fee/>
+								<apr_advt_fee/>
+								<advt_cont/>
+								<pubc_slip_no/>
+								<preng_occr_dt/>
+								<medi_cd/>
+								<bo_chrg_aprv/>
+								<mang_mortg_surp_amt/>
+								<bonddebt_dlco_clsf/>
+								<bonddebt_dlco_no/>
+								<bonddebt_dlco_nm/>
+								<bonddebt_basi_dt/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record>
+								<lbl/>
+								<cnt/>
+								<advt_fee/>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//var pubc_dt = getCurrentDate();
+					var pubc_dt = model.getValue("/root/reqData/fwdData/preng_occr_dt");
+					
+					if( pubc_dt == "" )
+					{
+						pubc_dt = dateAdd("d", 1, getCurrentDate());
+					}
+					
+					model.setValue("/root/reqData/pubc_dt", pubc_dt);	
+					inp_pubc_dt.refresh();
+					
+					cb_appv_clsf.select(0);
+					
+					model.send("ad_res_1201_m");
+					model.copyNode("/root/initData/comboSet/slcrg_pers", "/root/tempData/slcrg_pers");
+					model.setValue("/root/reqData/slcrg_pers", model.property("ss_emp_no"));
+										
+					//model.send("ad_res_1202_l");
+					datagrid1.fixedcellcheckbox(1, datagrid1.colRef("chrg_aprv"), false) = true;	
+					//model.refresh();
+					//resetGridData();
+					loadList();
+					DisplayButton();
+				
+				]]>
+			</script>
+			<submission id="ad_res_1201_m" action="/ad/res/1201" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="ad_res_1202_l" action="/ad/res/1202" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData"/>
+			<submission id="ad_res_1203_u" action="/ad/res/1203" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="ad_res_1204_d" action="/ad/res/1204" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function DisplayButton()
+				{
+					var emp_no 	= model.property("ss_emp_no");
+					var firstr 		= emp_no.substring(0,1);
+					if( (firstr < "0" || firstr > "9") && emp_no != "it0015" )
+					{
+						button2.disabled = true;
+						button3.disabled = true;
+						button6.disabled = true;
+						button7.disabled = true;
+					}
+					else
+					{
+						button2.disabled = false;
+						button3.disabled = false;
+						button6.disabled = false;
+						button7.disabled = false;
+					}
+				}
+			
+				function loadList()
+				{
+					if( validateReq() )
+					{
+						model.send("ad_res_1202_l");
+						datagrid1.fixedcellcheckbox(1, datagrid1.colRef("chrg_aprv"), false) = true;	
+						//datagrid1.fixedcellcheckbox(1, datagrid1.colRef("chrg_aprv"), false) = false;	
+						resetGridData();
+					}			
+				}
+				
+				function resetGridData()
+				{
+					var rows 	= datagrid1.rows;
+					var cols 	= datagrid1.cols;
+					for( var i=datagrid1.fixedRows; i<rows; i++ )
+					{
+						var pubc_slip_no 		= 	datagrid1.valueMatrix(i, datagrid1.colRef("pubc_slip_no"));
+						var team_chf_aprv		= 	datagrid1.valueMatrix(i, datagrid1.colRef("team_chf_aprv"));
+						var bo_chrg_aprv		=	datagrid1.valueMatrix(i, datagrid1.colRef("bo_chrg_aprv"));
+						var mang_mortg_surp_amt=	datagrid1.valueMatrix(i, datagrid1.colRef("mang_mortg_surp_amt"));
+						
+						if( pubc_slip_no != "" )
+						{
+							datagrid1.isReadOnly(i, datagrid1.colRef("chrg_aprv")) = true;
+						}
+						else
+						{
+							datagrid1.isReadOnly(i, datagrid1.colRef("chrg_aprv")) = false;						
+							//datagrid1.isReadOnly(i, datagrid1.colRef("chrg_aprv")) = true;
+						}
+						
+						if( bo_chrg_aprv == "N" )
+						{
+							datagrid1.cellstyle("background-color", i, datagrid1.colRef("hndl_plac_nm"), i, datagrid1.colRef("hndl_plac_nm")) = "#FFF000";
+						}
+						else
+						{
+							datagrid1.cellstyle("background-color", i, datagrid1.colRef("hndl_plac_nm"), i, datagrid1.colRef("hndl_plac_nm")) = "#FFFFFF";
+						}
+						
+						if( mang_mortg_surp_amt < 0 )
+						{
+							datagrid1.cellstyle("background-color", i, datagrid1.colRef("mang_mortg_surp_amt"), i, datagrid1.colRef("mang_mortg_surp_amt")) = "#FA8C8C";
+						}
+						else
+						{
+							datagrid1.cellstyle("background-color", i, datagrid1.colRef("mang_mortg_surp_amt"), i, datagrid1.colRef("mang_mortg_surp_amt")) = "#FFFFFF";
+						}
+					}
+					datagrid1.refresh();
+				}
+				
+				function selectList()
+				{
+	/*					
+					var row = datagrid1.row;
+					if(row <= datagrid1.fixedRows){
+						alert("예약건을 선택하세요.");
+						return;
+					}
+	*/									
+					var preng_occr_dt  	=  datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("preng_occr_dt"));//model.getValue("/root/resData/gridData1/record["+indx+"]/preng_occr_dt");
+					var preng_occr_seq 	=  datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("preng_occr_seq"));//model.getValue("/root/resData/gridData1/record["+indx+"]/preng_occr_seq");
+					var medi_cd 		=  datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("medi_cd"));//model.getValue("/root/resData/gridData1/record["+indx+"]/medi_cd");				
+	
+					opener.javascript.selectPubcPreng(medi_cd, preng_occr_dt, preng_occr_seq); 
+					window.close();						
+				}
+				
+				function loadPage(row)
+				{
+					var mang_mortg_surp_amt	 = datagrid1.valueMatrix(row, datagrid1.colRef("mang_mortg_surp_amt"));
+					var dlco_clsf 	= datagrid1.valueMatrix(row, datagrid1.colRef("bonddebt_dlco_clsf"));
+					var dlco_no 	= datagrid1.valueMatrix(row, datagrid1.colRef("bonddebt_dlco_no"));
+					var dlco_nm 	= datagrid1.valueMatrix(row, datagrid1.colRef("bonddebt_dlco_nm"));					
+					
+					if( mang_mortg_surp_amt < 0 )
+					{					
+						model.property("basi_dt") 	 = datagrid1.valueMatrix(row, datagrid1.colRef("bonddebt_basi_dt"));
+						model.property("cur_tab")   = "1";
+						
+						setSessionDlco(dlco_clsf, dlco_no, dlco_nm);
+						//viewer("mainFrame").window.javaScript.onLoadExMDIPage("AD_BAS_1601");
+						viewer("mainFrame").window.javaScript.onLoadExPopupPage("AD_BAS_1601");
+					}
+					else
+					{
+						return;
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="1,10;1,936;2,30;2,46;" style="font-family:굴림; background-image:../../../images/bg_946.gif; ">
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<caption id="caption12" class="list_cap02" style="left:10px; top:46px; width:926px; height:28px; "/>
+		<caption id="caption4" class="list_cap01" style="left:10px; top:46px; width:75px; height:28px; ">승인여부</caption>
+		<caption id="caption7" class="list_cap01" style="left:190px; top:46px; width:75px; height:28px; ">게재일자</caption>
+		<caption id="caption8" class="list_cap01" style="left:370px; top:46px; width:75px; height:28px; ">영업담당</caption>
+		<select1 id="cb_slcrg_pers" ref="/root/reqData/slcrg_pers" navindex="3" appearance="minimal" style="left:449px; top:51px; width:90px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/slcrg_pers/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				loadList();
+				]]>
+			</script>
+		</select1>
+		<button id="button5" class="btn02" style="left:552px; top:10px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				loadList();
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn02" crud="R" style="left:607px; top:10px; width:52px; height:21px; ">
+			<caption>선택</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					
+					selectList();
+/*					
+					var indx = getSelectedRecordIndex(datagrid1);
+					
+					var preng_occr_dt  = model.getValue("/root/resData/gridData1/record["+indx+"]/preng_occr_dt");
+					var preng_occr_seq = model.getValue("/root/resData/gridData1/record["+indx+"]/preng_occr_seq");
+					var medi_cd 		  = model.getValue("/root/resData/gridData1/record["+indx+"]/medi_cd");				
+					
+					opener.javascript.selectPubcPreng(medi_cd, preng_occr_dt, preng_occr_seq); 
+					window.close();							
+*/					
+				]]>
+			</script>
+		</button>
+		<button id="button7" class="btn02" style="left:662px; top:10px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( !isDataGridUpdated(datagrid1) )
+					{
+						alert("저장할 내역이 없습니다.");
+						return;
+					}
+					
+					if( windowConfirm("저장하시겠습니까?") )
+					{
+						var msg = "";
+						for( var i=datagrid1.fixedRows;i<datagrid1.rows;i++ )
+						{
+							var chrg_aprv				= datagrid1.valueMatrix(i, datagrid1.colRef("chrg_aprv"));
+							var mang_mortg_surp_amt 	= datagrid1.valueMatrix(i, datagrid1.colRef("mang_mortg_surp_amt"));
+							
+							if( mang_mortg_surp_amt < 0 && chrg_aprv == "Y" )
+							{
+								//msg += " " + datagrid1.valueMatrix(i, datagrid1.colRef("preng_occr_seq"));
+								msg += "담보여유액이 (-) 금액인 전표가 있습니다.";
+								break;
+							}
+						}
+						
+						if( msg != "" )
+						{
+							//msg += "\n해당 순번들은 담보여유액이 (-)금액입니다.";
+							alert(msg);
+						}
+						
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_res_1203_u");
+						if( submit_completed() )
+						{
+							model.send("ad_res_1202_l");
+						}
+						else
+						{
+							model.send("ad_res_1202_l");						
+							for( var i=datagrid1.fixedRows;i<datagrid1.rows;i++ )
+							{
+	//							datagrid1.valueMatrix(i, datagrid1.colRef("chrg_aprv")) = "N";
+								datagrid1.removeStatus(i, "update");
+							}
+							datagrid1.refresh();
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="선택^승인^승인^매체^순번^면^단^CM^색도^취급구분^광고주^대행사^광고지사^담당자^단가^광고료^승인광고료^광고내용^게재전표번호^예약발생일자^매체코드^bo_chrg_aprv^담보여유액^bonddebt_dlco_clsf^bonddebt_dlco_no^bonddebt_dlco_nm^bonddebt_basi_dt|선택^담당^팀장^매체^순번^면^단^CM^색도^취급구분^광고주^대행사^광고지사^담당자^단가^광고료^승인광고료^광고내용^게재전표번호^예약발생일자^매체코드^bo_chrg_aprv^담보여유액^bonddebt_dlco_clsf^bonddebt_dlco_no^bonddebt_dlco_nm^bonddebt_basi_dt" colsep="#" colwidth="36, 50, 32, 60, 30, 35, 35, 35, 30, 60, 80, 70, 70, 45, 60, 70, 70, 80, 30, 44, 37, 100, 70, 0, 0 ,0 ,0" explorerbar="sort" extendlastcol="scroll" frozencols="4" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:95px; width:926px; height:455px; ">
+			<col checkvalue="Y,N" ref="checked" type="checkbox"/>
+			<col checkvalue="Y,N" ref="chrg_aprv" type="checkbox"/>
+			<col checkvalue="Y,N" disabled="true" ref="team_chf_aprv" type="checkbox"/>
+			<col ref="medi_nm"/>
+			<col ref="preng_occr_seq"/>
+			<col ref="sect_nm"/>
+			<col ref="dn"/>
+			<col ref="cm"/>
+			<col ref="chro_clsf_nm"/>
+			<col ref="hndl_clsf_nm"/>
+			<col ref="dlco_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="agn_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="hndl_plac_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="slcrg_pers_nm"/>
+			<col ref="uprc" format="#,###" style="text-align:right; "/>
+			<col ref="advt_fee" format="#,###" style="text-align:right; "/>
+			<col ref="apr_advt_fee" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="advt_cont" style="text-align:left; word-wrap:none; "/>
+			<col ref="pubc_slip_no" visibility="hidden"/>
+			<col ref="preng_occr_dt" visibility="hidden"/>
+			<col ref="medi_cd" visibility="hidden"/>
+			<col ref="bo_chrg_aprv" visibility="hidden"/>
+			<col ref="mang_mortg_surp_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="bonddebt_dlco_clsf" visibility="hidden"/>
+			<col ref="bonddebt_dlco_no" visibility="hidden"/>
+			<col ref="bonddebt_dlco_nm" visibility="hidden"/>
+			<col ref="bonddebt_basi_dt" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[	
+					
+					if( !datagrid1.isCell(event.target) )		return;
+					
+					if( datagrid1.mouseRow < datagrid1.fixedRows )	return;
+													
+					
+//					var indx = getSelectedRecordIndex(datagrid1);//datagrid1.row - datagrid1.fixedRows;
+					if( datagrid1.mouseCol == datagrid1.colRef("mang_mortg_surp_amt") )
+					{
+						loadPage( datagrid1.mouseRow );
+					}
+					else
+					{
+						selectList();
+					}
+/*					
+					var preng_occr_dt  	=   datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("preng_occr_dt"));//model.getValue("/root/resData/gridData1/record["+indx+"]/preng_occr_dt");
+					var preng_occr_seq 	= 	datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("preng_occr_seq"));//model.getValue("/root/resData/gridData1/record["+indx+"]/preng_occr_seq");
+					var medi_cd 			= 	datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("medi_cd"));//model.getValue("/root/resData/gridData1/record["+indx+"]/medi_cd");				
+					
+					opener.javascript.selectPubcPreng(medi_cd, preng_occr_dt, preng_occr_seq); 
+					window.close();							
+*/					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if( isDataRegion(datagrid1) )	return;
+					
+					for( var i=datagrid1.fixedRows; i<datagrid1.rows; i++ )
+					{
+						datagrid1.addStatus(i, "update");
+					}
+				
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="구 분^건 수^광고료" colsep="^" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:555px; width:350px; height:82px; ">
+			<col ref="lbl"/>
+			<col ref="cnt" format="#,###" style="text-align:right; "/>
+			<col ref="advt_fee" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<input id="inp_pubc_dt" ref="/root/reqData/pubc_dt" class="req" navindex="2" inputtype="date" caption="게재일자" style="left:269px; top:51px; width:90px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					loadList();
+				]]>
+			</script>
+		</input>
+		<select1 id="cb_appv_clsf" ref="/root/reqData/appv_clsf" navindex="1" appearance="minimal" style="left:89px; top:51px; width:90px; height:18px; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value>0</value>
+				</item>
+				<item>
+					<label>담당</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>팀장</label>
+					<value>3</value>
+				</item>
+			</choices>
+		</select1>
+		<button id="btnClose" class="btn02" style="left:884px; top:10px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();		
+//				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+								
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:83px; width:926px; height:5px; "/>
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:350px; height:27px; ">광고예약순번찾기</caption>
+		<button id="button1" class="btn02" style="left:829px; top:10px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" style="left:717px; top:10px; width:52px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var canGo = false;
+					for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+						var checked = datagrid1.valueMatrix(i, datagrid1.colRef("checked"));
+						if(checked == "Y"){
+							canGo = true;
+							break;
+						}
+					}
+					
+					if(!canGo){
+						alert("삭제대상을 선택하세요");
+						return;
+					}
+					
+					if(windowConfirm("삭제하시겠습니까?")){
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_res_1204_d");
+						if(submit_completed()){
+							model.send("ad_res_1202_l");
+						}else{
+							model.send("ad_res_1202_l");
+							for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+								//datagrid1.valueMatrix(i, datagrid1.colRef("checked")) = "N";
+								datagrid1.removeStatus(i, "update");
+							}
+							datagrid1.refresh();
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" crud="R" style="left:773px; top:10px; width:52px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				
+				if(!checkGridData(datagrid1)){
+					alert("처리할 내역이 없습니다.");
+					return;
+				}
+				var filename = window.fileDialog("save", ",", false, "광고예약순번찾기", "xls", "Excel File(*.xls)|*.xls");
+				
+				if(filename!=""){
+					datagrid1.saveExcel(filename, "sheetname:광고예약순번찾기;");
+				}
+									
+				]]>
+			</script>
+		</button>
+		<caption id="cpt_memo" style="left:375px; top:555px; width:764px; height:70px; font-family:굴림체; font-size:18pt; font-weight:bold; vertical-align:middle; ">
+			<![CDATA[※ 광고주명, 대행사명, 지사명, 금액 등이
+   정확히 입력되었는지 확인해 주세요.]]>
+		</caption>
+	</xhtml:body>
+</xhtml:html>

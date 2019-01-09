@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<pageInfo/>
+						<comboSet>
+							<temp_cd1>
+								<item/>
+							</temp_cd1>
+						</comboSet>
+					</initData>
+					<tempData>
+					</tempData>
+					<reqData>
+						<searchData>
+							<flnm/>
+							<emp_no/>
+							<pay_yymm/>
+							<occr_dt/>
+							<seq/>
+							<tmp>1</tmp>
+						</searchData>
+						<multiUpData/>
+						<fwdData>
+						</fwdData>
+						<reqForm>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<tmp_day/>
+							</record>
+						</gridData>
+						<resForm>
+							<record>
+								<tmp/>
+							</record>
+						</resForm>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+ 
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+						isCtrl = false;   //컨트롤키 사용 유무
+						isOne = true; 	//컨트롤 누르기전 한번실행
+						tmpDay = new Array(3);
+						tmpDay[0] = new Array(32);
+						tmpDay[1] = new Array(32);
+						tmpDay[2] = new Array(32);
+						tmpDay[3] = new Array(32);
+						var calcnt = 0;	//몇번째 달력인가.
+						var i_year = "";		//년 기억하기
+						var i_month = "";		//월 기억하기
+						var arr_tmp = "";
+						multi_v = new Array(2);		//처음 벨류와 마지막 벨류기억
+						trow = "";				//그리드 로우
+						function calendarView(val0,val1,val2,val3){
+							calendar_vaca_1200_1.year = yeardate(val0);
+							calendar_vaca_1200_1.month = val1;
+							calendar_vaca_1200_2.month = val2;
+							calendar_vaca_1200_3.month = val3;
+							model1.refresh();
+							calendar_vaca_1200_1.prevyear.attribute("visibility") = "hidden";
+							calendar_vaca_1200_1.prevmonth.attribute("visibility") = "hidden";
+							calendar_vaca_1200_1.nextyear.attribute("visibility") = "hidden";
+							calendar_vaca_1200_1.nextmonth.attribute("visibility") = "hidden";
+							calendar_vaca_1200_2.prevyear.attribute("visibility") = "hidden";
+							calendar_vaca_1200_2.prevmonth.attribute("visibility") = "hidden";
+							calendar_vaca_1200_2.nextyear.attribute("visibility") = "hidden";
+							calendar_vaca_1200_2.nextmonth.attribute("visibility") = "hidden";
+							calendar_vaca_1200_3.prevyear.attribute("visibility") = "hidden";
+							calendar_vaca_1200_3.prevmonth.attribute("visibility") = "hidden";
+							calendar_vaca_1200_3.nextyear.attribute("visibility") = "hidden";
+							calendar_vaca_1200_3.nextmonth.attribute("visibility") = "hidden";
+							calendar_vaca_1200_1.visible = true;
+							calendar_vaca_1200_2.visible = true;
+							calendar_vaca_1200_3.visible = true;							
+						}
+						
+				
+						//날자 클릭(싱글)
+						function setReturnDay(val){
+							if(!isCtrl){
+								var col = eval("calendar_vaca_1200_"+val).attribute("col");
+								var getWeek = eval("calendar_vaca_1200_"+val).item(0, parseInt(col)).label;	
+								if(getWeek == "월" || getWeek == "화" ||getWeek == "수" || getWeek == "목" || getWeek == "금"){
+									if(datagrid2.rows > 15){
+										//로딩될때 몇건등록했는지 카운터 가져와야함 카운터 + datagrid2.rows
+										alert("더이상 추가 할수 없습니다");	
+										return;	
+									}
+									var v_year = eval("calendar_vaca_1200_"+val).year;
+									var v_month = eval("calendar_vaca_1200_"+val).month;
+									v_month = v_month.length==1?"0"+v_month:v_month;
+									var v_day =  eval("calendar_vaca_1200_"+val).day
+									v_day = v_day.length==1?"0"+v_day:v_day;;
+									var tmp_day = v_year+""+v_month+""+v_day;
+									var chk = initDayCheck(tmp_day);
+									if(chk != ""){
+										if(datagrid2.isReadOnly(1,1) == 1) {
+											datagrid2.isReadOnly(1, 1, 1, 1) = false;							
+											datagrid2.addStatus(1, "insert");
+											daySetting(val,1);
+										}else{
+											datagrid2.addRow(true, true);
+											daySetting(val,datagrid2.row);
+										}
+									}
+								}	
+								datagrid2.refresh();
+							}
+						}
+						//휴가일자 그리드에 넣기(싱글)
+						function daySetting(val,row){
+							var v_year = eval("calendar_vaca_1200_"+val).year;
+							var v_month = eval("calendar_vaca_1200_"+val).month;
+							v_month = v_month.length==1?"0"+v_month:v_month;
+							var v_day =  eval("calendar_vaca_1200_"+val).day
+							v_day = v_day.length==1?"0"+v_day:v_day;
+							//now=new Date(v_year,v_month,v_day); // 현재시간 가져오기
+							var tmp_day = v_year+""+v_month+""+v_day
+							model1.setValue("/root/resData/gridData/record["+row+"]/tmp_day",tmp_day);							
+							eval("calendar_vaca_1200_"+val).refresh();
+							
+						}				
+						//달력입력 중복체크(싱글)
+						function initDayCheck(c_day){
+							var r_day= c_day;
+							for(var i=1;i<datagrid2.rows;i++){
+								chk = datagrid2.valueMatrix(i,1);
+								if(chk == c_day){
+									r_day = "";										
+								}
+							}
+							return r_day
+						}
+						
+						function arrTmp(val,cnt){
+							var col = eval("calendar_vaca_1200_"+val).attribute("col");
+							var getWeek = eval("calendar_vaca_1200_"+val).item(0, parseInt(col)).label;	
+							if(getWeek == "월" || getWeek == "화" ||getWeek == "수" || getWeek == "목" || getWeek == "금"){				
+								multi_v[cnt] = eval("calendar_vaca_1200_"+val).day;
+//								tmpDay[val][arr_tmp] =  multi_v[cnt];
+							}
+						}		
+						
+						//들어갈날짜 임시 저장(멀티)
+						function setCtrlDay(val,cnt){
+							var col = eval("calendar_vaca_1200_"+val).attribute("col");
+							var getWeek = eval("calendar_vaca_1200_"+val).item(0, parseInt(col)).label;	
+							if(getWeek == "월" || getWeek == "화" ||getWeek == "수" || getWeek == "목" || getWeek == "금"){
+								var v_year = eval("calendar_vaca_1200_"+val).year;
+								var v_month = eval("calendar_vaca_1200_"+val).month;
+								v_month = v_month.length==1?"0"+v_month:v_month;								
+								i_year =v_year;						  //그리드에 입력될 년월기억 
+								i_month = v_month;
+								multi_v[cnt] = eval("calendar_vaca_1200_"+val).day;
+								calcnt = val;									  //몇번째 달력인가..
+								model1.refresh();								
+							}
+							
+						}						
+								
+
+						
+						//들어갈날짜 계산(멀티)
+						function defaultDay(){
+							var Fd = 0;		//시작일
+							var Ld = 0;		//종료일
+							var LoopCnt = "";
+							Fd = multi_v[0];
+							Ld = multi_v[1];
+							if(Ld == ""){Ld = 0;}
+							LoopCnt = Number(Ld)- Number(Fd) 
+							if(LoopCnt == 0){
+								//alert(LoopCnt)
+								//alert("잘못된날짜 입니다.")
+							}else{
+								Fd = Number(Fd)+1 
+								trow = datagrid2.rows;
+								for(var i=Fd; i<=Ld; i++){		
+									chk_day = new Date(i_year,i_month-1,i);	
+									if(chk_day.getDay() == 1 || chk_day.getDay() == 2 || chk_day.getDay() == 3 || chk_day.getDay() == 4 || chk_day.getDay() == 5){
+										i = i<10?"0"+i:i;											
+										if(datagrid2.isReadOnly(1,1) == 1) {
+											datagrid2.isReadOnly(1, 1, 1, 1) = false;							
+											datagrid2.addStatus(1, "insert");
+											if(singleChk(i_year+""+i_month+""+i)){
+												ctrlDaySetting(i_year+""+i_month+""+i,1);
+											}
+										}else{
+											if(singleChk(i_year+""+i_month+""+i)){
+												datagrid2.addRow(true, true);
+												ctrlDaySetting(i_year+""+i_month+""+i,datagrid2.row);
+											}
+										}
+									}
+								}																
+									datagrid2.refresh();								
+							}
+						    multi_v[0] = 0;
+						    multi_v[1] = 0;
+							
+						}					
+						
+						//등록돼어 있는지 체크
+						function singleChk(c_day){
+							var flag = true;
+							for(var j=1;j<trow;j++){										
+								chk = datagrid2.valueMatrix(j,1);
+//								alert(chk+"///"+c_day)
+								if(chk == c_day){
+									flag = false;
+								}
+							}
+							return flag;
+						}	
+						//휴가일자 그리드에 넣기
+						function ctrlDaySetting(s_day,row){
+							var tmp_day = s_day;
+							for(var i=1;i<datagrid2.rows;i++){
+								chk = datagrid2.valueMatrix(i,1);
+								//alert(chk+"//"+tmp_day)
+								if(chk != tmp_day){
+									model1.setValue("/root/resData/gridData/record["+row+"]/tmp_day",tmp_day);	
+								}
+							}							
+						}							
+
+ 						//달수 가져오기
+						function monthdate(val){
+							 m = 1+parseInt(val);
+							 var f_date = "";
+							 var cDate=new Date();
+							 var year=cDate.getYear();
+							 var month=(cDate.getMonth()+ (parseInt(m))).toString();
+							 month = month.length==1?"0"+month:month;
+							 if (month=="00"){
+							  month="12";
+							  year--;
+							 }
+							 var day=cDate.getDate().toString();
+							 day = day.length==1?"0"+day:day;
+							 //f_date = year+month+day;
+							 f_date = month;
+							 return f_date;  
+							}	
+ 						//년수 가져오기
+						function yeardate(val){
+							 m = parseInt(val);
+							 var f_date = "";
+							 var cDate=new Date();
+							 var year=(cDate.getYear()+ (parseInt(m))).toString();;
+							 var month=cDate.getMonth()
+							 month = month.length==1?"0"+month:month;
+							 if (month=="00"){
+							  month="12";
+							  year--;
+							 }
+							 var day=cDate.getDate().toString();
+							 day = day.length==1?"0"+day:day;
+							 //f_date = year+month+day;
+							 f_date = year;
+							 return f_date;  
+							}							
+				]]>
+			</script>
+			<submission id="hd_vaca_1201" action="/hd/vaca/1201/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_1000" action="/hd/vaca/1000/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="960" pageheight="1400" guideline="1,10;1,679;">
+		<caption id="caption19" class="list_cap02" style="left:85px; top:10px; width:595px; height:26px; "/>
+		<caption id="caption1" class="list_cap03" style="left:10px; top:10px; width:76px; height:26px; ">기준년도</caption>
+		<caption id="caption3" class="list_cap03" style="left:209px; top:10px; width:86px; height:26px; ">분기구분</caption>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:0px; height:0px; "/>
+		<select1 id="combo1" ref="/root/reqData/searchData/tmp" appearance="minimal" style="left:299px; top:15px; width:95px; height:18px; ">
+			<choices>
+				<item>
+					<label>1분기</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>2분기</label>
+					<value>2</value>
+				</item>
+				<item>
+					<label>3분기</label>
+					<value>3</value>
+				</item>
+				<item>
+					<label>4분기</label>
+					<value>4</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					var cm1 = combo1.value;	
+					if(cm1 == "1"){
+						calendarView(-1,12,1,2);
+					}else if(cm1 == "2") {
+						calendarView(0,3,4,5);
+					}else if(cm1 == "3") {
+						calendarView(0,6,7,8);
+					}else if(cm1 == "4") {
+						calendarView(0,9,10,11);
+					}
+				 
+				]]>
+			</script>
+		</select1>
+		<input id="input1" ref="/root/reqData/searchData/pay_yymm" style="left:91px; top:15px; width:100px; height:18px; "/>
+		<button id="button2" class="btn02" style="left:627px; top:13px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						model1.send("hd_vaca_1000");
+						model1.refresh();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

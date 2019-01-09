@@ -1,0 +1,853 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_2400.xrw
+* 기능 : 판매 - 발송관리 - 수송단가변경
+* 작성일자 : 2009.02.16
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				var oldValue	= "";
+				var oldRowStats = "";
+				function qtyCheck(gbn){							
+							
+					if(gbn =="S") {//조회 
+						var rows	= datagrid1.rows;					
+					
+						var cols		= datagrid1.cols-1;					
+						var tf;	
+						datagrid1.isReadOnly(1, datagrid1.colRef("tran_uprc_cd"), rows-1, datagrid1.colRef("tran_uprc_cd")) = true;					//단가코드
+						//2018.11.26 단가노선명 수정가능하도록 readonly제거 (발송부,CS총괄팀요청)
+						datagrid1.isReadOnly(1, datagrid1.colRef("tran_uprc_route_nm"), rows-1, datagrid1.colRef("tran_uprc_route_nm")) = false; //true;		//단가노선명
+
+						for(var k=0; k<rows; k++){			
+							var qty_clsf 	= datagrid1.valueMatrix(k, datagrid1.colRef("tran_uprc_qty_clsf")); //부수구분 										
+								if ( qty_clsf == "10" ){
+									tf = true;
+								} else {
+									tf = false;
+								}								
+							datagrid1.isReadOnly(k, datagrid1.colRef("qty01"), k, cols) = tf; // 부수구분 이상 부터 readonly
+						}
+					}else{ // 부수구분 변경 할때 
+						var row	= datagrid1.row;					
+						var qty_clsf 	= datagrid1.valueMatrix(row, datagrid1.colRef("tran_uprc_qty_clsf")); //부수구분 
+						var startcol	= datagrid1.colRef("qty01");	//부수구분 다음컬럼
+						var cols		= datagrid1.cols-1;					
+						var tf;														
+						if ( qty_clsf == "10" ){
+							tf = true;
+							//적용일자키는 제외
+							for( k=startcol; k<=cols-1; k++){
+								datagrid1.valueMatrix(row,k)="0";
+							}
+							
+						} else {
+							tf = false;
+						}		
+						
+						datagrid1.isReadOnly(row, startcol, row, cols) = tf; // 부수구분 이상 부터 readonly
+					}
+				}
+				
+				function getSelectedRow(grid){
+					var row = eval(grid + ".row");
+
+					var keyCode = event.keyCode;
+					
+					if ( keyCode == 38 ){
+						row -= 1;
+					}
+					
+					if ( keyCode == 40 ){
+						row += 1;
+					}
+
+					return row;
+				}
+
+				//조회
+				function goSearch(gubun){
+					var action = "se_snd_2410_l";
+					
+					model.setValue("/root/reqData/searchData/medi_cd",model.getValue("/root/initData/medi_cd"))  ;  // 매체코드
+					model.setValue("/root/reqData/searchData/sect_cd",model.getValue("/root/initData/sect_cd"))  ;  // 섹션코드 
+					
+					model.send(action);
+					
+					//se_chkGridCnt("datagrid1");
+				}
+				
+				//저장
+				function goSave(gubun){
+					model.resetInstanceNode("/root/reqData/multiUpDate");
+					model.setValue("/root/reqData/multiUpDate/multiUpDate1", datagrid1.getUpdateData());
+					model
+					
+					var medi_cd = model.getValue("/root/initData/medi_cd");  // 매체코드					
+					var sect_cd = model.getValue("/root/initData/sect_cd"); //섹션코드
+					
+					model.setValue("/root/reqData/multiUpDate/medi_cd", medi_cd);
+					model.setValue("/root/reqData/multiUpDate/sect_cd", sect_cd);
+					
+						if ( ! gridCheck() ){
+							return;
+						}
+					var action = "se_snd_2430_a";
+					model.send(action);
+				}
+				
+				//수송단가 변경내역 조회
+				function goSubSearch(gubun){
+					//조회 전 변경 내역이 있으면 저장할 수 있도록 한다.
+					if ( checkChg("datagrid1") ) {
+						var val = window.alert("변경 사항이 있습니다.\n저장하시겠습니까?", "확인", 1|2) ;
+						// 1은 확인 2는 취소
+						if ( val == 6 ){
+							goSave("P");
+						} else if ( val == 2 ){
+							return;
+						} 
+					}
+					
+					var tran_uprc_cd	= model.getValue("/root/reqData/searchData2/tran_uprc_cd");
+					if ( tran_uprc_cd == "" ){
+						tran_uprc_cd 	= datagrid1.valueMatrix(1, datagrid1.colRef("tran_uprc_cd"));	//단가코드
+						model.setValue("/root/reqData/searchData2/tran_uprc_cd", tran_uprc_cd);
+					}
+					
+					var aply_dt	= model.getValue("/root/reqData/searchData2/aply_dt");
+					if ( aply_dt == "" ){
+						aply_dt 	= datagrid1.valueMatrix(1, datagrid1.colRef("aply_dt"));	//적용일자
+						model.setValue("/root/reqData/searchData2/aply_dt", aply_dt);
+					}
+										
+					var action = "se_snd_2420_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+				}
+				
+				//그리드체크
+				function gridCheck(){
+					var value;
+					var retVal = true;
+					var rows = datagrid1.rows;
+					for ( var i = 1 ; i < rows ; i++ ){
+						value = datagrid1.valueMatrix(i, datagrid1.colRef("aply_dt"));	//적용일자
+						if ( value == "" ){
+							commAlert(i + "행의 적용일자가 없습니다.");
+							retVal = false;
+							break;
+						}
+						value = datagrid1.valueMatrix(i, datagrid1.colRef("tran_uprc_cd"));	//단가코드
+						if ( value == "" ){
+							commAlert(i + "행의 단가코드가 없습니다.");
+							retVal = false;
+							break;
+						}
+					}
+					if ( !checkChg("datagrid1") ){
+						commAlert("저장할 내용이 없습니다.");
+						return;
+					}
+					return retVal;
+				}
+				
+				//버튼의 disabled와 grid의 readonly를 설정
+				function inputTf(){
+					var selectRow = getSelectedRow("datagrid1");
+					
+					if ( selectRow == -1 ){ 
+						selectRow = 1;
+					}
+					
+					var nowDt	= model.getValue("/root/initData/now_dt");
+					
+					var rows	= datagrid1.rows;
+					var cols	= datagrid1.cols - 1;
+//					var rows2	= datagrid2.rows -1;
+//					var cols2	= datagrid2.cols - 1;
+					var tran_cmpy_cd	= "";
+					var tran_cmpy_cd2	= "";
+					var dt, gridTf;
+
+					if ( rows -1 == 1 ){
+						var status	= datagrid1.rowStatus(1);
+
+						if ( status == "0" ){
+							gridTf = true;
+						} else {
+							gridTf = false;
+						}
+						
+						datagrid1.isReadOnly(1, 1, 1, cols)	= gridTf;
+//						datagrid2.isReadOnly(1, 1, 1, cols2)	= gridTf;
+					} else if ( rows - 1 > 0 ) {
+						/*
+						for ( var i = 1 ; i < rows ; i++ ){
+							dt			= datagrid1.valueMatrix(i, datagrid1.colRef("aply_dt"));
+							tran_cmpy_cd 	= datagrid1.valueMatrix(i, datagrid1.colRef("tran_uprc_cd"));
+							tran_cmpy_cd2	= datagrid2.valueMatrix(1,datagrid1.colRef("aply_dt"));
+							if ( dt < nowDt ){
+								gridTf	= true;
+							} else {
+								gridTf	= false;
+							}
+							datagrid1.isReadOnly(i, 1, i, cols)	= gridTf;
+							if ( tran_cmpy_cd == tran_cmpy_cd2 ){
+								datagrid2.isReadOnly(1, 1, rows2, cols2)	= gridTf;
+							}
+						}
+						*/
+						datagrid1.isReadOnly(1, 1, 1, cols)	= false;
+//						datagrid2.isReadOnly(1, 1, 1, cols2)	= false;
+					} else {
+						datagrid1.isReadOnly(1, 1, 1, cols)	= true;
+//						datagrid2.isReadOnly(1, 1, 1, cols2)	= true;
+					}
+					datagrid1.isReadOnly(1, datagrid1.colRef("tran_uprc_cd"), rows - 1, datagrid1.colRef("tran_uprc_cd")) = true;
+				}
+				
+				//팝업
+				function openRoutePopup(gubun){
+					var root            = "/root/reqData/searchData";
+					var route_clsf	= model.getValue(root + "/route_clsf");
+					
+					if(route_clsf==""){ //전체일때 
+						model.setValue(root + "/route_clsf","01");
+						combo2.refresh();
+					}
+					
+					if ( gubun == ""){					
+						
+						var code     = model.getValue("/root/reqData/searchData/route_cd");				
+						 var codecnt = 0;
+						 for ( var i=0; i<code.length; i++ ) {
+						  ch = code.charAt(i);
+							if (! isNaN(ch)) {
+							  	codecnt++;
+							 }
+						 }	
+										 
+						 if(codecnt !=3){						 	
+							model.setValue("/root/reqData/searchData/route_nm", code);							
+						 	model.setValue("/root/reqData/searchData/route_cd", "");
+						 						 		
+						 }else{
+						 	model.setValue("/root/reqData/searchData/route_nm", "");							
+						 	model.setValue("/root/reqData/searchData/route_cd", code);
+						 }		 
+					
+						model.refresh();					
+						se_getRouteCd("N", "/root/reqData/searchData", "/root/reqData/searchData", "route_cd", "route_nm", "", "");
+					} else if(gubun == "P"){
+						se_getRouteCd("P", "/root/reqData/searchData", "/root/reqData/searchData", "route_cd", "route_nm", "", "");
+					} else if(gubun == "GP"){
+						rows 			= datagrid1.selectedRow(0);
+						var rows_path;		
+						rows_path = "[" + rows + "]";
+						route_cd_path 	= "/root/resData/gridData/curlist/record" + rows_path + "";
+						route_nm_path 	= "/root/resData/gridData/curlist/record" + rows_path + "";
+
+						se_getRouteCd("P", route_cd_path, route_cd_path, "route_cd", "route_nm", "", "");
+					}					
+					
+					if(route_clsf==""){ //팝업 검색후 다사ㅣ 전체로 셋팅 
+						model.setValue(root + "/route_clsf","");
+						combo2.refresh();
+					}
+				}
+				
+				//날자비교
+				function dateCompare(startDate, endDate, point){
+				        //년 월일로 분리 한다.
+				        var start_Date = new Array(3);
+				        var end_Date = new Array(3);
+				
+				        if(point != ""){
+				            start_Date = startDate.split(point);
+				            end_Date = endDate.split(point);
+				            if(start_Date.length != 3 && end_Date.length != 3){
+				                return false;
+				            }
+				        }else{
+				            start_Date[0] = startDate.substring(0,4);
+				            start_Date[1] = startDate.substring(4,6);
+				            start_Date[2] = startDate.substring(6,9);
+				
+				            end_Date[0] = endDate.substring(0,4);
+				            end_Date[1] = endDate.substring(4,6);
+				            end_Date[2] = endDate.substring(6,9);
+				        }
+				
+				        //Date 객체를 생성한다.
+				        var sDate = new Date(start_Date[0], start_Date[1], start_Date[2]);
+				        var eDate = new Date(end_Date[0], end_Date[1], end_Date[2]);
+				
+				        if(sDate > eDate){
+				            return false;
+				        }
+				
+				        return true;
+			    }
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<curlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</curlist>
+							<routelist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</routelist>
+							<qtylist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</qtylist>
+							<uprclist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</uprclist>
+							<decidlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</decidlist>
+							<routelist2>
+							</routelist2>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<prt_plac_cd/>
+							<route_clsf/>
+							<route_cd/>
+							<route_nm/>
+							<tran_uprc_clas/>
+							<use_yn>Y</use_yn>
+							<medi_cd/>
+							<sect_cd/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate>
+							<multiUpDate1/>
+							<multiUpDate2/>
+							<multiUpDate3/>
+							<medi_cd/>
+							<sect_cd/>
+						</multiUpDate>
+						<searchData2>
+							<tran_uprc_cd/>
+							<aply_dt/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<aply_dt/>
+									<tran_uprc_clas/>
+									<tran_uprc_cd/>
+									<tran_uprc_route_nm/>
+									<route_clsf/>
+									<route_cd/>
+									<route_nm/>
+									<prt_plac_cd/>
+									<route_lgth/>
+									<load_wgt/>
+									<cnsg_seqo/>
+									<tran_cost/>
+									<tran_cost_ren/>
+									<rmks/>
+									<use_yn/>
+									<tran_uprc_qty_clsf/>
+									<qty01/>
+									<qty02/>
+									<qty03/>
+									<qty04/>
+									<qty05/>
+									<qty06/>
+									<qty07/>
+									<qty08/>
+									<qty09/>
+									<qty10/>
+									<aply_dt_key/>
+									<qty/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+
+					var action = "se_snd_2400_m";
+					model.send(action);
+				
+					//inputTf();
+					
+					model.makeNode("/root/initData/comboSet/routelist2");
+					model.copyNode("/root/initData/comboSet/routelist2", "/root/initData/comboSet/routelist");
+					model.makeNode("/root/initData/comboSet/uprclist2");
+					model.copyNode("/root/initData/comboSet/uprclist2", "/root/initData/comboSet/uprclist");
+					model.makeNode("/root/initData/comboSet/curlist2");
+					model.copyNode("/root/initData/comboSet/curlist2", "/root/initData/comboSet/curlist");
+
+					makeComboGubun("A", "/root/initData/comboSet/curlist", "record", "cdnm", "cd");
+					makeComboGubun("", "/root/initData/comboSet/curlist2", "record", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/routelist", "record", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/uprclist2", "record", "cdnm", "cd");
+				
+					combo3.select(0);
+					combo2.select(0);
+					combo1.select(0);
+					
+					
+					var medi_cd = model.getValue("/root/initData/medi_cd");  // 매체코드
+					var medi_nm= model.getValue("/root/initData/medi_nm");  // 매체명
+					var sect_cd = model.getValue("/root/initData/sect_cd"); //섹션코드
+					var sect_nm = model.getValue("/root/initData/sect_nm"); //섹션 명
+					var col_cnt = model.getValue("/root/initData/col_cnt"); //갯수
+					
+					var medi_nm  = medi_nm.split("@");
+					var sect_nm_arr = sect_nm.split("@");
+					var statrcol = datagrid1.colRef("qty01");	//매체부수 첫번째컬럼
+					
+					var gridtitle = "단가\n코드^단가노선명^수송\n단가^변경\n수송단가^노선구분^노선\n코드^노선명^인쇄처^사용여부^적용일자^구분^노선길이^적재중량^탁송순서^적요^부수구분";
+					for(var k=0; k<eval(col_cnt); k++){
+						gridtitle = gridtitle + "^"+medi_nm[k]+"/"+sect_nm_arr[k];
+					}
+					
+					datagrid1.caption =gridtitle;	
+								
+					var s_col = statrcol+eval(col_cnt); // 시작 위치 					
+					for(var k=s_col; k<datagrid1.cols;  k++){
+						datagrid1.colhidden(k) = true;
+					}
+					
+					var rows	= datagrid1.rows;
+					var status;
+
+					if ( rows == datagrid1.fixedRows + 1 ){
+						status = datagrid1.rowStatus(rows - 1);
+						if ( status == 0 && datagrid1.valueMatrix(1, datagrid1.colRef("aply_dt")) == "" ){
+							model.removeNodeset("/root/resData/gridData/curlist/record");
+							datagrid1.refresh();
+						}
+					}
+
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_snd_2400_m" action="/se/snd/2400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_snd_2410_l" action="/se/snd/2410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="se_snd_2420_l" action="/se/snd/2420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/resData/gridData/medilist"/>
+			<submission id="se_snd_2430_a" action="/se/snd/2430" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,69;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="D" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var rows		= datagrid1.selectedRows;
+					var nowDt		= model.getValue("/root/initData/now_dt");
+					var aply_dt	= "";
+					var row		= "";
+					
+					if ( rows < 1 ){
+						commAlert("삭제할 대상이 없습니다.");
+						return;
+					}
+					
+					for ( var i = 0 ; i < rows ; i++ ){
+						row		= datagrid1.selectedRow(i);
+
+						aply_dt	= datagrid1.valueMatrix(row, datagrid1.colRef("aply_dt"));		//적용일자
+
+						if ( aply_dt < nowDt ){
+							commAlert(row + "행의 단가변경이 적용되어 삭제할 수 없습니다.");
+							return;
+						} else {
+							datagrid1.addStatus(row, "delete");
+						}
+					}
+					
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption3" class="list_cap01" style="left:453px; top:0px; width:60px; height:26px; ">인쇄처</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/prt_plac_cd" appearance="minimal" style="left:516px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption7" class="list_cap01" style="left:178px; top:0px; width:50px; height:26px; ">노선</caption>
+			<button id="button1" navindex="2" crud="R" style="left:324px; top:4px; width:20px; height:18px; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+				<caption>...</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						openRoutePopup("P");
+					]]>
+				</script>
+			</button>
+			<input id="input1" ref="/root/reqData/searchData/route_cd" navindex="1" caption="코드" style="left:231px; top:4px; width:90px; height:18px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[		
+					if ( event.keyCode == 13 ){
+						goSearch();
+					}else{
+						model.setValue("/root/reqData/searchData/route_nm", "");	
+						input22.refresh();
+					}
+				]]>
+				</script>
+				<script type="javascript" ev:event="DOMFocusOut">
+					<![CDATA[
+						if ( event.keyCode == 9 ){
+							var code = input1.currentText;
+							model.setValue("/root/reqData/searchData/route_cd", code);						
+							if ( code == "" ){
+								return;
+							}						
+							openRoutePopup("");
+							if(submit_completed()){								
+								model.setfocus("input1");
+							}
+						}
+					]]>
+				</script>
+			</input>
+			<output id="input22" ref="/root/reqData/searchData/route_nm" appearance="output" style="left:347px; top:4px; width:90px; height:18px; "/>
+			<caption id="caption2" class="list_cap01" style="left:621px; top:0px; width:50px; height:26px; ">구분</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/tran_uprc_clas" appearance="minimal" style="left:674px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/uprclist2/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo2" ref="/root/reqData/searchData/route_clsf" appearance="minimal" style="left:73px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/routelist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; ">노선구분</caption>
+			<caption id="caption1" class="list_cap01" style="left:780px; top:0px; width:70px; height:26px; ">사용여부</caption>
+			<select1 id="combo4" ref="/root/reqData/searchData/use_yn" appearance="minimal" style="left:853px; top:4px; width:59px; height:18px; text-align:left; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>Y</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>N</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="C" style="left:739px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var value = datagrid1.valueMatrix(1, datagrid1.colRef("aply_dt"));
+					if ( value == "" && datagrid1.rows == datagrid1.fixedRows + 1 ){
+						commAlert("저장할 내용이 없습니다.");
+						return;
+					}
+					
+					var rows = datagrid1.rows - 1;
+					for ( var i = 1 ; i <= rows ; i++ ){
+						value = datagrid1.valueMatrix(i, datagrid1.colRef("aply_dt"));
+						if ( value == "" ){
+							commAlert(i + "행의 적용일자가 없습니다.");
+							return;
+						}
+					}
+					
+					goSave();
+
+					//에러체크
+					if(submit_completed()){
+						goSearch();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" allowselection="true" caption="단가&#xA;코드^단가노선명^수송&#xA;단가^변경&#xA;수송단가^노선구분^노선&#xA;코드^노선명^인쇄처^사용여부^적용일자^구분^노선길이^적재중량^탁송순서^적요^부수구분^caption1^caption2^caption3^caption4^caption5^caption6^caption7^caption8^caption9^caption10^caption11" colsep="#" colwidth="45, 80, 50, 55, 70, 45, 80, 80, 55, 85, 70, 55, 55, 55, 100, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80" explorerbar="sortshow" frozencols="7" mergecellsfixedrows="bycolrec" rowheader="update" rowheight="35" rowsep="|" selectionmode="byrow" style="left:9px; top:120px; width:927px; height:605px; ">
+			<col ref="tran_uprc_cd" type="input"/>
+			<col ref="tran_uprc_route_nm" type="input" style="text-align:left; "/>
+			<col ref="tran_cost" format="#,###" style="left:880px; top:20px; width:80px; height:20px; text-align:right; "/>
+			<col ref="tran_cost_ren" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="route_clsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/routelist2/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="route_cd" type="inputbutton" style="text-align:left; "/>
+			<col ref="route_nm" style="text-align:left; "/>
+			<col ref="prt_plac_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist2/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="use_yn" type="combo" style="text-align:left; ">
+				<choices>
+					<item>
+						<label>Y</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>N</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</col>
+			<col ref="aply_dt" type="inputdate" style="text-align:left; "/>
+			<col ref="tran_uprc_clas" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/uprclist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="route_lgth" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="load_wgt" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="cnsg_seqo" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="rmks" type="input"/>
+			<col ref="tran_uprc_qty_clsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/qtylist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="qty01" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty02" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty03" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty04" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty05" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty06" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty07" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty08" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty09" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty10" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="qty"/>
+			<col ref="aply_dt_key"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					var col = datagrid1.col;
+					var col_tran_uprc_cd = datagrid1.colRef("tran_uprc_cd");
+					var col_route_cd = datagrid1.colRef("route_cd");
+					
+					if ( col == col_tran_uprc_cd ){
+						/*
+						var row	= datagrid1.row;
+						model.property("path")	= "/root/resData/gridData/curlist";
+						model.property("item")	= "record";
+						model.property("index") 	= row;
+						
+						window.load(
+									"/xrw/se/comm/SE_COMM_2100.xrw", 
+									"modal", 
+									"", 
+									"left:30px; top:200px; width:655px; height:520; align:center; resize:false; caption:hidden;"
+									,""
+									,""
+								);
+
+						var status	= datagrid1.rowStatus(row);
+						
+						if ( status == "0" ){
+							datagrid1.addStatus(row, "update");	
+						}			
+						
+						
+						datagrid1.valueMatrix(row,datagrid1.colRef("aply_dt_key"))= datagrid1.valueMatrix(row,datagrid1.colRef("aply_dt"));
+						datagrid1.valueMatrix(row,datagrid1.colRef("aply_dt"))=getCurrentDate();  // 적용일자 금일날짜 
+						
+												
+						datagrid1.refresh();
+						*/
+					} else if ( col == col_route_cd ){
+						openRoutePopup("GP");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var col = datagrid1.col;
+					var row	= datagrid1.row;
+					var col_aply_dt = datagrid1.colRef("aply_dt");
+					var col_tran_uprc_qty_clsf = datagrid1.colRef("tran_uprc_qty_clsf");
+					
+					if ( col == col_aply_dt ){
+						var nowDt		= model.getValue("/root/initData/now_dt");
+						var aply_dt	= datagrid1.valueMatrix(row, datagrid1.colRef("aply_dt"));
+						
+/*						
+		//현재일 전일 입력 가능하도록 변경
+						if ( aply_dt < nowDt ){
+							commAlert("현재일 이전의 적용일자는 입력 불가합니다.");		
+							datagrid1.valueMatrix(row, datagrid1.colRef("aply_dt")) = oldValue;							
+							if(oldRowStats==0){
+								datagrid1.rowstatus(row)=0;					
+							}		
+							return;
+						}
+*/						
+						
+					} else if ( col == col_tran_uprc_qty_clsf ){ //부수구분 변경시 
+						qtyCheck();
+					}
+					
+					var col_cnt = model.getValue("/root/initData/col_cnt"); //갯수
+					var qty_all_arr = new Array();
+					for(var k=0; k<eval(col_cnt); k++){
+						var colName="";
+						if(k<10){
+							 colName = "qty0"+(k+1);
+						}else{
+							 colName = "qty"+(k+1);
+						}
+						
+						qty_all_arr[k]= datagrid1.valueMatrix(row, datagrid1.colRef(colName));
+					}
+										
+					var qty_all = qty_all_arr.join("@");					
+					datagrid1.valueMatrix(row, datagrid1.colRef("qty"))=qty_all; // 전체 부수를 스트링으로 합친거 
+/*
+					if(dateCompare(datagrid1.valueMatrix(row,1),getCurrentDate(),"")){
+						datagrid1.valueMatrix(row,datagrid1.colRef("aply_dt")) = getCurrentDate();
+					}
+*/					
+				]]>
+			</script>
+			<script type="javascript" ev:event="onentercell">
+				<![CDATA[
+					var row	= datagrid1.row;
+					var value	= datagrid1.valueMatrix(row, datagrid1.colRef("aply_dt"));
+					oldValue	= value;
+				]]>
+			</script>
+			<script type="javascript" ev:event="DOMFocusIn">
+				<![CDATA[
+					var row	= datagrid1.row;
+					oldRowStats = datagrid1.rowStatus(row);
+				]]>
+			</script>
+			<script type="javascript" ev:event="onaftersort">
+				<![CDATA[
+					datagrid1.gridToInstance();
+				]]>
+			</script>
+		</datagrid>
+		<button id="button3" class="btn03" crud="C" style="left:672px; top:44px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var rows	= datagrid1.rows;
+					var status;
+
+					if ( rows == datagrid1.fixedRows + 1 ){
+						status = datagrid1.rowStatus(rows - 1);
+						if ( status == 0 && datagrid1.valueMatrix(1, datagrid1.colRef("aply_dt")) == "" ){
+							model.removeNodeset("/root/resData/gridData/curlist/record");
+							datagrid1.refresh();
+						}
+					}
+
+					datagrid1.addRow();				
+					var row = datagrid1.row;
+					
+					datagrid1.valueMatrix(row,datagrid1.colRef("aply_dt"))=getCurrentDate();  // 적용일자 금일날짜 ;
+					datagrid1.valueMatrix(row,datagrid1.colRef("tran_uprc_qty_clsf"))="10";  // 부수구분 발송부수으로 
+					datagrid1.valueMatrix(row,datagrid1.colRef("use_yn"))="Y";  // 사용여부 사용으로 
+				
+					qtyCheck("");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn03" crud="R" style="left:605px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();					
+					qtyCheck("S");
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

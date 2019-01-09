@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_RCP_1500.xrw
+* 기능 : 입금관리 - 입금정정
+* 작성일자 : 2009-03-04
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<team_cd/>
+								<part_cd/>
+								<area_cd/>
+								<rcpm_dt1/>
+								<rcpm_dt2/>
+								<rcpm_dt/>
+								<bo_cdseq/>
+							</searchTop>
+							<searchDtl>
+								<area_cd/>
+								<occr_dt/>
+								<slip_clsf/>
+								<seq/>
+								<rcpm_dt/>
+							</searchDtl>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+							<area_cd/>
+							<occr_dt/>
+							<slip_clsf/>
+							<seq/>
+							<accflag/>
+							<rcpm_dt/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<bo_cdseq/>
+							<bo_nm/>
+							<area_cd/>
+							<area_nm/>
+							<chrg_pers/>
+							<amt1/>
+							<atm1_r/>
+							<amt2/>
+							<atm2_r/>
+							<amt3/>
+							<atm3_r/>
+							<tot_amt/>
+						</resform>
+						<gridData>
+							<grid1>
+								<record>
+									<occr_dt/>
+									<slip_clsf/>
+									<seq/>
+									<rcpm_dt/>
+									<dept_nm/>
+									<part_nm/>
+									<area_nm/>
+									<area_cd/>
+									<cnt/>
+									<actu_slip_no/>
+									<acct_slip_no/>
+									<rcpm_amt/>
+									<clos_yn/>
+								</record>
+							</grid1>
+							<grid2>
+								<record>
+									<bo_cdseq/>
+									<bo_nm/>
+									<area_cd/>
+									<area_nm/>
+									<chrg_pers/>
+									<amt1/>
+									<atm1_r/>
+									<amt2/>
+									<atm2_r/>
+									<amt3/>
+									<atm3_r/>
+									<tot_amt/>
+									<remk/>
+								</record>
+							</grid2>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_rcp_1510_l" action="/se/rcp/1510" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData/grid1"/>
+			<submission id="se_rcp_1520_l" action="/se/rcp/1520" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchDtl" resultref="/root/resData/gridData/grid2"/>
+			<submission id="se_rcp_1530_l" action="/se/rcp/1530" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/resform"/>
+			<submission id="se_rcp_1540_a" action="/se/rcp/1540" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<submission id="se_rcp_1550_a" action="/se/rcp/1550" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					
+					makeTeamSearch(
+						   "se_rcp_1500_m"
+						  , "/se/rcp/1500"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+					model.setValue("/root/reqData/searchData/searchTop/rcpm_dt1", dateAdd('d', -6, getCurrentDate()));
+					model.setValue("/root/reqData/searchData/searchTop/rcpm_dt2", getCurrentDate());
+					model.setValue("/root/reqData/searchData/searchTop/rcpm_dt", getCurrentDate());
+					
+					ipt_rcpm_dt1.refresh();
+					ipt_rcpm_dt2.refresh();
+					ipt_rcpm_dt.refresh();
+					model.setValue("/root/reqData/reqform/accflag", "I");
+										
+				]]>
+			</script>
+			<bind id="bind1" ref="/root/resData/gridData/grid2/record/tot_amt" calculate="../amt1 + ../atm1_r  + ../amt2 + ../atm2_r  + ../amt3 + ../atm3_r"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//처리내역조회(상단)
+				function go_topsearch(){
+						
+					if(!commReqCheck(group_scr)) return;
+					if(!se_chkOverDate(model.getValue("/root/reqData/searchData/searchTop/rcpm_dt1"),model.getValue("/root/reqData/searchData/searchTop/rcpm_dt2"))) return;
+						
+					model.send("se_rcp_1510_l");
+					se_chkGridCnt("datagrid1");
+											
+					model.setValue("/root/reqData/reqform/accflag", "U");	//삭제(취소),저장을 위한 모드
+					model.resetInstanceNode("/root/resData/gridData/grid2/record");	
+					se_setGridStatReset("datagrid2");
+					datagrid2.refresh();
+									
+				}
+				
+				//처리내역조회(하단)
+				function go_dtlsearch(){
+					var rCnt = datagrid1.row;
+					model.setValue("/root/reqData/searchData/searchDtl/area_cd", datagrid1.valueMatrix(rCnt,8));
+					model.setValue("/root/reqData/searchData/searchDtl/occr_dt", datagrid1.valueMatrix(rCnt,1));
+					model.setValue("/root/reqData/searchData/searchDtl/slip_clsf", datagrid1.valueMatrix(rCnt,2));
+					model.setValue("/root/reqData/searchData/searchDtl/seq", datagrid1.valueMatrix(rCnt,3));
+					model.setValue("/root/reqData/searchData/searchDtl/rcpm_dt", datagrid1.valueMatrix(rCnt,4));
+						
+					model.setValue("/root/reqData/reqform/area_cd", datagrid1.valueMatrix(rCnt,8));
+					model.setValue("/root/reqData/reqform/occr_dt", datagrid1.valueMatrix(rCnt,1));
+					model.setValue("/root/reqData/reqform/slip_clsf", datagrid1.valueMatrix(rCnt,2));
+					model.setValue("/root/reqData/reqform/seq", datagrid1.valueMatrix(rCnt,3));
+					model.setValue("/root/reqData/reqform/rcpm_dt", datagrid1.valueMatrix(rCnt,4));
+					
+					model.send("se_rcp_1520_l");
+					
+					var rowCnt = datagrid2.rows;
+					datagrid2.isReadOnly(1,1,rowCnt-1,13) = true;
+				}
+				
+				//지국선택
+				function jsGetBocdSeq(bo_cd,bo_seq,bo_nm,callgb){
+					
+					if(bo_cd != "" && bo_seq != ""){
+						model.setValue("/root/reqData/searchData/searchTop/bo_cdseq", bo_cd+bo_seq);
+						
+						model.send("se_rcp_1530_l");								
+						if(submit_completed()){
+							var bo_val = model.getValue("/root/resData/resform/bo_cdseq");
+							
+							if(bo_val == ""){
+								commAlert("해당일의 입금내역이 없습니다.");
+								datagrid2.rowStatus(rCnt) = 0;
+								return;
+							}else{
+								var rCnt = datagrid2.row;
+								datagrid2.valueMatrix(rCnt, 1) = bo_cd+bo_seq;
+								datagrid2.valueMatrix(rCnt, 2) = model.getValue("/root/resData/resform/bo_nm");
+								datagrid2.valueMatrix(rCnt, 3) = model.getValue("/root/resData/resform/area_cd");
+								datagrid2.valueMatrix(rCnt, 4) = model.getValue("/root/resData/resform/area_nm");
+								datagrid2.valueMatrix(rCnt, 5) = model.getValue("/root/resData/resform/chrg_pers");
+								datagrid2.valueMatrix(rCnt, 6) = model.getValue("/root/resData/resform/amt1");
+								datagrid2.valueMatrix(rCnt, 7) = model.getValue("/root/resData/resform/atm1_r");
+								datagrid2.valueMatrix(rCnt, 8) = model.getValue("/root/resData/resform/amt2");
+								datagrid2.valueMatrix(rCnt, 9) = model.getValue("/root/resData/resform/atm2_r");
+								datagrid2.valueMatrix(rCnt, 10) = model.getValue("/root/resData/resform/amt3");
+								datagrid2.valueMatrix(rCnt, 11) = model.getValue("/root/resData/resform/atm3_r");
+								datagrid2.valueMatrix(rCnt, 12) = model.getValue("/root/resData/resform/tot_amt");
+								//대상일자 세팅
+								model.setValue("/root/reqData/reqform/rcpm_dt", model.getValue("/root/reqData/searchData/searchTop/rcpm_dt"));
+								datagrid2.rowStatus(rCnt) = 1;
+								datagrid2.refresh();
+						
+							}
+						}
+					}					
+				}
+				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn04" crud="R" style="left:578px; top:44px; width:86px; height:21px; ">
+			<caption>처리내역조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_topsearch();
+					
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/searchTop/area_cd" appearance="minimal" style="left:373px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:149px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<select1 id="team_combo" ref="/root/reqData/searchData/searchTop/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/searchTop/part_cd" appearance="minimal" style="left:223px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:324px; top:0px; width:45px; height:26px; ">지역</caption>
+			<input id="ipt_rcpm_dt1" ref="/root/reqData/searchData/searchTop/rcpm_dt1" class="req" inputtype="date" format="yyyy-mm-dd" caption="입금일자1" style="left:542px; top:4px; width:85px; height:18px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption8" class="list_cap01" style="left:473px; top:0px; width:65px; height:26px; ">등록일자</caption>
+			<caption id="caption2" style="left:629px; top:6px; width:15px; height:15px; ">~</caption>
+			<input id="ipt_rcpm_dt2" ref="/root/reqData/searchData/searchTop/rcpm_dt2" class="req" inputtype="date" format="yyyy-mm-dd" caption="입금일자2" style="left:642px; top:4px; width:85px; height:18px; "/>
+			<caption id="caption5" class="list_cap01" style="left:738px; top:0px; width:65px; height:26px; ">대상일자</caption>
+			<input id="ipt_rcpm_dt" ref="/root/reqData/searchData/searchTop/rcpm_dt" inputtype="date" format="yyyy-mm-dd" style="left:807px; top:4px; width:85px; height:18px; "/>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/grid1/record" caption="(발생일자)^(전표구분)^(순번)^입금일자^팀^파트/지사^지역^(지역)^건수^입금번호^전표번호^입금액^마감여부" colsep="#" colwidth="63, 63, 41, 100, 100, 100, 100, 44, 70, 130, 130, 120, 60" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:120px; width:926px; height:195px; ">
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="slip_clsf" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="rcpm_dt" format="yyyy-mm-dd"/>
+			<col ref="dept_nm"/>
+			<col ref="part_nm"/>
+			<col ref="area_nm"/>
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="cnt" format="#,###" style="text-align:right; "/>
+			<col ref="actu_slip_no"/>
+			<col ref="acct_slip_no"/>
+			<col ref="rcpm_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="clos_yn" style="text-align:center; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				go_dtlsearch();
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:10px; top:329px; width:130px; height:20px; ">입금정정 처리</caption>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/grid2/record" caption="센터코드^센터명^(지역코드)^지역^(담당자)^지대^(지대)^계약보증금^(계약)^스포츠^(스포)^입금누계^정정사유" colsep="#" colwidth="100, 100, 62, 100, 51, 90, 45, 90, 43, 90, 42, 100, 160" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:350px; width:926px; height:355px; ">
+			<col class="req" ref="bo_cdseq" type="inputbutton" format="99999-999" caption="센터코드"/>
+			<col ref="bo_nm"/>
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="area_nm"/>
+			<col ref="chrg_pers" visibility="hidden"/>
+			<col ref="amt1" type="input" format="(-)#,###" style="text-align:right; "/>
+			<col ref="atm1_r" visibility="hidden"/>
+			<col ref="amt2" type="input" format="(-)#,###" style="text-align:right; "/>
+			<col ref="atm2_r" visibility="hidden"/>
+			<col ref="amt3" type="input" format="(-)#,###" style="text-align:right; "/>
+			<col ref="atm3_r" visibility="hidden"/>
+			<col ref="tot_amt" visibility="hidden" format="(-)#,###" style="text-align:right; "/>
+			<col ref="remk" type="input" style="text-align:left; "/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[		
+			
+				var rcpm_dt = model.getValue("/root/reqData/searchData/searchTop/rcpm_dt");
+				if(rcpm_dt == ""){
+					commAlert("대상일자를 선택해 주십시오.");
+					model.setFocus("ipt_rcpm_dt");  
+					return;
+				}
+					
+				window.load(
+					"/xrw/se/comm/SE_COMM_1100.xrw", 
+					"modal", 
+					"", 
+					"left:30px; top:100px; width:660px; height:500; align:center; caption:hidden"
+					,""
+					,""
+				);		
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				
+				if(datagrid2.col == 1){
+					datagrid2.valueMatrix(datagrid2.row,2) = "";
+					se_getBocdnm("/root/resData/gridData/grid2/record"
+								,"bo_cdseq"
+								,"bo_nm"
+								,"G"
+								,"datagrid2");		
+								
+					var bo_cdseq = datagrid2.valueMatrix(datagrid2.row,1);
+					var bo_cd = bo_cdseq.substring(0,5);
+					var bo_seq = bo_cdseq.substring(5,8);
+					jsGetBocdSeq(bo_cd,bo_seq,"","2");		
+				}
+				]]>
+			</script>
+		</datagrid>
+		<button id="button10" class="btn03" crud="D" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!commConfirmBox("정정의 취소는 전표번호 단위로 취소됩니다. 계속 하시겠습니까?")) return;
+				
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(accflag != "U"){
+					commAlert("처리내역 조회/선택 후 취소하십시오.");
+					return;
+				}
+				
+				var rCnt = datagrid1.rows;
+				var dCnt = 0;
+								
+				var len = datagrid1.selectedRows;	
+				if(len==0){
+					commAlert("취소처리할 내역을 선택하십시오.(상단의 전표내역)");
+					return;
+				}			
+				var index;
+				for (var i=0; i<len; i++){		
+					index = datagrid1.selectedRow(i);
+					datagrid1.rowStatus(index) = 4;
+				}
+					
+				model.setValue("/root/reqData/reqform/multiUpDate", datagrid1.getUpdateData());
+				
+				model.send("se_rcp_1550_a");
+				
+				if(submit_completed()){
+					model.setValue("/root/reqData/reqform/accflag", "");
+					go_topsearch();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" crud="C" style="left:737px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					
+				if(!commConfirmBox("저장 하시겠습니까?")) return;
+				
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(accflag != "I"){
+					commAlert("입력 선택후 저장하십시오.");
+					return;
+				}
+				
+				var rNum = datagrid2.rows;
+				if(rNum < 2){
+					commAlert("대상 내역이 없습니다.");
+					return;
+				}
+				
+				if(!checkChg("datagrid2")){
+					commAlert("입력한 내역이 없습니다.");
+					return;
+				}
+				
+				if(!commGridReqCheck("datagrid2")) return;
+				
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(accflag == "") return;
+				
+				model.setValue("/root/reqData/reqform/multiUpDate", datagrid2.getUpdateData());
+				
+				model.send("se_rcp_1540_a");
+				
+				if(submit_completed()){
+					model.setValue("/root/reqData/reqform/accflag", "");
+					go_topsearch();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" crud="C" style="left:669px; top:44px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[							
+				model.resetInstanceNode("/root/resData/gridData/grid2/record");	
+				model.setValue("/root/reqData/reqform/accflag", "I");
+				datagrid2.refresh();
+			
+				var rowCnt = datagrid2.rows;
+				datagrid2.isReadOnly(1,1,rowCnt-1,13) = false;
+	
+				]]>
+			</script>
+		</button>
+		<button id="button28" class="btn_grid03" navindex="22" style="left:880px; top:330px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(accflag != "I") return;
+				datagrid2.addRow();					
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

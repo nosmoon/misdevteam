@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>토지/건물 등록/수정</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 선택계열의 정보를 담당 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<comboSet>
+							<eis_aset_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</eis_aset_clsf>
+						</comboSet>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+					<reqData>
+						<!-- 검색조건 처리 -->
+						<searchData>
+							<base_dt/>
+							<occr_dt/>
+							<occr_seq/>
+							<eis_aset_clsf/>
+						</searchData>
+						<!-- 등록/수정/삭제 요청 Form Data -->
+						<reqForm>
+							<now_dept_cd/>
+							<dept_nm/>
+							<now_loca/>
+							<dtls_remk/>
+						</reqForm>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<multiUpdate>
+							<mode/>
+							<occr_dt/>
+							<occr_seq/>
+							<chg_dt/>
+							<multiUpdateData/>
+						</multiUpdate>
+						<!-- POPUP 페이지 Forward Data -->
+						<fwdData>
+							<func_nm/>
+							<aset_no_list/>
+							<hsty_dlco_ern/>
+						</fwdData>
+					</reqData>
+					<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+					<resData>
+						<!-- 전달 받은 리스트 데이터를 담당 ( submit의 결과가 담김) -->
+						<gridData2>
+							<record>
+								<aset_no/>
+								<aset_nm/>
+								<eis_aset_clsf/>
+								<acqr_dt/>
+								<aset_size/>
+								<aset_usag/>
+								<aset_qunt_cnt/>
+								<basi_mrkt_pric/>
+								<occr_dt/>
+								<occr_seq/>
+								<sub_seq/>
+								<job_clsf/>
+								<aset_clsf/>
+							</record>
+						</gridData2>
+						<!-- 전달 받은 Msg를 담당 ( submit의 결과가 담김) -->
+						<msg>
+							<errCode/>
+							<errMsg/>
+						</msg>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<now_dept_cd/>
+							<dept_nm/>
+							<now_loca/>
+							<remk/>
+						</resForm>
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+							<record>
+								<chg_dt/>
+								<aset_tot_cnt/>
+								<eis_fix/>
+								<eis_pers/>
+								<eis_fix_dt_tm/>
+							</record>
+						</gridData>
+					</resData>
+					<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function geHeaderlList() {						
+						ipt_chg_dt.disabled = true;			// 과표기준일자 비활성화
+						cbo_eis_aset_clsf.disabled = true;	// 과표기준일자 비활성화
+										
+						model1.resetInstanceNode("/root/resData/gridData/record");
+						model1.send("as_aset_1901");
+						model1.copyNode("/root/resData/gridData" , "/root/tempData/dataSet/CURLIST");
+						model1.removeNodeset("/root/tempData/dataSet");
+						model1.refresh();	
+					}
+									
+					function getDetailList() {						
+						var i = datagrid.row;
+						model1.setValue("/root/reqData/searchData/base_dt" , datagrid.valueMatrix(i, 1) );
+						model1.send("as_aset_1903");
+						model1.copyNode("/root/resData/gridData2" , "/root/tempData/dataSet/CURLIST");
+						model1.removeNodeset("/root/tempData/dataSet");
+						model1.setValue("/root/reqData/multiUpdate/chg_dt", datagrid.valueMatrix(i, 1) );				
+						model1.setValue("/root/reqData/multiUpdate/mode", "U" );				
+						model1.refresh();			
+					
+						ipt_chg_dt.disabled = true;			// 과표기준일자 비활성화
+						cbo_eis_aset_clsf.disabled = false;	// EIS자산구분  활성화	
+						
+						// 소계출력
+						getSubTotal();																		
+					}
+				//그리드의 열단위로 합을 구하기 위해 subtotal()함수 실행
+				function getSubTotal() {
+					grd_aset_chg.subtotal("clear", 0, 0);
+
+					if (grd_aset_chg.valueMatrix(1, 1) == "")
+						return;
+
+					//SUBTOTAL 실행
+                                     
+					grd_aset_chg.multiTotals = true;
+					grd_aset_chg.subtotalPosition = "below";
+					grd_aset_chg.subtotal("sum",13, 8, "(-)#,###", "background-color:#ffffaa; font-weight; color:#0000ff;", 2, "  소  계");
+					grd_aset_chg.subtotal("sum", -1, 8, "(-)#,###", "background-color:#ffffaa; font-weight; color:#0000ff;", 2, "합계금액");					
+					model1.refresh();
+				}					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//콤보세팅.
+					model1.send("as_aset_1906");
+					makeComboSet("", "/root/tempData/dataSet/CURLIST1/record", "/root/initData/comboSet/eis_aset_clsf", "cdabrvnm_cd", "cd");
+					model1.removeNodeset("/root/tempData/dataSet");
+					geHeaderlList();
+					ipt_chg_dt.disabled = false;			// 과표기준일자 비활성화
+					/*
+					var now = new Date();
+					//오늘날짜 구하기 -> today
+					var year = now.getYear();
+					var month = now.getMonth()+1;
+					var date = now.getDate();
+					if(month < 10)
+						month = "0" + month;
+					if(date < 10)
+						date = "0" + date;
+					var today = year + month + date; //오늘날짜
+					ipt_chg_dt.value = today;		
+					*/
+					ipt_chg_dt.value = getCurrentMonth();			
+				]]>
+			</script>
+			<submission id="as_aset_1901" ref="/root/reqData/searchData" action="/as/aset/1901" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1902" ref="/root/reqData/searchData" action="/as/aset/1902" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1903" ref="/root/reqData/searchData" action="/as/aset/1903" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1904" ref="/root/reqData/multiUpdate" action="/as/aset/1904" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1905" ref="/root/reqData/multiUpdate" action="/as/aset/1905" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1906" ref="/root/reqData/searchData" action="/as/aset/1906" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1202" ref="/root/reqData/fwdData" action="/as/aset/1202" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1304" ref="/root/reqData/fwdData" action="/as/aset/1304" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/dataSet"/>
+			<submission id="as_aset_1305" ref="/root/reqData/fwdData" action="/as/aset/1305" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/as_common.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" style="font-family:굴림; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:71px; width:926px; height:5px; "/>
+		<group id="group_tit" class="gro_tit2" style="left:10px; top:263px; width:926px; height:25px; ">
+			<caption id="subtitle" class="tit02" style="left:0px; top:0px; width:926px; height:25px; ">토지/건물 과표정보</caption>
+		</group>
+		<datagrid id="grd_aset_chg" nodeset="/root/resData/gridData2/record" caption="자산번호^자산명^EIS자산구분^취득일자^주소^용도,지목^면적^기준시가^발생일자^발생일련번호^SUB일련번호^구분" colwidth="77, 175, 91, 64, 172, 83, 79, 100, 79, 84, 90" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" colsep="#" navindex="12" style="left:10px; top:325px; width:930px; height:375px; ">
+			<col ref="aset_no"/>
+			<col ref="aset_nm" style="text-align:left; "/>
+			<col ref="eis_aset_clsf" style="text-align:left; "/>
+			<col ref="acqr_dt" style="text-align:left; "/>
+			<col ref="aset_size" style="text-align:left; "/>
+			<col ref="aset_usag" style="text-align:left; "/>
+			<col ref="aset_qunt_cnt" style="text-align:right; "/>
+			<col ref="basi_mrkt_pric" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="occr_seq" visibility="hidden" format="yyyy-mm-dd"/>
+			<col ref="sub_seq" visibility="hidden"/>
+			<col ref="job_clsf" visibility="hidden"/>
+			<col ref="aset_clsf" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					getSubTotal(); 
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:288px; width:926px; height:26px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:90px; height:26px; ">과표기준일자</caption>
+			<caption id="caption2" class="list_cap02" style="left:89px; top:0px; width:836px; height:26px; "/>
+			<input id="ipt_chg_dt" ref="/root/reqData/multiUpdate/chg_dt" navindex="4" format="9999-99" appearance="input" style="left:94px; top:4px; width:51px; height:18px; "/>
+			<button id="button2" class="btn03" style="left:744px; top:3px; width:64px; height:21px; ">
+				<caption>대상조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.send("as_aset_1902");
+						model1.copyNode("/root/resData/gridData2" , "/root/tempData/dataSet/CURLIST");
+						model1.removeNodeset("/root/tempData/dataSet");
+						model1.setValue("/root/reqData/multiUpdate/mode", "I" );							
+						model1.refresh();
+						ipt_chg_dt.disabled = false;		// 과표기준일자 활성화
+						cbo_eis_aset_clsf.disabled = true;	// EIS자산구분  비활성화	
+//						ipt_chg_dt.value = grd_aset_chg.valueMatrix(1, 9);		
+						cbo_eis_aset_clsf.value = "";
+						
+						grd_aset_chg.subtotal("clear", 0, 0);
+//						getSubTotal();							
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:812px; top:3px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[																		
+						if (grd_aset_chg.rows == 1 || grd_aset_chg.valueMatrix(1, 2) == "") {
+							alert("저장할 자산변동내역이 없습니다.");
+							return;
+						}
+
+						if (cbo_eis_aset_clsf.value != "") {
+							alert("EIS자산구분으로 부분조회된 자료는 저장 할 수 없습니다 .");
+							return;
+						}
+						
+						// 수정모드일 경우 체크처리
+						if(model1.getValue("/root/reqData/multiUpdate/mode") == "U" ) {							
+							// EIS확정 된 자료는 수정 불가 함
+							var i = datagrid.row;							
+							var eis_aset_fix = datagrid.valueMatrix(i, 3).substring(0,1);
+							if ( eis_aset_fix.substring(0,1) == "Y") {
+								alert("이미 EIS확정된 자료입니다.");
+								return;
+							}
+						}
+																		
+						if (window.alert("과표상세정보를 저장하시겠습니까?", "저장", 1) == 1) {
+
+							for (i = 1; i < grd_aset_chg.rows-1;i++) {
+								grd_aset_chg.rowStatus(i) = 1;
+/*
+								if ( grd_aset_chg.valueMatrix(i, 8) == "0" ) {
+									alert("금액을 입력해 주시기 바랍니다.");
+									return;
+								}
+*/								
+							}						
+							model1.setValue("/root/reqData/multiUpdate/occr_dt", grd_aset_chg.valueMatrix(1, 9));
+							model1.setValue("/root/reqData/multiUpdate/occr_seq", grd_aset_chg.valueMatrix(1, 10));
+							model1.setValue("/root/reqData/multiUpdate/multiUpdateData", grd_aset_chg.getUpdateData());
+							model1.send("as_aset_1904");
+							
+							if (submit_completed()) {
+								if(model1.getValue("/root/reqData/multiUpdate/mode")=="I") {
+									geHeaderlList();
+								}	
+								//getDetailList();
+								ipt_chg_dt.disabled = false;			// 과표기준일자 비활성화
+								
+								/*
+								var now = new Date();
+								//오늘날짜 구하기 -> today
+								var year = now.getYear();
+								var month = now.getMonth()+1;
+								var date = now.getDate();
+								if(month < 10)
+									month = "0" + month;
+								if(date < 10)
+									date = "0" + date;
+								var today = year + month + date; //오늘날짜
+								ipt_chg_dt.value = today;									
+								*/
+							}
+						}					
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:867px; top:3px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+																								
+						if (grd_aset_chg.rows == 1 || grd_aset_chg.valueMatrix(1, 2) == "") {
+							alert("삭제할 과표정보가 없습니다.");
+							return;
+						}
+
+						// EIS확정 된 자료는 삭제불가 함
+						var i = datagrid.row;							
+						var eis_aset_fix = datagrid.valueMatrix(i, 3).substring(0,1);
+						if ( eis_aset_fix.substring(0,1) == "Y") {
+							alert("이미 EIS확정된 자료입니다.");
+							return;
+						}
+																	
+						if (window.alert("과표정보를 삭제하시겠습니까?", "삭제", 1) == 1) {
+							model1.setValue("/root/reqData/multiUpdate/mode", "D");
+							model1.setValue("/root/reqData/multiUpdate/occr_dt", grd_aset_chg.valueMatrix(1, 9));
+							model1.setValue("/root/reqData/multiUpdate/occr_seq", grd_aset_chg.valueMatrix(1, 10));
+							model1.setValue("/root/reqData/multiUpdate/multiUpdateData", grd_aset_chg.getUpdateData());
+							model1.send("as_aset_1904");
+							
+							if (submit_completed()) {
+								geHeaderlList();	
+								getDetailList();		
+
+								ipt_chg_dt.disabled = false;			// 과표기준일자 비활성화
+								
+								var now = new Date();
+								//오늘날짜 구하기 -> today
+								var year = now.getYear();
+								var month = now.getMonth()+1;
+								var date = now.getDate();
+								if(month < 10)
+									month = "0" + month;
+								if(date < 10)
+									date = "0" + date;
+								var today = year + month + date; //오늘날짜
+								ipt_chg_dt.value = today;																													
+							}
+						}								
+					]]>
+				</script>
+			</button>
+			<caption id="caption3" class="list_cap03" style="left:273px; top:0px; width:80px; height:26px; ">EIS자산구분</caption>
+			<select1 id="cbo_eis_aset_clsf" ref="/root/reqData/searchData/eis_aset_clsf" navindex="3" appearance="minimal" style="left:358px; top:4px; width:172px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/eis_aset_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+								getDetailList();							
+					]]>
+				</script>
+			</select1>
+		</group>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();
+					]]>
+				</script>
+			</button>
+			<button id="button7" navindex="23" class="btn03" style="left:752px; top:0px; width:63px; height:21px; ">
+				<caption>엑셀저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+						grd_aset_chg.saveExcel(filename, "sheetname:sheet1;colhiddenextend:false;rowhiddenextend:false;exportfalsecols:0;row_0:label;");
+					]]>
+				</script>
+			</button>
+			<button id="button3" navindex="23" class="btn03" style="left:593px; top:0px; width:66px; height:21px; ">
+				<caption>EIS등록</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					// 청구일자가 존재 할지 않을 경우
+					if ( datagrid.valueMatrix(2, 1)  == "" ) {
+						alert("EIS확정 대상을 과표내역조회에서 선택하세요.");
+						return;
+					}
+
+					var selectedRow = datagrid.row;
+					model1.setValue("/root/reqData/multiUpdate/mode" , "CLOS");
+											
+					var i = datagrid.row;							
+					var eis_aset_fix = datagrid.valueMatrix(i, 3).substring(0,1);
+					if ( eis_aset_fix.substring(0,1) == "Y") {
+						alert("이미 EIS확정 되었습니다.");
+						return;
+					}
+																							
+					if (window.alert("EIS확정 하시겠습니까?", "입력", 1) == 1) {
+						model1.setValue("/root/reqData/multiUpdate/multiUpdateData", grd_aset_chg.getUpdateData());
+						model1.send("as_aset_1904");
+						
+						if (submit_completed()) {
+							geHeaderlList();													
+							model1.setValue("/root/reqData/multiUpdate/mode" , "U");
+							model1.refresh();
+ 						}
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button4" navindex="23" class="btn04" style="left:661px; top:0px; width:88px; height:21px; ">
+				<caption>EIS등록취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					
+					// 청구일자가 존재 할지 않을 경우
+					if ( datagrid.valueMatrix(2, 1)  == "" ) {
+						alert("EIS확정취소 대상을 과표내역조회에서 선택하세요.");
+						return;
+					}
+
+					var selectedRow = datagrid.row;
+					model1.setValue("/root/reqData/multiUpdate/mode" , "CLOS_CANC");
+
+												
+					var i = datagrid.row;							
+					var eis_aset_fix = datagrid.valueMatrix(i, 3).substring(0,1);
+					if ( eis_aset_fix.substring(0,1) != "Y") {
+						alert("EIS확정되지 않은 자료입니다.");
+						return;
+					}
+																								
+					if (window.alert("EIS확정취소 하시겠습니까?", "입력", 1) == 1) {
+						model1.setValue("/root/reqData/multiUpdate/multiUpdateData", grd_aset_chg.getUpdateData());
+						model1.send("as_aset_1904");
+						
+						if (submit_completed()) {
+							geHeaderlList();														
+							model1.setValue("/root/reqData/multiUpdate/mode" , "U");
+							model1.refresh();
+ 								}
+					}								
+					]]>
+				</script>
+			</button>
+			<button id="btnReset" class="btn02" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();					
+						//콤보세팅.
+						model1.send("as_aset_1906");
+						makeComboSet("", "/root/tempData/dataSet/CURLIST1/record", "/root/initData/comboSet/eis_aset_clsf", "cdabrvnm_cd", "cd");
+						model1.removeNodeset("/root/tempData/dataSet");
+						geHeaderlList();
+						ipt_chg_dt.disabled = false;			// 과표기준일자 비활성화
+						/*
+						var now = new Date();
+						//오늘날짜 구하기 -> today
+						var year = now.getYear();
+						var month = now.getMonth()+1;
+						var date = now.getDate();
+						if(month < 10)
+							month = "0" + month;
+						if(date < 10)
+							date = "0" + date;
+						var today = year + month + date; //오늘날짜
+						ipt_chg_dt.value = today;		
+						*/
+						ipt_chg_dt.value = getCurrentMonth();			
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption6" class="tit01" style="left:10px; top:5px; width:315px; height:29px; ">토지/건물과표 등록/수정</caption>
+		<datagrid id="datagrid" nodeset="/root/resData/gridData/record" caption="과표기준년월^총건수^EIS확정^EIS확정자^EIS확정일시|과표기준년월^총건수^EIS확정^EIS확정자^EIS확정일시" colwidth="89, 55, 61, 85, 115" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" colsep="^" style="left:10px; top:78px; width:430px; height:177px; ">
+			<col ref="chg_dt" format="yyyy-mm"/>
+			<col ref="aset_tot_cnt" format="#,###" style="text-align:right; "/>
+			<col ref="eis_fix" style="text-align:center; "/>
+			<col ref="eis_pers" style="text-align:center; "/>
+			<col ref="eis_fix_dt_tm"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					model1.setValue("/root/reqData/searchData/eis_aset_clsf", "");		// EIS자산구분 초기화
+					getDetailList();
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

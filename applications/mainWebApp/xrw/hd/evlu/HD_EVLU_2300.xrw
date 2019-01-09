@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>정규직(MIS) - 평가제외자 관리화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_cd>
+								<item>
+								</item>
+							</evlu_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<evlu_cd/>
+							<evlu_yy/>
+							<tms_clsf/>
+							<emp_no/>
+						</searchData>
+						<reqForm/>
+						<multiUpDate/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<valid_evlu_cd/>
+							<evlu_excl_dd/>
+							<evlu_excl_daycnt/>
+						</resForm>
+						<gridData>
+							<record>
+								<dept_nm/>
+								<emp_no/>
+								<nm_korn/>
+								<posi_nm/>
+								<dty_nm/>
+								<fee_duty_dd/>
+								<remk/>
+								<dept_cd/>
+								<db_status/>
+								<ictry_dspch/>
+								<forn_dspch/>
+								<ictry_stdy/>
+								<forn_stdy/>
+								<temp_duty/>
+								<susp_duty/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="hd_evlu_9000_l" action="/servlet/hd/evlu/9000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_trip_1001" action="/hd/trip/1001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/emp_no" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//평가구분 콤보박스 생성 -> 최근 평가구분값으로 선택 -> 선택된 평가구분값 코드로 설정
+					model1.send("hd_evlu_9000_l");
+					model1.setValue("/root/resData/resForm/valid_evlu_cd",model1.getValue("/root/dataSet/valid_evlu_cd"));
+					model1.copyNode("/root/initData/comboSet/evlu_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					caption6.value = "( 인원 : 0명 / 0명)";
+					model1.removeNode("/root/resData/gridData/record");
+					model1.refresh();
+					combo1.select(0);
+					model1.setValue("/root/reqData/searchData/evlu_yy", model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+					model1.setValue("/root/reqData/searchData/tms_clsf", model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+				]]>
+			</script>
+			<submission id="hd_evlu_2301_l" action="/servlet/hd/evlu/2301" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2302_a" action="/servlet/hd/evlu/2302" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2303_a" action="/servlet/hd/evlu/2303" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//사원검색 창에서 선택된 사원번호를 가지고 사원정보를 가져온 다음 그리드에 설정하는 함수.
+				function setEmp_no(emp_no){
+					model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+					model1.send("hd_trip_1001");
+					var rowIdx = datagrid1.row;
+					model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", model1.getValue("/root/dataSet/CURLIST/record/emp_no"));
+					model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/nm_korn", model1.getValue("/root/dataSet/CURLIST/record/nm_korn"));
+					model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_cd", model1.getValue("/root/dataSet/CURLIST/record/dept_cd"));
+					model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", model1.getValue("/root/dataSet/CURLIST/record/dept_nm"));
+					model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", model1.getValue("/root/dataSet/CURLIST/record/posi_nm"));
+					model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", model1.getValue("/root/dataSet/CURLIST/record/dty_nm"));
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+				}
+				
+				//평가대상 제외자 목록생성
+				function searchList(){
+					//상태값이 남아있기 때문에 기존의 노드를 모두 초기화
+					model1.removeNode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_2301_l");	
+					model1.setValue("/root/resData/resForm/evlu_excl_dd",model1.getValue("/root/dataSet/evlu_excl_dd"));
+					model1.setValue("/root/resData/resForm/evlu_excl_daycnt",model1.getValue("/root/dataSet/evlu_excl_daycnt"));
+					model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					caption6.value = model1.getValue("/root/dataSet/excl_per_memcnt");
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					//수정불가항목 설정
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						datagrid1.isReadOnly(i,datagrid1.colRef("dept_nm"),i,datagrid1.colRef("dty_nm")) = true;
+					}
+				}
+				
+				//datagrid1 비고 입력함수
+				function setRemk(remk){
+					var preRemk = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk"));
+					var nxtRemk = model1.getValue("/root/reqData/fwdData/resRemk");
+					datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")) = model1.getValue("/root/reqData/fwdData/resRemk");
+					if(datagrid1.rowStatus(datagrid1.row)==0){
+						if(preRemk!=nxtRemk){
+							datagrid1.rowStatus(datagrid1.row) = 2;
+						}
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,69;2,94;2,119;2,127;2,132;2,142;2,746;2,694;2,701;" style="font-family:굴림; ">
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_ActionBtn" style="left:10px; top:39px; width:926px; height:21px; ">
+			<button id="button1" class="btn02" style="left:873px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						window.close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:584px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn02" style="left:639px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!rowDelSubmit(datagrid1)){return;}
+						if(window.alert("삭제 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_2302_a");
+						model1.removeNode("/root/dataSet");
+						model1.refresh();
+						if(submit_completed()) searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button9" class="btn02" style="left:694px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!rowInSubmit(datagrid1)){return;}
+						if(!commGridReqCheck("datagrid1")) return;
+						if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_2302_a");
+						model1.removeNode("/root/dataSet");
+						model1.refresh();
+						if(submit_completed()) searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button10" class="btn02" style="left:749px; top:0px; width:52px; height:21px; ">
+				<caption>엑셀다운</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						//excel 파일로 저장한다
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+								
+						if(filePath != "") {
+							datagrid1.saveExcel(filePath);
+							window.exec(filePath);
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button11" class="btn03" style="left:804px; top:0px; width:65px; height:21px; ">
+				<caption>제외자생성</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(window.alert("기존 데이터가 모두 삭제되고, 시스템에서 평가대상자, 평가제외자 정보가 일괄 생성됩니다.\n진행하시겠습니까?", "확인", 1)!=1) return;
+						model1.send("hd_evlu_2303_a");
+						model1.removeNode("/root/dataSet");
+						model1.refresh();
+						if(submit_completed()) searchList();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:132px; width:926px; height:5px; "/>
+		<!-- 검색조건 항목 -->
+		<caption id="captoin1" class="list_cap02" style="left:10px; top:69px; width:926px; height:26px; "/>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:69px; width:100px; height:26px; ">평가구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/evlu_cd" appearance="minimal" style="left:113px; top:73px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					//검색조건 코드값 변경
+					model1.setValue("/root/reqData/searchData/evlu_yy", model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+					model1.setValue("/root/reqData/searchData/tms_clsf", model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					/*
+					//버튼토글
+					if(model1.getValue("/root/reqData/searchData/evlu_cd")==model1.getValue("/root/resData/resForm/valid_evlu_cd")){
+						button3.disabled = false;
+						button4.disabled = false;
+						button5.disabled = false;
+						button7.disabled = false;
+					}else{
+						button3.disabled = true;
+						button4.disabled = true;
+						button5.disabled = true;
+						button7.disabled = true;
+					}
+					*/
+				]]>
+			</script>
+		</select1>
+		<!-- 평가대상 제외자 선정기준일 -->
+		<caption id="caption1" class="list_cap02" style="left:10px; top:94px; width:926px; height:26px; "/>
+		<caption id="caption3" class="list_cap01" style="left:10px; top:94px; width:100px; height:26px; ">평가제외기준일</caption>
+		<output id="input1" ref="/root/resData/resForm/evlu_excl_dd" format="yyyy/mm/dd" inputtype="date" appearance="output" style="left:113px; top:98px; width:100px; height:18px; "/>
+		<!-- 평가대상 제외자 선정기준 -->
+		<caption id="caption5" class="tit02" style="left:10px; top:142px; width:926px; height:20px; ">평가대상 제외자</caption>
+		<button id="button5" class="btn_grid03" style="left:879px; top:142px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					if(model1.getValue("/root/resData/resForm/evlu_excl_dd")==""){
+						alert("평가기준일 정보가 없습니다. 해당 평가구분의 평가기준일을 조회하세요.");
+						return;
+					}
+					datagrid1.addItem();
+					datagrid1.valueMatrix(datagrid1.rows-datagrid1.fixedRows,datagrid1.colRef("evlu_yy")) = model1.getValue("/root/reqData/searchData/evlu_yy");
+					datagrid1.valueMatrix(datagrid1.rows-datagrid1.fixedRows,datagrid1.colRef("tms_clsf")) = model1.getValue("/root/reqData/searchData/tms_clsf");
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" allowselection="false" allowuserresize="false" caption="부서^사번^성명^직책^직급^비근무일^국내파견^해외파견^국내연수^해외연수^휴직^정직^비고^부서코드^DB상태값" colsep="#" colwidth="100, 65, 70, 75, 75, 65, 65, 65, 65, 64, 65, 60, 150, 5, 5" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" tooltip="true" style="left:10px; top:162px; width:926px; height:533px; ">
+			<col ref="dept_nm" type="output" style="text-align:left; "/>
+			<col class="req" ref="emp_no" type="inputbutton" caption="사번"/>
+			<col class="req" ref="nm_korn" type="input" caption="성명" style="text-align:center; "/>
+			<col ref="posi_nm" style="text-align:left; "/>
+			<col ref="dty_nm" style="text-align:left; "/>
+			<col ref="fee_duty_dd" type="input" format="9999" style="text-align:right; "/>
+			<col ref="ictry_dspch" type="input" format="9999" style="text-align:right; "/>
+			<col ref="forn_dspch" type="input" format="9999" style="text-align:right; "/>
+			<col ref="ictry_stdy" type="input" format="9999" style="text-align:right; "/>
+			<col ref="forn_stdy" type="input" format="9999" style="text-align:right; "/>
+			<col ref="temp_duty" type="input" format="9999" style="text-align:right; "/>
+			<col ref="susp_duty" type="input" format="9999" style="text-align:right; "/>
+			<col ref="remk" type="inputbutton" style="text-align:left; "/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="db_status" visibility="hidden"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					//사원정보 팝업
+					if(datagrid1.col==datagrid1.colRef("emp_no")){
+						model1.removeNodeset("/root/reqData/fwdData");  
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					}
+					//비고 팝업
+					if(datagrid1.col == datagrid1.colRef("remk")){
+						model1.removenode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/maintitle");
+						model1.makeNode("/root/reqData/fwdData/remk");
+						model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+						model1.makeNode("/root/reqData/fwdData/maxlength");
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.setValue("/root/reqData/fwdData/maintitle","평가대상 제외자 비고");
+						model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")));
+						model1.setValue("/root/reqData/fwdData/maxlength", "5000");
+						model1.setValue("/root/reqData/fwdData/func_nm","setRemk");
+						window.load("/xrw/hd/evlu/HD_EVLU_1010.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid1.colType(datagrid1.col)==""){
+						rowStatus(datagrid1);
+						return;
+					}
+					if(datagrid1.col == datagrid1.colRef("remk")){
+						datagrid1.dispatch("onbuttonclick");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if(event.keyCode == 13){
+						if(datagrid1.col == datagrid1.colRef("emp_no")){
+							if( datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("emp_no"))==""){
+								alert("조회할 사번이 없습니다.");
+								return;
+							}else{
+								var emp_no = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("emp_no"));
+								model1.removenode("/root/tempData");
+								model1.makeNode("/root/tempData");
+								setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+								if(model1.getValue("/root/tempData/totalcnt") != 1){
+									model1.removenode("/root/tempData");
+									model1.makeNode("/root/tempData");
+									return;
+								}else{
+									setEmp_no(model1.getValue("/root/tempData/emp_no"),"");
+									model1.refresh();
+								}
+							}
+						}else if(datagrid1.col == datagrid1.colRef("nm_korn")){
+							if( datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("nm_korn"))==""){
+								alert("조회할 이름이 없습니다.");
+								return;
+							}else{
+								var emp_nm = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("nm_korn"));
+								model1.removenode("/root/tempData");
+								model1.makeNode("/root/tempData");
+								setInfoSearchInput("", emp_nm, "", "setEmp_no"); // 사번, 성명, 주민번호
+								if(model1.getValue("/root/tempData/totalcnt") != 1){
+									model1.removenode("/root/tempData");
+									model1.makeNode("/root/tempData");
+									return;
+								}else{
+									setEmp_no(model1.getValue("/root/tempData/emp_no"),"");
+									model1.refresh();
+								}
+							}
+						}
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption4" class="list_cap01" style="left:230px; top:94px; width:100px; height:26px; ">비근무일수</caption>
+		<output id="output2" ref="/root/resData/resForm/evlu_excl_daycnt" style="left:333px; top:98px; width:50px; height:18px; "/>
+		<caption id="caption6" style="left:785px; top:701px; width:150px; height:20px; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

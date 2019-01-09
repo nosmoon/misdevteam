@@ -1,0 +1,132 @@
+<%@	page contentType="text/xml; charset=EUC-KR" %>
+
+<%@	page import="
+		java.io.*
+	,	java.sql.*
+	,	java.util.*
+	,	kr.co.comsquare.rwXmlLib.*
+	,	kr.co.comsquare.db.*
+	,	kr.co.comsquare.util.Tokenizer
+	,	chosun.ciis.mt.papinout.rec.*
+	,	chosun.ciis.mt.papinout.ds.*;
+	"
+%>
+
+<%
+	RwXml rx = new RwXml();
+	MT_PAPINOUT_8001_LDataSet ds = (MT_PAPINOUT_8001_LDataSet)request.getAttribute("ds");
+	int root = RwXml.rootNodeID;
+	int dataSet = 0;
+	int recordSet = 0;
+	String errcode = ds.errcode;
+	String errmsg = ds.errmsg;
+	dataSet = rx.add(root, "tempData", "");
+
+	try {
+		/****** CURLIST2 BEGIN */
+		recordSet = rx.add(dataSet, "prt_clsf", "");
+
+		for(int i = 0; i < ds.curlist5.size(); i++) {
+			MT_PAPINOUT_8001_LCURLIST5Record rec = (MT_PAPINOUT_8001_LCURLIST5Record)ds.curlist5.get(i);
+			int record = rx.add(recordSet, "item", "");
+			rx.add(record, "value", rec.cd);
+			rx.addCData(record, "label", rec.cdnm);
+		}
+
+		recordSet = rx.add(dataSet, "sect_cd2", "");
+
+		for(int i = 0; i < ds.curlist4.size(); i++) {
+			MT_PAPINOUT_8001_LCURLIST4Record rec = (MT_PAPINOUT_8001_LCURLIST4Record)ds.curlist4.get(i);
+			int record = rx.add(recordSet, "item", "");
+			rx.add(record, "value", rec.cd);
+			rx.addCData(record, "label", rec.cdnm);
+		}
+
+		recordSet = rx.add(dataSet, "sect_cd1", "");
+
+		for(int i = 0; i < ds.curlist3.size(); i++) {
+			MT_PAPINOUT_8001_LCURLIST3Record rec = (MT_PAPINOUT_8001_LCURLIST3Record)ds.curlist3.get(i);
+			int record = rx.add(recordSet, "item", "");
+			rx.add(record, "value", rec.cd);
+			rx.addCData(record, "label", rec.cdnm);
+		}
+
+		recordSet = rx.add(dataSet, "medi_clsf", "");
+
+		for(int i = 0; i < ds.curlist2.size(); i++) {
+			MT_PAPINOUT_8001_LCURLIST2Record rec = (MT_PAPINOUT_8001_LCURLIST2Record)ds.curlist2.get(i);
+			int record = rx.add(recordSet, "item", "");
+			rx.add(record, "value", rec.cd);
+			rx.addCData(record, "label", rec.cdnm);
+		}
+		rx.add(recordSet, "totalcnt", ds.curlist2.size());
+		/****** CURLIST2 END */
+
+		/****** CURLIST1 BEGIN */
+		recordSet = rx.add(dataSet, "fac_clsf", "");
+
+		for(int i = 0; i < ds.curlist1.size(); i++) {
+			MT_PAPINOUT_8001_LCURLIST1Record rec = (MT_PAPINOUT_8001_LCURLIST1Record)ds.curlist1.get(i);
+			int record = rx.add(recordSet, "item", "");
+			rx.add(record, "value", rec.cd);
+			rx.addCData(record, "label", rec.cdnm);
+		}
+		rx.add(recordSet, "totalcnt", ds.curlist1.size());
+		/****** CURLIST1 END */
+
+	}
+	catch (Exception e) {
+		errcode += " JSP Error";
+		errmsg += " JSP Error Message = " + e.getMessage();
+	}
+	finally {
+		rx.add(dataSet, "errcode", errcode);
+		rx.add(dataSet, "errmsg", errmsg);
+		out.println(rx.xmlFlush());
+		out.println(rx.xmlEndFlush());
+	}
+%>
+
+<%
+/*
+TrustForm의 Instance 선언부에 복사해서 사용
+<dataSet>
+	<CURLIST3>
+		<record>
+			<cd/>
+			<cdnm/>
+		</record>
+	</CURLIST3>
+</dataSet>
+*/
+%>
+
+<%
+/*
+TrustForm의 Instance 선언부에 복사해서 사용
+<dataSet>
+	<CURLIST2>
+		<record>
+			<cd/>
+			<cdnm/>
+		</record>
+	</CURLIST2>
+</dataSet>
+*/
+%>
+
+<%
+/*
+TrustForm의 Instance 선언부에 복사해서 사용
+<dataSet>
+	<CURLIST1>
+		<record>
+			<cd/>
+			<cdnm/>
+		</record>
+	</CURLIST1>
+</dataSet>
+*/
+%>
+
+<% /* 작성시간 : Mon May 18 10:01:26 KST 2009 */ %>

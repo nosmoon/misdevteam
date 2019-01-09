@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<acctItemCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</acctItemCombo>
+							<bankCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</bankCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<acctReq>
+								<deptlist/>
+								<arealist/>
+								<bocd/>
+								<acctitem/>
+								<pageno/>
+								<pagesize/>
+								<js_fn_nm>page_move</js_fn_nm>
+								<jobcdset/>
+								<rdr_no/>
+								<bonm/>
+							</acctReq>
+							<branchPopReq>
+								<deptcd/>
+								<partcd/>
+								<areacd/>
+								<bonm/>
+							</branchPopReq>
+						</searchData>
+						<reqform>
+							<acctForm>
+								<seq/>
+								<accflag/>
+								<bocd/>
+								<incmgpers/>
+								<acctitem/>
+								<bankcd/>
+								<deps_persnm/>
+								<acctno/>
+								<remk/>
+							</acctForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<acctGrid>
+								<record>
+									<areanm/>
+									<bonm/>
+									<girono/>
+									<cd_atmyn/>
+									<acctitem_nm/>
+									<bankcd_nm/>
+									<deps_persnm/>
+									<acctno/>
+									<chgdt/>
+									<chgpers/>
+									<seq/>
+									<bocd/>
+									<bankcd/>
+									<remk/>
+									<acctitem/>
+								</record>
+							</acctGrid>
+							<tempGrid/>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<getAcctTemp/>
+						<acctForm>
+							<seq/>
+							<accflag/>
+							<bocd/>
+							<incmgpers/>
+							<acctitem/>
+							<bankcd/>
+							<deps_persnm/>
+							<acctno/>
+							<remk/>
+						</acctForm>
+						<initTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				//model.send("getTeamInit", false);
+				//공통 모듈. 팀관련 서버 모듈이 완성되면 import 하는 script를 조정하여 다른 함수를 호출하도록 변경.
+				makeTeamSearch("getTeamInit", "/ss/brinfo/1150", "", "instance('instTeam')/initData/comboSet/codeData", "cmbCommonTeamN", "cmbCommonPartN", "cmbCommonAreaN")
+				
+				model.setValue("/root/reqData/searchData/acctReq/pagesize", model.getValue("instance('instTeam')/initData/comboSet/pagesize"));
+				model.setValue("/root/reqData/searchData/acctReq/jobcdset", model.getValue("instance('instTeam')/initData/comboSet/jobcdset"));
+				
+				model.refresh();
+				]]>
+			</script>
+			<!--submission id="getTeamInit" action="/ss/brinfo/1150" mediatype="application/x-www-form-urlencoded" method="post" resultref="instance('instTeam')/initData/comboSet/codeData"/-->
+			<submission id="getAcctGrid" action="/ss/brinfo/1155" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/acctReq" resultref="/root/tempData/getAcctTemp"/>
+			<submission id="modAcct" action="/ss/brinfo/1160" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/acctForm" resultref="/root/resData/MsgData"/>
+			<submission id="addAcct" action="/ss/brinfo/1180" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/acctForm" resultref="/root/resData/MsgData"/>
+			<submission id="removeAcct" action="/ss/brinfo/1170" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/acctForm" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function search()
+			{
+				model.setValue("/root/reqData/searchData/acctReq/pageno", 1);
+				model.setValue("/root/reqData/searchData/acctReq/deptlist", getDept());		//im_common_select.xrw function
+				model.setValue("/root/reqData/searchData/acctReq/arealist", getArea());		//im_common_select.xrw function
+				model.setValue("/root/reqData/searchData/acctReq/bocd", getBranch());		//im_common_select.xrw function
+				model.send("getAcctGrid", false);
+				
+				model.copyNode("/root/initData/comboSet/acctItemCombo", "/root/tempData/getAcctTemp/acctItemCombo");
+				model.removenode("/root/tempData/getAcctTemp/acctItemCombo");
+				
+				model.copyNode("/root/initData/comboSet/bankCombo", "/root/tempData/getAcctTemp/bankCombo");
+				model.removenode("/root/tempData/getAcctTemp/bankCombo");
+				
+				model.copyNode("/root/resData/gridData/acctGrid", "/root/tempData/getAcctTemp/acctGrid");
+				model.removenode("/root/tempData/getAcctTemp/acctItemCombo");
+				
+				PID1150combo1.refresh();
+				PID1150combo2.refresh();
+				PID1150combo3.refresh();
+				PID1150datagrid1.rebuild();
+				//model.refresh();
+			}
+			
+			function onClickBranchPopup()
+			{
+				//부서-지국 콤보들을 초기화 한다.
+				initTeam();		//im_common_select.xrw function
+				modelCopyValue("/root/reqData/searchData/branchPopReq/bonm", "/root/reqData/searchData/acctReq/bonm");
+				
+				//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+				openBranch("/root/reqData/searchData/branchPopReq", "/root/tempData/tempBranch");
+
+                if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+					return;
+				
+				modelCopyValue("/root/reqData/searchData/acctReq/bocd", "/root/tempData/tempBranch/bocd");
+				modelCopyValue("/root/reqData/searchData/acctReq/bonm", "/root/tempData/tempBranch/bonm");
+				//아래는 원본 소스에 있으므로 포함해 놓았으나, 실제 사용하지는 않는다. 의미없음.
+				modelCopyValue("instance('instTeam')/reqData/searchData/branchSearch/common_areacd", "/root/tempData/tempBranch/areacd");
+				PID1150group_scr.refresh();
+			}
+			
+			function onKeyDown()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("PID1150button1");
+					
+					if(PID1150input4.value == '')
+						onClickBranchPopup();
+					else
+					{
+						model.setValue("/root/reqData/searchData/branchPopReq/deptcd", getDept());		//im_common_select.xrw function
+						model.setValue("/root/reqData/searchData/branchPopReq/partcd", getPart());		//im_common_select.xrw function
+						model.setValue("/root/reqData/searchData/branchPopReq/areacd", getArea());		//im_common_select.xrw function
+						modelCopyValue("/root/reqData/searchData/branchPopReq/bonm", "/root/reqData/searchData/acctReq/bonm");
+					
+						remakeNode("/root/resTemp/branchGrid");
+						searchBranchByName("/root/reqData/searchData/branchPopReq", "/root/resTemp/branchGrid");
+						
+						if((instance1.selectNodes("/root/resTemp/branchGrid/record")).length == 1)
+						{
+							modelCopyValue("/root/reqData/searchData/acctReq/bocd", "/root/resTemp/branchGrid/record/bocd");
+							modelCopyValue("/root/reqData/searchData/acctReq/bonm", "/root/resTemp/branchGrid/record/bonm");
+							//아래는 원본 소스에 있으므로 포함해 놓았으나, 실제 사용하지는 않는다. 의미없음.
+							modelCopyValue("instance('instTeam')/reqData/searchData/branchSearch/common_deptcd", "/root/resTemp/branchGrid/record/deptcd");
+							modelCopyValue("instance('instTeam')/reqData/searchData/branchSearch/common_areacd", "/root/resTemp/branchGrid/record/areacd");
+							
+							//개발필요 :  ss_brinfo_1050_a.jsp의 set_arealist 펑션 구현.
+						}
+						else
+							onClickBranchPopup();
+					}
+				}
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" idprefix="PID1150" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<iviewer id="PID1150iv_ActionBtn" src="../common/iv_ActionBtn.xrw" style="left:10px; top:50px; width:926px; height:21px; "/>
+		<group id="PID1150group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:25px; ">
+			<import id="PID1150im_common_select" src="../common/im_common_select.xrw" style="left:0px; top:0px; width:592px; height:25px; "/>
+			<caption id="PID1150caption7" class="list_cap02" style="left:658px; top:0px; width:70px; height:25px; "/>
+			<caption id="PID1150caption1" class="list_cap01" style="left:727px; top:0px; width:60px; height:25px; ">계좌항목</caption>
+			<caption id="PID1150caption3" class="list_cap02" style="left:786px; top:0px; width:140px; height:25px; "/>
+			<select1 id="PID1150combo1" ref="/root/reqData/searchData/acctReq/acctitem" appearance="minimal" style="left:790px; top:4px; width:130px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/acctItemCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<button id="PID1150button1" class="btn05" style="left:663px; top:4px; width:60px; height:18px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						onClickBranchPopup();
+					]]>
+				</script>
+			</button>
+			<caption id="PID1150caption2" class="list_cap02" style="left:591px; top:0px; width:68px; height:25px; "/>
+			<input id="PID1150input4" ref="/root/reqData/searchData/acctReq/bonm" style="left:595px; top:4px; width:60px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						onKeyDown();
+					]]>
+				</script>
+			</input>
+		</group>
+		<group id="PID1150group_line" class="gro_line" style="left:10px; top:190px; width:926px; height:5px; "/>
+		<datagrid id="PID1150datagrid1" nodeset="/root/resData/gridData/acctGrid/record" caption="지역^지국명^지로번호^ATM^계좌항목^은행명^예금주명^계좌번호^변경일자^변경자^caption1^caption2^caption3^caption4^caption5" colsep="^" colwidth="70, 80, 60, 50, 120, 110, 110, 110, 134, 80" extendlastcol="scroll" rowsep="|" style="left:10px; top:200px; width:926px; height:375px; ">
+			<col ref="areanm"/>
+			<col ref="bonm"/>
+			<col ref="girono"/>
+			<col ref="cd_atmyn"/>
+			<col ref="acctitem_nm"/>
+			<col ref="bankcd_nm"/>
+			<col ref="deps_persnm"/>
+			<col ref="acctno"/>
+			<col ref="chgdt"/>
+			<col ref="chgpers"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="bocd" visibility="hidden"/>
+			<col ref="bankcd" visibility="hidden"/>
+			<col ref="remk" visibility="hidden"/>
+			<col ref="acctitem" visibility="hidden"/>
+			<script type="javascript" ev:event="onrowchanged">
+				<![CDATA[
+				model.setValue("/root/reqData/reqform/acctForm/seq", PID1150datagrid1.textMatrix(PID1150datagrid1.row, PID1150datagrid1.colRef("seq")));
+				model.setValue("/root/reqData/reqform/acctForm/bocd", PID1150datagrid1.textMatrix(PID1150datagrid1.row, PID1150datagrid1.colRef("bocd")));
+				model.setValue("/root/reqData/reqform/acctForm/acctitem", PID1150datagrid1.textMatrix(PID1150datagrid1.row, PID1150datagrid1.colRef("acctitem")));
+				model.setValue("/root/reqData/reqform/acctForm/bankcd", PID1150datagrid1.textMatrix(PID1150datagrid1.row, PID1150datagrid1.colRef("bankcd")));
+				model.setValue("/root/reqData/reqform/acctForm/deps_persnm", PID1150datagrid1.textMatrix(PID1150datagrid1.row, PID1150datagrid1.colRef("deps_persnm")));
+				model.setValue("/root/reqData/reqform/acctForm/acctno", PID1150datagrid1.textMatrix(PID1150datagrid1.row, PID1150datagrid1.colRef("acctno")));
+				model.setValue("/root/reqData/reqform/acctForm/remk", PID1150datagrid1.textMatrix(PID1150datagrid1.row, PID1150datagrid1.colRef("remk")));
+				
+				PID1150group3.refresh();
+				]]>
+			</script>
+		</datagrid>
+		<group id="PID1150group3" style="left:10px; top:110px; width:926px; height:50px; ">
+			<caption id="PID1150caption9" class="list_cap03" style="left:722px; top:0px; width:204px; height:25px; ">비고</caption>
+			<caption id="PID1150caption8" class="list_cap03" style="left:0px; top:0px; width:215px; height:25px; ">계좌항목</caption>
+			<caption id="PID1150caption5" class="list_cap03" style="left:214px; top:0px; width:150px; height:25px; ">은행명</caption>
+			<caption id="PID1150caption6" class="list_cap03" style="left:541px; top:0px; width:182px; height:25px; ">계좌번호</caption>
+			<caption id="PID1150caption13" class="list_cap03" style="left:363px; top:0px; width:179px; height:25px; ">예금주명</caption>
+			<caption id="PID1150caption10" class="list_cap02" style="left:0px; top:24px; width:215px; height:25px; "/>
+			<caption id="PID1150caption11" class="list_cap02" style="left:214px; top:24px; width:150px; height:25px; "/>
+			<caption id="PID1150caption14" class="list_cap02" style="left:363px; top:24px; width:179px; height:25px; "/>
+			<caption id="PID1150caption15" class="list_cap02" style="left:541px; top:24px; width:182px; height:25px; "/>
+			<caption id="PID1150caption16" class="list_cap02" style="left:722px; top:24px; width:204px; height:25px; "/>
+			<input id="PID1150input1" ref="/root/reqData/reqform/acctForm/deps_persnm" style="left:368px; top:28px; width:169px; height:18px; "/>
+			<input id="PID1150input2" ref="/root/reqData/reqform/acctForm/acctno" style="left:545px; top:28px; width:174px; height:18px; "/>
+			<input id="PID1150input3" ref="/root/reqData/reqform/acctForm/remk" style="left:726px; top:28px; width:195px; height:18px; "/>
+			<select1 id="PID1150combo2" ref="/root/reqData/reqform/acctForm/acctitem" appearance="minimal" style="left:5px; top:28px; width:205px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/acctItemCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="PID1150combo3" ref="/root/reqData/reqform/acctForm/bankcd" appearance="minimal" style="left:219px; top:28px; width:140px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/bankCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="PID1150group9" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID1150paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>
+		<group id="PID1150group12" style="left:10px; top:160px; width:926px; height:25px; ">
+			<caption id="PID1150caption71" class="list_cap01" style="left:0px; top:0px; width:926px; height:25px; "/>
+			<button id="PID1150button4" class="btn_grid02" style="left:510px; top:4px; width:42px; height:17px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model.setValue("/root/reqData/reqform/acctForm/accflag", "D");
+					model.send("removeAcct", false);
+					alert(model.getValue("/root/resData/MsgData"));
+					
+					search();		
+					]]>
+				</script>
+			</button>
+			<button id="PID1150button5" class="btn_grid02" style="left:365px; top:4px; width:42px; height:17px; ">
+				<caption>등록</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model.setValue("/root/reqData/reqform/acctForm/accflag", "I");
+					model.setValue("/root/reqData/reqform/acctForm/bocd", model.getValue("instance('instTeam')/reqData/searchData/branchSearch/bocd"));
+					model.send("addAcct", false);
+					alert(model.getValue("/root/resData/MsgData"));
+					
+					search();	
+					]]>
+				</script>
+			</button>
+			<button id="PID1150button6" class="btn_grid02" style="left:410px; top:4px; width:42px; height:17px; ">
+				<caption>수정</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model.setValue("/root/reqData/reqform/acctForm/accflag", "U");
+					model.send("modAcct", false);
+					alert(model.getValue("/root/resData/MsgData"));
+					
+					search();
+					]]>
+				</script>
+			</button>
+			<button id="PID1150button7" class="btn_grid03" style="left:455px; top:4px; width:53px; height:17px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model.copyNode("/root/reqData/reqform/acctForm", "/root/tempData/acctForm");
+					PID1150group3.refresh();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

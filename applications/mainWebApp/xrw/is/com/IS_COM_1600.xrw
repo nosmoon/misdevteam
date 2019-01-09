@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet_ad.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>전자어음내역</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<codeData>
+						<bank_cd>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</bank_cd>
+						<note_clsf_cd>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</note_clsf_cd>
+						<rcpm_acct>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</rcpm_acct>
+					</codeData>
+					<reqData>
+						<frdt/>
+						<todt/>
+						<bank_cd/>
+						<note_clsf_cd/>
+						<issu_pers_nm/>
+						<rcpm_acct/>
+						<note_amt/>
+						<sys_clsf/>
+						<multiUpdateData/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<resForm>
+							<gd_main>
+								<record>
+									<bank_cd/>
+									<bank_nm/>
+									<note_clsf_cd/>
+									<note_clsf_nm/>
+									<note_amt/>
+									<comp_dt/>
+									<mtry_dt/>
+									<issu_cmpy_clsf_cd/>
+									<issu_pers_nm/>
+									<endorser_nm/>
+									<rcpm_acct/>
+									<rcpm_acct_nm/>
+									<sale_aprv_no/>
+									<elec_note_key/>
+								</record>
+							</gd_main>
+						</resForm>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+					<tempGridData>
+						<gridData>
+							<record/>
+						</gridData>
+					</tempGridData>
+					<searchData/>
+				</root>
+			</instance>
+			<submission id="is_com_1600_m" action="/is/com/1600" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="is_com_1610_l" action="/is/com/1610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempGridData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					// 코드 셋
+					model.send("is_com_1600_m");	
+
+					model.copyNode("/root/codeData/bank_cd"		, "/root/tempData/bank_cd");
+					model.copyNode("/root/codeData/note_clsf_cd"	, "/root/tempData/note_clsf_cd");
+					model.copyNode("/root/codeData/rcpm_acct"		, "/root/tempData/rcpm_acct");
+					makeComboGubun("", "/root/codeData/bank_cd"	, "item", "label", "value");
+					makeComboGubun("", "/root/codeData/note_clsf_cd", "item", "label", "value");
+					makeComboGubun("", "/root/codeData/rcpm_acct"	, "item", "label", "value");
+
+					initPage();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function initPage()
+				{
+					var frdt			=	model.getValue("/root/reqData/fwdData/frdt");
+					var todt			=	model.getValue("/root/reqData/fwdData/todt");
+					var bank_cd		=	model.getValue("/root/reqData/fwdData/bank_cd");
+					var note_clsf_cd	=	model.getValue("/root/reqData/fwdData/note_clsf_cd");
+					var issu_pers_nm	=	model.getValue("/root/reqData/fwdData/issu_pers_nm");
+					var rcpm_acct		=	model.getValue("/root/reqData/fwdData/rcpm_acct");
+					var note_amt		=	model.getValue("/root/reqData/fwdData/note_amt");
+					var sys_clsf		=	model.getValue("/root/reqData/fwdData/sys_clsf");
+				
+					// 일주일단위로 디폴트처리함.
+					model.setValue("/root/reqData/frdt", dateAdd("d", -6, getCurrentDate()));
+					model.setValue("/root/reqData/todt", getCurrentDate());	
+					//model.setValue("/root/reqData/searchData/frdt", frdt);
+					//model.setValue("/root/reqData/searchData/todt", todt);
+					model.setValue("/root/reqData/bank_cd"		, bank_cd);
+					model.setValue("/root/reqData/note_clsf_cd"	, note_clsf_cd);
+					model.setValue("/root/reqData/issu_pers_nm"	, issu_pers_nm);
+					model.setValue("/root/reqData/rcpm_acct"	, rcpm_acct);
+					model.setValue("/root/reqData/note_amt"		, note_amt);
+					model.setValue("/root/reqData/sys_clsf"		, sys_clsf);
+					
+					model.refresh();
+					
+					if( bank_cd != ""  || note_clsf_cd != "" )	loadData();
+				}
+				
+				// 조회
+				function loadData()
+				{
+					model.send("is_com_1610_l");
+					if( submit_completed() )
+					{
+						model.copyNode("/root/resData/resForm/gd_main"	, "/root/tempGridData/gridData");
+						//DisplayGrid();
+						loadDataSet();
+					}
+				}
+				// 조회 결과 셋
+				function loadDataSet()
+				{
+					model.copyNode("/root/searchData"	, "/root/reqData");
+					model.refresh();
+				}
+				
+				// 확인
+				function confirm()
+				{
+					if( dg_main.row < dg_main.fixedRows )	return;
+					
+					var rcpm_acct		=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("rcpm_acct"));
+					var rcpm_acct_nm	=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("rcpm_acct_nm"));
+					var sale_aprv_no	=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("sale_aprv_no"));
+					var bank_cd		=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("bank_cd"));
+					var bank_nm		=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("bank_nm"));
+					var note_clsf_cd	=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("note_clsf_cd"));
+					var comp_dt		=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("comp_dt"));
+					var mtry_dt		=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("mtry_dt"));
+					var note_amt		=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("note_amt"));
+					var issu_cmpy_clsf_cd	=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("issu_cmpy_clsf_cd"));
+					var issu_pers_nm	=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("issu_pers_nm"));
+					var elec_note_key	=	dg_main.valueMatrix(dg_main.row, dg_main.colRef("elec_note_key"));
+
+					opener.model.setValue("/root/reqData/fwdData/rcpm_acct"	,rcpm_acct);
+					opener.model.setValue("/root/reqData/fwdData/rcpm_acct_nm",rcpm_acct_nm);
+					opener.model.setValue("/root/reqData/fwdData/sale_aprv_no"	,sale_aprv_no);
+					opener.model.setValue("/root/reqData/fwdData/bank_cd"	,bank_cd);
+					opener.model.setValue("/root/reqData/fwdData/bank_nm"	,bank_nm);
+					opener.model.setValue("/root/reqData/fwdData/note_clsf_cd"	,note_clsf_cd);
+					opener.model.setValue("/root/reqData/fwdData/comp_dt"	,comp_dt);
+					opener.model.setValue("/root/reqData/fwdData/mtry_dt"		,mtry_dt);
+					opener.model.setValue("/root/reqData/fwdData/note_amt"	,note_amt);
+					opener.model.setValue("/root/reqData/fwdData/issu_cmpy_clsf_cd"	,issu_cmpy_clsf_cd);
+					opener.model.setValue("/root/reqData/fwdData/issu_pers_nm",issu_pers_nm);
+					opener.model.setValue("/root/reqData/fwdData/elec_note_key",elec_note_key);
+/*
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/rcpm_acct")	,rcpm_acct);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/sale_aprv_no")	,sale_aprv_no);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/bank_cd")	,bank_cd);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/bank_nm")	,bank_nm);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/note_clsf_cd")	,note_clsf_cd);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/comp_dt")	,comp_dt);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/mtry_dt")		,mtry_dt);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/note_amt")	,note_amt);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/issu_cmpy_clsf_cd")	,issu_cmpy_clsf_cd);
+					opener.model.setValue(model.getValue("/root/reqData/fwdData/issu_pers_nm"),issu_pers_nm);
+*/					
+					window.close();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="760" pageheight="480">
+		<caption id="caption5" class="list_cap02" style="left:10px; top:71px; width:740px; height:26px; "/>
+		<caption id="caption2" class="list_cap02" style="left:10px; top:46px; width:740px; height:26px; "/>
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:350px; height:27px; ">전자어음내역</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:105px; width:740px; height:5px; "/>
+		<caption id="caption3" style="left:405px; top:50px; width:20px; height:20px; text-align:center; ">~</caption>
+		<caption id="cpt_bank_cd" class="list_cap01" style="left:10px; top:46px; width:75px; height:26px; ">은행구분</caption>
+		<select1 id="cmb_bank_cd" ref="/root/reqData/bank_cd" navindex="1" appearance="minimal" style="left:89px; top:50px; width:140px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/bank_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					//if( validateReq() )	loadList();
+				]]>
+			</script>
+		</select1>
+		<caption id="cpt_occr_dt" class="list_cap01" style="left:234px; top:46px; width:75px; height:26px; ">업로드기간</caption>
+		<input id="inp_frdt" ref="/root/reqData/frdt" class="req" navindex="2" imemode="hangul" inputtype="date" format="yyyy-mm-dd" style="left:312px; top:50px; width:90px; height:18px; text-align:left; "/>
+		<input id="inp_todt" ref="/root/reqData/todt" class="req" navindex="3" inputtype="date" format="yyyy-mm-dd" style="left:428px; top:50px; width:90px; height:18px; text-align:left; "/>
+		<caption id="cpt_rcpm_acct" class="list_cap01" style="left:525px; top:46px; width:75px; height:26px; ">입금계좌</caption>
+		<select1 id="cmb_rcpm_acct" ref="/root/reqData/rcpm_acct" navindex="5" appearance="minimal" style="left:604px; top:50px; width:140px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/rcpm_acct/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					//if( validateReq() )	loadList();
+				]]>
+			</script>
+		</select1>
+		<caption id="cpt_note_clsf_cd" class="list_cap01" style="left:10px; top:71px; width:75px; height:26px; ">어음구분</caption>
+		<select1 id="cmb_note_clsf_cd" ref="/root/reqData/note_clsf_cd" navindex="4" appearance="minimal" style="left:89px; top:75px; width:140px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/note_clsf_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					//if( validateReq() )	loadList();		
+				]]>
+			</script>
+		</select1>
+		<caption id="cpt_issu_pers_nm" class="list_cap01" style="left:234px; top:71px; width:75px; height:26px; ">발행자</caption>
+		<input id="inp_issu_pers_nm" ref="/root/reqData/issu_pers_nm" navindex="6" imemode="hangul" style="left:312px; top:75px; width:206px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					model.setValue("/root/reqData/searchData/issu_pers_nm",cpt_issu_pers_nm.currentText);
+					model.send("is_com_1610_l");
+				}
+				]]>
+			</script>
+		</input>
+		<caption id="cpt_note_amt" class="list_cap01" style="left:525px; top:71px; width:75px; height:26px; ">어음금액</caption>
+		<input id="inp_note_amt" ref="/root/reqData/note_amt" navindex="7" format="#,###" style="left:604px; top:75px; width:140px; height:18px; text-align:right; "/>
+		<button id="btn_select" class="btn02" style="left:519px; top:10px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( validateReq() )	loadData();
+				]]>
+			</script>
+		</button>
+		<button id="btn_init" class="btn02" style="left:579px; top:10px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[		
+					model.reset();
+					initPage();
+				]]>
+			</script>
+		</button>
+		<button id="btn_confirm" class="btn02" style="left:639px; top:10px; width:50px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					confirm();
+				]]>
+			</script>
+		</button>
+		<button id="btn_close" class="btn02" style="left:699px; top:10px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();				
+				]]>
+			</script>
+		</button>
+		<datagrid id="dg_main" nodeset="/root/resData/resForm/gd_main/record" scroll="both" caption="은행코드^은행구분^어음구분^어음구분명^어음금액^발행일자^만기일자^사업자구분^발행자^배서인^입금계좌^입금계좌명^승인번호^전자어음key" colsep="^" colwidth="0, 100, 0, 100, 150, 100, 100, 0, 150, 150, 0, 100, 100, 0" explorerbar="sort" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:121px; width:740px; height:344px; ">
+			<col ref="bank_cd"/>
+			<col ref="bank_nm" style="text-align:left; "/>
+			<col ref="note_clsf_cd"/>
+			<col ref="note_clsf_nm" style="text-align:left; "/>
+			<col ref="note_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="comp_dt" format="yyyy-mm-dd"/>
+			<col ref="mtry_dt" format="yyyy-mm-dd"/>
+			<col ref="issu_cmpy_clsf_cd" style="text-align:left; "/>
+			<col ref="issu_pers_nm" style="text-align:left; "/>
+			<col ref="endorser_nm" style="text-align:left; "/>
+			<col ref="rcpm_acct" style="text-align:left; "/>
+			<col ref="rcpm_acct_nm" style="text-align:left; "/>
+			<col ref="sale_aprv_no" style="text-align:left; "/>
+			<col ref="elec_note_key" style="text-align:left; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(!dg_main.iscell(event.target))  return;
+					confirm();
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

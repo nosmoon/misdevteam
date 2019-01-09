@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<comboSet>
+							<dtls_cd1>
+								<item/>
+							</dtls_cd1>
+							<dtls_cd2>
+								<item/>
+							</dtls_cd2>
+						</comboSet>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<emp_no/>
+							<cmpy_cd/>
+							<gbn/>
+							<ck_row/>
+							<dtls_cd1/>
+							<dtls_cd2/>
+							<auth_clsf/>
+						</searchData>
+						<popData>
+							<emp_no/>
+							<cmpy_cd/>
+							<gbn/>
+						</popData>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<emp_no/>
+							<nm_korn/>
+							<cmpy_cd/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<record>
+								<chk/>
+								<dtls_cd1/>
+								<dtls_cd2/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				function CurTab(fID, fName, fBool){
+					this.id = fID;
+					this.name = fName;
+					this.status = fBool;
+				}
+				
+				function getCurTab_id(){
+					return this.id;
+				}
+				
+				function chk_list() 
+				{
+					var rows = datagrid2.rows;
+					var ck_row = model1.getValue("/root/reqData/searchData/ck_row") ; 
+					var dtls_cd1_listStr = model1.getValue("/root/reqData/searchData/dtls_cd1").split('^') ; 
+					var dtls_cd2_listStr = model1.getValue("/root/reqData/searchData/dtls_cd2").split('^') ; 
+					var row = 1 ; 
+							
+					for (i=0; i< dtls_cd1_listStr.length ; i++){	
+						datagrid2.addRow();
+						model1.setValue("/root/resData/gridData/record["+row+"]/dtls_cd1", dtls_cd1_listStr[i]);	
+						var dtls_cd1 =  dtls_cd1_listStr[i] ; 
+						
+						if(dtls_cd1 != ""){
+							datagrid2.cellComboNodeset(row, datagrid2.colRef("dtls_cd2")) = "/root/initData/comboSet/dtls_cd2/item[cd_abrv_nm='"+dtls_cd1+"']";
+						}  
+						//	datagrid2.refresh();
+						model1.setValue("/root/resData/gridData/record["+row+"]/dtls_cd2", dtls_cd2_listStr[i]);
+                      
+						row = row +1; 
+					}
+				       
+				}   
+				
+				
+				function chk_Complete() 
+				{
+					var rows = datagrid2.rows;
+					var ck_row = model1.getValue("/root/reqData/searchData/ck_row") ; 
+					var tmp1 = ""; 
+					var tmp2 = ""; 
+					var tmp3 = ""; 
+					
+					for (i=datagrid2.fixedRows; i< rows ; i++){
+						if(i == 1 ) 
+						{
+							tmp1 = tmp1+ model1.getValue("/root/resData/gridData/record["+i+"]/dtls_cd1") ;
+							tmp2 = tmp2+ model1.getValue("/root/resData/gridData/record["+i+"]/dtls_cd2")  ;
+							tmp3 = tmp3+ datagrid2.labelmatrix(i,datagrid2.colRef("dtls_cd2"));
+						}
+						else 
+						{
+							tmp1 = tmp1+"^" + model1.getValue("/root/resData/gridData/record["+i+"]/dtls_cd1") ;
+							tmp2 = tmp2+"^" + model1.getValue("/root/resData/gridData/record["+i+"]/dtls_cd2") ;
+							tmp3 = tmp3+","+ datagrid2.labelmatrix(i,datagrid2.colRef("dtls_cd2"));
+						}						
+		           }
+					//opener.model.setValue(model.getValue("/root/reqData/searchData/resultRef1"), tem3);
+					
+					if(model1.getValue("/root/reqData/searchData/gbn") == "10")
+					{
+					//	opener.model1.setValue("/root/resData/gridData/record["+ck_row+"]/dtls_cd1_1", tmp1);
+					//	opener.model1.setValue("/root/resData/gridData/record["+ck_row+"]/dtls_cd2_1", tmp2);
+					//	opener.model1.setValue("/root/resData/gridData/record["+ck_row+"]/dtls_nm1", tmp3);
+						opener.model1.makeNode("/root/tempData/gridData/record["+ck_row+"]/dtls_cd1_1"); 
+						opener.model1.makeNode("/root/tempData/gridData/record["+ck_row+"]/dtls_cd2_1"); 
+						opener.model1.makeNode("/root/tempData/gridData/record["+ck_row+"]/dtls_nm1"); 
+						opener.model1.setValue("/root/tempData/gridData/record["+ck_row+"]/dtls_cd1_1", tmp1);
+						opener.model1.setValue("/root/tempData/gridData/record["+ck_row+"]/dtls_cd2_1", tmp2);
+						opener.model1.setValue("/root/tempData/gridData/record["+ck_row+"]/dtls_nm1", tmp3);
+					}else 
+					{
+					//	opener.model1.setValue("/root/resData/gridData/record["+ck_row+"]/dtls_cd1_2", tmp1);
+					//	opener.model1.setValue("/root/resData/gridData/record["+ck_row+"]/dtls_cd2_2", tmp2);
+					//	opener.model1.setValue("/root/resData/gridData/record["+ck_row+"]/dtls_nm2", tmp3);
+						opener.model1.makeNode("/root/tempData/gridData/record["+ck_row+"]/dtls_cd1_2"); 
+						opener.model1.makeNode("/root/tempData/gridData/record["+ck_row+"]/dtls_cd2_2"); 
+						opener.model1.makeNode("/root/tempData/gridData/record["+ck_row+"]/dtls_nm2"); 
+						opener.model1.setValue("/root/tempData/gridData/record["+ck_row+"]/dtls_cd1_2", tmp1);
+						opener.model1.setValue("/root/tempData/gridData/record["+ck_row+"]/dtls_cd2_2", tmp2);
+						opener.model1.setValue("/root/tempData/gridData/record["+ck_row+"]/dtls_nm2", tmp3);
+					}
+					window.opener.javascript.getPopup(model1.getValue("/root/reqData/searchData/gbn"),ck_row);
+					//eval("window.opener.javascript.getPopup()"); 
+					window.close();			   
+				       
+				}   
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				//	maintitle.text = "내 휴일근무 보기";
+					//window.height = 400;
+					//window.width = 540;
+									
+					//datagrid2.fixedcellcheckbox(0, datagrid2.colRef("chk"), false) = true;
+					
+					var emp_no = model1.getValue("/root/reqData/fwdData/emp_no");
+					var cmpy_cd = model1.getValue("/root/reqData/fwdData/cmpy_cd");
+					var gbn = model1.getValue("/root/reqData/fwdData/gbn");
+					var ck_row = model1.getValue("/root/reqData/fwdData/ck_row");
+					var dtls_cd1 = model1.getValue("/root/reqData/fwdData/dtls_cd1");
+					var dtls_cd2 = model1.getValue("/root/reqData/fwdData/dtls_cd2");
+					var auth_clsf =  model1.getValue("/root/reqData/fwdData/auth_clsf");
+				
+					
+				//	if(vaca_ck=="10") button2.visible = true;
+					
+					model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+					model1.setValue("/root/reqData/searchData/cmpy_cd", cmpy_cd);
+					model1.setValue("/root/reqData/searchData/gbn", gbn);
+					model1.setValue("/root/reqData/searchData/ck_row", ck_row);
+					model1.setValue("/root/reqData/searchData/dtls_cd1", dtls_cd1);
+					model1.setValue("/root/reqData/searchData/dtls_cd2", dtls_cd2);
+					model1.setValue("/root/reqData/searchData/auth_clsf", auth_clsf);
+					
+					if(auth_clsf == "R") 
+				    {
+						button3.disabled = true;
+                        button2.disabled = true;
+						button4.disabled = true;
+					}
+
+					//model1.send("hd_vaca_1610");
+					model1.send("hd_job_1110");
+					model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					model1.refresh();
+					
+				   chk_list() ;
+					
+					rowCnt.value = "총 "+ (parseInt(datagrid2.rows)- 1) + " 건";
+				]]>
+			</script>
+			<submission id="hd_job_1110" action="/hd/job/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/initData/comboSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="460" pageheight="350" guideline="1,509;1,10;" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:41px; width:438px; height:20px; ">
+			<caption id="caption1" class="tit02" style="left:2px; top:0px; width:180px; height:15px; font-weight:bold; ">출입처 팝업</caption>
+			<button id="button2" class="btn_grid02" style="left:321px; top:1px; width:51px; height:17px; ">
+				<caption>행추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var selectedIdx = 2;
+						//var prn = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/prn");		
+						datagrid2.addRow(true, true);
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn_grid02" style="left:376px; top:1px; width:51px; height:17px; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var selectedIdx = 2;
+						var chk_row 
+						
+						for(var i = 1; i < datagrid2.rows; i++){
+							chk_row = model1.getValue("/root/resData/gridData/record["+ i +"]/chk");
+													
+							if(chk_row == "true"){
+								datagrid2.deleteitem(i);
+                                 i --; 		 // row가 삭제되면서 row값이 기존값에서 변동이 되므로 마이너스를 해줌 					
+							}	
+							
+						}
+						 datagrid2.refresh();
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" scroll="auto" caption="^출입처^상세출입처" colsep="#" colwidth="25, 129, 285" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:68px; width:440px; height:237px; ">
+			<col checkvalue="true,false" ref="chk" type="checkbox"/>
+			<col class="req" ref="dtls_cd1" type="combo" caption="매체">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dtls_cd1/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="dtls_cd2" type="combo" caption="상세매체">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dtls_cd2/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+						var row = datagrid2.row;
+						var col = datagrid2.col;
+											
+						var dtls_cd1 = Number(datagrid2.valueMatrix(row,datagrid2.colRef("dtls_cd1")));
+						var dtls_cd2 = Number(datagrid2.valueMatrix(row,datagrid2.colRef("dtls_cd2")));
+						
+						if(col == datagrid2.colRef("dtls_cd1") ){
+							if(dtls_cd1 != ""){
+							    datagrid2.cellComboNodeset(row, col+1) = "/root/initData/comboSet/dtls_cd2/item[cd_abrv_nm='"+dtls_cd1+"']";
+							}
+						//	datagrid2.refresh();
+						}
+						
+					]]>
+			</script>
+		</datagrid>
+		<group id="group_tit" class="gro_tit1_400" style="left:10px; top:5px; width:443px; height:29px; ">
+			<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:0px; top:0px; width:442px; height:27px; ">출입처</caption>
+			<button id="button1" class="btn02" style="left:385px; top:5px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					window.close();				
+				]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:331px; top:5px; width:52px; height:21px; ">
+				<caption>완료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						chk_Complete() ; 
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="rowCnt" style="left:332px; top:317px; width:115px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

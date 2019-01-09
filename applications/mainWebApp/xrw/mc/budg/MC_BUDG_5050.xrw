@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title/>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<mc_budg_5050_p>
+								<in_zero/>
+								<in_bulen/>
+								<budg_yymm/>
+								<dept_cd/>
+								<in_bulen1>6</in_bulen1>
+								<from_budg_yymm>01</from_budg_yymm>
+								<to_budg_yymm/>
+								<dept_cdnm/>
+								<yn>1</yn>
+							</mc_budg_5050_p>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+						<fc_co_1101_l>
+							<dataSet>
+								<CURLIST1>
+									<record>
+										<cmpy_cd/>
+										<dept_cd/>
+										<dept_team_clsf/>
+										<abrv_nm/>
+										<offi_nm/>
+										<dept_team_nm/>
+										<part_nm/>
+										<part_dn_nm/>
+									</record>
+								</CURLIST1>
+							</dataSet>
+						</fc_co_1101_l>
+					</tempData>
+					<msgData>
+					</msgData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init_controls();
+				
+				]]>
+			</script>
+			<submission id="fc_co_1101" action="/fc/co1000/1101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData/fc_co_1101_l/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/fcmc_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+			//-------------------------------------------------------------------------------
+			//	컨트롤의 기본 설정 적용 및 컨트롤 별 포맷 적용
+			//-------------------------------------------------------------------------------
+			function init_controls() {
+				//control의 기본 설정 적용
+								
+				//datagrid init
+				set_default(
+						"it was comment field"
+				);
+				
+//				datagrid1.attribute("explorerbar") = "";
+		
+				//combo init
+				set_default(
+						"it was comment field"
+				);
+				//input init
+				set_default(
+						"it was comment field"
+				);
+				//input button init
+				set_default(
+						"it was comment field"
+				);
+				//input date init
+				set_default(
+						"it was comment field"
+				);
+
+				//control format 설정 적용
+				
+				//코드
+				set_format(
+						"code"						//코드포맷,중간정렬,중간정렬
+				);
+				
+				//금액
+				set_format(
+						"number5"						//숫자포맷,오른쪽정렬,중간정렬,(#,###)
+				);
+				
+				//날짜
+				set_format(
+						"date_1"						//날짜포맷,중간정렬,중간정렬,yyyy-mm-dd
+				);
+				
+				//문자열(왼쪽)
+				set_format(
+						"string_l"						//문자열,왼쪽정렬,중간정렬
+				);
+			}
+			
+			function fun_radio_ch(){
+				var radio_var = in_tag.value;
+				
+				if(radio_var == "2"){
+					if(budg_yymm.value == ""){
+						show_message("[년도]는(은) 필수입력사항입니다.");
+						in_tag.value = "";
+						return false;
+					}
+					model.send("mc_budg_3005_l");
+					in_tms.disabled = false;
+				}else{
+					combo_data_clear(in_tms);
+					in_tms.disabled = true;
+				}
+			}
+							
+			function send_mc_budg_5050_p(){
+				//필수항목체크(검색)
+				if(!commReqCheck(group9)) {
+					return false;
+				}
+				
+				resetOznode();
+				
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)
+				makeNodeValue("/root/oz_data/ozrName","fcmc/SP_MC_BUDG_5050_P");
+				
+				var from_yymm;
+				var to_yymm;
+				var zero;
+				var bulen_var;
+				
+				if(yn.value == "0"){
+					if(in_bulen1.value == "2"){
+						zero = "0000";
+					}else if(in_bulen1.value == "4"){
+						zero = "00";
+					}else{
+						zero = "";
+					}
+					bulen_var = in_bulen1.value;
+				}else{
+					zero = "";
+					bulen_var = "6"
+				}
+				
+				from_yymm = budg_yymm.value + "01";
+				if(to_budg_yymm.value != ""){
+					to_yymm = budg_yymm.value + "12";
+				}else{
+					to_yymm = budg_yymm.value + to_budg_yymm.value;
+				}
+				
+				// odi 파라미터 설정.
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", getProperty("ss_cmpycd"));
+				makeNodeValue("/root/oz_data/odiParam/iv_in_zero", zero);
+				makeNodeValue("/root/oz_data/odiParam/iv_in_bulen", bulen_var);
+				makeNodeValue("/root/oz_data/odiParam/iv_budg_yymm", budg_yymm.value);
+				makeNodeValue("/root/oz_data/odiParam/iv_dept_cd", dept_cd.value);
+				makeNodeValue("/root/oz_data/odiParam/iv_in_bulen1", in_bulen1.value);
+				makeNodeValue("/root/oz_data/odiParam/iv_from_budg_yymm", from_yymm);
+				makeNodeValue("/root/oz_data/odiParam/iv_to_budg_yymm", to_yymm);
+				
+				// 레포트뷰어 호출.
+				openOzwin("/root/oz_data");					
+			}
+			
+			function setDept_cd(iv_dept_cd, iv_dept_nm, iv_dept_team_clsf, iv_offi_nm, iv_dept_team_nm, iv_part_nm, iv_part_dn_nm){	
+					model.setValue("/root/reqData/searchData/mc_budg_5050_p/dept_cd", iv_dept_cd);
+					model.setValue("/root/reqData/searchData/mc_budg_5050_p/dept_cdnm", iv_dept_nm);
+					dept_cd.refresh();
+					dept_cdnm.refresh();
+				}
+							
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="640" pageheight="480" guideline="1,10;1,936;2,64;2,70;2,76;1,480;" style="font-family:굴림; ">
+		<caption id="caption10" class="list_cap02" style="left:100px; top:100px; width:460px; height:245px; text-align:center; "/>
+		<group id="group9" style="left:110px; top:110px; width:440px; height:225px; ">
+			<caption id="caption4" class="list_cap02" style="left:0px; top:100px; width:440px; height:26px; "/>
+			<caption id="caption44" class="list_cap02" style="left:0px; top:75px; width:440px; height:26px; "/>
+			<caption id="caption42" class="list_cap02" style="left:0px; top:50px; width:440px; height:26px; "/>
+			<caption id="caption9" class="list_cap02" style="left:0px; top:0px; width:440px; height:26px; "/>
+			<input id="dept_cdnm" ref="/root/reqData/searchData/mc_budg_5050_p/dept_cdnm" editable="false" style="left:177px; top:54px; width:127px; height:18px; "/>
+			<select1 id="in_bulen1" ref="/root/reqData/searchData/mc_budg_5050_p/in_bulen1" navindex="30" appearance="full" cellspacing="10" cols="3" overflow="visible" style="left:83px; top:79px; width:207px; height:18px; border-style:none; ">
+				<choices>
+					<item>
+						<label>국 전체</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>부 전체</label>
+						<value>4</value>
+					</item>
+					<item>
+						<label>과 전체</label>
+						<value>6</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					]]>
+				</script>
+			</select1>
+			<input id="budg_yymm" ref="/root/reqData/searchData/mc_budg_5050_p/budg_yymm" class="req" navindex="1" maxlength="4" format="yyyy" caption="년도" style="left:83px; top:4px; width:100px; height:18px; "/>
+			<caption id="caption43" class="list_cap03" style="left:0px; top:50px; width:80px; height:26px; ">부서코드</caption>
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:80px; height:26px; ">년도</caption>
+			<caption id="caption45" class="list_cap03" style="left:0px; top:75px; width:80px; height:26px; ">부서 Level</caption>
+			<input id="dept_cd" ref="/root/reqData/searchData/mc_budg_5050_p/dept_cd" navindex="3" inputtype="button" maxlength="6" style="left:83px; top:54px; width:90px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						
+						var var_con_date = "";
+
+						if (budg_yymm.value == ""){ 
+							var_con_date = commCurDate(); 
+						}else { 
+							var num_ch = budg_yymm.value.length;
+							if(num_ch == 8){
+								var_con_date = budg_yymm.value;
+							}else if(num_ch == 6){
+								var_con_date = budg_yymm.value + "01";
+							}else if(num_ch == 4){
+								var_con_date = budg_yymm.value + "0101";
+							}else{
+								var_con_date = commCurDate(); 
+							}
+						}
+							
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setDept_cd");
+						model.makeNode("/root/reqData/fwdData/select_ch");
+						model.setValue("/root/reqData/fwdData/select_ch", "S");
+						model.makeNode("/root/reqData/fwdData/use_end_dt");
+						model.setValue("/root/reqData/fwdData/use_end_dt", var_con_date);
+						window.load("/xrw/fc/co/FC_CO_1100.xrw","mdichild", "fc_co_1100", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+						
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						
+						var var_con_date = "";
+
+						if (budg_yymm.value == ""){ 
+							var_con_date = commCurDate(); 
+						}else { 
+							var num_ch = budg_yymm.value.length;
+							if(num_ch == 8){
+								var_con_date = budg_yymm.value;
+							}else if(num_ch == 6){
+								var_con_date = budg_yymm.value + "01";
+							}else if(num_ch == 4){
+								var_con_date = budg_yymm.value + "0101";
+							}else{
+								var_con_date = commCurDate(); 
+							}
+						}
+
+						if (dept_cd.value.length== 6) {
+							
+							model.removeNodeset("/root/reqData/fwdData");  
+							model.makeNode("/root/reqData/fwdData/dept_cd");
+							model.makeNode("/root/reqData/fwdData/select_ch");
+							model.makeNode("/root/reqData/fwdData/use_end_dt");
+							model.setValue("/root/reqData/fwdData/dept_cd", dept_cd.value);
+							model.setValue("/root/reqData/fwdData/select_ch", "S");
+							model.setValue("/root/reqData/fwdData/use_end_dt", var_con_date);
+							model.send("fc_co_1101");
+
+							if (model.getValue("/root/tempData/fc_co_1101_l/dataSet/CURLIST1/record/dept_cd") != "") {
+								dept_cdnm.value = model.getValue("/root/tempData/fc_co_1101_l/dataSet/CURLIST1/record/abrv_nm");
+							}
+							else {
+								dept_cd.value = "";
+								dept_cdnm.value = "";
+							}
+						}
+						else {
+							dept_cd.value = "";
+							dept_cdnm.value = "";
+						}	
+						
+					]]>
+				</script>
+			</input>
+			<caption id="caption2" class="list_cap02" style="left:0px; top:25px; width:440px; height:26px; "/>
+			<caption id="caption3" class="list_cap03" style="left:0px; top:25px; width:80px; height:26px; ">집행년월</caption>
+			<input id="to_budg_yymm" ref="/root/reqData/searchData/mc_budg_5050_p/to_budg_yymm" navindex="2" maxlength="2" format="mm" caption="집행월액" style="left:144px; top:29px; width:35px; height:18px; "/>
+			<caption id="caption7" style="left:126px; top:30px; width:15px; height:18px; ">~</caption>
+			<input id="from_budg_yymm" ref="/root/reqData/searchData/mc_budg_5050_p/from_budg_yymm" editable="false" maxlength="2" format="mm" caption="집행월액" style="left:84px; top:29px; width:35px; height:18px; "/>
+			<select1 id="yn" ref="/root/reqData/searchData/mc_budg_5050_p/yn" navindex="30" appearance="full" cellspacing="10" cols="3" overflow="visible" style="left:83px; top:104px; width:207px; height:18px; border-style:none; ">
+				<choices>
+					<item>
+						<label>YES</label>
+						<value>0</value>
+					</item>
+					<item>
+						<label>NO</label>
+						<value>1</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption5" class="list_cap03" style="left:0px; top:100px; width:80px; height:26px; ">합계여부</caption>
+		</group>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<group id="group1" style="left:15px; top:45px; width:615px; height:21px; ">
+			<button id="button1" class="btn02" crud="P" style="left:505px; top:0px; width:52px; height:21px; ">
+				<caption>출 력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						send_mc_budg_5050_p();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:560px; top:0px; width:52px; height:21px; ">
+				<caption>종 료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						formClose();
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar_Pop640.xrw" style="left:10px; top:5px; width:620px; height:29px; "/>
+	</xhtml:body>
+</xhtml:html>

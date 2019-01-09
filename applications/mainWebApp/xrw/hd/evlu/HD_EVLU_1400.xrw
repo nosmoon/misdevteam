@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>정규직(MIS) - 평가부문별 반영비율 관리화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_cd>
+								<item/>
+							</evlu_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<evlu_cd/>
+						</searchData>
+						<reqForm>
+							<evlu_yy/>
+							<tms_clsf/>
+							<evlu_lcls_grp_cd/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<valid_evlu_cd/>
+						</resForm>
+						<gridData1>
+							<record>
+								<evlu_lcls_grp_cd/>
+								<evlu_lcls_grp_nm/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record>
+								<evlu_grp_nm/>
+								<ratio_10/>
+								<ratio_20/>
+								<ratio_30/>
+								<ratio_40/>
+								<ratio_50/>
+								<ratio_tot/>
+								<asst_clsf/>
+								<spcl_plus_point/>
+								<spcl_minus_point/>
+								<db_status/>
+								<evlu_grp_cd/>
+								<asst_point/>
+								<ratio_60/>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//평가구분 콤보박스 생성
+					model1.send("hd_evlu_9000_l");
+					model1.setValue("/root/resData/resForm/valid_evlu_cd",model1.getValue("/root/dataSet/valid_evlu_cd"));
+					model1.copyNode("/root/initData/comboSet/evlu_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					//평가구분 코드 설정
+					var op_evlu_cd = window.opener.model1.getValue("/root/resData/resForm/evlu_cd");
+					model1.setValue("/root/reqData/searchData/evlu_cd",op_evlu_cd);
+					combo1.refresh();
+					combo1.disabled = true;
+					//현재 선택한 평가구분에 대한 정보설정
+					model1.setValue("/root/reqData/reqForm/evlu_yy",model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+					model1.setValue("/root/reqData/reqForm/tms_clsf",model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					//평가대분류그룹 생성
+					model1.send("hd_evlu_1400_m");
+					model1.copyNode("/root/resData/gridData1", "/root/dataSet/CURLIST");
+					caption1.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+					model1.removeNode("/root/dataSet");
+				
+					//버튼토글
+					button2.disabled = true;
+					
+					var obj = htmldocument.SessionInfo;
+					if(obj.cmpycd.value != "500"){
+						datagrid2.colHidden(datagrid2.colRef("ratio_60")) = true;
+					}
+					//그리드 첫행 제거
+					model1.removeNode("/root/resData/gridData2/record");
+					caption3.value = "총 0 건";
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_evlu_1400_m" action="/servlet/hd/evlu/1400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_1401_l" action="/servlet/hd/evlu/1401" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_1402_a" action="/servlet/hd/evlu/1402" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_9000_l" action="/servlet/hd/evlu/9000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<!--bind id="bind1" ref="/root/resData/gridData2/record/ratio_tot" calculate="/root/resData/gridData2/record/ratio_10+/root/resData/gridData2/record/ratio_20+/root/resData/gridData2/record/ratio_30+/root/resData/gridData2/record/ratio_40+/root/resData/gridData2/record/ratio_50"/-->
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//평가부문별 반영비율 목록생성
+				function searchList(){
+					//검색조건 대분류코드 설정
+					model1.setValue("/root/reqData/reqForm/evlu_lcls_grp_cd", datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("evlu_lcls_grp_cd")));
+					//기존의 노드를 모두 초기화
+					model1.removeNode("/root/dataSet");
+					model1.removeNode("/root/resData/gridData2");
+					model1.makeNode("/root/resData/gridData2");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_1401_l");	
+					model1.copyNode("/root/resData/gridData2","/root/dataSet/CURLIST");
+					caption3.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					button2.disabled = false;
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="650" guideline="1,10;2,30;2,39;2,64;2,72;2,76;2,87;2,746;1,225;1,220;2,444;2,450;1,935;2,195;" style="font-family:굴림; ">
+		<caption id="caption5" class="tit02" style="left:196px; top:87px; width:721px; height:20px; ">평가부문별 반영비율</caption>
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<group id="group_ActionBtn" style="left:10px; top:9px; width:926px; height:21px; ">
+			<button id="button1" class="btn02" style="left:873px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						window.close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:818px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						for(var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+							var tot = parseInt(datagrid2.valueMatrix(i,datagrid2.colRef("ratio_tot")));
+							var ast = parseInt(datagrid2.valueMatrix(i,datagrid2.colRef("asst_point")));
+							if( datagrid2.rowStatus(i) != 0 && tot + ast != 100 ){
+								alert("평가부문별반영점수와 보조평가점수의 합계는 100점이 되어야합니다.");
+								return;
+							}
+						}
+						if(!commGridReqCheck("datagrid2")) return;
+						if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+						model1.send("hd_evlu_1402_a");
+						if(submit_completed()) searchList();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:72px; width:926px; height:5px; "/>
+		<!-- 검색조건 항목 -->
+		<caption id="captoin1" class="list_cap02" style="left:10px; top:39px; width:926px; height:26px; "/>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:39px; width:100px; height:26px; ">평가구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/evlu_cd" appearance="minimal" style="left:113px; top:43px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<!-- 평가년도별 차수등록 -->
+		<caption id="caption4" class="tit02" style="left:10px; top:87px; width:185px; height:20px; ">평가대분류그룹</caption>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" dragmode="false" dropmode="false" allowselection="false" allowuserresize="false" caption="대분류그룹코드^평가대분류그룹" colsep="^" colwidth="1, 159" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:107px; width:180px; height:338px; ">
+			<col ref="evlu_lcls_grp_cd" visibility="hidden" style="left:20px; top:20px; width:5px; height:20px; "/>
+			<col ref="evlu_lcls_grp_nm" style="text-align:left; "/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					searchList();
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="평가그룹^평가부문별반영점수^평가부문별반영점수^평가부문별반영점수^평가부문별반영점수^평가부문별반영점수^평가부문별반영점수^평가부문별반영점수^보조평가&#xA;점수^보조평가여부^특별가점^특별감점^DB상태값^그룹코드^대분류코드|평가그룹^개인성과^타인성과기여^회사공헌도^직무역량^리더십^창의개선^합계^보조평가&#xA;점수^보조평가여부^특별가점^특별감점^DB상태값^그룹코드" colsep="#" colwidth="120, 55, 55, 55, 55, 55, 55, 55, 55, 50, 55, 55, 5, 5" mergecellsfixedrows="bycolrec" rowheader="update" rowheight="20,30" rowsep="|" style="left:196px; top:107px; width:735px; height:338px; font-size:10pt; ">
+			<col ref="evlu_grp_nm" style="text-align:left; "/>
+			<col class="req" ref="ratio_10" type="input" format="##.#" caption="업적" style="text-align:right; "/>
+			<col class="req" ref="ratio_20" type="input" format="##.#" caption="성과기여" style="text-align:right; "/>
+			<col class="req" ref="ratio_60" type="input" format="##.#" caption="회사공헌도" style="text-align:right; "/>
+			<col class="req" ref="ratio_30" type="input" format="##.#" caption="직무역량" style="text-align:right; "/>
+			<col class="req" ref="ratio_40" type="input" format="##.#" caption="리더십" style="text-align:right; "/>
+			<col class="req" ref="ratio_50" type="input" format="##.#" caption="창의개선" style="text-align:right; "/>
+			<col ref="ratio_tot" style="text-align:right; "/>
+			<col ref="asst_point" style="text-align:right; "/>
+			<col ref="asst_clsf" type="checkbox"/>
+			<col ref="spcl_plus_point" type="input" format="##.#" style="text-align:right; "/>
+			<col ref="spcl_minus_point" type="input" format="(-)##.#" style="text-align:right; "/>
+			<col ref="db_status" visibility="hidden"/>
+			<col ref="evlu_grp_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="onendedit">
+				<![CDATA[
+					datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("ratio_tot")) = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("ratio_10"))*1
+						+ datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("ratio_20"))*1
+						+ datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("ratio_30"))*1
+						+ datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("ratio_40"))*1
+						+ datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("ratio_50"))*1
+						+ datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("ratio_60"))*1;
+						
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				/* 2014.03.21 추가함    */
+					var col = datagrid2.col;
+					var row = datagrid2.row;
+					var asst_point = 0;
+					
+					if(col=="9")
+					{  
+						 var asst_clsf = "";
+						asst_clsf = datagrid2.valueMatrix(row, datagrid2.colRef("asst_clsf")) ;
+			
+						//if(alvc_use_yn=="10")
+						if(asst_clsf == "true")
+						{
+							datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("asst_point")) = "30"; // 나중에 환경변수를 이용하여서 가져오도록 수정할 필요가 있음 
+
+						}
+						else
+						{
+							datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("asst_point")) = "0";
+						}
+					}
+					]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" style="left:120px; top:450px; width:100px; height:20px; text-align:right; "/>
+		<caption id="caption3" style="left:835px; top:450px; width:100px; height:20px; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,647 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<codeData>
+						<cslcrg_pers_nm>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</cslcrg_pers_nm>
+					</codeData>
+					<reqData>
+						<frdt/>
+						<todt/>
+						<dt_clsf>03</dt_clsf>
+						<slcrg_pers/>
+						<slcrg_pers_nm/>
+						<pubc_slip_no/>
+						<medi_cd>110</medi_cd>
+						<select_dt/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+							<gd_main>
+								<record>
+									<checked/>
+									<pubc_dt/>
+									<pubc_slip_no/>
+									<medi_nm/>
+									<cslcrg_pers_nm/>
+									<dlco_nm/>
+									<pubc_side/>
+									<dn/>
+									<cm/>
+									<uprc_amt/>
+									<advt_fee/>
+									<vat/>
+									<misu_amt/>
+									<agn_nm/>
+									<fee/>
+									<hndl_plac_nm/>
+									<fee_rate/>
+									<coms/>
+									<slcrg_pers_nm/>
+									<mchrg_pers_nm/>
+								</record>
+							</gd_main>
+							<gd_upload>
+								<record>
+									<!--pubc_yy/>
+									<pubc_dt/>
+									<pubc_slip_no/>
+									<medi_nm/>
+									<dlco_nm/>
+									<pubc_side/>
+									<dn/>
+									<cm/>
+									<arow/>
+									<chro_clsf/>
+									<uprc/>
+									<advt_fee/>
+									<vat/>
+									<misu_tot_amt/>
+									<agn/>
+									<fee/>
+									<hndl_plac_nm/>
+									<rate/>
+									<coms/>
+									<slcrg_pers_nm/>
+									<mchrg_pers_nm/>
+									<cslcrg_pers_nm/>
+									<sect_nm/>
+									<pubc_clsf/>
+									<edt_clsf/>
+									<indt_clsf/>
+									<indt_clsf_nm/>
+									<grp_cmpy_cd/>
+									<advt_cont/>
+									<pubc_cnt/>
+									<ern_no/-->
+									<pubc_slip_no/>
+									<medi_nm/>
+									<cslcrg_pers_nm/>
+								</record>
+							</gd_upload>
+						</resForm>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+					<tempGridData>
+						<gridData>
+							<record/>
+						</gridData>
+					</tempGridData>
+					<searchData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					// 코드 셋
+					model.send("ad_pub_3600_m");	
+
+					model.copyNode("/root/codeData/cslcrg_pers_nm"		, "/root/tempData/cslcrg_pers_nm");
+					makeComboGubun("", "/root/codeData/cslcrg_pers_nm"	, "item", "label", "value");
+ 					
+					initPage();
+				]]>
+			</script>
+			<bind id="bind_input1" ref="/root/reqData/searchData/issudt"/>
+			<submission id="ad_pub_3600_m" action="/ad/pub/3600" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="ad_pub_3610_l" action="/ad/pub/3610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempGridData"/>
+			<submission id="ad_pub_3620_a" action="/ad/pub/3620" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				var CLR_WHITE			= 	"#FFFFFF";
+				var CLR_YELLOW		=	"#FFF000";				
+				var CLR_PINK			=	"#FA8C8C";
+				var CLR_BLUE			=	"#9BC3FF";
+				var CLR_VIOLET		=	"#DDA0DD";
+				
+				var UPLOAD_HEADER_MAX 	= 31;
+				var UPLOAD_HEADER		= ["게재년", "게재일", "전표번호", "매체", "광고주명", "면", "단", "CM", "행", "색도", "단가", "광고료", "부가세", "미수총액", "대행사명", "대행료", "지사명", "요율", "수수료", "영업", "관리", "현영업", "섹션명", "게재구분", "판구분", "코드", "업종명", "그룹사", "광고내용", "게재량", "사업자번호"];
+
+				//반출받지 않는 칼럼 = 반입시 칼럼
+				var EXP_FALSE_COLS	=	"";
+				
+				function chkSelectYN( datagrid )
+				{
+					var canGo = false;
+					for( var i=datagrid.fixedRows; i<datagrid.rows; i++ )
+					{
+						var ck_yn = datagrid.valueMatrix(i,datagrid.colRef("select"));
+						if( ck_yn == "Y" )
+						{
+							canGo = true;
+							break;
+						}
+					}
+					
+					if( !canGo )
+					{
+						alert("선택된 건이 없습니다.");
+						return false;
+					}
+					return true;
+				}
+				
+				// 초기화
+				function initPage()
+				{
+					// 게재기간 Default 현재일자(연간)
+					var curDate 	= dateAdd("d", 0, getCurrentDate());
+					var preMonth 	= dateAdd("m", -1, getCurrentMonth()+"01").substr(0,6);
+					
+					if( curDate != "" )
+					{
+						model.setValue("/root/reqData/frdt"		, curDate.substr(0,6)+"01");
+						model.setValue("/root/reqData/todt"		, curDate);
+						model.setValue("/root/reqData/dt_clsf"	, "02");
+/*
+						if( curDate.substr(6,2) > "10" )
+						{
+							model.setValue("/root/reqData/frdt"		, curDate.substr(0,6)+"01");
+							model.setValue("/root/reqData/todt"		, curDate);
+							model.setValue("/root/reqData/dt_clsf"	, "02");
+						}
+						else
+						{
+							model.setValue("/root/reqData/frdt"	, preMonth + "01");
+							model.setValue("/root/reqData/todt"	, preMonth +  commLastDay(preMonth));
+							model.setValue("/root/reqData/dt_clsf"	, "03");
+						}
+*/						
+					}			
+					model.refresh();
+				}
+				
+				// 조회
+				function loadData()
+				{
+					model.send("ad_pub_3610_l");
+					if( submit_completed() )
+					{
+						model.copyNode("/root/resData/resForm/gd_main"	, "/root/tempGridData/gridData");
+						//DisplayGrid();
+						loadDataSet();
+					}
+				}
+				
+				// 조회 결과 셋
+				function loadDataSet()
+				{
+					model.copyNode("/root/searchData"	, "/root/reqData");
+					dg_main.refresh();
+					model.refresh();
+				}
+				
+				/*
+				function DisplayGrid()
+				{
+					var i = 0;
+					var remk_yn;
+					var byr_dlco_yn;
+					var broker_dlco_yn;
+					
+					dg_main.refresh();
+					
+					for( i=dg_main.fixedRows; i<dg_main.rows; i++ )
+					{
+						remk_yn 		= dg_main.valueMatrix(i, dg_main.colRef("remk"));
+						byr_dlco_yn 	= dg_main.valueMatrix(i, dg_main.colRef("byr_dlco_no"));
+						broker_dlco_yn	= dg_main.valueMatrix(i, dg_main.colRef("broker_dlco_no"));
+						
+						if( trim(remk_yn) != "" )
+						{
+							dg_main.cellStyle("background-color", i, dg_main.colRef("issu_yn")) = CLR_YELLOW;
+//							dg_main.cellStyle("background-color", i, dg_main.colRef("issu_yn"), i,  dg_main.colRef("issu_yn")) = CLR_YELLOW;
+						}
+						else
+						{
+							dg_main.cellStyle("background-color", i, dg_main.colRef("issu_yn")) = CLR_WHITE;
+//							dg_main.cellStyle("background-color", i, dg_main.colRef("issu_yn"), i,  dg_main.colRef("issu_yn")) = CLR_WHITE;
+						}
+						
+						if( trim(byr_dlco_yn) == "" || byr_dlco_yn == "NO_DATA" )
+						{
+							dg_main.cellStyle("background-color", i, dg_main.colRef("byr_dlco_nm")) = CLR_PINK;
+//							dg_main.cellStyle("background-color", i, dg_main.colRef("byr_dlco_nm"), i,  dg_main.colRef("byr_dlco_nm")) = CLR_PINK;
+						}
+						else
+						{
+							dg_main.cellStyle("background-color", i, dg_main.colRef("byr_dlco_nm")) = CLR_WHITE;
+//							dg_main.cellStyle("background-color", i, dg_main.colRef("byr_dlco_nm"), i,  dg_main.colRef("byr_dlco_nm")) = CLR_WHITE;
+						}
+						
+						if( trim(broker_dlco_yn) == "" || broker_dlco_yn == "NO_DATA" )
+						{
+							dg_main.cellStyle("background-color", i, dg_main.colRef("broker_dlco_nm")) = CLR_PINK;
+//							dg_main.cellStyle("background-color", i, dg_main.colRef("broker_dlco_nm"), i,  dg_main.colRef("broker_dlco_nm")) = CLR_PINK;
+						}
+						else
+						{
+							dg_main.cellStyle("background-color", i, dg_main.colRef("broker_dlco_nm")) = CLR_WHITE;
+//							dg_main.cellStyle("background-color", i, dg_main.colRef("broker_dlco_nm"), i,  dg_main.colRef("broker_dlco_nm")) = CLR_WHITE;
+						}
+					}
+					dg_main.refresh();
+				}
+				*/
+				
+				
+				// 거래처 셋
+				/*
+				function setDlcoInfo( dlco_no, dlco_nm )
+				{
+					model.setValue("/root/reqData/dlco_no"	, dlco_no);
+					model.setValue("/root/reqData/dlco_nm"	, dlco_nm);  
+					inp_dlco_no.refresh(); 
+					inp_dlco_nm.refresh();
+					//model.send("getDetail");
+				}
+				*/
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,936;2,60;2,70;2,97;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:70px; width:927px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:104px; width:927px; height:5px; "/>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:927px; height:29px; "/>
+		<caption id="caption13" style="left:182px; top:75px; width:15px; height:20px; text-align:center; ">~</caption>
+		<input id="inp_frdt" ref="/root/reqData/frdt" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" caption="게재기간" style="left:95px; top:75px; width:85px; height:18px; "/>
+		<input id="inp_todt" ref="/root/reqData/todt" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" caption="게재기간" style="left:200px; top:75px; width:85px; height:18px; "/>
+		<button id="btn_select" class="btn02" crud="R" style="left:569px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( validateReq() )	loadData();
+				]]>
+			</script>
+		</button>
+		<button id="btn_init" class="btn02" style="left:630px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+					initPage();
+				]]>
+			</script>
+		</button>
+		<button id="btn_upload" class="btn02" crud="C" style="left:756px; top:40px; width:50px; height:21px; ">
+			<caption>반입</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var i;
+					var headName;
+					var filename = window.fileDialog("open", ",", false, "", "xls*", "Excel File(*.xls*)|*.xls*");
+					if( filename!="" )
+					{
+						model.removeNodeset("/root/resData/resForm/gd_upload");
+						
+						dg_upload.loadExcel(filename, 1, true); 
+						
+						// 헤더체크
+						//alert(dg_upload.cols);
+						for( i=1; i<=dg_upload.cols-1; i++ )
+						{
+							if( i > UPLOAD_HEADER_MAX )
+							{
+								alert("반입하시려는 항목이 초과하였습니다.");
+								return;
+							}
+//							
+//							headName = dg_upload.valueMatrix(dg_upload.fixedRows, i);
+//							//alert("UPLOAD_HEADER::"+UPLOAD_HEADER[i-1]);
+//							//alert("headName::"+headName);								
+//							if( UPLOAD_HEADER[i-1] != headName )
+//							{
+//								alert( "[" + UPLOAD_HEADER[i-1] + "-" + headName + "] 헤더값오류입니다.");
+//								return;
+//							}
+//							
+						}
+						
+						
+						for( i=dg_upload.fixedRows+1;i<dg_upload.rows; i++ )
+						{
+							dg_upload.addStatus(i, "insert");
+						}
+//						model.setValue("/root/reqData/flag","E");
+						if( !isDataGridUpdated(dg_upload) )
+						{
+							alert("저장할 내역이 없습니다.");
+							return;
+						}
+						
+						if( commGridReqCheck(dg_upload) )
+						{
+							if( window.alert("저장하시겠습니까?", "확인", 1) == 1 )
+							{
+								model.setValue("/root/reqData/multiUpdateData", dg_upload.getUpdateData());
+								model.send("ad_pub_3620_a");
+								if( submit_completed() )	loadData();
+							}
+						}	
+					}	
+				]]>
+			</script>
+		</button>
+		<button id="btn_download" class="btn02" crud="P" style="left:821px; top:40px; width:50px; height:21px; ">
+			<caption>반출</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var filename = window.fileDialog("save", ",", false, "현영업담당업로드", "xls", "Excel File(*.xls)|*.xls");
+					if( filename!="" )
+					{
+						dg_main.saveExcel(filename, "sheetname:현영업담당업로드;colhiddenextend:true;exportfalsecols:" + EXP_FALSE_COLS + ";");
+					}
+				]]>
+			</script>
+		</button>
+		<button id="btn_close" class="btn02" style="left:885px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( window.type=="mdi" )
+					{
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}
+					else
+					{
+						window.close();
+					}		
+				]]>
+			</script>
+		</button>
+		<caption id="cap_make_dt" class="list_cap01" style="left:10px; top:70px; width:80px; height:28px; ">게재일자</caption>
+		<select1 id="cmb_dt_range" ref="/root/reqData/dt_clsf" navindex="3" appearance="minimal" style="left:287px; top:75px; width:60px; height:18px; ">
+			<choices>
+				<item>
+					<label>당일</label>
+					<value>01</value>
+				</item>
+				<item>
+					<label>당월</label>
+					<value>02</value>
+				</item>
+				<item>
+					<label>전월</label>
+					<value>03</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var currentdt = getCurrentDate();
+					var currentmt = getCurrentMonth();				
+								
+					var dt_clsf = model.getValue("/root/reqData/dt_clsf"); //선택한 콤보박스 값..
+									
+					if( dt_clsf == "01" )
+					{  
+						var frdt = dateAdd("d", 0, currentdt);	//당일
+						var todt = dateAdd("d",0, currentdt);	//당일
+						
+						model.setValue("/root/reqData/frdt", frdt); 
+						model.setValue("/root/reqData/todt", todt); 
+					}
+					else if( dt_clsf == "02" )
+					{
+						var frdt = currentdt.substring(0,6)+"01"; //당월의 1일부터
+						var todt = dateAdd("d",0, currentdt);	//당월의 현재일 
+						
+						model.setValue("/root/reqData/frdt", frdt); 
+						model.setValue("/root/reqData/todt", todt); 
+					}
+					else if(dt_clsf == "03")
+					{
+						var frdt = dateAdd("m", -1, currentmt+"01");
+						var pre_month = frdt.substring(0,6);
+						var todt = pre_month+commLastDay(pre_month); 	//전월의 말일 
+						
+						model.setValue("/root/reqData/frdt", frdt); 
+						model.setValue("/root/reqData/todt", todt);
+					}	
+				
+					inp_frdt.refresh();
+					inp_todt.refresh();
+				]]>
+			</script>
+		</select1>
+		<datagrid id="dg_main" nodeset="/root/resData/resForm/gd_main/record" scroll="auto" caption="^게재일^전표번호^매체^현영업^광고주명^면^단^CM^단가^광고료^부가세^미수총액^대행사명^대행료^지사명^요율^수수료^영업^관리" colsep="#" colwidth="30, 70, 110, 60, 80, 100, 50, 50, 50, 70, 80, 80, 80, 100, 80, 100, 60, 80, 80,80" explorerbar="sort" extendlastcol="scroll" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:10px; top:112px; width:927px; height:575px; ">
+			<col checkvalue="Y,N" ref="select" type="checkbox"/>
+			<col ref="pubc_dt"/>
+			<col ref="pubc_slip_no" format="999-99999999-9999"/>
+			<col ref="medi_nm"/>
+			<col ref="cslcrg_pers_nm" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/codeData/cslcrg_pers_nm/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="pubc_side"/>
+			<col ref="dn"/>
+			<col ref="cm"/>
+			<col ref="uprc_amt" format="#,###" style="text-align:right; word-wrap:none; "/>
+			<col ref="advt_fee" format="#,###" style="text-align:right; word-wrap:none; "/>
+			<col ref="vat" format="#,###" style="text-align:right; word-wrap:none; "/>
+			<col ref="misu_amt" format="#,###" style="text-align:right; word-wrap:none; "/>
+			<col ref="agn_nm" style="text-align:left; "/>
+			<col ref="fee" format="#,###" style="text-align:right; word-wrap:none; "/>
+			<col ref="hndl_plac_nm" style="text-align:left; "/>
+			<col ref="fee_rate" visibility="hidden" format="99.99" style="text-align:right; word-wrap:none; "/>
+			<col ref="coms" format="#,###" style="text-align:right; word-wrap:none; "/>
+			<col ref="slcrg_pers_nm"/>
+			<col ref="mchrg_pers_nm"/>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if( dg_main.row < dg_main.fixedRows )
+					{
+						for( var i=dg_main.fixedRows; i<dg_main.rows; i++ )
+						{
+							dg_main.addStatus(i, "update");
+						}
+					}
+					else
+					{
+						dg_main.addStatus(dg_main.row, "update");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-deselect">
+				<![CDATA[
+					if( dg_main.row < dg_main.fixedRows )
+					{
+						for( var i=dg_main.fixedRows; i<dg_main.rows; i++ )
+						{
+							dg_main.removeStatus(i, "update");
+						}
+					}
+					else
+					{
+						dg_main.removeStatus(dg_main.row, "update");		
+					}
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="dg_upload" nodeset="/root/resData/resForm/gd_upload/record" visibility="hidden" scroll="both" caption="전표번호^매체^현영업" colsep="#" colwidth="100, 60, 80" explorerbar="sort" extendlastcol="scroll" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:380px; width:926px; height:304px; ">
+			<!--datagrid id="dg_upload" nodeset="/root/resData/resForm/gd_upload/record" visibility="hidden" scroll="both" caption="게재년^게재일^전표번호^매체^광고주명^면^단^CM^행^색도^단가^광고료^부가세^미수총액^대행사명^대행료^지사명^요율^수수료^영업^관리^현영업^섹션명^게재구분^판구분^업종코드^업종명^그룹사^광고내용^게재량^사업자번호" colsep="#" colwidth="40, 60, 100, 60, 120, 40, 40, 40, 40, 50, 80, 90, 80, 90, 120, 90, 450, 40, 80, 80, 80, 80, 80, 60, 60, 50, 60, 60, 100, 50, 80" explorerbar="sort" extendlastcol="scroll" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:380px; width:926px; height:304px; ">
+			<col ref="pubc_yy"/>
+			<col ref="pubc_dt"/>
+			<col ref="pubc_slip_no"/>
+			<col ref="medi_nm"/>
+			<col ref="dlco_nm"/>
+			<col ref="pubc_side"/>
+			<col ref="dn"/>
+			<col ref="cm"/>
+			<col ref="arow"/>
+			<col ref="chro_clsf"/>
+			<col ref="uprc"/>
+			<col ref="advt_fee"/>
+			<col ref="vat"/>
+			<col ref="misu_tot_amt"/>
+			<col ref="agn"/>
+			<col ref="fee"/>
+			<col ref="hndl_plac_nm"/>
+			<col ref="rate"/>
+			<col ref="coms"/>
+			<col ref="slcrg_pers_nm"/>
+			<col ref="mchrg_pers_nm"/>
+			<col ref="cslcrg_pers_nm"/>
+			<col ref="sect_nm"/>
+			<col ref="pubc_clsf"/>
+			<col ref="edt_clsf"/>
+			<col ref="indt_clsf"/>
+			<col ref="indt_clsf_nm"/>
+			<col ref="grp_cmpy_cd"/>
+			<col ref="advt_cont"/>
+			<col ref="pubc_cnt"/>
+			<col ref="ern_no"/-->
+			<col ref="pubc_slip_no"/>
+			<col ref="medi_nm"/>
+			<col ref="cslcrg_pers_nm"/>
+		</datagrid>
+		<button id="btn_update" class="btn02" crud="D" style="left:694px; top:40px; width:50px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( chkSelectYN(dg_main) )
+						{
+							if( windowConfirm("저장 하시겠습니까?") )
+							{
+								//alert(dg_list.getUpdateData("insert"));
+								model.setValue("/root/reqData/multiUpdateData", dg_main.getUpdateData("update"));
+								model.send("ad_pub_3620_a");
+								if( submit_completed() )
+								{
+									loadData();
+								}
+							}
+						}
+				]]>
+			</script>
+		</button>
+		<caption id="cpt_pubc_slip_no" class="list_cap01" style="left:645px; top:70px; width:80px; height:28px; ">전표번호</caption>
+		<input id="inp_pubc_slip_no" ref="/root/reqData/pubc_slip_no" navindex="6" autonext="false" format="999-99999999-9999" style="left:730px; top:75px; width:200px; height:18px; "/>
+		<input id="inp_slcrg_pers_nm" ref="/root/reqData/slcrg_pers_nm" navindex="5" imemode="hangul" inputtype="button" caption="영업담당" crud="R" style="left:512px; top:75px; width:128px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					// HD_COM_1000 XRW CALL
+					searchEmpno("setSlcrgPers", "/root/resData/resForm/slcrg_pers", "/root/resData/resForm/slcrg_pers_nm");
+					var emp_no = model.getValue("/root/resData/resForm/slcrg_pers");
+					
+					if( emp_no != "" ){
+						// ad_co_9009_s DB CALL
+						findDept(emp_no, otp_dept_cd, otp_dept_nm);
+					}
+					else{
+						otp_dept_cd.value	= "";
+						otp_dept_nm.value	= "";
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if( event.keyCode == 13 ){
+						findEmpNoByName("setSlcrgPers", inp_slcrg_pers_nm.currentText, inp_slcrg_pers, inp_slcrg_pers_nm);		
+	
+						var emp_no = model.getValue("/root/resData/resForm/slcrg_pers");
+						if( emp_no != "" ){
+							findDept(emp_no, otp_dept_cd, otp_dept_nm);
+						}
+						else{
+							otp_dept_cd.value	= "";
+							otp_dept_nm.value	= "";
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					findEmpNoByName("setSlcrgPers", inp_slcrg_pers_nm.currentText, inp_slcrg_pers, inp_slcrg_pers_nm);
+	
+					var emp_no = model.getValue("/root/resData/resForm/slcrg_pers");
+					if( emp_no != "" ){
+						findDept(emp_no, otp_dept_cd, otp_dept_nm);
+					}
+					else{
+						otp_dept_cd.value	= "";
+						otp_dept_nm.value	= "";
+					}
+				]]>
+			</script>
+		</input>
+		<input id="inp_slcrg_pers" ref="/root/reqData/slcrg_pers" navindex="4" caption="영업담당" appearance="input" style="left:437px; top:75px; width:70px; height:18px; text-align:left; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					commonSubmission("9005", inp_slcrg_pers.currentText,  inp_slcrg_pers, inp_slcrg_pers_nm);	
+					var emp_no = model.getValue("/root/resData/resForm/slcrg_pers");
+					if( emp_no != "" ){
+						findDept(emp_no, otp_dept_cd, otp_dept_nm);
+					}
+					else{
+						otp_dept_cd.value 	= "";
+						otp_dept_nm.value 	= "";
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if( event.keyCode == 13 ){
+						commonSubmission("9005", inp_slcrg_pers.currentText,  inp_slcrg_pers, inp_slcrg_pers_nm);		
+						var emp_no = model.getValue("/root/resData/resForm/slcrg_pers");
+						if( emp_no != "" ){
+							findDept(emp_no, otp_dept_cd, otp_dept_nm);
+						}
+						else{
+							otp_dept_cd.value	= "";
+							otp_dept_nm.value	= "";
+						}
+					}
+				]]>
+			</script>
+		</input>
+		<caption id="caption1" class="list_cap01" style="left:354px; top:70px; width:80px; height:28px; ">담당자</caption>
+	</xhtml:body>
+</xhtml:html>

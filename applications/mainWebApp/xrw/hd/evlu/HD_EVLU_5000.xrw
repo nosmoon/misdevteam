@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>파견직(MIS) - 평가기준정보 관리화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<tms_clsf>
+								<item>
+								</item>
+							</tms_clsf>
+							<evlu_step_clsf>
+								<item>
+								</item>
+							</evlu_step_clsf>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<search_dt_fr/>
+							<search_dt_to/>
+						</searchData>
+						<reqForm>
+							<evlu_yy/>
+							<tms_clsf/>
+						</reqForm>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData1>
+							<record>
+								<rnum/>
+								<evlu_yy/>
+								<tms_clsf/>
+								<evlu_obj_frdt/>
+								<evlu_obj_todt/>
+								<remk/>
+								<db_status/>
+							</record>
+						</gridData1>
+						<msgData/>
+						<gridData2>
+							<record>
+								<rnum/>
+								<evlu_yy/>
+								<tms_clsf/>
+								<evlu_step_clsf/>
+								<frdt/>
+								<todt/>
+								<remk/>
+							</record>
+						</gridData2>
+						<grid1Focus/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//콤보박스 생성
+					model1.send("hd_evlu_5000_m");
+					model1.copyNode("/root/initData/comboSet/tms_clsf", "/root/dataSet/CURLIST1");
+					model1.copyNode("/root/initData/comboSet/evlu_step_clsf", "/root/dataSet/CURLIST2");
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					//현재일자 초기값 설정
+					var currDate = new Date();
+					model1.setValue("/root/reqData/searchData/search_dt_fr",currDate.getYear()-1);
+					model1.setValue("/root/reqData/searchData/search_dt_to",currDate.getYear());
+					//model1.setValue("/root/reqData/searchData/search_dt_fr","2008");
+					//model1.setValue("/root/reqData/searchData/search_dt_to","2008");
+					//그리드 첫행 제거
+					model1.removeNode("/root/resData/gridData1/record");
+					model1.removeNode("/root/resData/gridData2/record");
+					model1.refresh();
+					//버튼토글
+					button6.disabled = true;
+					button7.disabled = true;
+					button8.disabled = true;
+					if(!commReqCheck("group1")) return;
+					searchList1();
+				]]>
+			</script>
+			<submission id="hd_evlu_5000_m" action="/servlet/hd/evlu/5000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_5001_l" action="/servlet/hd/evlu/5001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_5002_a" action="/servlet/hd/evlu/5002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/tempData"/>
+			<submission id="hd_evlu_5003_l" action="/servlet/hd/evlu/5003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+			<submission id="hd_evlu_5004_a" action="/servlet/hd/evlu/5004" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//선택 로우 삭제.
+				function resetCol(row){
+					for(var i = 1; i < datagrid1.cols ; i++){
+				    		datagrid1.valueMatrix(row, i) = "";
+				    	}
+				}
+				//datagrid1 비고 입력함수
+				function setRemk1(remk){
+					var preRemk = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk"));
+					var nxtRemk = model1.getValue("/root/reqData/fwdData/resRemk");
+					datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")) = model1.getValue("/root/reqData/fwdData/resRemk");
+					if(datagrid1.rowStatus(datagrid1.row)==0){
+						if(preRemk!=nxtRemk){
+							datagrid1.rowStatus(datagrid1.row) = 2;
+						}
+					}
+				}
+				//평가년도별 기준정보 목록생성
+				function searchList1(){
+					//기존의 노드를 모두 초기화
+					model1.removeNode("/root/DataSet");
+					model1.removeNode("/root/resData/gridData1");
+					model1.makeNode("/root/resData/gridData1");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_5001_l");	
+					model1.copyNode("/root/resData/gridData1","/root/dataSet/CURLIST");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						datagrid1.isReadOnly(i,datagrid1.colRef("evlu_yy"),i,datagrid1.colRef("tms_clsf")) = true;
+						//리드온니상태로만듬(평가년도~차수구분)까지
+					}
+					button6.disabled = true;
+					button7.disabled = true;
+					button8.disabled = true;
+					model1.removeNode("/root/resData/gridData2");
+					model1.makeNode("/root/resData/gridData2");
+					model1.refresh();
+					rowCnt.value = "총 "+ (parseInt(datagrid1.rows)- 1) + " 건";
+				}
+				//평가구분별 일정정보 목록생성
+				function searchList2(){
+					//기존의 노드를 모두 초기화
+					model1.removeNode("/root/DataSet");
+					model1.removeNode("/root/resData/gridData2");
+					model1.makeNode("/root/resData/gridData2");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_5003_l");	
+					model1.copyNode("/root/resData/gridData2","/root/dataSet/CURLIST");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					for(var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+						datagrid2.isReadOnly(i,datagrid2.colRef("evlu_yy"),i,datagrid2.colRef("evlu_stop_clsf")) = true;
+					}
+					rowCnt2.value = "총 "+ (parseInt(datagrid2.rows)- datagrid2.fixedRows) + " 건";
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,69;2,102;2,746;2,438;2,445;" style="font-family:굴림; ">
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_ActionBtn" style="left:10px; top:39px; width:926px; height:21px; ">
+			<button id="button1" class="btn03" style="left:863px; top:0px; width:63px; height:21px; background-image:../../../images/btn3.gif; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:701px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(!commReqCheck("group1")) return;
+						searchList1();
+					]]>
+				</script>
+			</button>
+			<button id="button11" class="btn02" style="left:756px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!rowDelSubmit(datagrid1)){return;}
+						if(window.alert("선택한 기준정보의 모든 평가 데이터가 삭제됩니다.\n진행 하시겠습니까?", "확인", 1)!=1) return;
+						if(datagrid1.rows==datagrid1.fixedRows){
+							alert("삭제할 데이터가 없습니다!!");
+							return;
+						}
+						if(!commGridReqCheck("datagrid1")) return;
+						if(window.alert("삭제 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_5002_a");
+						if(submit_completed()){
+							model1.removeNode("/root/dataSet");
+							searchList1();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button12" class="btn02" style="left:810px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!rowInSubmit(datagrid1)){return;}
+						if(!commGridReqCheck("datagrid1")) return;
+						
+						if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_5002_a");
+						if(submit_completed()){
+							model1.removeNode("/root/dataSet");
+							searchList1();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:94px; width:926px; height:5px; "/>
+		<!-- 검색조건 항목 -->
+		<group id="group1" style="left:0px; top:64px; width:960px; height:30px; ">
+			<caption id="captoin1" class="list_cap02" style="left:10px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption2" class="list_cap01" style="left:10px; top:0px; width:100px; height:26px; ">평가년도</caption>
+			<input id="input1" ref="/root/reqData/searchData/search_dt_fr" class="req" editable="false" inputtype="date" format="yyyy" caption="평가범위" style="left:115px; top:4px; width:100px; height:18px; "/>
+			<caption id="caption3" style="left:225px; top:4px; width:15px; height:20px; ">~</caption>
+			<input id="input2" ref="/root/reqData/searchData/search_dt_to" class="req" editable="false" inputtype="date" format="yyyy" caption="평가범위" style="left:255px; top:4px; width:100px; height:17px; "/>
+		</group>
+		<!-- 평가년도별 차수등록 -->
+		<caption id="caption4" class="tit02" style="left:10px; top:112px; width:926px; height:20px; ">평가년도별 차수등록</caption>
+		<button id="button3" class="btn_grid05" visibility="hidden" style="left:90px; top:97px; width:75px; height:17px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					if(datagrid1.rows==2){
+						alert("저장할 데이터가 없습니다!!");
+						return;
+					}
+					if(!commGridReqCheck("datagrid1")) return;
+					if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+					model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					model1.send("hd_evlu_5002_a");
+					if(submit_completed()){
+						model1.removeNode("/root/dataSet");
+						searchList1();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn_grid05" visibility="hidden" style="left:10px; top:97px; width:75px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(window.alert("선택한 기준정보의 모든 평가 데이터가 삭제됩니다.\n진행 하시겠습니까?", "확인", 1)!=1) return;
+					datagrid1.addStatus(datagrid1.row,"delete");
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn_grid05" style="left:856px; top:112px; width:75px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					datagrid1.addItem();
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" overflow="hidden" caption="No^평가년도^차수구분^평가대상기간^평가대상기간^비고^db_status|No^평가년도^차수구분^시작일^종료일^비고^db_status" colsep="#" colwidth="40, 100, 100, 100, 100, 470, 1" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:135px; width:926px; height:257px; ">
+			<col ref="rnum" type="output"/>
+			<col class="req" ref="evlu_yy" type="inputdate" format="yyyy"/>
+			<col class="req" ref="tms_clsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/tms_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="evlu_obj_frdt" type="inputdate"/>
+			<col class="req" ref="evlu_obj_todt" type="inputdate"/>
+			<col ref="remk" type="text" style="text-align:left; "/>
+			<col ref="db_status"/>
+			<col ref="db_status" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					rowStatus(datagrid1);
+					if(datagrid1.col == datagrid1.colRef("remk")){
+						model1.removenode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/maintitle");
+						model1.makeNode("/root/reqData/fwdData/remk");
+						model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+						model1.makeNode("/root/reqData/fwdData/maxlength");
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.setValue("/root/reqData/fwdData/maintitle","평가년도별 차수등록 비고");
+						model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")));
+						model1.setValue("/root/reqData/fwdData/maxlength", "5000");
+						model1.setValue("/root/reqData/fwdData/func_nm","setRemk1");
+						window.load("/xrw/hd/evlu/HD_EVLU_1010.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if(datagrid1.col == datagrid1.colRef("evlu_yy")||datagrid1.col == datagrid1.colRef("tms_clsf")||datagrid1.col == datagrid1.colRef("rnum")){
+						if(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("db_status"))=="1"){
+							//alert(datagrid1.row-1);
+							model1.setValue("/root/resData/grid1Focus",datagrid1.row-1);
+							model1.setValue("/root/reqData/reqForm/evlu_yy",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("evlu_yy")));
+							model1.setValue("/root/reqData/reqForm/tms_clsf",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("tms_clsf")));
+							searchList2();
+							button6.disabled = false;
+							button7.disabled = false;
+							button8.disabled = false;
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(datagrid1.col == datagrid1.colRef("evlu_yy") || datagrid1.col == datagrid1.colRef("tms_clsf")){
+						for(var i=1; i<=(datagrid1.rows-datagrid1.fixedRows); i++){
+							if(datagrid1.row==i) continue;
+							if(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("evlu_yy")) == datagrid1.valueMatrix(i,datagrid1.colRef("evlu_yy"))
+								&& datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("tms_clsf")) == datagrid1.valueMatrix(i,datagrid1.colRef("tms_clsf"))){
+								alert("중복된 평가년도와 차수구분 선택값이 존재합니다.");
+								resetCol(datagrid1.row);
+								datagrid1.rowStatus(datagrid1.row) = "1";	//상태값을 "1"로 바꿔줘야 행저장, 삭제시 사라짐.
+								return;
+							}
+						}
+					}
+					if(datagrid1.col == datagrid1.colRef("evlu_obj_frdt") || datagrid1.col == datagrid1.colRef("evlu_obj_todt")){
+						var chkRefFrom =  "/root/resData/gridData1/record["+ (datagrid1.row-1) +"]/evlu_obj_frdt";
+						var chkRefTo = "/root/resData/gridData1/record["+ (datagrid1.row-1) +"]/evlu_obj_todt";
+//						if(commGhkTerm(chkRefFrom,chkRefTo)){
+//							alert("시작일은 종료일보다 클 수 없습니다.");
+//							model1.setValue("/root/resData/gridData1/record["+ (datagrid1.row-1) +"]/evlu_obj_frdt","");
+//							model1.setValue("/root/resData/gridData1/record["+ (datagrid1.row-1) +"]/evlu_obj_todt","");
+//							model1.refresh();
+//						}
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption5" class="tit02" style="left:10px; top:455px; width:926px; height:20px; ">평가일정관리</caption>
+		<button id="button06" class="btn_grid05" visibility="hidden" style="left:90px; top:410px; width:75px; height:17px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					if(!commGridReqCheck("datagrid2")) return;
+					if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+					model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+					model1.send("hd_evlu_5004_a");
+					if(submit_completed()){
+						//alert(model1.getValue("/root/dataSet/msg"));
+						model1.removeNode("/root/dataSet");
+						searchList2();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button07" class="btn_grid05" visibility="hidden" style="left:10px; top:410px; width:75px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					datagrid2.addStatus(datagrid2.row,"delete");
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn_grid05" style="left:856px; top:456px; width:75px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					datagrid2.addItem();
+					datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("evlu_yy")) = model1.getValue("/root/reqData/reqForm/evlu_yy");
+					datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("tms_clsf")) = model1.getValue("/root/reqData/reqForm/tms_clsf");
+					datagrid2.isReadOnly(datagrid2.row,datagrid2.colRef("remk")) = true;
+					datagrid2.isReadOnly(datagrid2.row,datagrid2.colRef("tms_clsf")) = true;
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="No^평가년도^차수구분^일정(단계)구분^시작일^종료일^비고" colsep="#" colwidth="40, 80, 80, 100, 100, 100, 440" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:480px; width:926px; height:185px; ">
+			<col ref="rnum"/>
+			<col class="req" ref="evlu_yy"/>
+			<col class="req" disabled="true" ref="tms_clsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/tms_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="evlu_step_clsf" type="combo" caption="일정(단계)구분" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/evlu_step_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="frdt" type="inputdate" caption="시작일"/>
+			<col class="req" ref="todt" type="inputdate" caption="종료일"/>
+			<col disabled="true" ref="remk" type="output" style="text-align:left; vertical-align:top; "/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(datagrid2.col == datagrid2.colRef("evlu_step_clsf")){
+						for(var i=1; i<=(datagrid2.rows-datagrid2.fixedRows); i++){
+							if(datagrid2.row==i) continue;
+							if(datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("evlu_step_clsf")) == datagrid2.valueMatrix(i,datagrid2.colRef("evlu_step_clsf"))){
+								alert("중복된 일정(단계)구분 선택값이 존재합니다.");
+								datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("evlu_step_clsf")) = "";
+								datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("frdt")) = "";
+								datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("todt")) = "";
+								datagrid2.rowStatus(datagrid2.row) = "1";	//상태값을 "1"로 바꿔줘야 행저장, 삭제시 사라짐.
+								return;
+							}
+						}
+					}
+					if(datagrid2.col == datagrid2.colRef("frdt") || datagrid2.col == datagrid2.colRef("todt")){
+						var chkRefFrom =  "/root/resData/gridData2/record["+ (datagrid2.row) +"]/frdt";
+						var chkRefTo = "/root/resData/gridData2/record["+ (datagrid2.row) +"]/todt";
+//						if(!commGhkTerm(chkRefFrom,chkRefTo)){
+//							alert("시작일은 종료일보다 클 수 없습니다.");
+//							model1.setValue("/root/resData/gridData2/record["+ (datagrid2.row) +"]/frdt","");
+//							model1.setValue("/root/resData/gridData2/record["+ (datagrid2.row) +"]/todt","");
+//							model1.refresh();
+//						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					rowStatus(datagrid2);
+				]]>
+			</script>
+		</datagrid>
+		<group id="group2" style="left:10px; top:429px; width:926px; height:23px; ">
+			<button id="button7" class="btn02" style="left:818px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!commGridReqCheck("datagrid2")) return;
+						if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+						model1.send("hd_evlu_5004_a");
+						if(submit_completed()){
+							//alert(model1.getValue("/root/dataSet/msg"));
+							model1.removeNode("/root/dataSet");
+							searchList2();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:873px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!rowInSubmit(datagrid2)){return;}
+						if(!commGridReqCheck("datagrid2")) return;
+						var grid1Focus = model1.getValue("/root/resData/grid1Focus");
+						for(var i=1; i<=(datagrid2.rows-datagrid2.fixedRows); i++){
+							//하단 시작일과 상단 시작일 비교
+							/* 정사원 의 일자와 같게 하기 위하여 수정 함 
+							if(commGhkTerm( "/root/resData/gridData1/record["+grid1Focus+"]/evlu_obj_frdt","/root/resData/gridData2/record["+i+"]/frdt")){
+								;
+							}else{
+								alert("일정정보의 시작일이 평가대상기간의 시작일보다 작습니다. 범위를 확인하세요.");
+								return;
+							}
+							//하단단 종료일과 하단 종료일 비교
+							if(!commGhkTerm("/root/resData/gridData2/record["+i+"]/todt", "/root/resData/gridData1/record["+grid1Focus+"]/evlu_obj_todt")){
+								alert("일정정보의 종료일이 평가대상기간의 종료일보다 큽니다. 범위를 확인하세요.");
+								return;
+							}
+							*/
+							//시작일 종료일 범위체크
+							if(!commGhkTerm("/root/resData/gridData2/record["+i+"]/frdt","/root/resData/gridData2/record["+i+"]/todt")){
+								alert("일정정보의 시작일과 종료일 설정이 올바르지 않습니다.");
+								return;
+							}
+						}
+						if(!commGridReqCheck("datagrid2")) return;
+						if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+						model1.send("hd_evlu_5004_a");
+						if(submit_completed()){
+							//alert(model1.getValue("/root/dataSet/msg"));
+							model1.removeNode("/root/dataSet");
+							searchList2();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="rowCnt2" style="left:800px; top:675px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="rowCnt" style="left:805px; top:395px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

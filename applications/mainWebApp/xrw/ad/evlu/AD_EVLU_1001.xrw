@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>비고 입력</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+						</searchData>
+						<reqForm>
+							<remk/>
+							<remkbyte/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+						</gridData>
+						<msg/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//제목생성
+					maintitle.text = model1.getValue("/root/reqData/fwdData/maintitle");
+					//기존내용 생성
+					model1.setValue("/root/reqData/reqForm/remk",model1.getValue("/root/reqData/fwdData/remk"));
+					model1.refresh();
+					//문자열 길이셋팅
+					setLength();
+					//readonly 일 경우 객체설정
+					var readonly = model1.getValue("/root/reqData/fwdData/readonly");
+					if(readonly == "true"){
+						button2.visible = false;
+						textarea1.attribute("editable") = "false";
+					}
+					//포커싱
+					model1.setFocus("textarea1");
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function setLength(){
+					var remkCont = textarea1.currentText;
+					var length = calculate_msglen(remkCont);
+					var limitLength = length/2;
+					limitLength = parseInt(limitLength);
+					model1.setValue("/root/reqData/reqForm/remkbyte",limitLength);
+					output1.refresh();
+				}
+				
+				function checkByteCnt(restLength){
+                	var remk_chk = model1.getValue("/root/reqData/reqForm/remk");
+                	var length = calculate_msglen(remk_chk);
+					
+				    if( length > restLength){
+						alert("최대 한글["+(restLength/2)+"], 영문["+restLength+"]글자까지 입력하실 수 있습니다. \r\n초과된 글자는 자동으로 삭제됩니다.");
+				        var retRemk = fncom_chk_strlength_cut(restLength, remk_chk);
+				        model1.setValue("/root/reqData/reqForm/remk",retRemk);
+				        model1.refresh();
+				        return;
+				        }
+					}
+					
+				function calculate_msglen(message){
+					var nbytes = 0;
+					for (i=0; i<message.length; i++){
+						var ch = message.charAt(i);
+						if(escape(ch).length > 4){
+							nbytes += 2;
+						}else if(ch != '\r'){
+							nbytes++;
+						}
+					}
+					return nbytes;
+				}
+						
+				function fncom_chk_strlength_cut(vn_maxlength, vn_str){
+					var vn_sumlength=0;
+					var vn_restr='';
+					for(var i=0;i < vn_str.length; i++){
+						if( escape(vn_str.charAt(i)).length > 3 ){
+							vn_length = 2;
+						}else if (vn_str.charAt(i) == '<' || vn_str.charAt(i) == '>'){
+							vn_length = 4;
+						}else{
+							vn_length = 1 ;
+						}
+						if ( vn_maxlength < (vn_sumlength + vn_length) ) { break; }
+						vn_sumlength += vn_length;
+						vn_restr += vn_str.charAt(i);
+					}
+					return (vn_restr);
+				} 
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;2,29;2,39;2,746;2,92;1,438;2,364;2,342;" style="font-family:굴림; ">
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<group id="group_ActionBtn" style="left:10px; top:9px; width:428px; height:32px; ">
+			<button id="button1" class="btn02" style="left:375px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						window.close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:320px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						window.opener.model1.setValue("/root/reqData/fwdData/resRemk",model1.getValue("/root/reqData/reqForm/remk"));
+						var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+						eval("window.opener.javascript." + retFunc + "()");
+						window.close();
+					]]>
+				</script>
+			</button>
+			<caption id="maintitle" class="tit01" style="left:0px; top:0px; width:300px; height:20px; ">제목 - Main Title</caption>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:49px; width:425px; height:5px; "/>
+		<!-- 검색조건 항목 -->
+		<!-- 평가년도별 차수등록 -->
+		<textarea id="textarea1" ref="/root/reqData/reqForm/remk" editable="true" imemode="hangul" style="left:10px; top:71px; width:428px; height:272px; text-align:left; vertical-align:top; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					setLength();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					checkByteCnt(parseInt(model1.getValue("/root/reqData/fwdData/maxlength")));
+					textarea1.dispatch("onkeyup");
+					model1.setfocus("textarea1",true);
+					return;
+				]]>
+			</script>
+		</textarea>
+		<output id="output1" ref="/root/reqData/reqForm/remkbyte" style="left:336px; top:346px; width:70px; height:18px; "/>
+		<caption id="caption1" style="left:409px; top:346px; width:30px; height:20px; ">byte</caption>
+	</xhtml:body>
+</xhtml:html>

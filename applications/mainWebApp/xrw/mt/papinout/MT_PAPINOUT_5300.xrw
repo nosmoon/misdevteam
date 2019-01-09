@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<session>
+						</session>
+					</initData>
+					<reqData>
+						<searchData>
+							<issu_dt_fr/>
+							<issu_dt_to/>
+							<hdqt_paper_use_yn/>
+							<issu_gubun/>
+						</searchData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<issu_dt/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="mt_papinout_5400_l" action="/mt/papinout/5400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_papinout_5300_l" action="/mt/papinout/5300" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function initBody() {
+					model1.copyNode("/root/initData/pageInfo",parent.root.initData.pageInfo);
+					
+					combo2.select(0);
+					funDataGrid();
+				}
+				
+				
+				
+				function funDataGrid() {
+					var iColCnt    = 0;	//공장cnt
+					var sRefName   = "";
+					var sCaption   = "";
+					var sXpath     = "";
+					
+					model1.send("mt_papinout_5400_l");
+					iColCnt = parseInt(model1.getValue("/root/tempData/fac_clsf/totalcnt"));
+
+					//datagrid Caption 설정
+					sCaption = "발행일자" + funCaption(iColCnt, 1);
+					
+//					if(datagrid1.cols > 1) {
+//						for(var i=0; i <= datagrid1.cols; i++) {
+//							datagrid1.removeColumn();
+//						}
+//					}
+					
+					for(var i=2; i < (iColCnt + 2); i++) {
+						datagrid1.removeColumn();
+					}
+					
+					datagrid1.refresh();
+										
+					
+					//공장cnt 만큼 node 및 컬럼 추가
+					for(var i=1; i <= iColCnt; i++) {
+						
+						sRefName = "fac_" + model1.getValue("/root/tempData/fac_clsf/cd["+i+"]");
+						sXpath = "/root/resData/gridData/record/" + sRefName;
+						model1.makeNode(sXpath);
+						datagrid1.addColumn("ref:"+sRefName+";type:output;format:#,###.99;", false);
+						
+					}
+					
+					datagrid1.caption = sCaption;
+					datagrid1.nodeset = "/root/resData/gridData/record";
+					datagrid1.refresh();
+					
+					//width size
+					for(var i=1; i < datagrid1.cols; i++)  {
+										
+						datagrid1.colWidth(i) = 160;
+					}
+					
+					datagrid1.refresh();
+					
+					datagrid1.visible = true;
+				}
+				
+				//caption 생성
+				function funCaption(iColCnt, iRowIdx) {
+					var sCaption = "";
+					
+					
+					for(var i=1; i<= iColCnt; i++) {
+						sCaption = sCaption + "^" + model1.getValue("/root/tempData/fac_clsf/cdnm[" + i + "]");
+					}
+					
+					
+					return sCaption;
+					
+				}
+				
+				
+				function funSearch() {
+					var sValue = "";
+					
+					sValue = combo2.value;
+					
+					if(sValue == "01") {	//발행일자
+						if(!commReqCheck("group3")) return;
+					} else if(sValue == "02") {	//발행월별
+						if(!commReqCheck("group4")) return;
+					} else if(sValue == "03") {	//발행년도
+						if(!commReqCheck("group5")) return;
+					}
+					
+					//model1.copyNode("/root/resData/gridData","");
+					
+					model1.send("mt_papinout_5300_l");
+					model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+					
+					datagrid1.refresh();
+				}
+				
+				function funReset() {
+					model1.reset();
+					//model1.copyNode("/root/resData/gridData/record","");
+					initBody();
+				}
+				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="890" pageheight="575" guideline="1,10;1,879;">
+		<group id="group1" class="gro_sel" style="left:10px; top:20px; width:870px; height:27px; ">
+			<button id="btnA1" class="btn02" style="left:710px; top:3px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:763px; top:3px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funReset();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:816px; top:3px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						parent.window.javaScript.winClose();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" class="gro_sel" style="left:10px; top:53px; width:870px; height:32px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:870px; height:24px; text-align:center; "/>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:195px; height:24px; text-align:center; "/>
+			<caption id="caption12" tyle="left:644px; top:48px; width:17px; height:16px; text-align:center;">~</caption>
+			<select1 id="combo2" ref="/root/reqData/searchData/issu_gubun" appearance="minimal" style="left:23px; top:3px; width:145px; height:18px; ">
+				<choices>
+					<item>
+						<label>발행일자</label>
+						<value>01</value>
+					</item>
+					<item>
+						<label>발행년월</label>
+						<value>02</value>
+					</item>
+					<item>
+						<label>발행년도</label>
+						<value>03</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var sValue = "";
+						
+						model1.setValue("/root/reqData/searchData/issu_dt_fr","");	//초기화
+						model1.setValue("/root/reqData/searchData/issu_dt_to","");	//초기화
+						input1.refresh();
+						input2.refresh();
+						input3.refresh();
+						input4.refresh();
+						input5.refresh();
+						input6.refresh();
+						
+						
+						sValue = combo2.value;
+						
+						if(sValue == "01") {
+							group3.visible = true;
+							group4.visible = false;
+							group5.visible = false;
+						} else if(sValue == "02") {
+							group3.visible = false;
+							group4.visible = true;
+							group5.visible = false;
+						} else if(sValue == "03") {
+							group3.visible = false;
+							group4.visible = false;
+							group5.visible = true;
+						}
+					]]>
+				</script>
+			</select1>
+			<caption id="caption6" class="list_cap01" style="left:470px; top:0px; width:105px; height:24px; text-align:center; ">파율구분</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/hdqt_paper_use_yn" appearance="minimal" style="left:580px; top:3px; width:145px; height:18px; ">
+				<choices>
+					<item>
+						<label>본사용지 사용</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>본사용지외 사용</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<group id="group3" style="left:205px; top:53px; width:230px; height:25px; ">
+			<caption id="caption13" style="left:109px; top:3px; width:15px; height:18px; ">~</caption>
+			<input id="input1" ref="/root/reqData/searchData/issu_dt_fr" class="req" inputtype="date" caption="발행일자" style="left:4px; top:3px; width:100px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/issu_dt_to" class="req" inputtype="date" caption="발행일자" style="left:129px; top:3px; width:100px; height:18px; "/>
+		</group>
+		<group id="group4" visibility="hidden" style="left:205px; top:53px; width:230px; height:25px; ">
+			<caption id="caption14" style="left:109px; top:3px; width:15px; height:18px; ">~</caption>
+			<input id="input3" ref="/root/reqData/searchData/issu_dt_fr" class="req" format="yyyy-mm" caption="발행월별" style="left:4px; top:3px; width:100px; height:18px; "/>
+			<input id="input4" ref="/root/reqData/searchData/issu_dt_to" class="req" format="yyyy-mm" caption="발행월별" style="left:129px; top:3px; width:100px; height:18px; "/>
+		</group>
+		<group id="group5" visibility="hidden" style="left:205px; top:53px; width:230px; height:25px; ">
+			<caption id="caption15" style="left:109px; top:3px; width:15px; height:18px; ">~</caption>
+			<input id="input5" ref="/root/reqData/searchData/issu_dt_fr" class="req" format="yyyy" caption="발행년도별" style="left:4px; top:3px; width:100px; height:18px; "/>
+			<input id="input6" ref="/root/reqData/searchData/issu_dt_to" class="req" format="yyyy" caption="발행년도별" style="left:129px; top:3px; width:100px; height:18px; "/>
+		</group>
+		<datagrid id="datagrid1" visibility="hidden" caption="caption1" colsep="^" colwidth="140" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:90px; width:870px; height:375px; ">
+			<col ref="issu_dt"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

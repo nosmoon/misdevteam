@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_clsf>
+						</comboSet>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<frdt/>
+							<todt/>
+							<!--<medi_clsf>100</medi_clsf>2012.01.19-->
+							<medi_clsf/>
+							<pay_clsf>0</pay_clsf>
+							<basi_dt/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+						<flag/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<checked/>
+								<pay_clsf_nm/>
+								<dlco_cd/>
+								<dlco_nm/>
+								<medi_nm/>
+								<tax_stmt_no/>
+								<make_dt/>
+								<rcpm_tot_amt/>
+								<rcpm_mtry_dt/>
+								<rcpm_clsf/>
+								<mtry_dt/>
+								<pay_dt/>
+								<fee_pay_stat/>
+								<pay_clsf/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.setValue("/root/reqData/searchData/basi_dt", getCurrentDate());
+				inp_basi_dt.refresh();
+				
+				model.setValue("/root/reqData/searchData/frdt", getCurrentMonth());
+				inp_frdt.refresh();
+				
+				model.setValue("/root/reqData/searchData/todt", getCurrentMonth());
+				inp_todt.refresh();
+				
+				/** 2012.01.19 **/
+				model.send("ad_tax_1700_m");
+				model.copyNode("/root/initData/comboSet/medi_clsf", "/root/tempData/medi_clsf");				
+				makeComboGubun("A", "/root/initData/comboSet/medi_clsf", "item", "label", "value");
+				combo1.refresh();
+				combo1.select(0);
+				/** 2012.01.19 **/
+				
+				
+				datagrid1.fixedcellcheckbox(0, datagrid1.colRef("checked"), false) = true;	
+				
+				
+				
+				]]>
+			</script>
+			<submission id="ad_tax_1700_m" action="/ad/tax/1700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<!-- 2012.01.19 -->
+			<submission id="ad_tax_1710_l" action="/ad/tax/1710" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+			<submission id="ad_tax_1720_a" action="/ad/tax/1720" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="ad_tax_1730_l" action="/ad/tax/1730" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function loadData(){
+/*				
+				for(var i=datagrid1.fixedCols; i<datagrid1.cols; i++){
+					datagrid1.isReadOnly(i, datagrid1.colRef("checked")) = false;
+				}	
+				datagrid1.refresh();
+*/							
+				model.send("ad_tax_1710_l");
+				if(submit_completed())	loadDataSet();
+			}	
+			
+			function loadDataSet()
+			{				
+				//datagrid1.allStyle("data", "background-color") = "#FFFFFF";
+				datagrid1.refresh();
+				
+				for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++)
+				{
+//					var pay_clsf = datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("pay_clsf"));//model.getValue("/root/resData/gridData/record["+i+"]/pay_clsf");
+					var pay_clsf = datagrid1.valueMatrix(i, datagrid1.colRef("pay_clsf"));
+					if(pay_clsf == "7")
+					{
+						/*
+						//세금계산서상태가 준비완료면 Row를 녹색으로
+						for(var j=datagrid1.fixedCols; j<datagrid1.cols; j++)
+						{
+							datagrid1.cellStyle("background-color", i, j) = "#CCFF66";	
+//								datagrid1.isReadOnly(i, datagrid1.colRef("checked")) = true;
+						}	
+						*/
+						datagrid1.cellStyle("background-color", i, datagrid1.colRef("pay_clsf_nm")) = "#CCFF66";	
+					}
+					else
+					{
+						datagrid1.cellStyle("background-color", i, datagrid1.colRef("pay_clsf_nm")) = "#FFFFFF";	
+					}
+					
+//					var fee_pay_stat = datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("fee_pay_stat"));//model.getValue("/root/resData/gridData/record["+i+"]/fee_pay_stat");
+					var fee_pay_stat = datagrid1.valueMatrix(i, datagrid1.colRef("fee_pay_stat"));
+					if(fee_pay_stat == "1")
+					{
+						//지불중지된 넘이면 바탕색 분홍
+						//alert("지불중지건");
+						datagrid1.cellStyle("background-color", i, datagrid1.colRef("dlco_nm")) = "#FA8C8C";	
+//						datagrid1.cellStyle("background-color", i, 4) = "#FF3399";	
+						datagrid1.isReadOnly(i, datagrid1.colRef("checked")) = true;
+					}
+					else
+					{
+						datagrid1.cellStyle("background-color", i, datagrid1.colRef("dlco_nm")) = "#FFFFFF";	
+						datagrid1.isReadOnly(i, datagrid1.colRef("checked")) = false;
+					}
+				}
+				datagrid1.refresh();
+			}	
+		]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,936;2,59;2,70;2,98;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:70px; width:926px; height:28px; "/>
+		<caption id="caption4" class="list_cap01" style="left:10px; top:70px; width:90px; height:28px; ">작성년월</caption>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:107px; width:926px; height:5px; "/>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption2" class="list_cap01" style="left:465px; top:70px; width:90px; height:28px; ">지불구분</caption>
+		<button id="button1" class="btn03" style="left:388px; top:40px; width:65px; height:21px; ">
+			<caption>준비</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					
+
+				if(!checkGridData(datagrid1)){
+					alert("처리할 데이타가 없습니다.");
+					return;
+				}
+									
+				var checked_cnt = 0;
+				for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+					var checked = datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+					if(checked == "Y"){
+						checked_cnt++;
+					}
+				}
+				
+				if(checked_cnt == 0){
+					alert("준비완료 처리건을 선택하세요.");
+					return;
+				}
+				
+				for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+					var checked = datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+					if(checked == "Y"){
+						var mtry_dt  	= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("mtry_dt"));//model.getValue("/root/resData/gridData/record["+i+"]/mtry_dt");
+						var pay_dt 		= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("pay_dt"));//model.getValue("/root/resData/gridData/record["+i+"]/pay_dt");
+/*						
+						if(mtry_dt == ""){	
+							alert("만기일자가 없습니다.");
+							model.setValue("/root/resData/gridData/record["+i+"]/checked", "N");
+							model.setFocus("datagrid1");
+							datagrid1.row = i;
+							datagrid1.col = datagrid1.colRef("mtry_dt");
+							datagrid1.editCell();			
+							return;
+						}
+*/						
+						if(pay_dt == ""){	
+							alert("준비일자가 없습니다.");
+//							model.setValue("/root/resData/gridData/record["+i+"]/checked", "N");
+							model.setFocus("datagrid1");
+							datagrid1.row = i;
+							datagrid1.col = datagrid1.colRef("pay_dt");
+							datagrid1.editCell();			
+							return;
+						}
+					}
+				}
+				
+				if(windowConfirm("만기일자를 입력하지 않으면 입금만기일자로 대체됩니다.\n계속하시겠습니까?")){
+					for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+						var checked = datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+						if(checked == "Y"){
+							datagrid1.addStatus(i, "update");
+						}else{
+							datagrid1.removeStatus(i, "update");
+						}
+					}
+					model.setValue("/root/reqData/flag", "U");
+					model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+					model.send("ad_tax_1720_a");
+					if(submit_completed()){
+						loadData();
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" style="left:330px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					var pay_clsf = model.getValue("/root/reqData/searchData/pay_clsf");
+					var basi_dt 	= model.getValue("/root/reqData/searchData/basi_dt");
+					
+					if(pay_clsf == "7" && basi_dt == ""){
+						alert("기준일자를 입력하세요.");
+						model.setFocus("inp_basi_dt");
+						return;
+					}
+					
+					loadData();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" style="left:459px; top:40px; width:52px; height:21px; ">
+			<caption>마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+
+
+				if(!checkGridData(datagrid1)){
+					alert("처리할 데이타가 없습니다.");
+					return;
+				}
+					
+				var checked_cnt = 0;
+				for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+					var checked = datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+					if(checked == "Y"){
+						checked_cnt++;
+					}
+				}
+			
+/*
+				if(checked_cnt == 0){
+					alert("마감 처리건을 선택하세요.");
+					return;
+				}				
+*/				
+				if(checked_cnt > 0){					
+					for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+						var checked	= datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");	
+						var pay_dt	= datagrid1.valueMatrix(i, datagrid1.colRef("pay_dt"));//model.getValue("/root/resData/gridData/record["+i+"]/pay_dt");	
+						var pay_clsf	= datagrid1.valueMatrix(i, datagrid1.colRef("pay_clsf"));//model.getValue("/root/resData/gridData/record["+i+"]/pay_clsf");						
+						if(checked == "Y" ){	
+							if(pay_dt == ""){
+								alert("마감대상이 아닙니다.");
+								datagrid1.valueMatrix(i, datagrid1.colRef("checked")) = "N";//model.setValue("/root/resData/gridData/record["+i+"]/checked", "N");
+								model.setFocus("datagrid1");
+								datagrid1.row = i;
+								datagrid1.col = 12;
+								datagrid1.editCell();			
+								return;
+							}
+						}
+					}				
+					if(windowConfirm("선택한 대상을 마감처리합니다. 계속하시겠습니까?")){
+						for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+							var checked = datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+							if(checked == "Y"){
+								datagrid1.addStatus(i, "update");
+							}else{
+								datagrid1.removeStatus(i, "update");
+							}
+						}
+						model.setValue("/root/reqData/flag", "M");
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_tax_1720_a");
+						if(submit_completed()){
+							loadData();
+						}					
+					}			
+				}else{
+
+					if(windowConfirm("준비대상 전부 마감처리합니다. 계속하시겠습니까?")){
+						for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+							var pay_clsf = datagrid1.valueMatrix(i, datagrid1.colRef("pay_clsf"));//model.getValue("/root/resData/gridData/record["+i+"]/pay_clsf");
+							var pay_dt 	= datagrid1.valueMatrix(i, datagrid1.colRef("pay_dt"));//model.getValue("/root/resData/gridData/record["+i+"]/pay_dt");
+							if(pay_clsf == "9" && pay_dt != "") {
+								datagrid1.addStatus(i, "update");
+							}else{
+								datagrid1.removeStatus(i, "update");
+							}
+						}
+						model.setValue("/root/reqData/flag", "M");
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_tax_1720_a");
+						if(submit_completed()){
+							loadData();
+						}
+					}						
+				}	
+					
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn03" style="left:517px; top:40px; width:65px; height:21px; ">
+			<caption>마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					
+				if(!checkGridData(datagrid1)){
+					alert("처리할 데이타가 없습니다.");
+					return;
+				}
+					
+				var checked_cnt = 0;
+				for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+					var checked = datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+					if(checked == "Y"){
+						checked_cnt++;
+					}
+				}
+
+				if(checked_cnt == 0){
+					alert("마감취소 처리건을 선택하세요.");
+					return;
+				}								
+				
+				if(checked_cnt > 0){			
+				
+					for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+						var checked 	= datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+						var pay_clsf = datagrid1.valueMatrix(i, datagrid1.colRef("pay_clsf"));//model.getValue("/root/resData/gridData/record["+i+"]/pay_clsf");
+						if(checked == "Y"){
+							if(pay_clsf != "7"){
+								alert("마감취소대상이 아닙니다.");
+								datagrid1.valueMatrix(i, datagrid1.colRef("checked")) = "N";//model.setValue("/root/resData/gridData/record["+i+"]/checked", "N");
+								model.setFocus("datagrid1");
+								datagrid1.row = i;
+								datagrid1.col = datagrid1.colRef("checked");
+								datagrid1.editCell();																		
+								return;
+							}
+						}
+					}
+														
+					if(windowConfirm("선택한 대상을 마감취소처리합니다. 계속하시겠습니까?")){
+						for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+							var checked = datagrid1.valueMatrix(i, datagrid1.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+							if(checked == "Y"){
+								datagrid1.addStatus(i, "update");
+							}else{
+								datagrid1.removeStatus(i, "update");
+							}
+						}
+						model.setValue("/root/reqData/flag", "C");
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_tax_1720_a");
+				
+						if(submit_completed()){
+							datagrid1.refresh();
+							loadData();
+						}					
+					}	
+				}			
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn02" style="left:588px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button7" class="btn05" style="left:646px; top:40px; width:115px; height:21px; ">
+			<caption>조회(입금무관)</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					var pay_clsf = model.getValue("/root/reqData/searchData/pay_clsf");
+					var basi_dt 	= model.getValue("/root/reqData/searchData/basi_dt");
+					
+					if(pay_clsf == "7" && basi_dt == ""){
+						alert("기준일자를 입력하세요.");
+						model.setFocus("inp_basi_dt");
+						return;
+					}
+					
+					model.send("ad_tax_1730_l");
+					if(submit_completed()){
+						loadDataSet();
+					}
+
+				}				
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn05" style="left:767px; top:40px; width:110px; height:21px; ">
+			<caption>세금계산서조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var row = getSelectedRecordIndex(datagrid1);
+				var tax_stmt_no  = datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("tax_stmt_no"));//model.getValue("/root/resData/gridData/record["+row+"]/tax_stmt_no");
+				
+				windowLoadPageTaxStmt2(tax_stmt_no);
+					]]>
+			</script>
+		</button>
+		<select1 id="combo1" ref="/root/reqData/searchData/medi_clsf" navindex="3" appearance="minimal" style="left:345px; top:75px; width:110px; height:18px; ">
+			<!-- 2012.01.19
+			<choices>
+				<item>
+					<label>100 신문</label>
+					<value>100</value>
+				</item>
+				<item>
+					<label>200 출판</label>
+					<value>200</value>
+				</item>
+			</choices>
+			 -->
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/medi_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<select1 id="combo2" ref="/root/reqData/searchData/pay_clsf" class="req" navindex="4" appearance="minimal" style="left:559px; top:75px; width:100px; height:18px; ">
+			<choices>
+				<item>
+					<label>0 전체</label>
+					<value>0</value>
+				</item>
+				<item>
+					<label>9 준비대상</label>
+					<value>9</value>
+				</item>
+				<item>
+					<label>7 준비완료</label>
+					<value>7</value>
+				</item>
+			</choices>
+		</select1>
+		<caption id="caption3" class="list_cap01" style="left:262px; top:70px; width:80px; height:28px; ">매체구분</caption>
+		<caption id="caption5" style="left:158px; top:75px; width:15px; height:20px; ">~</caption>
+		<input id="inp_basi_dt" ref="/root/reqData/searchData/basi_dt" navindex="5" inputtype="date" format="yyyy-mm-dd" style="left:768px; top:75px; width:85px; height:18px; "/>
+		<input id="inp_frdt" ref="/root/reqData/searchData/frdt" class="req" navindex="1" format="yyyy-mm" style="left:103px; top:75px; width:50px; height:18px; "/>
+		<caption id="caption10" class="list_cap01" style="left:685px; top:70px; width:80px; height:28px; ">기준일자</caption>
+		<input id="inp_todt" ref="/root/reqData/searchData/todt" class="req" navindex="2" format="yyyy-mm" style="left:173px; top:75px; width:50px; height:18px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" allowselection="false" caption="구분^상태^대행사코드^대행사^매체^계산서번호^작성일자^입수총액^입금만기^대체^만기일자^준비일자^지불여부^지불구분" colsep="#" colwidth="45, 55, 70, 100, 45, 125, 70, 75, 75, 50, 85, 85, 100, 100" explorerbar="sort" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:120px; width:926px; height:622px; ">
+			<col checkvalue="Y,N" ref="checked" type="checkbox"/>
+			<col ref="pay_clsf_nm"/>
+			<col ref="dlco_cd"/>
+			<col ref="dlco_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="medi_nm" style="text-align:center; word-wrap:none; "/>
+			<col ref="tax_stmt_no" format="99-99-99999999-9999"/>
+			<col ref="make_dt" format="yyyy-mm-dd"/>
+			<col ref="rcpm_tot_amt" format="#,###" style="text-align:right; "/>
+			<col ref="rcpm_mtry_dt" format="yyyy-mm-dd"/>
+			<col ref="rcpm_clsf"/>
+			<col ref="mtry_dt" type="inputdate" format="yyyy-mm-dd"/>
+			<col ref="pay_dt" type="inputdate" format="yyyy-mm-dd"/>
+			<col ref="fee_pay_stat" visibility="hidden"/>
+			<col ref="pay_clsf" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				]]>
+			</script>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				
+					if( !isDataRegion(datagrid1) ) 	return;
+					
+					
+					
+					var row 			= getSelectedRecordIndex(datagrid1);
+					var tax_stmt_no  	= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("tax_stmt_no"));//model.getValue("/root/resData/gridData/record["+row+"]/tax_stmt_no");
+					
+					windowLoadPageTaxStmt2(tax_stmt_no);
+								
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+				
+					if(isDataRegion(datagrid1))
+					{
+						var	row		=	datagrid1.row;
+						var	mtry_dt	=	datagrid1.valueMatrix(row, datagrid1.colRef("mtry_dt"));
+						var	pay_clsf	=	datagrid1.valueMatrix(row, datagrid1.colRef("pay_clsf"));
+						
+						if(pay_clsf	==	"9")
+						{
+							datagrid1.valueMatrix(row, datagrid1.colRef("pay_dt")) = mtry_dt;
+						}
+					}
+					else
+					{
+						for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++)
+						{
+							var	mtry_dt		=	datagrid1.valueMatrix(i, datagrid1.colRef("mtry_dt"));
+							var pay_clsf		=	datagrid1.valueMatrix(i, datagrid1.colRef("pay_clsf"));
+							var fee_pay_stat	=	datagrid1.valueMatrix(i, datagrid1.colRef("fee_pay_stat"));
+							if( pay_clsf == "9" && fee_pay_stat != "1" )
+							{
+								datagrid1.valueMatrix(i, datagrid1.colRef("pay_dt")) = mtry_dt;
+								datagrid1.addStatus(i, "update");
+							}
+							else
+							{
+								datagrid1.valueMatrix(i, datagrid1.colRef("checked")) = false;
+							}
+						}
+					}
+					datagrid1.refresh();
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-deselect">
+				<![CDATA[
+					
+					if( isDataRegion(datagrid1) )
+					{
+						var	row		=	datagrid1.row;
+						var	mtry_dt	=	datagrid1.valueMatrix(row, datagrid1.colRef("mtry_dt"));
+						var	pay_clsf	=	datagrid1.valueMatrix(row, datagrid1.colRef("pay_clsf"));
+						
+						if( pay_clsf	==	"9" )
+						{
+							datagrid1.valueMatrix(row, datagrid1.colRef("pay_dt")) = "";
+						}
+					}
+					else
+					{
+						for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++)
+						{
+							var	mtry_dt	=	datagrid1.valueMatrix(i, datagrid1.colRef("mtry_dt"));
+							var pay_clsf	=	datagrid1.valueMatrix(i, datagrid1.colRef("pay_clsf"));
+							if( pay_clsf == "9" )
+							{
+								datagrid1.valueMatrix(i, datagrid1.colRef("pay_dt")) = "";
+								datagrid1.addStatus(i, "update");
+							}
+						}
+						
+					}
+					datagrid1.refresh();
+				
+				]]>
+			</script>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:883px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(window.type=="mdi"){
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				}else{
+					window.close();
+				}
+								
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

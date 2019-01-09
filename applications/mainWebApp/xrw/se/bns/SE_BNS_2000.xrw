@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_BNS_2000.xrw
+* 기능 : 판매 - 배달용품관리 - 배달용품세금계산서 정정
+* 작성일자 : 2009.05.01
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var bgn_yymm		= model.getValue("/root/reqData/searchData/bgn_yymm");
+					var end_yymm		= model.getValue("/root/reqData/searchData/end_yymm");
+					
+					if ( bgn_yymm == ""  ){
+						commAlert("기분시작년월이 없습니다.");
+						return;
+					}
+					
+					if ( end_yymm == "" ){
+						model.setValue("/root/reqData/searchData/end_yymm", bgn_yymm);
+					}
+					
+					if ( bgn_yymm > end_yymm){
+						commAlert("기준시작년월이 기준종료년월보다 클 수 없습니다.");
+						return;
+					}
+					
+					var bgn_yymm_range		= model.getValue("/root/initData/bgn_yymm");			  
+					var end_yymm_range		= model.getValue("/root/initData/end_yymm");		
+					
+					if ( bgn_yymm < bgn_yymm_range || bgn_yymm > end_yymm_range ){
+						commAlert(bgn_yymm_range + "월부터 " + end_yymm_range + "월 사이만 조회 가능합니다.");
+						return;
+					}
+					
+					if ( end_yymm < bgn_yymm_range || end_yymm > end_yymm_range ){
+						commAlert(bgn_yymm_range + "월부터 " + end_yymm_range + "월 사이만 조회 가능합니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData2/bgn_yymm", bgn_yymm);
+					model.setValue("/root/reqData/searchData2/end_yymm", end_yymm);
+					
+					var action = "se_bns_2010_l";
+					model.send(action);
+					model.refresh();
+					se_chkGridCnt("datagrid1");
+					
+					var rows = datagrid1.rows;
+					var cols = datagrid1.cols;
+					var updateYn	= model.getValue("/root/initData/updateYn");	
+					var tf;
+					
+					//세금계산서 신고월 1, 4, 7, 10월의 25일 이전만 재발행 및 수정 가능.
+					//jsp에서 수정 가능여부를 updateYn으로 화면 로드시 셋팅한다. "Y" 수정 가능 , "N" 수정 불가능
+					if ( rows > datagrid1.fixedRows && updateYn == "Y" ){
+						tf = false;
+					} else {
+						tf = true;
+					}
+					datagrid1.isReadOnly(1, 1, rows - 1, cols - 1) = tf;
+				}
+
+				function goSave(){
+					var updateYn	= model.getValue("/root/initData/updateYn");	
+					if ( updateYn != "Y" ){
+						commAlert("저장 가능한 시기가 아닙니다.");
+						return;
+					}
+
+					var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					if ( !checkChg("datagrid1") ){
+						commAlert("저장할 내용이 없습니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					var action = "se_bns_2020_u";
+					model.send(action);
+					goSearch();
+				}
+				
+				function goCorrection(){
+					/*
+					var updateYn	= model.getValue("/root/initData/updateYn");	
+					if ( updateYn != "Y" ){
+						commAlert("정정처리 가능한 시기가 아닙니다.");
+						return;
+					}
+					*/
+					var val = window.alert("정정처리 하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var bgn_yymm		= model.getValue("/root/reqData/searchData2/bgn_yymm");
+					var end_yymm		= model.getValue("/root/reqData/searchData2/end_yymm");
+					
+					if ( bgn_yymm == ""  ){
+						commAlert("기분시작년월이 없습니다");
+						return;
+					}
+					
+					if ( end_yymm == "" ){
+						model.setValue("/root/reqData/searchData2/end_yymm", bgn_yymm);
+					}
+					
+					if ( bgn_yymm > end_yymm){
+						commAlert("기준시작년월이 기준종료년월보다 클 수 없습니다");
+						return;
+					}
+					
+					var action = "se_bns_2030_a";
+					model.send(action);
+					goSearch();
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<issulist>
+								<record>
+									<cd/>
+									<cdnm/>
+									<cd_abrv_nm/>
+								</record>
+							</issulist>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<bgn_yymm/>
+							<team/>
+							<part/>
+							<area/>
+							<end_yymm/>
+							<search_gubun>1</search_gubun>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData2>
+							<bgn_yymm/>
+							<end_yymm/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<bo_cd/>
+									<bo_seq/>
+									<slip_occr_dt/>
+									<slip_clsf_cd/>
+									<slip_seq/>
+									<dept_nm/>
+									<part_nm/>
+									<area_nm/>
+									<bo_nm/>
+									<bo_head_nm/>
+									<ern_be/>
+									<make_dt/>
+									<issu_clsf/>
+									<ern/>
+									<bo_cd_seq/>
+									<prof_type_cd/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					makeTeamSearch(
+									"se_bns_2000_m"
+								  , "/se/bns/2000"
+								  , "/root/reqData"  
+		                            , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  , "area_combo"
+								  );
+					var bgn_yymm		= model.getValue("/root/initData/bgn_yymm");			  
+					var end_yymm		= model.getValue("/root/initData/end_yymm");			  
+					model.setValue("/root/reqData/searchData/bgn_yymm", bgn_yymm);
+					model.setValue("/root/reqData/searchData/end_yymm", end_yymm);
+					
+					makeComboGubun("", "/root/initData/comboSet/issulist", "record", "cdnm", "cd");
+					
+					var rows = datagrid1.rows;
+					var cols = datagrid1.cols;
+					datagrid1.isReadOnly(1, 1, rows -1, cols-1) = true;
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_bns_2000_m" action="/se/bns/2000" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/initData/comboSet"/>
+			<submission id="se_bns_2010_l" ref="/root/reqData/searchData" action="/se/bns/2010" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData"/>
+			<submission id="se_bns_2020_u" ref="/root/reqData/multiUpDate" action="/se/bns/2020" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/MsgData"/>
+			<submission id="se_bns_2030_a" ref="/root/reqData/searchData2" action="/se/bns/2030" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:127px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" datatype="xml" caption="전표구분^팀^파트/지사^지역^센터^센터대표^발행시점사업자번호^작성년월^정정대상^현재사업자번호^센터코드" colwidth="60, 80, 70, 70, 70, 70, 120, 70, 70, 120, 90" mergecellsfixedrows="bycolrec" rowheader="seq" selectionmode="free" rowsep="|" colsep="#" style="left:10px; top:140px; width:926px; height:580px; ">
+			<col ref="slip_clsf_cd" visibility="hidden"/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="part_nm" style="text-align:left; "/>
+			<col ref="area_nm" style="text-align:left; "/>
+			<col ref="bo_nm" style="text-align:left; "/>
+			<col ref="bo_head_nm"/>
+			<col ref="ern_be"/>
+			<col ref="make_dt"/>
+			<col ref="issu_clsf" type="combo">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/issulist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="ern"/>
+			<col ref="bo_cd_seq"/>
+			<col ref="bo_cd" visibility="hidden"/>
+			<col ref="bo_seq" visibility="hidden"/>
+			<col ref="slip_occr_dt" visibility="hidden"/>
+			<col ref="slip_seq" visibility="hidden"/>
+			<col ref="prof_type_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					//1월 31일 이후는 정정 처리할 수 없음. 프로시져에서 한번 더 확인 필요.
+					/* 이전 주석 하지만 처리는 1월 31일로 처리함.
+ 					  '-----------------------------------------------------------------------------------
+				      ' 2002/01/22 추가 : START
+				      '-----------------------------------------------------------------------------------
+				      ' 경리부 백승민씨와 논의: 계산서의 경우 1월말까지 전년도분을 세무소에 신고하기 때문에
+				      ' 1월25일 이후에는 재발행은 가능하지만 계산서 정정은 불가 !
+				      '-----------------------------------------------------------------------------------
+				    */
+					var today	= model.getValue("/root/initData/today");
+					var yy		= today.substr(0, 4);
+					var mmdd		= today.substr(4, 4);
+					
+					if ( mmdd >= "0201" ){
+						var row 		= datagrid1.row;
+						var ym  		= datagrid1.valueMatrix(row, 8);
+						var make_yy  = ym.substr(0, 4);
+						var gubun 	= datagrid1.valueMatrix(row, 9);
+						if ( make_yy < yy && gubun == "C" ){
+							datagrid1.valueMatrix(row, 9) = "";
+							commAlert("1월31일 이후에는 전년도분은 정정 처리 할 수 없습니다.");
+							return;
+						}
+					}
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_scr" ref="/root/reqData/searchData/medi_cd" class="gro_sel" style="left:10px; top:70px; width:926px; height:51px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">기준년월</caption>
+			<input id="input3" ref="/root/reqData/searchData/bgn_yymm" navindex="1" class="req" format="yyyy-mm" caption="지급시작일자" style="left:87px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team" appearance="minimal" style="left:359px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:292px; top:0px; width:60px; height:26px; ">팀</caption>
+			<caption id="caption2" class="list_cap01" style="left:479px; top:0px; width:70px; height:26px; ">파트</caption>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part" appearance="minimal" style="left:556px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:676px; top:0px; width:70px; height:26px; ">지역</caption>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area" appearance="minimal" style="left:753px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input1" ref="/root/reqData/searchData/end_yymm" navindex="1" format="yyyy-mm" caption="지급시작일자" style="left:192px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input1.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/end_yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<caption id="caption91" style="left:178px; top:3px; width:15px; height:20px; ">~</caption>
+			<caption id="caption4" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption5" class="list_cap01" style="left:0px; top:25px; width:80px; height:26px; ">구분</caption>
+			<select1 id="radio1" ref="/root/reqData/searchData/search_gubun" overflow="visible" appearance="full" cols="2" style="left:85px; top:31px; width:400px; height:22px; border-style:none; ">
+				<choices>
+					<item>
+						<label>조회 조건 전센터</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>발행당시와 변동이 있는 센터</label>
+						<value>2</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="C" style="left:739px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSave();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" crud="R" style="left:672px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn03" crud="C" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>정정처리</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goCorrection();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

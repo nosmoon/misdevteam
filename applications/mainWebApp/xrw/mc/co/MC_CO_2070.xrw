@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<![CDATA[]]>
+		<xhtml:title>등록번호 조회(MC_CO_2070)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+						<mc_co_2070_m>
+							<dataSet>
+							</dataSet>
+						</mc_co_2070_m>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData/>
+						<searchData>
+							<budg_yyyy/>
+							<budg_type_cd/>
+							<from_clas_cd1/>
+							<to_clas_cd1/>
+							<from_clas_cd2/>
+							<to_clas_cd2/>
+							<dept_cd/>
+							<from_budg_cd/>
+							<to_budg_cd/>
+							<from_work_no/>
+							<to_work_no/>
+							<budg_cd1/>
+							<budg_cd2/>
+							<work_no/>
+							<dept_nm/>
+							<budg_cd/>
+							<budg_nm/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<dataSet>
+								<CURLIST>
+									<record>
+										<budg_cdnm/>
+									</record>
+								</CURLIST>
+							</dataSet>
+						</resForm>
+						<gridData>
+							<mc_co_2071_l>
+								<dataSet>
+									<CURLIST1>
+										<record>
+											<work_no/>
+											<seq/>
+											<budg_yymm/>
+											<budg_cd/>
+											<budg_cdnm/>
+											<medi_cd/>
+											<medi_nm/>
+											<use_dept_cd/>
+											<use_dept_cdnm/>
+											<rmks/>
+											<evnt_cd/>
+											<req_amt_tot/>
+											<req_uprc/>
+											<req_qunt_tot/>
+										</record>
+									</CURLIST1>
+								</dataSet>
+							</mc_co_2071_l>
+						</gridData>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<MsgData/>
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				//팝업 전용으로 사용하는 경우 메뉴에 등록된 데이터가 없기 때문에
+				//타이틀을 직접 설정해주어야 한다.
+				//팝업 호출시 타이틀을 지정하면 지정된 타이틀을 사용하고 아니면 기본으로 설정한다.
+				var title = model.getValue("/root/reqData/searchData/title").Trim();
+				if (title != "") {
+					//일반폼과 팝업폼을 동시에 사용하는 경우 메뉴의 데이터를 가져온다.
+					//타이틀 지정시 무시하고 사용자 지정 문자열을 제목으로 사용한다.
+					//변경하지 않으려면 호출시 "" 으로 지정하거나 하단 주석을 막으면 된다.
+					set_popup_title(title);
+				}
+				else {
+					//일반폼과 팝업폼을 동시에 사용하는 경우 메뉴의 데이터를 가져온다.
+					//일반폼&팝업폼 공용인경우 하단 주석처리
+					set_popup_title("예산 등록번호 조회");
+				}
+				
+				if (model.property("MC_CO_2070_popup_flag") == "Y" ) {
+					srch_budg_yyyy.value = model.property("MC_CO_2070_srch_budg_yyyy");
+					srch_dept_cd.value = model.property("MC_CO_2070_srch_dept_cd");
+					srch_budg_cd.value = model.property("MC_CO_2070_srch_budg_cd");
+					srch_budg_cd.dispatch("xforms-value-changed");
+					
+					srch_dept_cd.dispatch("xforms-value-changed");
+					W_YSYYCD = model.property("MC_CO_2070_srch_budg_type_cd");
+
+					if(model.property("MC_CO_2070_search_yn")  == "Y"){
+						send_mc_co_2071_l();
+					}
+
+					model.property("MC_CO_2070_srch_budg_yyyy") = "";
+					model.property("MC_CO_2070_srch_dept_cd") = "";
+					model.property("MC_CO_2070_srch_budg_cd") = "";
+					model.property("MC_CO_2070_srch_budg_type_cd") = "";
+					model.property("MC_CO_2070_popup_flag") = "";
+					model.property("MC_CO_2070_search_yn")  = "";
+				}
+				
+				model.send("mc_co_2070_m");
+				/*
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_type_cd_010"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_type_cd_020"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_type_cd_030"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_010"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_020"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_030"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_040"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_050"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_060"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_from_clas_cd1_010"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_to_clas_cd1_010"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_from_clas_cd1_020"));
+				alert(model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_to_clas_cd1_020"));
+				*/
+				model.refresh();
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init_controls();
+				set_column_visibility();
+				]]>
+			</script>
+			<submission id="mc_co_2071_l" action="/mc/co2000/2071" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/mc_co_2071_l/dataSet"/>
+			<submission id="mc_co_2072_l" action="/mc/co2000/2072" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/mc_co_2071_l/dataSet"/>
+			<submission id="hd_com_1101" action="/hd/com/1101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<submission id="fc_co_8001_s" action="/fc/co8000/8001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resForm/dataSet"/>
+			<submission id="mc_co_2070_m" action="/mc/co2000/2070" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/mc_co_2070_m/dataSet"/>
+		</model>
+		<script type="javascript" src="../../../js/TFCommon.js"/>
+		<script type="javascript" src="../../../js/CIISComm.js"/>
+		<script type="javascript" src="../../../js/fcmc_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				var g_popid = "mc_co_2070";
+				var W_DTBUSEOCD;
+				var W_DTYSCD;
+				var W_DTHSACD;
+				var W_DTJSEQ;
+				var W_YSYYCD;
+	
+				function init_controls() {
+					//control의 기본 설정 적용
+	
+					//datagrid init
+					set_default(datagrid1);
+								
+					//input init
+					set_default(srch_budg_yyyy,srch_work_no,srch_dept_cd,srch_dept_nm,srch_budg_cd,srch_budg_nm);
+									
+					//control format 설정 적용
+					set_format("STRING_L",datagrid1,"2",srch_dept_nm,srch_budg_nm);	
+					set_format("DATE_320",srch_budg_yyyy);
+					set_format(
+						"code"
+					,	datagrid1			,"1,3,4,6,13"
+					,	srch_work_no
+					,	srch_dept_cd
+					,	srch_budg_cd
+					);
+					set_format(
+						"string_l"
+					,	datagrid1			,"2,5,7,12"
+					,	srch_dept_nm
+					,	srch_budg_nm
+					);	
+					set_format(
+						"number4"
+					,	datagrid1			,"9,10,11"
+					);							
+					set_format(
+						"date_320"
+					,	srch_budg_yyyy
+					);
+					set_format(
+						"month_1"
+					,	datagrid1			,"8"
+					);				
+				}
+				
+				function check_search_values() {
+					//필수항목체크(검색)
+					if(!commReqCheck(group_scr)) {
+						return false;
+					}
+					
+					return true;
+				}
+				
+				function prepare_mc_co_2071_l() {
+					if(!check_search_values()) {
+						return false;
+					}
+					
+					return true;
+				}
+				function send_mc_co_2071_l() {
+					//조건에 문제가 없다면 처리
+					if (!prepare_mc_co_2071_l()) {
+						return;
+					}
+					if(srch_work_no.value == ""){
+						set_refvalue("/root/reqData/searchData/from_work_no","000");
+						set_refvalue("/root/reqData/searchData/to_work_no","999");
+					}
+					else{
+						set_refvalue("/root/reqData/searchData/from_work_no",srch_work_no.value);
+						set_refvalue("/root/reqData/searchData/to_work_no",srch_work_no.value);
+					}
+					
+					if(srch_budg_cd.value == ""){
+						set_refvalue("/root/reqData/searchData/from_budg_cd","000000");
+						set_refvalue("/root/reqData/searchData/to_budg_cd","999999");
+					}
+					else{
+						set_refvalue("/root/reqData/searchData/from_budg_cd",srch_budg_cd.value);
+						set_refvalue("/root/reqData/searchData/to_budg_cd",srch_budg_cd.value);					
+					}
+					
+					if(W_YSYYCD =="00"){				//예산계획등록
+						//set_refvalue("/root/reqData/searchData/budg_type_cd","01");
+						set_refvalue("/root/reqData/searchData/budg_type_cd",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_type_cd_010"));
+						if(srch_budg_cd.value ==""){
+							set_refvalue("/root/reqData/searchData/budg_cd1","");
+							set_refvalue("/root/reqData/searchData/budg_cd2","");
+						}
+						else{
+							set_refvalue("/root/reqData/searchData/budg_cd1",srch_budg_cd.value);
+							set_refvalue("/root/reqData/searchData/budg_cd2",srch_budg_cd.value);
+						}
+	//spr1.ROW = -1: spr1.col = 6: spr1.ColHidden = True   		수량
+	//spr1.col = 7: spr1.ColHidden = True			  		단가
+					}
+					else if(W_YSYYCD =="01"){			//광고매출
+						if(srch_budg_cd.value ==""){
+							//set_refvalue("/root/reqData/searchData/budg_cd1","6016");
+							//set_refvalue("/root/reqData/searchData/budg_cd2","6031");
+							set_refvalue("/root/reqData/searchData/budg_cd1",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_010"));
+							set_refvalue("/root/reqData/searchData/budg_cd2",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_020"));
+						}
+						else{
+							set_refvalue("/root/reqData/searchData/budg_cd1",srch_budg_cd.value);
+							set_refvalue("/root/reqData/searchData/budg_cd2",srch_budg_cd.value);
+						}
+						//set_refvalue("/root/reqData/searchData/budg_type_cd","01");
+						set_refvalue("/root/reqData/searchData/budg_type_cd",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_type_cd_010"));
+					}
+					else if(W_YSYYCD =="02"){			//신문판매매출
+						if(srch_budg_cd.value ==""){
+							//set_refvalue("/root/reqData/searchData/budg_cd1","6005");
+							//set_refvalue("/root/reqData/searchData/budg_cd2","6006");
+							set_refvalue("/root/reqData/searchData/budg_cd1",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_030"));
+							set_refvalue("/root/reqData/searchData/budg_cd2",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_040"));
+						}
+						else{
+							set_refvalue("/root/reqData/searchData/budg_cd1",srch_budg_cd.value);
+							set_refvalue("/root/reqData/searchData/budg_cd2",srch_budg_cd.value);
+						}
+						//set_refvalue("/root/reqData/searchData/budg_type_cd","02");
+						set_refvalue("/root/reqData/searchData/budg_type_cd",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_type_cd_020"));
+					}
+					else if(W_YSYYCD =="03"){			//출판판매매출
+						if(srch_budg_cd.value ==""){
+							//set_refvalue("/root/reqData/searchData/budg_cd1","6020");
+							//set_refvalue("/root/reqData/searchData/budg_cd2","6086");
+							set_refvalue("/root/reqData/searchData/budg_cd1",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_050"));
+							set_refvalue("/root/reqData/searchData/budg_cd2",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_cd_060"));
+						}
+						else{
+							set_refvalue("/root/reqData/searchData/budg_cd1",srch_budg_cd.value);
+							set_refvalue("/root/reqData/searchData/budg_cd2",srch_budg_cd.value);
+						}
+						set_refvalue("/root/reqData/searchData/from_clas_cd2","");
+						set_refvalue("/root/reqData/searchData/to_clas_cd2","");
+						//set_refvalue("/root/reqData/searchData/budg_type_cd","02");
+						set_refvalue("/root/reqData/searchData/budg_type_cd",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_type_cd_020"));
+					}
+					else if(W_YSYYCD =="04"){			//재료비예산
+						if(srch_budg_cd.value ==""){
+							set_refvalue("/root/reqData/searchData/budg_cd1","");
+							set_refvalue("/root/reqData/searchData/budg_cd2","");
+						}
+						else{
+							set_refvalue("/root/reqData/searchData/budg_cd1",srch_budg_cd.value);
+							set_refvalue("/root/reqData/searchData/budg_cd2",srch_budg_cd.value);
+						}				
+						//set_refvalue("/root/reqData/searchData/budg_type_cd","04");
+						set_refvalue("/root/reqData/searchData/budg_type_cd",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_budg_type_cd_030"));
+					}
+					else if(W_YSYYCD =="10"){			//사업부조회
+						//set_refvalue("/root/reqData/searchData/from_clas_cd1","10000000");
+						//set_refvalue("/root/reqData/searchData/to_clas_cd1","10999999");
+						set_refvalue("/root/reqData/searchData/from_clas_cd1",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_from_clas_cd1_010"));
+						set_refvalue("/root/reqData/searchData/to_clas_cd1",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_to_clas_cd1_010"));
+						set_refvalue("/root/reqData/searchData/budg_type_cd","");
+	//        spr1.ROW = -1: spr1.col = 6: spr1.ColHidden = True
+	//        spr1.col = 7: spr1.ColHidden = True
+					}
+					else if(W_YSYYCD =="20"){			//사업부조회
+						//set_refvalue("/root/reqData/searchData/from_clas_cd1","20000000");
+						//set_refvalue("/root/reqData/searchData/to_clas_cd1","20999999");
+						set_refvalue("/root/reqData/searchData/from_clas_cd1",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_from_clas_cd1_020"));
+						set_refvalue("/root/reqData/searchData/to_clas_cd1",model1.getValue("/root/initData/mc_co_2070_m/dataSet/xx_to_clas_cd1_020"));
+						set_refvalue("/root/reqData/searchData/budg_type_cd","");
+	//        spr1.ROW = -1: spr1.col = 6: spr1.ColHidden = True
+	//        spr1.col = 7: spr1.ColHidden = True
+						
+					}
+					if(W_YSYYCD =="10" || W_YSYYCD =="20"){
+						model.send("mc_co_2071_l");
+					}
+					else{
+						model.send("mc_co_2072_l");
+					}
+					var totalcnt = get_refvalue("/root/resData/gridData/mc_co_2071_l/dataSet/CURLIST1/totalcnt");
+					
+					if(totalcnt == 0){
+						show_message("검색결과가 없습니다.");
+						reset_refnode("/root/resData/gridData/mc_co_2071_l/dataSet");
+					}
+				}
+			
+				function set_column_visibility() {
+					//모든 컬럼을 감춘다.
+					hide_all_columns(datagrid1);
+					//공통항목을 보여준다.
+					show_columns(datagrid1,"2,3,5,7,8,9,10,11,12,13");
+				}
+				function setEvntInfo(Evnt_cd, Evnt_cd_nm){
+
+					srch_budg_cd.value = Evnt_cd;
+					srch_budg_nm.value = Evnt_cd_nm;						
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="640" pageheight="480" guideline="2,34;2,39;2,40;2,50;2,70;2,78;2,80;2,103;2,105;2,132;2,133;2,159;2,160;2,367;2,377;2,376;2,393;2,408;2,409;1,936;1,927;1,926;2,755;1,630;1,10;2,470;">
+		<group id="grp_buttons" class="gro_sel" style="left:10px; top:50px; width:620px; height:21px; ">
+			<button id="btn_select" class="btn02" navindex="3" style="left:380px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						send_mc_co_2071_l();
+					]]>
+				</script>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[						
+						datagrid1.mergeCol(1) = true;
+						datagrid1.mergeCol(2) = true;
+						datagrid1.mergeCol(3) = true;
+						datagrid1.mergeCol(4) = true;
+						datagrid1.mergeCol(5) = true;
+						datagrid1.mergeCol(6) = true;
+						datagrid1.mergeCol(7) = true;
+						datagrid1.mergeCol(8) = false;
+						datagrid1.mergeCol(9) = false;
+						datagrid1.mergeCol(10) = false;
+						datagrid1.mergeCol(11) = false;
+						datagrid1.mergeCol(12) = false;
+						datagrid1.mergeCol(13) = false;
+					]]>
+				</script>
+			</button>
+			<button id="btn_cancle" class="btn02" navindex="5" style="left:560px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model.property("MC_CO_2070_budg_cd") = "";
+						model.property("MC_CO_2070_work_no") = "";
+						model.property("MC_CO_2070_use_dept_cd") = "";
+						model.property("MC_CO_2070_evnt_cd") = "";
+						formClose();
+					]]>
+				</script>
+			</button>
+			<button id="btn_ok" class="btn02" navindex="4" style="left:440px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						formClose();
+					]]>
+				</script>
+			</button>
+			<button id="btn_help" class="btn02" style="left:500px; top:0px; width:52px; height:21px; ">
+				<caption>엑셀</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var grid = null;
+
+					grid = datagrid1;
+					
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						grid.saveExcel(filename, "sheetname: ");
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:79px; width:620px; height:51px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:620px; height:26px; text-align:center; "/>
+			<caption id="caption3" class="list_cap03" style="left:0px; top:0px; width:80px; height:26px; text-align:center; ">예산년도</caption>
+			<caption id="caption1" class="list_cap02" style="left:0px; top:25px; width:620px; height:26px; text-align:center; "/>
+			<input id="srch_budg_yyyy" ref="/root/reqData/searchData/budg_yyyy" navindex="1" maxlength="4" caption="예산년도" style="left:83px; top:4px; width:52px; height:18px; "/>
+			<caption id="caption2" class="list_cap03" style="left:162px; top:0px; width:80px; height:26px; text-align:center; ">등록번호</caption>
+			<input id="srch_work_no" ref="/root/reqData/searchData/work_no" navindex="1" maxlength="3" caption="등록번호" style="left:245px; top:4px; width:52px; height:18px; "/>
+			<caption id="caption4" class="list_cap03" style="left:0px; top:25px; width:80px; height:26px; text-align:center; ">예산코드</caption>
+			<input id="srch_budg_cd" ref="/root/reqData/searchData/budg_cd" navindex="1" inputtype="button" maxlength="6" caption="예산코드" style="left:83px; top:29px; width:75px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if(srch_budg_cd.value.Trim().length == 6 ){
+
+							model.send("fc_co_8001_s");
+							
+							if (Number(model.getValue("/root/resData/resForm/dataSet/CURLIST/totalcnt")) != 0) {
+								srch_budg_nm.value = model.getValue("/root/resData/resForm/dataSet/CURLIST/record/budg_cdnm");
+							}
+							else {
+								srch_budg_cd.value = "";
+								srch_budg_nm.value = "";
+							}
+						}
+						else {
+							srch_budg_cd.value = "";
+							srch_budg_nm.value = "";
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/cmpy_cd");
+						model.makeNode("/root/reqData/fwdData/G_Tag");
+						model.makeNode("/root/reqData/fwdData/G_Caption");
+						model.makeNode("/root/reqData/fwdData/G_Codenu");
+						model.makeNode("/root/reqData/fwdData/G_BRCode");
+						model.setValue("/root/reqData/fwdData/cmpy_cd", getProperty("ss_cmpycd"));
+						model.setValue("/root/reqData/fwdData/G_Tag", "1");
+						model.setValue("/root/reqData/fwdData/G_Caption", "예산코드조회");
+						model.setValue("/root/reqData/fwdData/G_Codenu", "");					
+						model.setValue("/root/reqData/fwdData/G_BRCode", "");
+						window.load("../../mc/co/MC_CO_1000.xrw", "modal", "", "align:center; width:460; height:420; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData")		
+						srch_budg_cd.dispatch("xforms-value-changed");					
+					]]>
+				</script>
+			</input>
+			<input id="srch_budg_nm" ref="/root/reqData/searchData/budg_nm" navindex="-1" editable="false" maxlength="6" caption="예산명" style="left:161px; top:29px; width:180px; height:18px; "/>
+			<caption id="caption6" class="list_cap03" style="left:302px; top:0px; width:80px; height:26px; text-align:center; ">부서코드</caption>
+			<input id="srch_dept_cd" ref="/root/reqData/searchData/dept_cd" navindex="-1" editable="false" maxlength="3" caption="부서코드" style="left:385px; top:4px; width:57px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if (srch_dept_cd.value.length == 6) {
+							model.removeNodeset("/root/reqData/fwdData");  
+							model.makeNode("/root/reqData/fwdData/dept_cd");
+							model.setValue("/root/reqData/fwdData/dept_cd", srch_dept_cd.value);
+							model.send("hd_com_1101");
+							
+							if (model.getValue("/root/totalcnt") != "0") {
+								srch_dept_nm.value = model.getValue("/root/tempData/record/abrv_nm");
+							}
+							else {
+								srch_dept_cd.value = "";
+								srch_dept_nm.value = "";
+							}
+						}
+						else {
+							srch_dept_cd.value = "";
+							srch_dept_nm.value = "";
+						}					
+					]]>
+				</script>
+			</input>
+			<input id="srch_dept_nm" ref="/root/reqData/searchData/dept_nm" navindex="-1" editable="false" maxlength="3" caption="부서명" style="left:446px; top:4px; width:170px; height:18px; "/>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:140px; width:620px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/mc_co_2071_l/dataSet/CURLIST1/record" caption="예산코드(H)^예산코드/명^등록번호^매체(H)^매체^사용부서(H)^사용부서^예산년월^금액^수량^단가^적요^행사코드" colsep="^" colwidth="92, 110, 58, 75, 65, 68, 100, 60, 100, 54, 58,  150, 100" extendlastcol="scroll" mergecells="bycol" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" navindex="6" style="left:10px; top:155px; width:620px; height:315px; ">
+			<col ref="budg_cd" caption="코드"/>
+			<col ref="budg_cdnm" caption="코드명"/>
+			<col ref="work_no"/>
+			<col ref="medi_cd"/>
+			<col ref="medi_nm"/>
+			<col ref="use_dept_cd"/>
+			<col ref="use_dept_cdnm"/>
+			<col ref="budg_yymm"/>
+			<col ref="req_amt_tot"/>
+			<col ref="req_qunt_tot"/>
+			<col ref="req_uprc"/>
+			<col ref="rmks"/>
+			<col ref="evnt_cd"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.property("MC_CO_2070_budg_cd") = get_refvalue("/root/resData/gridData/mc_co_2071_l/dataSet/CURLIST1/record["+datagrid1.row+"]/budg_cd");
+					model.property("MC_CO_2070_work_no") = get_refvalue("/root/resData/gridData/mc_co_2071_l/dataSet/CURLIST1/record["+datagrid1.row+"]/work_no");
+					model.property("MC_CO_2070_use_dept_cd") = get_refvalue("/root/resData/gridData/mc_co_2071_l/dataSet/CURLIST1/record["+datagrid1.row+"]/use_dept_cd");
+					model.property("MC_CO_2070_evnt_cd") = get_refvalue("/root/resData/gridData/mc_co_2071_l/dataSet/CURLIST1/record["+datagrid1.row+"]/evnt_cd");
+				]]>
+			</script>
+		</datagrid>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar_Pop640.xrw" style="left:10px; top:5px; width:620px; height:29px; "/>
+	</xhtml:body>
+</xhtml:html>

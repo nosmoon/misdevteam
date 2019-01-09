@@ -1,0 +1,571 @@
+<%@ page language="java" contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_sppt_1201_s.jsp
+* 기능 : 불편처리
+* 작성일자 : 2003-12-08
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+
+<%
+    String lo_empno     = Util.getSessionParameterValue(request, "emp_no", true);       //사원번호
+    String lo_kflnm     = Util.getSessionParameterValue(request, "emp_nm",true);         //사원명
+
+    String records_per_page = "5";
+    int li_per = Integer.parseInt(records_per_page) ;
+    // dataset 인스턴스 선언부분
+    PS_L_DSCT_SPPTDataSet ds = (PS_L_DSCT_SPPTDataSet)request.getAttribute("ds");  // request dataset
+
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+<!--JavaScript COMMON START------------------------------------------------------------------------->
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+<!--
+// 초기화
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+}
+
+// 불편리스트 검색
+function search_list2()
+{
+    var lo_form1 = document.code_search_form;
+    // 유효성 체크
+    if(!validate(lo_form1)) {
+        if(window.event) window.event.returnValue = false;
+        return false;
+    }
+        makeValue(lo_form1);
+    var ls_win      = "scrollbars=no,toolbar=no,location=no,directories=no,width=700, height=300 resizable=no,mebar=no,left=200,top=100";
+
+    window.open("about:blank" , "acq_dtls", ls_win);
+    lo_form1.target = "acq_dtls";
+    lo_form1.action = "/ps/support/1106";
+    lo_form1.submit();
+}
+
+// 불편리스트 검색
+function search_list(startpage)
+{
+    var lo_form1 = document.code_search_form;
+	var lo_form2 = document.code_detail_form;
+
+    var kubun  = "" ; //접수일자 처리일자 구분
+
+    if (lo_form1.chkkubun[0].checked){
+        kubun = lo_form1.chkkubun[0].value ;
+    } else{
+        kubun = lo_form1.chkkubun[1].value ;
+    }
+    lo_form1.kubun.value= kubun;
+
+    makeValue(lo_form1);
+    if(!validate(lo_form1)){
+        return;
+    }
+
+    lo_form1.curr_page_no.value = startpage;
+    lo_form1.action = "/ps/support/1206";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+
+	can_dsct();
+}
+//상세내역 조회
+function set_detail(regdt,regno){
+    var lo_form1    = code_detail_form;
+    lo_form1.accflag.value="10"; // 지국지사 확인한다
+    lo_form1.regdt.value = regdt ;
+    lo_form1.regno.value = regno ;
+    lo_form1.action = "/ps/support/1216";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+}
+// 불편접수 등록처리
+function con_dsct(){
+
+    var lo_form1       = document.code_detail_form;
+
+    if(lo_form1.accflag.value == "") {
+        alert("처리할 불편접수를 선택후 처리하세요");
+        return;
+    }
+
+    if(lo_form1.boproccont.value == ""){
+        alert("처리내용을 입력하세요!");
+        lo_form1.boproccont.focus();
+        return;
+    }
+    if(lo_form1.boprocyn.value == "" ){
+        alert("처리여부 선택하세요!");
+        lo_form1.boprocyn.focus();
+        return;
+    }
+    if(lo_form1.procpers_nm.value == ""){
+        alert("처리자를 선택하세요!");
+        lo_form1.procpers.focus();
+        return;
+    }
+    var ls_check = confirm("처리 하시겠습니까?");
+        if(!ls_check) return ;
+
+	lo_form1.accflag.value="20"; // 지국지사 처리한다
+    lo_form1.action = "/ps/support/1211";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+
+}
+
+// 불편접수 배정처리
+function update_dsct(){
+
+    var lo_form1       = document.code_detail_form;
+
+    if(lo_form1.accflag.value == "") {
+        alert("처리할 불편접수를 선택후 처리하세요");
+        return;
+    }
+	if(lo_form1.rdrbocd.value=="") {
+        if(lo_form1.rdr_no.value =="" || lo_form1.medicd.value=="" || lo_form1.termsubsno.value=="" || lo_form1.subsfrser_no.value =="" || lo_form1.substoser_no.value=="") {
+            alert("지사배정은 정기독자조회를 이용한 후 독자를 선택후 사용가능합니다");
+            return ;
+        }
+	}
+
+    var ls_check = confirm("처리 하시겠습니까?");
+        if(!ls_check) return ;
+    //lo_form1.accflag.value="20"; // 지국지사 처리한다
+    lo_form1.action = "/ps/support/1226";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+
+	can_dsct();
+}
+
+//초기화(reset)
+function jsReset() {
+    var lo_form1    = code_search_form;
+    var lo_form2    = code_detail_form;
+
+    lo_form1.reset();
+	lo_form2.reset();
+    return;
+}
+ // 사원번호로 정보검색
+function emp_search(){
+    var lo_form1 = document.code_detail_form;
+    // 업무구분값과 코드구분값을 "/readerservlet/1012" 서블릿으로 보낸다
+    lo_form1.setFunction.value = "setEmpName";
+    lo_form1.boemp_no.value = lo_form1.procpers.value;
+    lo_form1.action = "/ps/common/1201";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+    lo_form1.procpers.value= "";
+    lo_form1.procpers_nm.value= "";
+}
+// 사원번호로 조회해온 영업사원정보를 필드에 set함
+function setEmpName(boemp_no,flnm,deptcd)
+{
+    var lo_form1 = document.code_detail_form;
+    lo_form1.procpers.value= boemp_no;
+    lo_form1.procpers_nm.value= flnm;
+}
+//취소버튼 눌릴경우
+function can_dsct(){
+    var lo_form2 = document.code_detail_form;
+    lo_form2.accflag.value= ""; // 초기값
+
+	lo_form2.rdrnm.value = "";
+//	lo_form2.bocdnm.value = "";
+	lo_form2.rdrbocd.value = "";
+	lo_form2.medinm.value = "";
+    lo_form2.rdrtel_no1.value = "";
+    lo_form2.rdrtel_no2.value = "";
+    lo_form2.rdrtel_no3.value = "";
+	lo_form2.rdrptph_no1.value = "";
+	lo_form2.rdrptph_no2.value = "";
+	lo_form2.rdrptph_no3.value = "";
+    lo_form2.rdr_no.value = "";
+	lo_form2.medicd.value= "";
+	lo_form2.termsubsno.value= "";
+	lo_form2.subsfrser_no.value= "";
+	lo_form2.substoser_no.value= "";
+	lo_form2.addr_all.value = "";
+	lo_form2.dscttypenm.value = "";
+	lo_form2.dscttypecd.value = "";
+	lo_form2.titl.value = "";
+    lo_form2.cont.value = "";
+    lo_form2.boproccont.value = "";
+    lo_form2.boprocyn.value = "";
+    lo_form2.procpers.value = "";
+    lo_form2.procpers_nm.value = "";
+}
+//화면출력
+function print_list(){
+    var lo_form1    = document.code_search_form;
+
+    lo_form1.action = "/ps/support/1221";
+    lo_form1.target = "ifrm";
+    makeValue(lo_form1);
+    lo_form1.submit();
+}
+
+// 페이지 이동
+function page_move(curr_page_no) {
+    var lo_form3 = document.code_search_form;
+    //alert("curr_page_no=="+curr_page_no);
+
+    if(!curr_page_no) {
+        lo_form3.curr_page_no.value = '1';
+    } else {
+        lo_form3.curr_page_no.value = curr_page_no;
+    }
+
+    search_list(curr_page_no);
+}
+
+// 독자 검색
+function rdr_search()
+{
+    var lo_form1 = document.code_detail_form;
+    var rdrnm =  lo_form1.rdrnm.value ;
+    var rdrtel = lo_form1.rdrtel_no1.value ;
+    var rdrte2 = lo_form1.rdrtel_no2.value ;
+    var rdrte3 = lo_form1.rdrtel_no3.value ;
+	var rdrptph1 = lo_form1.rdrptph_no1.value;
+	var rdrptph2 = lo_form1.rdrptph_no2.value;
+	var rdrptph3 = lo_form1.rdrptph_no3.value;
+
+    if(lo_form1.accflag.value == "") {
+        alert("처리할 불편접수를 선택후 처리하세요");
+        return;
+    }
+
+    var lo_chk = "";
+    lo_chk = ""
+    if (rdrnm == "" &&  (rdrtel == "" || rdrte2 == "" || rdrte3 == "" ) && (rdrptph1 == "" || rdrptph2 == "" ||rdrptph1 == "") ) {
+    	alert("독자명을 입력하세요!");
+        lo_form1.rdrnm.focus();
+        return;
+    }
+
+    var ls_win      = "scrollbars=yes,toolbar=no,location=no,directories=no,width=700, height=300 resizable=no,mebar=no,left=200,top=100";
+        window.open("about:blank" , "acq_dtls", ls_win);
+        lo_form1.target = "acq_dtls";
+        lo_form1.action = "/ps/support/1106";
+        lo_form1.submit();
+}
+// 팝업에서 선택된 독자 set
+function set_rdr(prn,bocd,bocdnm,medicd,medinm,rdr_no,rdrnm,termsubsno,dlvzip,dlvaddr,dlvdtlsaddr,rdrtel1,rdrtel2,rdrtel3,subsfrser_no,substoser_no,rdrptph1,rdrptph2,rdrptph3){
+    var lo_form1 = document.code_detail_form;
+    lo_form1.rdr_no.value = rdr_no ;
+    lo_form1.rdrnm.value = rdrnm ;
+    lo_form1.prn.value = prn ;
+    lo_form1.rdrbocd.value = bocd ;
+    lo_form1.termsubsno.value = termsubsno ;
+    lo_form1.termsubsno.value = termsubsno ;
+//    lo_form1.bocdnm.value = bocdnm ;
+    lo_form1.medicd.value = medicd ;
+    lo_form1.medinm.value = medinm ;
+    lo_form1.zip.value = dlvzip ;
+    lo_form1.addr.value = dlvaddr ;
+    lo_form1.dtlsaddr.value = dlvdtlsaddr ;
+    lo_form1.rdrtel_no1.value = rdrtel1 ;
+    lo_form1.rdrtel_no2.value = rdrtel2 ;
+    lo_form1.rdrtel_no3.value = rdrtel3 ;
+    lo_form1.subsfrser_no.value = subsfrser_no;
+    lo_form1.substoser_no.value = substoser_no;
+    lo_form1.addr_all.value = dlvaddr + " " + dlvdtlsaddr;
+    lo_form1.rdrptph_no1.value = rdrptph1 ;
+    lo_form1.rdrptph_no2.value = rdrptph2 ;
+    lo_form1.rdrptph_no3.value = rdrptph3 ;
+
+    window.close();
+}
+//-->
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onload="init();window.event.returnValue=false;" >
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle"><b>불편관리
+      &gt; </b>불편처리</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <form name="code_search_form" method="post" action="" onsubmit="search_list(1)">
+    <input name="curr_page_no" type="hidden" value ="1">
+    <input type="hidden" name="records_per_page" value="<%=records_per_page%>"> <!--//화면에 보여줄  ROW수-->
+    <input type="hidden" name="js_fn_nm" value="page_move">
+    <input name="kubun" type="hidden" value ="">
+  <tr>
+    <td>
+      <table width="830" border="0" cellspacing="0" cellpadding="0">
+        <tr bgcolor="#EBE9DC">
+          <td  class="title" bgcolor="#D2C69B" width="155">
+            <input name="chkkubun" type="radio" value="ACPNDT" checked >
+            접수일자
+            <input name="chkkubun" type="radio" value="BOPROCDT">
+            처리일자 </td>
+          <td  class="title">
+            <!--구분을 위한 이미지-->
+            <img src="/html/comm_img/search4.gif" width="13" height="28" ></td>
+          <td  class="title" width="70"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">조회기간<font color="red">*</font></td>
+          <td  class="title" bgcolor="#EBE9DC">
+            <input name="datefrom" type="text" size="10" value="<%=Util.addDate(ds.sysdate,-7)%>" caption="조회기간(from)" notEmpty class="text_box" dataType="date" >
+            -
+            <input name="dateto" type="text" size="10" value="<%=ds.sysdate%>" caption="조회기간(to)" notEmpty class="text_box" dataType="date" >
+          </td>
+          <td  class="title" bgcolor="#EBE9DC" width="65"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">불편유형</td>
+          <td  class="title" bgcolor="#EBE9DC">
+            <select name="dscttypecd" class="sel_all" >
+              <option value="" >전체</option>
+              <%=ds.dsctlistOptHtml("")%>
+            </select>
+          </td>
+          <td  class="title" bgcolor="#EBE9DC" width="65"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">처리여부</td>
+          <td  class="title" bgcolor="#EBE9DC">
+            <select name="boprocyn" class="sel_all" >
+              <option value="" >전체</option>
+              <option value="N" >미처리</option>
+              <option value="Y" >처리완료</option>
+            </select>
+            <input type="image" src="/html/comm_img/bu_search.gif" width="36"  align="absmiddle" border="0" style="cursor:hand" onclick="search_list(1);window.event.returnValue=false;" ></td>
+        </tr>
+        <tr>
+          <td height="3" colspan="8">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td bgcolor="#EBE9DC" class="title"><b>불편접수 목록</b></td>
+          <td bgcolor="#EBE9DC" class="title" align="right">
+          <img src="/html/comm_img/bu_print.gif" width="39" height="19" align="absmiddle" border="0"  style="cursor:hand" onclick="print_list();window.event.returnValue=false;"></td>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list -->
+      <table width="830" border="0" cellspacing="0" cellpadding="1" class="gray" bgcolor="#FFFFFF" id="code_list" >
+        <tr align="center" bgcolor="#dddddd">
+          <td class="gray" width="120"> 독자번호 </td>
+          <td class="gray" width="80">  구독기간 </td>
+          <td class="gray" width="90">  구독자/접수자 </td>
+          <td class="gray" width="65">  불편유형 </td>
+          <td class="gray" width="215"> 제목 </td>
+          <td class="gray" width="65">  접수처 </td>
+          <td class="gray" width="65">  접수일자 </td>
+          <td class="gray" width="65">  처리일자 </td>
+          <td class="gray" width="65">  처리여부 </td>
+        </tr>
+<%
+    for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+        <tr>
+          <td class="gray" width="120" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="90">&nbsp;</td>
+          <td class="gray" width="65">&nbsp;</td>
+          <td class="gray" width="215">&nbsp;</td>
+          <td class="gray" width="65">&nbsp;</td>
+          <td class="gray" width="65" align="center">&nbsp;</td>
+          <td class="gray" width="65" align="center">&nbsp;</td>
+          <td class="gray" width="65">&nbsp;</td>
+        </tr>
+<%
+    }
+%>
+      </table>
+      <!---button-->
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center" id="list_page">
+        <tr>
+          <td align="center" height="2">
+            <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td align="center" height="24" bgcolor="#E8E8E8">
+                <div align="center">
+                <!--JSP PAGE START---------------------------------------------------------------------------------->
+                <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+                <jsp:param name = "curr_page_no"        value="0"/>
+                <jsp:param name = "total_records"       value="0"/>
+                <jsp:param name = "js_fn_nm"            value="page_move"/>
+                <jsp:param name = "records_per_page"    value="<%=records_per_page%>"/>
+                <jsp:param name = "page_set_gubun"      value="0"/>
+                </jsp:include>
+                <!--JSP PAGE END------------------------------------------------------------------------------------>
+                </div>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</form>
+</table>
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <form name="code_detail_form" method="post" action="" >
+    <input name="boemp_no" type="hidden" value ="">
+    <input name="setFunction" type="hidden" value ="">
+    <input name="accflag" type="hidden" value ="">
+    <input name="regdt" type="hidden" value ="">
+    <input name="regno" type="hidden" value ="">
+    <input type="hidden" name="prn" value="" ><!--독자정보에 저장될 주민번호 입력-->
+    <input type="hidden" name="zip" value="" ><!--독자정보에 저장될 독자번호 입력-->
+    <input type="hidden" name="addr" value="" ><!--독자정보에 저장될 독자번호 입력-->
+    <input type="hidden" name="dtlsaddr" value="" ><!--독자정보에 저장될 독자번호 입력-->
+  <tr>
+    <td height="10">
+      <!--여백-->
+    </td>
+  </tr>
+
+  <!--처리내역 -->
+  <tr>
+    <td>
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr bgcolor="#EBE9DC">
+          <td class="title"><b>상세내역</b></td>
+          <td class="title" align="right">
+            <img src="/html/comm_img/bu_search07.gif" width="90" height="19" align="absmiddle" border="0" style="cursor:hand"  onclick="rdr_search();window.event.returnValue=false;" >
+            <img src="/html/comm_img/bu_save04.gif" width="70" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="update_dsct();window.event.returnValue=false;" >
+            <img src="/html/comm_img/bu_save03.gif" width="36" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="con_dsct();window.event.returnValue=false;" >
+            <img src="/html/comm_img/bu_cencle.gif" width="39" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="can_dsct();window.event.returnValue=false;" >
+          </td>
+        </tr>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list -->
+      <table width="830" border="0" cellspacing="0" cellpadding="2" bgcolor="#FFFFFF" class="gray" id="dsct_detail">
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray"> 성명<font color="blue">*</font></td>
+          <td class="gray" width="100">
+            <input name="rdrnm" type="text"  value="" size="20" class="text_box">
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray"> 전화번호<font color="blue">*</font></td>
+          <td class="gray" width="200">
+            <input name="rdrtel_no1" type="text"  value="" size="4" class="text_box"> -
+            <input name="rdrtel_no2" type="text"  value="" size="4" class="text_box"> -
+            <input name="rdrtel_no3" type="text"  value="" size="4" class="text_box">
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray"> 휴대폰번호<font color="blue">*</font></td>
+          <td class="gray" width="200">
+            <input name="rdrptph_no1" type="text" value="" size="4" class="text_box"> -
+            <input name="rdrptph_no2" type="text" value="" size="4" class="text_box"> -
+            <input name="rdrptph_no3" type="text" value="" size="4" class="text_box">
+          </td>
+        </tr>
+        <tr>
+          <td width="90" bgcolor="#dddddd" class="gray" >소속지사<font color="red">*</font></td>
+          <td class="gray"  width="200">
+          <!--input type="text" name="bocdnm" value="" size="10" class="readonly_box" style="text-align:center" readonly caption="소속지사" notEmpty-->
+            <select name="rdrbocd" size="1"  class="sel_all">
+              <option value=''  selected  >선택</option>
+              <%= ds.bocdcurOptHtml("") %>
+            </select>
+          <!--input type="hidden" name="rdrbocd" value=""  -->
+          </td>
+
+          <td width="80" bgcolor="#dddddd" class="gray" >구독매체<font color="red">*</font></td>
+          <td class="gray"  width="150">
+          <input type="text" name="medinm" value="" class="readonly_box" style="text-align:center" readonly caption="구독매체" notEmpty>
+          </td>
+
+          <td width="80" bgcolor="#dddddd" class="gray" >독자번호<font color="red">*</font></td>
+          <td class="gray"  width="250">
+          <input type="text" name="rdr_no" value="" size="9" class="readonly_box" style="text-align:center" readonly notEmpty> -
+          <input type="text" name="medicd" value="" size="3" class="readonly_box" style="text-align:center" readonly notEmpty> -
+          <input type="text" name="termsubsno" value="" size="4" class="readonly_box" style="text-align:center" readonly notEmpty>
+          </td>
+
+        </tr>
+        <tr>
+          <td width="80" bgcolor="#dddddd" class="gray" >구독기간<font color="red">*</font></td>
+          <td class="gray"  width="200">
+          <input type="text" name="subsfrser_no" size="10" value="" class="readonly_box" style="text-align:center" readonly caption="구독기간" notEmpty> -
+          <input type="text" name="substoser_no" size="10" value="" class="readonly_box" style="text-align:center" readonly caption="구독기간" notEmpty>
+          </td>
+
+          <td width="90" bgcolor="#dddddd" class="gray" >주소<font color="red">*</font></td>
+          <td class="gray" colspan="3">
+          <input type="text" size="70" name="addr_all" value="" class="readonly_box" style="text-align:left" readonly caption="주소" notEmpty>
+          </td>
+        </tr>
+
+        <tr>
+          <td width="90" bgcolor="#dddddd" class="gray" >불편유형<font color="red">*</font></td>
+          <td width="200" class="gray" >
+		  <input type="text" name="dscttypenm" value="" class="readonly_box" style="text-align:center" readonly caption="불편유형" >
+		  </td>
+          <input type="hidden" name="dscttypecd" value="" >
+          <td width="90" bgcolor="#dddddd" class="gray" >불편제목<font color="red">*</font></td>
+          <td colspan="3" class="gray" >
+            <input type="text" name="titl" size="70" value="" class="text_box" caption="불편제목" notEmpty tabIndex="7">
+          </td>
+        </tr>
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray"> 불편내용<font color="red">*</font></td>
+          <td colspan="5" class="gray">
+          <textarea name="cont" rows="5" cols="100" class="read_textarea" readonly notEmpty></textarea>
+          </td>
+        </tr>
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray"> 처리내용<font color="red">*</font> </td>
+          <td colspan="5" class="gray">
+            <textarea name="boproccont" rows="5" cols="100" class="Input_textarea" notEmpty></textarea>
+        </td>
+        </tr>
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray"> 처리여부<font color="red">*</font></td>
+          <td class="gray" width="200">
+            <select name="boprocyn" size="1" class="sel_all"  >
+              <option value="" >선택</option>
+              <option value="N" >미처리</option>
+              <option value="Y" >처리완료</option>
+            </select>
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray"> 처리자<font color="red">*</font></td>
+          <td class="gray" width="340" colspan="3">
+            <input name="procpers"    type="text" value="" size="5" maxlength ="5" class="text_box" tabIndex="5" onchange="emp_search();window.event.returnValue=false;" >
+            <input name="procpers_nm" type="text" value="" size="12" class="readonly_box" readonly >
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</form>
+</table>
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="ifrm" width=800 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+</body>
+</html>

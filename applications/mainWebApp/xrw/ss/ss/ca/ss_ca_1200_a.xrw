@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<staf_form>
+								<selcd/>
+								<selnm/>
+								<closyymm/>
+								<applySession/>
+								<js_fn_nm/>
+								<clsfcd/>
+								<pageno/>
+								<pagesize/>
+							</staf_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<closyymm/>
+									<stafclsfcd/>
+									<stafno/>
+									<rdrcnt/>
+									<payalonnoit/>
+									<payalonamt/>
+									<prn/>
+									<ernno/>
+									<stafnm/>
+									<acctbank/>
+									<acctbanknm/>
+									<acctno/>
+									<acctdeps_pers/>
+									<tel_no/>
+									<ptph_no/>
+									<email/>
+									<cntrstatcd/>
+									<cntrstatnm/>
+									<rnum/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1200subInit" action="/ss/ca/1200" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1200search" action="/ss/ca/1210" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/staf_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1200print" action="/ss/ca/1220" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/staf_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1200excel" action="/ss/ca/1230" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/staf_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				model.setValue("/root/reqData/reqform/staf_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/staf_form/pageno", 	"1");
+				//model.setValue("/root/reqData/reqform/extn_staf_form/pagesize", "10");
+				model.setValue("/root/reqData/reqform/staf_form/pagesize", "5000");
+				model.setValue("/root/reqData/reqform/staf_form/applySession", true);
+				
+				model.send("PID1200subInit", false);
+								
+				model.removenode("/root/tempData/initTemp");
+				
+				PID1200combo1.select(0);
+			}
+			
+			function search()
+			{
+				if(!commValidate("PID1200group1"))
+					return;
+	
+				remakeNode("/root/tempData/resTemp");				
+															
+				model.send("PID1200search", false);
+				
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+
+				//PID1200caption3.value= "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + " 건";
+							 	
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/stafnm").length == 0)
+					model.alert("검색결과가 없습니다.");
+									
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1200datagrid1.rebuild();
+				PID1200input2.refresh();
+			}
+			
+			function print_list(clsfcd){
+
+				/*if(!commValidate("PID1200group1"))
+					return;
+
+				//인쇄구분코드 SET
+				//인쇄:PR  확인서:CF
+				model.setValue("/root/reqData/reqform/staf_form/clsfcd", clsfcd);
+
+				//사이버수당지급 목록 조회조건을 해당 서블릿으로 보낸다.
+				model.send("PID1200print", false);*/
+				
+				callServletPrint("/ss/ca/1220","/root/reqData/reqform/staf_form");
+			}
+			
+			function excel()
+			{
+				if(!commValidate("PID1200group1"))
+					return;
+					
+				model.send("PID1200excel", false);
+				
+				body.disabled = false;
+				progressBarEnd();
+			}
+			
+			function changeCombo()
+			{
+				if(model.getValue("/root/reqData/reqform/staf_form/selcd") == '3'){
+					PID1200input2.attribute("format") = "999999-9999999";
+					PID1200input2.attribute("dataType") = "jumin";
+					PID1200input2.attribute("caption") = "주민등록번호";
+					PID1200input2.refresh();					
+				}else if(model.getValue("/root/reqData/reqform/staf_form/selcd") == '4'){
+					PID1200input2.attribute("format") = "999-99-99999";
+					PID1200input2.attribute("dataType") = "juffice";
+					PID1200input2.attribute("caption") = "사업자등록번호";
+					PID1200input2.refresh();
+				}else{
+					PID1200input2.attribute("format") = "";
+					PID1200input2.attribute("dataType") = "";
+					PID1200input2.attribute("caption") = "";
+					PID1200input2.refresh();
+				}
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1200" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="PID1200datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="요원명^주민번호^입금은행^계좌번호^전화번호^휴대폰번호^지급건수^지급금액" colsep="^" colwidth="100, 120, 101, 131, 125, 125, 80, 122" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:135px; width:926px; height:600px; ">
+			<col ref="stafnm"/>
+			<col ref="prn" format="999999-9999999"/>
+			<col ref="acctbanknm" style="text-align:left; "/>
+			<col ref="acctno" style="text-align:left; "/>
+			<col ref="tel_no" style="text-align:left; "/>
+			<col ref="ptph_no" style="text-align:left; "/>
+			<col ref="payalonnoit" format="#,###" style="text-align:right; padding-right:3; "/>
+			<col ref="payalonamt" format="#,###" style="text-align:right; padding-right:3; "/>
+		</datagrid>
+		<!--<group id="PID1200group2" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID1200paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<group id="PID1200group1" class="gro_tab1" style="left:10px; top:80px; width:926px; height:25px; text-align:left; ">
+			<caption id="PID1200caption12" class="list_cap01" style="left:0px; top:0px; width:926px; height:25px; "/>
+			<caption id="PID1200caption26" style="left:4px; top:4px; width:66px; height:20px; ">정산마감월</caption>
+			<input id="PID1200input1" ref="/root/reqData/reqform/staf_form/closyymm" class="req" format="yyyy-mm" caption="정산마감월" style="left:81px; top:4px; width:80px; height:18px; "/>
+			<button id="PID1200button1" class="btn_grid03" style="left:790px; top:4px; width:53px; height:17px; ">
+				<caption>확인서</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						print_list("CF");
+					]]>
+				</script>
+			</button>
+			<button id="PID1200button2" class="btn_grid05" style="left:846px; top:4px; width:75px; height:17px; ">
+				<caption>DOWNLOAD</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						excel();
+					]]>
+				</script>
+			</button>
+			<caption id="PID1200caption4" style="left:175px; top:4px; width:50px; height:20px; ">검색조건</caption>
+			<select1 id="PID1200combo1" ref="/root/reqData/reqform/staf_form/selcd" appearance="minimal" style="left:230px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value>0</value>
+					</item>
+					<item>
+						<label>요원번호</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>요원명</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>주민등록번호</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>사업자등록번호</label>
+						<value>4</value>
+					</item>
+					<item>
+						<label>계좌번호</label>
+						<value>5</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						changeCombo();
+					]]>
+				</script>
+			</select1>
+			<input id="PID1200input2" ref="/root/reqData/reqform/staf_form/selnm" style="left:335px; top:4px; width:100px; height:18px; "/>
+			<caption id="PID1200caption5" style="left:440px; top:5px; width:100px; height:20px; ">* 검색어 '-' 제외</caption>
+			<button id="PID1200button3" class="btn_grid02" style="left:745px; top:4px; width:42px; height:17px; ">
+				<caption>인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						print_list("PR");
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1200group3" class="gro_tab1" style="left:10px; top:110px; width:926px; height:25px; text-align:left; ">
+			<caption id="PID1200caption1" class="list_cap01" style="left:0px; top:0px; width:926px; height:25px; "/>
+			<caption id="PID1200caption2" style="left:4px; top:3px; width:113px; height:20px; ">사이버수당지급</caption>
+		</group>
+		<!--<group id="PID1200group4" style="left:10px; top:725px; width:926px; height:25px; ">
+			<caption id="PID1200caption3" style="left:765px; top:3px; width:160px; height:20px; text-align:right; ">총건수 건</caption>
+		</group>-->
+	</xhtml:body>
+</xhtml:html>

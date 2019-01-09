@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>공통코드</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<title>CMS해지</title>
+					</initData>
+					<reqData>
+						<formData>
+							<promiseidx/>
+							<memberidx/>
+							<cmsstopdate/>
+							<cmsstatus/>
+							<mode/>
+						</formData>
+					</reqData>
+					<resData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					if (model.property("TN_DNS_1070_popup_flag") == "Y" ) {
+						promisecode.value = model.property("TN_DNS_1070_promisecode"); 
+						promiseidx.value = model.property("TN_DNS_1070_promiseidx"); 
+						memberidx.value = model.property("TN_DNS_1070_memberidx"); 
+						cmsstatus.value = model.property("TN_DNS_1070_cmsstatus"); 
+					}
+					stopdate.value = commCurDate();					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="tn_dns_1041_u" action="/tn/dns/1041" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/formData" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/fcmc_common.js"/>
+	</xhtml:head>
+	<xhtml:body class="pop400" pagewidth="450" pageheight="150" guideline="1,10;1,440;" style="font-family:굴림; ">
+		<group id="group_tit" class="gro_tit1_400" style="left:10px; top:5px; width:430px; height:29px; ">
+			<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:0px; top:0px; width:430px; height:27px; ">제목 - Main Title</caption>
+		</group>
+		<caption id="caption2" class="list_cap02" style="left:10px; top:70px; width:430px; height:26px; "/>
+		<button id="button1" class="btn03" style="left:308px; top:9px; width:63px; height:21px; ">
+			<caption>실행</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var status = model.getValue("/root/reqData/formData/cmsstatus");
+					if (status == "3" || status == "4" || status == "5"|| status == "6"|| status == "10"|| status == "11"){
+						if(show_message("승인의뢰파일(EB13)을 전송해야 해지처리가 완료되며, 현 시점부터 이제 출금 대상에서 제외됩니다.", "확인", MB_YESNO) != IDYES) {
+							return false;
+						}
+						model.setValue("/root/reqData/formData/mode","S");
+						model.send("tn_dns_1041_u");
+						if(submit_completed()){
+							show_message("CMS해지신청이 완료 되었습니다.","");
+							window.close();		
+						}
+					}else if(status == "7"){
+						if(show_message("CMS 해지신청이 취소됩니다.", "확인", MB_YESNO) != IDYES) {
+							return false;
+						}
+						model.setValue("/root/reqData/formData/mode","C");
+						model.send("tn_dns_1041_u");
+						if(submit_completed()){
+							show_message("CMS해지신청 취소가 완료 되었습니다.","");
+							window.close();		
+						}					
+					}else{
+						alert("CMS해지 대상이 아닙니다."); return;
+					}
+					model.property("TN_DNS_1070_end") = "N";
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" style="left:375px; top:9px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.property("TN_DNS_1070_end") = "Y";
+					window.close();				
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:70px; width:80px; height:26px; ">해지일자</caption>
+		<input id="stopdate" ref="/root/reqData/formData/cmsstopdate" inputtype="date" style="left:95px; top:75px; width:100px; height:18px; "/>
+		<caption id="caption5" class="list_cap02" style="left:10px; top:45px; width:430px; height:26px; "/>
+		<caption id="caption3" class="list_cap01" style="left:10px; top:45px; width:80px; height:26px; ">약정코드</caption>
+		<output id="promisecode" style="left:95px; top:50px; width:100px; height:20px; "/>
+		<caption id="caption6" class="list_cap01" style="left:205px; top:45px; width:80px; height:26px; ">CMS상태</caption>
+		<output id="promiseidx" ref="/root/reqData/formData/promiseidx" visibility="hidden" style="left:209px; top:74px; width:56px; height:18px; "/>
+		<output id="memberidx" ref="/root/reqData/formData/memberidx" visibility="hidden" style="left:268px; top:74px; width:57px; height:18px; "/>
+		<select1 id="cmsstatus" ref="/root/reqData/formData/cmsstatus" disabled="true" appearance="minimal" style="left:289px; top:49px; width:100px; height:18px; ">
+			<choices>
+				<item>
+					<label>신규회원</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>신규불능</label>
+					<value>2</value>
+				</item>
+				<item>
+					<label>신규완료</label>
+					<value>3</value>
+				</item>
+				<item>
+					<label>계좌변경</label>
+					<value>4</value>
+				</item>
+				<item>
+					<label>계좌변경불능</label>
+					<value>5</value>
+				</item>
+				<item>
+					<label>계좌변경완료</label>
+					<value>6</value>
+				</item>
+				<item>
+					<label>해지신청</label>
+					<value>7</value>
+				</item>
+				<item>
+					<label>해지불능</label>
+					<value>8</value>
+				</item>
+				<item>
+					<label>해지완료</label>
+					<value>9</value>
+				</item>
+				<item>
+					<label>출금완료</label>
+					<value>10</value>
+				</item>
+				<item>
+					<label>출금불능</label>
+					<value>11</value>
+				</item>
+			</choices>
+		</select1>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<naviInfo>
+							<pageno>1</pageno>
+							<totalcnt>0</totalcnt>
+							<js_fn_nm>search</js_fn_nm>
+							<records_per_page>5000</records_per_page>
+							<page_set_gubun>0</page_set_gubun>
+						</naviInfo>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<searchForm>
+								<applySession/>
+								<js_fn_nm>search</js_fn_nm>
+								<pageno>1</pageno>
+								<pagesize>5000</pagesize>
+								<fryymm/>
+								<toyymm/>
+								<medicd>210</medicd>
+							</searchForm>
+							<detailForm>
+								<applySession/>
+								<pageno>1</pageno>
+								<closyymm/>
+								<accflag/>
+							</detailForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<clsfcd/>
+									<closseq/>
+									<closyymm/>
+									<frsubscd/>
+									<tosubscd/>
+									<closdt/>
+									<closyn/>
+									<medicd/>
+									<medinm/>
+									<lumpcnt/>
+									<addcnt/>
+									<totcnt/>
+									<lumpamt/>
+									<addamt/>
+									<totamt/>
+									<etc1/>
+									<etc2/>
+									<etc3/>
+									<rnum/>
+								</record>
+							</listGrid>
+							<detailGrid>
+								<record>
+									<clsfcd/>
+									<closseq/>
+									<closyymm/>
+									<closdt/>
+									<mediser_no/>
+									<lumpcnt/>
+									<retncnt/>
+									<closcnt/>
+									<lumpamt/>
+									<retnamt/>
+									<closamt/>
+								</record>
+							</detailGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+			<submission id="PID2400subInit" action="/ss/brsup/2400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/defaultData"/>
+			<submission id="PID2400subSearch" action="/ss/brsup/2420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/searchForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID2400subDetail" action="/ss/brsup/2440" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/detailForm" resultref="/root/resData/gridData/detailGrid"/>
+			<submission id="PID2400subExcelDown" action="/ss/brsup/2430" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/detailForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				commEventHandler(PID2400group_scr);
+				commEventHandler(PID2400group2);
+				
+				model.send("PID2400subInit", false);
+				
+				//기타 데이터 셋팅
+				modelCopyValue("/root/reqData/reqform/searchForm/applySession", 	"/root/initData/defaultData/applySession");
+				modelCopyValue("/root/reqData/reqform/searchForm/fryymm", 		"/root/initData/defaultData/fryymm");
+				modelCopyValue("/root/reqData/reqform/searchForm/toyymm", 		"/root/initData/defaultData/toyymm");
+				modelCopyValue("/root/reqData/reqform/detailForm/closyymm", 		"/root/initData/defaultData/closyymm");
+				
+				PID2400group_scr.refresh();
+				PID2400group2.refresh();
+			}
+			
+			//기존의 list_search
+			function search(pageno)
+			{
+				/*if(!commValidate(PID2400group_scr))
+					return;
+				if(!commValidate(PID2400group2))
+					return;*/
+					
+				//model.setValue("/root/reqData/reqform/detailForm/closyymm", "");
+				PID2400input3.value = "";
+				
+				if(pageno == null || pageno == "")
+				{
+					model.setValue("/root/reqData/reqform/searchForm/pageno", "1");
+					model.setValue("/root/reqData/reqform/detailForm/pageno", "1");
+				}
+				else
+				{
+					model.setValue("/root/reqData/reqform/searchForm/pageno", pageno);
+					model.setValue("/root/reqData/reqform/detailForm/pageno", pageno);
+				}
+				
+				//조회
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID2400subSearch", false);
+
+				//데이터셋팅
+				//-조회목록
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+				//-기타
+				modelCopyValue("/root/initData/naviInfo/pageno", "/root/tempData/resTemp/pageno");
+				modelCopyValue("/root/initData/naviInfo/totalcnt", "/root/tempData/resTemp/totalcnt");
+				modelCopyValue("/root/initData/naviInfo/js_fn_nm", "/root/tempData/resTemp/js_fn_nm");
+				modelCopyValue("/root/initData/naviInfo/records_per_page", "/root/tempData/resTemp/records_per_page");
+				//-총건수
+				//PID2400caption6.value = "총건수 " + model.getValue("/root/tempData/resTemp/totalcnt_f") + " 건";
+				
+				PID2400datagrid1.refresh();
+				
+				if(instance1.selectNodes("/root/resData/gridData/listGrid/record/clsfcd").length == 0)
+					model.alert("검색결과가 없습니다.");
+					
+				model.removenode("/root/tempData/resTemp");
+			}
+			
+			function detailView()
+			{
+				model.setValue("/root/reqData/reqform/detailForm/closyymm", curRowRefColValue(PID2400datagrid1, "closyymm"));
+				PID2400group2.refresh();
+				
+				model.send("PID2400subDetail", false);
+				
+				if(instance1.selectNodes("/root/resData/gridData/detailGrid/record/clsfcd").length == 0)
+					model.alert("검색결과가 없습니다.");
+				PID2400datagrid2.refresh();
+			}
+			
+			function excelDown()
+			{
+				if(!commValidate(PID2400group2))
+					return;
+					
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID2400subExcelDown", false);
+				
+				//사용자가 취소할 경우를 감안하여 인위적으로 정리작업을 실행.
+				body.disabled = false;
+				progressBarEnd();
+			}
+			
+			function page_move(pageno)
+			{
+				//페이징 없음.
+			}
+			
+			function access_adjm(acctflag)
+			{
+				//원래 페이지에서 사용안함 (주석처리)
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID2400" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:50px; width:926px; height:21px; ">
+			<button id="btnA4" class="btn02" crud="R" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					search();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID2400group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:25px; ">
+			<caption id="PID2400caption1" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">정산마감내역조회</caption>
+			<input id="PID2400input1" ref="/root/reqData/reqform/searchForm/fryymm" class="req" navindex="1" inputtype="date" format="yyyy-mm" dataType="monthfrom" caption="시작년월" setHandler="true" relid="PID2400input2" style="left:109px; top:4px; width:100px; height:18px; "/>
+			<input id="PID2400input2" ref="/root/reqData/reqform/searchForm/toyymm" class="req" navindex="2" inputtype="date" format="yyyy-mm" dataType="monthto" caption="종료년월" setHandler="true" relid="PID2400input1" style="left:235px; top:4px; width:100px; height:18px; "/>
+			<caption id="PID2400caption7" style="left:214px; top:4px; width:15px; height:20px; text-align:center; ">-</caption>
+			<button id="PID2400button1" class="btn_grid04" style="left:859px; top:4px; width:64px; height:17px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+					excelDown();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID2400group_line" class="gro_line" style="left:10px; top:140px; width:926px; height:5px; "/>
+		<datagrid id="PID2400datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="정산년월^정산일자^일괄건수^반송건수^총건수^일괄금액^반송금액^총금액" colsep="^" colwidth="115, 115, 110, 110, 110, 115, 114, 115" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:150px; width:926px; height:235px; ">
+			<col ref="closyymm" format="yyyy-mm"/>
+			<col ref="closdt" format="yyyy-mm"/>
+			<col ref="lumpcnt" format="#,###" style="text-align:right; "/>
+			<col ref="addcnt" format="#,###" style="text-align:right; "/>
+			<col ref="totcnt" format="#,###" style="text-align:right; "/>
+			<col ref="lumpamt" format="#,###" style="text-align:right; "/>
+			<col ref="addamt" format="#,###" style="text-align:right; "/>
+			<col ref="totamt" format="#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID2400datagrid1.mouseCol>PID2400datagrid1.fixedCols-1 && PID2400datagrid1.mouseRow>PID2400datagrid1.fixedRows-1)
+					{
+						detailView();
+					}
+				}    
+				]]>
+			</script>
+		</datagrid>
+		<!--group id="PID2400group9" style="left:10px; top:360px; width:926px; height:25px; ">
+			<iviewer id="PID2400paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group-->
+		<!--group id="PID2400group1" style="left:10px; top:360px; width:926px; height:25px; ">
+			<caption id="PID2400caption6" style="left:750px; top:3px; width:175px; height:20px; text-align:right; ">총건수</caption>
+		</group-->
+		<group id="PID2400group2" class="gro_sel" style="left:10px; top:110px; width:926px; height:25px; ">
+			<caption id="PID2400caption2" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">정산년월</caption>
+			<input id="PID2400input3" ref="/root/reqData/reqform/detailForm/closyymm" navindex="3" inputtype="date" format="yyyy-mm" dataType="month" setHandler="true" caption="정산년월" style="left:109px; top:4px; width:100px; height:18px; "/>
+		</group>
+		<datagrid id="PID2400datagrid2" nodeset="/root/resData/gridData/detailGrid/record" caption="호수^일괄건수^반송건수^총건수^일괄금액^반송금액^총금액" colsep="^" colwidth="125, 125, 125, 125, 134, 135, 135" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:390px; width:926px; height:340px; ">
+			<col ref="mediser_no" style="font-weight:bold; "/>
+			<col ref="lumpcnt" format="#,###" style="text-align:right; "/>
+			<col ref="retncnt" format="#,###" style="text-align:right; "/>
+			<col ref="closcnt" format="#,###" style="text-align:right; "/>
+			<col ref="lumpamt" format="#,###" style="text-align:right; "/>
+			<col ref="retnamt" format="#,###" style="text-align:right; "/>
+			<col ref="closamt" format="#,###" style="text-align:right; "/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

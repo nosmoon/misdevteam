@@ -1,0 +1,147 @@
+/***************************************************************************************************
+* 파일명 : .java
+* 기능 : 독자우대-구독신청
+* 작성일자 : 2007-05-22
+* 작성자 : 김대섭
+***************************************************************************************************/
+/***************************************************************************************************
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업 : 
+***************************************************************************************************/
+
+
+package chosun.ciis.hd.affr.ds;
+
+import java.sql.*;
+import java.util.*;
+import somo.framework.db.*;
+import somo.framework.util.*;
+import chosun.ciis.hd.affr.dm.*;
+import chosun.ciis.hd.affr.rec.*;
+
+/**
+ * 
+ */
+
+
+public class HD_AFFR_4104_LDataSet extends somo.framework.db.BaseDataSet implements java.io.Serializable{
+	public ArrayList curlist = new ArrayList();
+	public String errcode;
+	public String errmsg;
+
+	public HD_AFFR_4104_LDataSet(){}
+	public HD_AFFR_4104_LDataSet(String errcode, String errmsg){
+		this.errcode = errcode;
+		this.errmsg = errmsg;
+	}
+
+	public void setErrcode(String errcode){
+		this.errcode = errcode;
+	}
+
+	public void setErrmsg(String errmsg){
+		this.errmsg = errmsg;
+	}
+
+	public String getErrcode(){
+		return this.errcode;
+	}
+
+	public String getErrmsg(){
+		return this.errmsg;
+	}
+
+	public void getValues(CallableStatement cstmt) throws SQLException{
+		this.errcode = Util.checkString(cstmt.getString(1));
+		this.errmsg = Util.checkString(cstmt.getString(2));
+		if(!"".equals(this.errcode)){
+			return;
+		}
+
+		ResultSet rset0 = (ResultSet) cstmt.getObject(5);
+		while(rset0.next()){
+			HD_AFFR_4104_LCURLISTRecord rec = new HD_AFFR_4104_LCURLISTRecord();
+			rec.cmpy_cd = Util.checkString(rset0.getString("cmpy_cd"));
+			rec.emp_no = Util.checkString(rset0.getString("emp_no"));
+			rec.dept_nm = Util.checkString(rset0.getString("dept_nm"));
+			rec.nm_korn = Util.checkString(rset0.getString("nm_korn"));
+			rec.dty_nm = Util.checkString(rset0.getString("dty_nm"));
+			rec.posi_nm = Util.checkString(rset0.getString("posi_nm"));
+			rec.dty_cd = Util.checkString(rset0.getString("dty_cd"));
+			rec.posi_cd = Util.checkString(rset0.getString("posi_cd"));
+			rec.aply_yy = Util.checkString(rset0.getString("aply_yy"));
+			rec.dept_cd = Util.checkString(rset0.getString("dept_cd"));
+			rec.in_cmpy_dt = Util.checkString(rset0.getString("in_cmpy_dt"));
+			rec.lvcmpy_dt = Util.checkString(rset0.getString("lvcmpy_dt"));
+			rec.frdt = Util.checkString(rset0.getString("frdt"));
+			rec.stop_dt = Util.checkString(rset0.getString("stop_dt"));
+			rec.cont_svc_yys = Util.checkString(rset0.getString("cont_svc_yys"));
+			rec.rest_vaca_yys_clsf = Util.checkString(rset0.getString("rest_vaca_yys_clsf"));
+			rec.base_pont = Util.checkString(rset0.getString("base_pont"));
+			rec.faml_pont = Util.checkString(rset0.getString("faml_pont"));
+			rec.cont_svc_pont = Util.checkString(rset0.getString("cont_svc_pont"));
+			rec.rest_pont = Util.checkString(rset0.getString("rest_pont"));
+			rec.dty_taem_chf_un_norm = Util.checkString(rset0.getString("dty_taem_chf_un_norm"));
+			rec.dty_comite_memb = Util.checkString(rset0.getString("dty_comite_memb"));
+			rec.pont_tot = Util.checkString(rset0.getString("pont_tot"));
+			rec.use_pont = Util.checkString(rset0.getString("use_pont"));
+			rec.rsrt_amt = Util.checkString(rset0.getString("rsrt_amt"));
+			this.curlist.add(rec);
+		}
+	}
+}/*----------------------------------------------------------------------------------------------------
+Web Tier에서 DataSet 객체 관련 코드 작성시 사용하십시오.
+
+<%
+	HD_AFFR_4104_LDataSet ds = (HD_AFFR_4104_LDataSet)request.getAttribute("ds");
+%>
+Web Tier에서 Record 객체 관련 코드 작성시 사용하십시오.
+
+<%
+	for(int i=0; i<ds.curlist.size(); i++){
+		HD_AFFR_4104_LCURLISTRecord curlistRec = (HD_AFFR_4104_LCURLISTRecord)ds.curlist.get(i);%>
+HTML 코드들....
+	<%}%>
+
+----------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 DataSet 객체의 <%= %> 작성시 사용하십시오.
+
+<%= ds.getErrcode()%>
+<%= ds.getErrmsg()%>
+<%= ds.getCurlist()%>
+----------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 Record 객체의 <%= %> 작성시 사용하십시오.
+
+<%= curlistRec.cmpy_cd%>
+<%= curlistRec.emp_no%>
+<%= curlistRec.dept_nm%>
+<%= curlistRec.nm_korn%>
+<%= curlistRec.dty_nm%>
+<%= curlistRec.posi_nm%>
+<%= curlistRec.dty_cd%>
+<%= curlistRec.posi_cd%>
+<%= curlistRec.aply_yy%>
+<%= curlistRec.dept_cd%>
+<%= curlistRec.in_cmpy_dt%>
+<%= curlistRec.lvcmpy_dt%>
+<%= curlistRec.frdt%>
+<%= curlistRec.stop_dt%>
+<%= curlistRec.cont_svc_yys%>
+<%= curlistRec.rest_vaca_yys_clsf%>
+<%= curlistRec.base_pont%>
+<%= curlistRec.faml_pont%>
+<%= curlistRec.cont_svc_pont%>
+<%= curlistRec.rest_pont%>
+<%= curlistRec.dty_taem_chf_un_norm%>
+<%= curlistRec.dty_comite_memb%>
+<%= curlistRec.pont_tot%>
+<%= curlistRec.use_pont%>
+<%= curlistRec.rsrt_amt%>
+----------------------------------------------------------------------------------------------------*/
+
+
+/* 작성시간 : Mon May 25 20:42:49 KST 2009 */

@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+						</comboSet>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<reqData>
+						<prt_type>1</prt_type>
+						<fwdData/>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+						<case1>
+							<prt_kind1>Y</prt_kind1>
+							<prt_kind2>Y</prt_kind2>
+							<prt_kind3>Y</prt_kind3>
+							<medi_cd>000</medi_cd>
+							<pubc_dt/>
+						</case1>
+						<case3>
+							<prt_kind1>Y</prt_kind1>
+							<prt_kind2>2</prt_kind2>
+							<prt_kind3>3</prt_kind3>
+							<medi_cd>000</medi_cd>
+							<pubc_dt/>
+						</case3>
+						<case5>
+							<prt_kind1>Y</prt_kind1>
+							<prt_kind2>Y</prt_kind2>
+							<prt_exp1>1</prt_exp1>
+							<prt_exp2>Y</prt_exp2>
+							<pubc_dt/>
+						</case5>
+						<case7>
+							<medi_cd>000</medi_cd>
+							<fr_dt/>
+							<to_dt/>
+							<dlco_no/>
+							<dlco_nm/>
+							<ck_misu>Y</ck_misu>
+						</case7>
+						<case9>
+							<medi_cd>000</medi_cd>
+							<fr_dt/>
+							<to_dt/>
+							<mchrg_pers/>
+							<mchrg_pers_nm/>
+						</case9>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+
+				var curDate = getCurrentDate();
+				model.setValue("/root/reqData/case1/pubc_dt", curDate);
+				//model.setValue("/root/reqData/case3/pubc_dt", curDate);
+				//model.setValue("/root/reqData/case5/pubc_dt", curDate);
+				model.setValue("/root/reqData/case7/fr_dt", curDate);	
+				model.setValue("/root/reqData/case7/to_dt", curDate);																	
+				model.setValue("/root/reqData/case9/fr_dt", curDate);
+				model.setValue("/root/reqData/case9/to_dt", curDate);
+				
+				model.refresh();
+				
+				var dealmedicd	=	model.property("ss_dealmedicd");
+				if( dealmedicd == "2" )
+				{
+					cb_medi_cd1.select(2);
+					//cb_medi_cd2.select(1);
+				}
+				else if( dealmedicd == "5" )
+				{
+					cb_medi_cd1.value = "9";
+					cpt_cover.visible = true;
+				}
+				else
+				{
+					cb_medi_cd1.select(0);
+					//cb_medi_cd2.select(0);
+					cpt_cover.visible = false;
+				}
+
+				switch1.selectedIndex=0;
+				
+				var medi_chk = model.property("ss_dealmedicd");
+				
+				if( medi_chk == "1" )
+				{
+					model.setValue("/root/reqData/case3/prt_kind3","3");
+					//chc_prt_kind3.disabled = false;
+					//cmb_medi_cd.disabled = true;
+					model.refresh();				
+				}
+				else if(medi_chk == "2")
+				{
+					model.setValue("/root/reqData/case3/prt_kind3","N");
+					//chc_prt_kind3.disabled = true;
+					//cmb_medi_cd.disabled = true;
+					model.refresh();					
+				}
+				
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function setDlcoInfo(dlco_no, dlco_nm){			
+					model.setValue("/root/reqData/case7/dlco_no", dlco_no);
+					model.setValue("/root/reqData/case7/dlco_nm", dlco_nm);					
+					inp_dlco_no.refresh();
+					inp_dlco_nm.refresh();
+				}	
+			
+				function goReport(gubun)
+				{	
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+					
+					var type, path, pers, medi_cd, medi_cd2, pubc_dt, fr_dt, to_dt, ck_mon, dlco_no, dlco_nm, ck_misu;//medi_cd = 세션값    medi_cd2 = 화면에서
+
+					if( model.property("ss_dealmedicd") == "1" || model.property("ss_dealmedicd") == "3" )
+					{
+						medi_cd	= 	"000";//세션값
+					}
+					
+
+					type = radio1.value;
+					
+					if( type == "1" )
+					{	//광고 게재명세서
+						var chk1,chk2,chk3;
+						chk1 = model.getValue("/root/reqData/case1/prt_kind1");
+						chk2 = model.getValue("/root/reqData/case1/prt_kind2");
+						chk3 = model.getValue("/root/reqData/case1/prt_kind3");
+						
+						if(chk1=="" && chk2=="" && chk3==""){
+							alert("출력하고자하는 장표를 선택하세요.");
+						}
+						else{
+							makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_PUB_2881_P");		
+							
+							path = "/root/reqData/case1";
+							medi_cd2	= 	model.getValue(path+"/medi_cd");
+							pubc_dt	=	model.getValue(path+"/pubc_dt");
+							
+							makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", model.property("ss_cmpycd"));	
+							makeNodeValue("/root/oz_data/odiParam/iv_medi_cd",  medi_cd2);
+							makeNodeValue("/root/oz_data/odiParam/iv_pubc_dt",   pubc_dt);
+							makeNodeValue("/root/oz_data/odiParam/iv_prt_kind1",  chk1);
+							makeNodeValue("/root/oz_data/odiParam/iv_prt_kind2",  chk2);
+							makeNodeValue("/root/oz_data/odiParam/iv_prt_kind3",  chk3);
+							
+							// 레포트뷰어 호출.					
+							openOzwin("/root/oz_data");	
+						}	
+					}
+					else if(type == "7"){//대행사별 게재일람표
+						
+							// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)	
+							makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_PUB_1830_P");
+							
+							path 		= 	"/root/reqData/case"+type;
+							medi_cd	=	model.getValue(path+"/medi_cd");
+							fr_dt		=	model.getValue(path+"/fr_dt");
+							to_dt		=	model.getValue(path+"/to_dt");
+							dlco_no    =	model.getValue(path+"/dlco_no");
+							dlco_nm   =	model.getValue(path+"/dlco_nm");
+							ck_misu   =	model.getValue(path+"/ck_misu");
+							if(dlco_no == ""){
+								alert("대행사를 입력하세요");
+								return;
+							}
+							makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	//테스트는 하드  서버올릴때는 세션값으로   model.property("ss_cmpycd")
+							makeNodeValue("/root/oz_data/odiParam/iv_medi_cd", medi_cd);
+							makeNodeValue("/root/oz_data/odiParam/iv_fr_dt", fr_dt);
+							makeNodeValue("/root/oz_data/odiParam/iv_to_dt", to_dt);
+							makeNodeValue("/root/oz_data/odiParam/iv_dlco_no", dlco_no);
+							makeNodeValue("/root/oz_data/odiParam/iv_dlco_nm", dlco_nm);
+							makeNodeValue("/root/oz_data/odiParam/iv_ck_misu", ck_misu);							
+							
+							// 레포트뷰어 호출.	
+							openOzwin("/root/oz_data");
+					}
+					else if(type == "9"){//영업담당별 게재일람표
+						var chk;
+						chk = model.getValue("/root/reqData/case9/medi_cd");
+						if( chk == "000" )
+						{//신문통합
+							// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)	
+							makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_PUB_2884_P");
+							
+							path = "/root/reqData/case"+type;
+							medi_cd 	=	"000";
+							fr_dt		=	model.getValue(path+"/fr_dt");
+							to_dt		=	model.getValue(path+"/to_dt");
+							pers		=	model.getValue(path+"/mchrg_pers");
+							
+							makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	//테스트는 하드  서버올릴때는 세션값으로    model.property("ss_cmpycd")
+							makeNodeValue("/root/oz_data/odiParam/iv_medi_cd", medi_cd);
+							makeNodeValue("/root/oz_data/odiParam/iv_fr_dt",fr_dt);
+							makeNodeValue("/root/oz_data/odiParam/iv_to_dt",to_dt);
+							makeNodeValue("/root/oz_data/odiParam/iv_pers", pers);
+						
+							// 레포트뷰어 호출.					
+							openOzwin("/root/oz_data");	
+						}	
+					}
+				}
+		]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,936;2,60;2,70;2,76;1,397;" style="font-family:굴림; ">
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption44" class="list_cap02" style="left:10px; top:70px; width:360px; height:345px; "/>
+		<button id="button5" class="btn02" crud="P" style="left:820px; top:40px; width:53px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var prt_type = radio1.value;
+				var group    = "group"+prt_type;
+				if(commReqCheck(group)){
+					goReport("P");
+				}				
+				]]>
+			</script>
+		</button>
+		<select1 id="radio1" ref="/root/reqData/prt_type" appearance="full" overflow="visible" style="left:17px; top:80px; width:153px; height:160px; border-style:none; ">
+			<choices>
+				<item>
+					<label>방송광고 청약명세서</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>대행사별 게재일람표</label>
+					<value>7</value>
+				</item>
+				<item>
+					<label>영업담당별 게재일람표</label>
+					<value>9</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var type = radio1.value;
+					if( type == "1" )
+					{
+						model.toggle("case1");
+					}
+					else if(type == "7")
+					{
+						model.toggle("case7");
+					}
+					else if(type == "9")
+					{
+						model.toggle("case9");
+					}
+					]]>
+			</script>
+		</select1>
+		<switch id="switch1" class="gro_sel" style="left:390px; top:70px; width:538px; height:345px; ">
+			<case id="case1" selected="true">
+				<group id="group1" style="left:5px; top:5px; width:370px; height:165px; ">
+					<caption id="caption15" class="list_cap02" style="left:0px; top:0px; width:250px; height:75px; "/>
+					<select id="checkbox1" ref="/root/reqData/case1/prt_kind1" navindex="1" overflow="visible" appearance="full" style="left:5px; top:17px; width:185px; height:22px; border-style:none; ">
+						<choices>
+							<item>
+								<label>방송광고 청약명세서</label>
+								<value>Y</value>
+							</item>
+						</choices>
+					</select>
+					<select id="checkbox4" ref="/root/reqData/case1/prt_kind3" navindex="3" overflow="visible" appearance="full" style="left:5px; top:43px; width:185px; height:22px; border-style:none; ">
+						<choices>
+							<item>
+								<label>방송광고 청약 수정명세서</label>
+								<value>Y</value>
+							</item>
+						</choices>
+					</select>
+					<caption id="caption22" class="list_cap02" style="left:0px; top:74px; width:250px; height:26px; "/>
+					<caption id="caption3" class="list_cap03" style="left:0px; top:74px; width:80px; height:26px; ">매체구분</caption>
+					<caption id="caption23" class="list_cap02" style="left:0px; top:99px; width:250px; height:26px; "/>
+					<caption id="caption4" class="list_cap03" style="left:0px; top:99px; width:80px; height:26px; ">게재일자</caption>
+					<input id="inp_pubc_dt1" ref="/root/reqData/case1/pubc_dt" class="req" navindex="5" inputtype="date" format="yyyy-mm-dd" style="left:83px; top:103px; width:85px; height:18px; "/>
+					<select1 id="cb_medi_cd1" ref="/root/reqData/case1/medi_cd" class="req" navindex="4" appearance="minimal" style="left:83px; top:78px; width:155px; height:18px; ">
+						<choices>
+							<item>
+								<label>방송</label>
+								<value>000</value>
+							</item>
+						</choices>
+					</select1>
+				</group>
+			</case>
+			<case id="case7">
+				<group id="group7" style="left:5px; top:5px; width:331px; height:185px; ">
+					<caption id="caption30" class="list_cap02" style="left:0px; top:25px; width:291px; height:26px; "/>
+					<input id="input2" ref="/root/reqData/case7/fr_dt" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:85px; top:29px; width:85px; height:18px; "/>
+					<caption id="caption32" class="list_cap03" style="left:0px; top:25px; width:80px; height:26px; ">게재일자</caption>
+					<caption id="caption31" class="list_cap02" style="left:0px; top:0px; width:291px; height:26px; "/>
+					<select1 id="combo1" ref="/root/reqData/case7/medi_cd" class="req" navindex="1" appearance="minimal" style="left:85px; top:3px; width:85px; height:18px; ">
+						<choices>
+							<item>
+								<label>방송</label>
+								<value>000</value>
+							</item>
+						</choices>
+					</select1>
+					<caption id="caption29" class="list_cap03" style="left:0px; top:0px; width:80px; height:26px; ">매체구분</caption>
+					<caption id="caption33" style="left:175px; top:30px; width:15px; height:17px; ">~</caption>
+					<input id="input3" ref="/root/reqData/case7/to_dt" class="req" navindex="3" inputtype="date" format="yyyy-mm-dd" style="left:190px; top:29px; width:85px; height:18px; "/>
+					<caption id="caption34" class="list_cap02" style="left:0px; top:50px; width:291px; height:26px; "/>
+					<caption id="caption35" class="list_cap02" style="left:0px; top:75px; width:291px; height:26px; "/>
+					<caption id="caption36" class="list_cap03" style="left:0px; top:50px; width:80px; height:26px; ">대행사</caption>
+					<select1 id="radio4" ref="/root/reqData/case7/ck_misu" navindex="6" appearance="full" cols="2" rows="1" overflow="visible" style="left:85px; top:80px; width:90px; height:20px; border-style:none; ">
+						<choices>
+							<item>
+								<label>미수</label>
+								<value>Y</value>
+							</item>
+							<item>
+								<label>전체</label>
+								<value>N</value>
+							</item>
+						</choices>
+					</select1>
+					<input id="inp_dlco_no" ref="/root/reqData/case7/dlco_no" navindex="4" autonext="false" format="99999999" style="left:85px; top:54px; width:55px; height:18px; ">
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+							var dlco_no = inp_dlco_no.currentText;
+							model.setValue("/root/reqData/case7/dlco_no", lpad(dlco_no, 8, "0"));
+							inp_dlco_no.refresh();
+					
+							commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);						
+							]]>
+						</script>
+						<script type="javascript" ev:event="onkeypress">
+							<![CDATA[
+							if(event.keyCode== "13"){
+								var dlco_no = inp_dlco_no.currentText;
+								model.setValue("/root/reqData/case7/dlco_no", lpad(dlco_no, 8, "0"));
+								inp_dlco_no.refresh();
+					
+								commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);	
+							}
+							]]>
+						</script>
+					</input>
+					<input id="inp_dlco_nm" ref="/root/reqData/case7/dlco_nm" navindex="5" imemode="hangul" inputtype="button" style="left:144px; top:54px; width:140px; height:18px; ">
+						<script type="javascript" ev:event="onbuttonclick">
+							<![CDATA[
+							showAdvcsSearchPopup("", "", "Y", "", "", inp_dlco_nm.currentText);	
+							]]>
+						</script>
+						<script type="javascript" ev:event="onkeypress">
+							<![CDATA[
+							if(event.keyCode== "13"){
+								findDlcoNoByName("2",inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+							}
+							]]>
+						</script>
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+							findDlcoNoByName("2",inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+							]]>
+						</script>
+					</input>
+				</group>
+			</case>
+			<case id="case9">
+				<group id="group9" style="left:5px; top:5px; width:365px; height:125px; ">
+					<caption id="caption37" class="list_cap02" style="left:0px; top:50px; width:345px; height:26px; "/>
+					<caption id="caption38" class="list_cap02" style="left:0px; top:0px; width:345px; height:26px; "/>
+					<caption id="caption39" class="list_cap02" style="left:0px; top:25px; width:345px; height:26px; "/>
+					<caption id="caption40" class="list_cap03" style="left:0px; top:25px; width:80px; height:26px; ">게재일자</caption>
+					<caption id="caption41" class="list_cap03" style="left:0px; top:0px; width:80px; height:26px; ">매체구분</caption>
+					<caption id="caption42" class="list_cap03" style="left:0px; top:50px; width:80px; height:26px; ">영업담당</caption>
+					<caption id="caption43" style="left:175px; top:33px; width:15px; height:17px; ">~</caption>
+					<select1 id="cb_medi_cd9" ref="/root/reqData/case9/medi_cd" class="req" navindex="1" appearance="minimal" style="left:85px; top:4px; width:155px; height:18px; ">
+						<choices>
+							<item>
+								<label>방송통합</label>
+								<value>000</value>
+							</item>
+						</choices>
+					</select1>
+					<input id="inp_frdt9" ref="/root/reqData/case9/fr_dt" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:85px; top:30px; width:85px; height:18px; "/>
+					<input id="inp_todt9" ref="/root/reqData/case9/to_dt" class="req" navindex="3" inputtype="date" format="yyyy-mm-dd" style="left:191px; top:30px; width:85px; height:18px; "/>
+					<input id="inp_pers9" ref="/root/reqData/case9/mchrg_pers" navindex="4" caption="관리담당" style="left:85px; top:54px; width:60px; height:18px; ">
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+								commonSubmission("9005", inp_pers9.currentText,  inp_pers9, inp_pers_nm9);
+							]]>
+						</script>
+						<script type="javascript" ev:event="onkeypress">
+							<![CDATA[
+								if(event.keyCode == "13"){
+									commonSubmission("9005", inp_pers9.currentText,  inp_pers9, inp_pers_nm9);
+								}
+							]]>
+						</script>
+					</input>
+					<input id="inp_pers_nm9" ref="/root/reqData/case9/mchrg_pers_nm" navindex="5" imemode="hangul" inputtype="button" caption="관리담당" style="left:150px; top:54px; width:90px; height:18px; ">
+						<script type="javascript" ev:event="onbuttonclick">
+							<![CDATA[
+								searchEmpno("setSlcrgPers", "/root/reqData/case9/mchrg_pers", "/root/reqData/case9/mchrg_pers_nm");				
+							]]>
+						</script>
+						<script type="javascript" ev:event="onkeypress">
+							<![CDATA[
+								if(event.keyCode == "13"){
+									findEmpNoByName("setSlcrgPers", inp_pers_nm9.currentText, inp_pers9, inp_pers_nm9);
+								}
+							]]>
+						</script>
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+								findEmpNoByName("setSlcrgPers", inp_pers_nm9.currentText, inp_pers9, inp_pers_nm9);	
+							]]>
+						</script>
+					</input>
+				</group>
+			</case>
+		</switch>
+		<button id="btnClose" class="btn02" style="left:883px; top:40px; width:53px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( window.type == "mdi" )
+					{
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}
+					else
+					{
+						window.close();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="cpt_cover" visibility="visible" style="left:15px; top:95px; width:350px; height:180px; background-color:#ffffff; "/>
+	</xhtml:body>
+</xhtml:html>

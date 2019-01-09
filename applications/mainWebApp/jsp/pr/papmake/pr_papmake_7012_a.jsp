@@ -1,0 +1,67 @@
+<%@	page contentType="text/xml; charset=EUC-KR" %>
+
+<%@	page import="
+		java.io.*
+	,	java.sql.*
+	,	java.util.*
+	,	kr.co.comsquare.rwXmlLib.*
+	,	kr.co.comsquare.db.*
+	,	kr.co.comsquare.util.Tokenizer
+	,	chosun.ciis.co.base.util.*
+	,	chosun.ciis.pr.papmake.rec.*
+	,	chosun.ciis.pr.papmake.ds.*;
+	"
+%>
+
+<%
+	RwXml rx = new RwXml();
+	PR_PAPMAKE_7012_ADataSet ds = (PR_PAPMAKE_7012_ADataSet)request.getAttribute("ds");
+	int root = RwXml.rootNodeID;
+	int dataSet = 0;
+	int recordSet = 0;
+	String errcode = ds.errcode;
+	String errmsg = ds.errmsg;
+	dataSet = rx.add(root, "dataSet", "");
+
+	try {
+		/****** CURLIST1 BEGIN */
+		recordSet = rx.add(dataSet, "CURLIST1", "");
+
+		for(int i = 0; i < ds.curlist1.size(); i++) {
+			PR_PAPMAKE_7012_ACURLIST1Record rec = (PR_PAPMAKE_7012_ACURLIST1Record)ds.curlist1.get(i);
+			int record = rx.add(recordSet, "record", "");
+			rx.add(record, "ispt_cd", rec.ispt_cd);
+			//rx.add(record, "book_cd", StringUtil.replaceToXml(rec.book_cd));
+		}
+		rx.add(recordSet, "totalcnt", ds.curlist1.size());
+		/****** CURLIST1 END */
+
+	}
+	catch (Exception e) {
+		errcode += " JSP Error";
+		errmsg += " JSP Error Message = " + e.getMessage();
+	}
+	finally {
+		rx.add(dataSet, "errcode", errcode);
+		rx.add(dataSet, "errmsg", errmsg);
+		out.println(rx.xmlFlush());
+		out.println(rx.xmlEndFlush());
+	}
+%>
+
+<%
+/*
+TrustForm의 Instance 선언부에 복사해서 사용
+<pr_papmake_7012_a>
+	<dataSet>
+		<CURLIST1>
+			<record>
+				<book_cd/>
+			</record>
+		</CURLIST1>
+	</dataSet>
+</pr_papmake_7012_a>
+*/
+%>
+
+<% /* 작성시간 : Wed Dec 30 14:53:20 KST 2015 */ %>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_COM_1600.xrw
+* 기능 : 공통관리-은행코드검색
+* 작성일자 : 2009-04-22
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>은행코드검색(PL_COM_1600)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<bank_cd/>
+								<bank_nm/>
+							</searchTop>
+							<searchDtl/>
+						</searchData>
+						<reqForm/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<BANKLIST>
+								<record>
+									<cd/>
+									<cdnm/>
+									<cd_abrv_nm/>
+								</record>
+							</BANKLIST>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="pl_com_1610_l" action="/pl/com/1610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData/BANKLIST"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					var bank_cd = model.property("bank_cd");
+					
+					model.setValue("/root/reqData/searchData/searchTop/bank_cd",model.property("bank_cd"));				//은행코드 Set
+
+					if(bank_cd != ""){
+						model.send("pl_com_1010_l");
+					
+						model.setFocus("datagrid1",true);
+					}
+				}
+
+				//선택값 Return
+				function selReturn(){
+					//선택 Row값 Get
+					var rownum = datagrid1.row;
+					var bank_cd = model.getValue("/root/resData/gridData/BANKLIST/record[" + (rownum) + "]/cd");
+					var bank_nm = model.getValue("/root/resData/gridData/BANKLIST/record[" + (rownum) + "]/cd_abrv_nm");
+
+					var opwin = window.opener;		
+
+					//opener에 노드 유무확인 후 데이터 Set
+					if((model.property("bank_cd_path")).length > 0){
+						opwin.model.setValue(model.property("bank_cd_path"), bank_cd);
+					}
+					if((model.property("bank_nm_path")).length > 0){
+						opwin.model.setValue(model.property("bank_nm_path"), bank_nm);
+					}
+
+					opwin.model.refresh();									
+
+					model.close();				
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="640" pageheight="480" guideline="2,65;1,936;1,927;1,926;2,70;2,133;1,10;1,630;2,470;" style="font-family:굴림; border-style:solid; ">
+		<caption id="caption2" class="tit01" style="left:10px; top:5px; width:620px; height:29px; ">은행코드 검색</caption>
+		<button id="btnReset" class="btn03" style="left:353px; top:45px; width:63px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnRetrive" class="btn03" crud="R" style="left:422px; top:45px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.send("pl_com_1610_l");
+
+					//조회건수 체크
+					var lowcnt = datagrid1.rows;
+
+					if (lowcnt > 0) {
+						model.setFocus("datagrid1");
+					}
+
+				]]>
+			</script>
+		</button>
+		<button id="btrSel" class="btn03" style="left:491px; top:45px; width:63px; height:21px; ">
+			<caption>선택</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					selReturn();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:560px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<close ev:event="onclick"/>
+		</button>
+		<group id="group1" class="gro_sel" style="left:10px; top:70px; width:620px; height:30px; ">
+			<caption id="caption1" class="list_cap02" style="left:0px; top:0px; width:620px; height:26px; "/>
+			<caption id="caption4" class="list_cap03" style="left:0px; top:0px; width:100px; height:26px; ">은행코드</caption>
+			<caption id="caption9" class="list_cap03" style="left:278px; top:0px; width:100px; height:26px; ">은행지점명</caption>
+			<input id="input1" ref="/root/reqData/searchData/searchTop/bank_cd" style="left:103px; top:4px; width:100px; height:18px; text-align:center; "/>
+			<input id="input2" ref="/root/reqData/searchData/searchTop/bank_nm" style="left:381px; top:4px; width:150px; height:18px; text-align:left; "/>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:101px; width:620px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/BANKLIST/record" caption="은행코드^은행명^은행지점명" colsep="^" colwidth="100, 200, 280" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:111px; width:620px; height:359px; ">
+			<col ref="cd" style="text-align:center; "/>
+			<col ref="cdnm" style="text-align:center; "/>
+			<col ref="cd_abrv_nm" style="text-align:left; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					selReturn();
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeydown">
+				<![CDATA[
+					if(event.keyCode == 13) {
+						selReturn();
+					}
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

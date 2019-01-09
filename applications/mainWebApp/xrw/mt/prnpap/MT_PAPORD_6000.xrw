@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<session>
+						</session>
+					</initData>
+					<reqData>
+						<searchData>
+							<ratio_gubun/>
+							<ordr_dt_fr/>
+							<ordr_dt_to/>
+						</searchData>
+					</reqData>
+					<resData>
+						<gridData1>
+							<record>
+								<ordr_dt/>
+								<papcmpy_nm/>
+								<ordr_ratio/>
+								<ordr_wgt/>
+								<ordr_roll_cnt/>
+								<car_kind/>
+								<sum_ratio/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record>
+								<papcmpy_nm/>
+								<ordr_ratio/>
+								<ordr_wgt/>
+								<sum_ratio/>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+//					funComboSet();
+//					datagrid1.isReadOnly(2, 1, 2, 18)  = true;		//첫번째 행 readonly
+					combo1.select(0);
+					funSearDataSet();
+					datagrid1.visible = true;		//일별발주비율
+					datagrid2.visible = false;	//누적발주비율
+					
+				]]>
+			</script>
+			<submission id="mt_papord_6000_l" action="/mt/papord/6000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papord_6001_l" action="/mt/papord/6001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papord_6002_l" action="/mt/papord/6002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript">
+			<![CDATA[
+				//비율구분에 따른 조회데이터 변경
+				function funSearDataSet() {
+					var sValue = model1.getValue("/root/reqData/searchData/ratio_gubun");
+					if(sValue == "1") {			//일별
+						group3.visible = true;
+						group4.visible = false;
+						group5.visible = false;
+						datagrid1.visible = true;		//일별발주비율
+						datagrid2.visible = false;	//누적발주비율
+					} else if(sValue == "2") {	//월별
+						group3.visible = false;
+						group4.visible = true;
+						group5.visible = false;
+						datagrid1.visible = false;	//일별발주비율
+						datagrid2.visible = true;		//누적발주비율
+					} else if(sValue == "3") {	//누적
+						group3.visible = false;
+						group4.visible = false;
+						group5.visible = true;
+						datagrid1.visible = false;	//일별발주비율
+						datagrid2.visible = true;		//누적발주비율
+					}
+				}
+				
+				//조회
+				function funSearch() {
+					var sValue = model1.getValue("/root/reqData/searchData/ratio_gubun");
+					if(sValue == "1") {			//일별
+						model1.send("mt_papord_6000_l");
+						model1.copyNode("/root/resData/gridData1","/root/tempData/gridData1");
+						
+					} else if(sValue == "2") {	//월별
+						model1.send("mt_papord_6001_l");
+						model1.copyNode("/root/resData/gridData2","/root/tempData/gridData2");
+					} else if(sValue == "3") {	//누적
+						model1.send("mt_papord_6002_l");
+						model1.copyNode("/root/resData/gridData2","/root/tempData/gridData2");
+					}
+					datagrid1.refresh();
+					datagrid2.refresh();
+				}
+			]]>
+		</script>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="1,11;1,935;2,107;">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group1" class="gro_sel" style="left:10px; top:42px; width:926px; height:27px; ">
+			<button id="btnA1" class="btn02" style="left:770px; top:3px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:822px; top:3px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						//datagrid1.isReadOnly(2, 1, 2, 18)  = true;		//첫번째 행 readonly
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:874px; top:3px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" style="left:10px; top:75px; width:926px; height:24px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:0px; width:926px; height:24px; text-align:center; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:100px; height:24px; text-align:center; ">비율구분</caption>
+			<caption id="caption3" class="list_cap01" style="left:350px; top:0px; width:100px; height:24px; text-align:center; ">발주일자</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/ratio_gubun" class="req" navindex="1" appearance="minimal" caption="비율구분" style="left:105px; top:3px; width:116px; height:18px; ">
+				<choices>
+					<item>
+						<label>일일발주비율</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>월별발주비율</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>누적발주비율</label>
+						<value>3</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						funSearDataSet();
+					]]>
+				</script>
+			</select1>
+		</group>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="제지사^기본발주비율^누적발주량^누적비율" colsep="^" colwidth="258, 220, 220, 220" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:107px; width:925px; height:563px; ">
+			<col ref="papcmpy_nm"/>
+			<col ref="ordr_ratio"/>
+			<col ref="ordr_wgt"/>
+			<col ref="sum_ratio"/>
+		</datagrid>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="발행일자^제지사^기본발주비율^발주중량^발주롤^발주차량^비율" colsep="^" colwidth="120, 150, 120, 120, 120, 150, 123" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="free" style="left:10px; top:107px; width:925px; height:563px; ">
+			<col ref="ordr_dt"/>
+			<col ref="papcmpy_nm"/>
+			<col ref="ordr_ratio"/>
+			<col ref="ordr_wgt"/>
+			<col ref="ordr_roll_cnt"/>
+			<col ref="car_kind"/>
+			<col ref="sum_ratio"/>
+		</datagrid>
+		<group id="group3" style="left:465px; top:78px; width:220px; height:18px; ">
+			<input id="input1" ref="/root/reqData/searchData/ordr_dt_fr" navindex="12" inputtype="date" style="left:0px; top:0px; width:100px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/ordr_dt_to" navindex="12" inputtype="date" style="left:120px; top:0px; width:100px; height:18px; "/>
+			<caption id="caption7" style="left:100px; top:0px; width:15px; height:15px; ">~</caption>
+		</group>
+		<group id="group4" style="left:465px; top:78px; width:115px; height:18px; ">
+			<input id="input3" ref="/root/reqData/searchData/ordr_dt_fr" navindex="12" maxlength="6" style="left:0px; top:0px; width:100px; height:18px; "/>
+		</group>
+		<group id="group5" style="left:465px; top:78px; width:125px; height:18px; ">
+			<input id="input4" ref="/root/reqData/searchData/ordr_dt_fr" navindex="12" inputtype="date" style="left:0px; top:0px; width:100px; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

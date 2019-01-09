@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet_ad.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<frdt/>
+							<todt/>
+							<dlco_clsf/>
+							<dlco_no/>
+							<dlco_nm/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+							<diary>
+								<diary_titl/>
+								<make_dt/>
+								<make_pers/>
+								<make_pers_nm/>
+								<dlco_no/>
+								<dlco_nm/>
+								<diary_cont/>
+								<opn/>
+								<chg_dt_tm/>
+								<chg_pers/>
+							</diary>
+							<curlist2>
+								<record>
+									<basi_dt/>
+									<pay_amt/>
+									<cover_note/>
+									<advcs_note/>
+									<dhon_note/>
+								</record>
+							</curlist2>
+							<curlist3>
+								<record>
+									<basi_dt/>
+									<mang_mortg_surp_amt/>
+									<busn_mortg_surp_amt/>
+								</record>
+							</curlist3>
+						</resForm>
+						<gridData>
+							<curlist1>
+								<record>
+									<make_dt/>
+									<dlco_nm/>
+									<make_pers_nm/>
+									<diary_titl/>
+									<dlco_no/>
+								</record>
+							</curlist1>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				model.setValue("/root/reqData/searchData/frdt", dateAdd("y", -1, getCurrentMonth()+"01"));
+				model.setValue("/root/reqData/searchData/todt", getCurrentDate());
+				
+				inp_frdt.refresh();
+				inp_todt.refresh();
+				
+				model.refresh();
+				
+				]]>
+			</script>
+			<submission id="ad_bas_1810_l" action="/ad/bas/1810" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/curlist1"/>
+			<submission id="ad_bas_1820_s" action="/ad/bas/1820" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/tempData" resultref="/root/resData/resForm"/>
+			<submission id="ad_bas_1830_a" action="/ad/bas/1830" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm/diary" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+			var _dlco_index;
+			function setDlcoInfo(dlco_no, dlco_nm){
+				
+				if(_dlco_index == "1"){
+					model.setValue("/root/reqData/searchData/dlco_no", dlco_no);
+					model.setValue("/root/reqData/searchData/dlco_nm", dlco_nm);					
+					inp_dlco_no.refresh();
+					inp_dlco_nm.refresh();			
+					setSessionDlcoInfo();				
+					
+				}else if(_dlco_index == "2"){
+					model.setValue("/root/resData/resForm/diary/dlco_no", dlco_no);
+					model.setValue("/root/resData/resForm/diary/dlco_nm", dlco_nm);					
+					inp_dlco_no2.refresh();
+					inp_dlco_nm2.refresh();
+				}				
+				
+			}
+			
+			var _loaded = false;
+			
+			function loadData(){
+				
+//				if(!_loaded){ 
+					
+					var dlco_clsf 		=	getSessionDlcoClsf();
+					var dlco_no 			=	getSessionDlcoNo();
+					var dlco_nm 			=	getSessionDlcoNm();
+					
+					var make_dt			=	model.property("make_dt");
+					var make_pers		=	model.property("make_pers");
+					var make_pers_nm		=	model.property("make_pers_nm");
+				    var basi_dt			=	model.property("basi_dt")
+					//var dlco_no 		= 	model.property("dlco_no");
+					//var dlco_nm 		=	model.property("dlco_nm");
+					//var dlco_clsf 		=	model.property("dlco_clsf");
+					model.setValue("/root/reqData/searchData/dlco_clsf"	, dlco_clsf);
+					model.setValue("/root/reqData/searchData/dlco_no"	, dlco_no);
+					model.setValue("/root/reqData/searchData/dlco_nm"	, dlco_nm);
+					
+					model.setValue("/root/reqData/searchData/frdt", dateAdd("y", -1, getCurrentMonth()+"01"));
+					model.setValue("/root/reqData/searchData/todt", getCurrentDate());
+					
+					inp_frdt.refresh();
+					inp_todt.refresh();			
+					
+					loadList();
+					
+//					_loaded = !_loaded;
+//				}							
+			}
+			function loadList(){
+				
+				model.send("ad_bas_1810_l");
+				
+				if(submit_completed()){
+					
+					var dlco_no	 = model.getValue("/root/resData/gridData/curlist1/record[1]/dlco_no");
+					var make_dt	 = model.getValue("/root/resData/gridData/curlist1/record[1]/make_dt");
+					if(dlco_no != "" && make_dt != ""){
+						makeNodeValue("/root/tempData/dlco_no", dlco_no);
+						makeNodeValue("/root/tempData/make_dt", make_dt);
+						
+						model.send("ad_bas_1820_s");	
+					}
+				}		
+			}
+			
+			function clear(){
+
+				model.setValue("/root/resData/resForm/diary/diary_titl", "");
+				model.setValue("/root/resData/resForm/diary/make_dt", getCurrentDate());
+				model.setValue("/root/resData/resForm/diary/make_pers", model.property("ss_emp_no"));
+				model.setValue("/root/resData/resForm/diary/make_pers_nm", model.property("ss_emp_nm"));
+				model.setValue("//root/resData/resForm/diary/diary_cont", "");
+				model.setValue("/root/resData/resForm/diary/opn", "");
+				model.setValue("/root/resData/resForm/diary/chg_dt_tm", "");
+				model.setValue("/root/resData/resForm/diary/chg_pers", "");
+				
+				group1.refresh();		
+				
+				model.removeNodeset("/root/resData/resForm/curlist2");
+				model.removeNodeset("/root/resData/resForm/curlist3");
+				
+			}
+
+			function setSessionDlcoInfo(){
+
+				var dlco_no 		=	model.getValue("/root/reqData/searchData/dlco_no");
+				var dlco_nm		=	model.getValue("/root/reqData/searchData/dlco_nm");
+				var dlco_clsf	=	model.getValue("/root/reqData/searchData/dlco_clsf");
+
+				setSessionDlco(dlco_clsf, dlco_no, dlco_nm);	
+				
+//				_loaded	= false;
+			}		
+			
+
+			function setExDlcoInfo(dlco_clsf, dlco_no_ctrl, dlco_nm_ctrl){
+				
+				var	dlco_no	=	"";
+				if(dlco_no_ctrl){
+					dlco_no = dlco_no_ctrl.currentText;
+				}
+
+				var	dlco_nm	=	"";
+				if(dlco_nm_ctrl){
+					dlco_nm = dlco_nm_ctrl.currentText;
+				}
+				
+				if(dlco_no != ""){
+					dlco_no  = lpad(dlco_no, 8, "0");
+					model.setValue(dlco_no_ctrl.attribute("ref"), dlco_no); 
+					dlco_no_ctrl.refresh();
+				}
+				
+				model.removeNode("/root/tempData/reqData");
+				model.removeNode("/root/tempData/resData");
+				makeNodeValue("/root/tempData/reqData/dlco_clsf", dlco_clsf);
+				makeNodeValue("/root/tempData/reqData/dlco_no", dlco_no);
+				makeNodeValue("/root/tempData/reqData/dlco_nm", dlco_nm);
+				
+				modelSendNoMake("ad_co_9010_s", "/ad/common/9010", "/root/tempData/reqData", "/root/tempData/resData");
+			}		
+			
+			function setDlcoResultInfo(){
+						
+				var dlco_no			=	model.getValue("/root/tempData/resData/dlco_no");
+				var dlco_nm			=	model.getValue("/root/tempData/resData/dlco_nm");
+				var dlco_clsf		=	model.getValue("/root/tempData/resData/dlco_clsf");
+				var slcrg_pers		=	model.getValue("/root/tempData/resData/slcrg_pers");
+				var slcrg_pers_nm		=	model.getValue("/root/tempData/resData/slcrg_pers_nm");
+				var mchrg_pers		=	model.getValue("/root/tempData/resData/mchrg_pers");
+				var mchrg_pers_nm 	=	model.getValue("/root/tempData/resData/mchrg_pers_nm");
+
+					
+				if(dlco_no	==	"TMRS"){
+					showAdvcsSearchPopup("Y", "Y", "", "", "", inp_dlco_nm.currentText); 					
+					return;
+				}
+				
+				model.setValue("/root/reqData/searchData/dlco_no", dlco_no);
+				model.setValue("/root/reqData/searchData/dlco_nm", dlco_nm);
+				model.setValue("/root/reqData/searchData/dlco_clsf", dlco_clsf);
+
+				setSessionDlco(dlco_clsf, dlco_no, dlco_nm);
+				model.property("slcrg_pers") 		= slcrg_pers;
+				model.property("slcrg_pers_nm")	= slcrg_pers_nm;
+				model.property("mchrg_pers") 		= mchrg_pers;
+				model.property("mchrg_pers_nm") 	= mchrg_pers_nm;
+				
+				model.refresh();
+				
+			}			
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="920" pageheight="660" guideline="1,5;2,11;2,40;1,914;1,494;1,484;2,78;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:5px; top:40px; width:910px; height:30px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<button id="button26" class="btn02" style="left:494px; top:10px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					loadList();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button28" class="btn02" style="left:551px; top:10px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(commReqCheck("group1")){
+					if(windowConfirm("저장하시겠습니까?")){
+						makeNodeValue("/root/resData/resForm/diary/flag", "S");
+						model.send("ad_bas_1830_a");
+						if(submit_completed()){
+							model.send("ad_bas_1810_l");
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button29" class="btn02" style="left:608px; top:10px; width:52px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+
+				if(commReqCheck("group1")){
+					if(windowConfirm("삭제하시겠습니까?")){
+						makeNodeValue("/root/resData/resForm/diary/flag", "D");
+						model.send("ad_bas_1830_a");
+						if(submit_completed()){
+							model.send("ad_bas_1810_l");
+						}
+					}
+				}
+									
+				]]>
+			</script>
+		</button>
+		<button id="button30" class="btn02" style="left:665px; top:10px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button31" class="btn03" style="left:722px; top:10px; width:65px; height:21px; ">
+			<caption>화면인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				window.print();
+				]]>
+			</script>
+		</button>
+		<button id="button25" class="btn02" style="left:862px; top:10px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				parent.javaScript.windowClose();
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/resForm/curlist2/record" caption="해당월^결제금액^표지어음(현금)^광고주어음^부실어음" colsep="#" colwidth="100, 90, 90, 90, 90" dataheight="25" defaultrows="4" explorerbar="sort" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheight="25" rowsep="|" style="left:5px; top:560px; width:482px; height:100px; font-size:10pt; ">
+			<col ref="basi_dt" type="input" format="yyyy-mm"/>
+			<col ref="pay_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="cover_note" type="input" format="(-)#,###" style="text-align:right; "/>
+			<col ref="advcs_note" type="input" format="(-)#,###" style="text-align:right; "/>
+			<col ref="dhon_note" type="input" format="(-)#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var row = datagrid2.row;
+				if(datagrid2.col>=datagrid2.colRef("cover_note") && datagrid2.col<=datagrid2.colRef("dhon_note")){
+					var pay_amt = 0;
+					var cover_note = Number(datagrid2.valueMatrix(row, datagrid2.colRef("cover_note")));
+					var advcs_note = Number(datagrid2.valueMatrix(row, datagrid2.colRef("advcs_note")));
+					var dhon_note  = Number(datagrid2.valueMatrix(row, datagrid2.colRef("dhon_note")));
+					
+					pay_amt =	cover_note + advcs_note + dhon_note;
+					
+					datagrid2.valueMatrix(row, datagrid2.colRef("pay_amt")) = pay_amt;
+					datagrid2.refresh();
+				}
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="datagrid3" nodeset="/root/resData/resForm/curlist3/record" caption="해당월^담보여유액(관리)^담보여유액(영업)" colsep="^" colwidth="100, 155, 155" dataheight="25" defaultrows="4" explorerbar="sort" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheight="25" rowsep="|" style="left:494px; top:560px; width:420px; height:100px; font-size:10pt; ">
+			<col ref="basi_dt" format="yyyy-mm"/>
+			<col ref="mang_mortg_surp_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="busn_mortg_surp_amt" format="(-)#,###" style="text-align:right; "/>
+		</datagrid>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist1/record" caption="일 자^거래처명^작성자^일지제목^DLCO_NO" colsep="^" colwidth="80, 85, 50, 151, 100" dataheight="25" explorerbar="sort" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowheight="25" rowsep="|" selectionmode="byrow" style="left:494px; top:78px; width:420px; height:475px; font-size:10pt; ">
+			<col ref="make_dt" format="yyyy-mm-dd"/>
+			<col ref="dlco_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="make_pers_nm" style="text-align:center; "/>
+			<col ref="diary_titl" style="text-align:left; word-wrap:none; "/>
+			<col ref="dlco_no" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var dataIndex = getSelectedRecordIndex(datagrid1);
+				var dlco_no	 = model.getValue("/root/resData/gridData/curlist1/record["+dataIndex+"]/dlco_no");
+				var make_dt	 = model.getValue("/root/resData/gridData/curlist1/record["+dataIndex+"]/make_dt");
+				
+				makeNodeValue("/root/tempData/dlco_no", dlco_no);
+				makeNodeValue("/root/tempData/make_dt", make_dt);
+				
+				model.send("ad_bas_1820_s");
+				
+				]]>
+			</script>
+		</datagrid>
+		<input id="inp_todt" ref="/root/reqData/searchData/todt" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" caption="조회기간" style="left:203px; top:45px; width:100px; height:20px; font-size:10pt; "/>
+		<input id="inp_dlco_no" ref="/root/reqData/searchData/dlco_no" class="req" navindex="4" autonext="false" format="99999999" caption="거래처" style="left:514px; top:45px; width:75px; height:20px; font-size:10pt; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+
+					setExDlcoInfo("1", inp_dlco_no, "");
+					if(submit_completed()){
+						setDlcoResultInfo();
+					}
+									
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					setExDlcoInfo("1", inp_dlco_no, "");
+					if(submit_completed()){
+						setDlcoResultInfo();
+					}
+					
+				}
+				]]>
+			</script>
+		</input>
+		<input id="inp_dlco_nm" ref="/root/reqData/searchData/dlco_nm" class="req" navindex="5" imemode="hangul" inputtype="button" caption="거래처" style="left:594px; top:45px; width:160px; height:20px; font-size:10pt; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				_dlco_index = "1";
+				var dlco_clsf = model.getValue("/root/reqData/searchData/dlco_clsf");
+				if(dlco_clsf == "1"){
+					showAdvcsSearchPopup("Y", "Y", "", "", "", inp_dlco_nm.currentText); 
+				}else if(dlco_clsf == "2"){
+					showAdvcsSearchPopup("", "", "Y", "", "", inp_dlco_nm.currentText); 
+				}else if(dlco_clsf == "4"){
+					showAdvcsSearchPopup("", "", "", "Y", "Y", inp_dlco_nm.currentText); 
+				}else{
+					showAdvcsSearchPopup("", "", "", "", "", inp_dlco_nm.currentText); 
+				}		
+				setSessionDlcoInfo();	
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					setExDlcoInfo("1", "", inp_dlco_nm);										
+					if(submit_completed()){
+						setDlcoResultInfo();
+					}						
+				}			
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					setExDlcoInfo("1", "", inp_dlco_nm);										
+					if(submit_completed()){
+						setDlcoResultInfo();
+					}			
+				]]>
+			</script>
+		</input>
+		<caption id="caption1" class="list_cap01" style="left:355px; top:40px; width:70px; height:30px; font-size:10pt; font-weight:bold; vertical-align:middle; ">거래처</caption>
+		<caption id="caption10" class="list_cap01" style="left:5px; top:40px; width:70px; height:30px; font-size:10pt; font-weight:bold; vertical-align:middle; ">조회기간</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/dlco_clsf" class="req" navindex="3" appearance="minimal" caption="거래처구분" style="left:428px; top:45px; width:80px; height:18px; font-size:10pt; ">
+			<choices>
+				<item>
+					<label>광고주</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>대행사</label>
+					<value>2</value>
+				</item>
+				<item>
+					<label>지사</label>
+					<value>4</value>
+				</item>
+			</choices>
+		</select1>
+		<caption id="caption13" style="left:177px; top:46px; width:30px; height:20px; font-size:10pt; text-align:center; ">~</caption>
+		<input id="inp_frdt" ref="/root/reqData/searchData/frdt" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" caption="조회기간" style="left:78px; top:45px; width:100px; height:20px; font-size:10pt; "/>
+		<button id="button1" class="btn03" style="left:792px; top:10px; width:65px; height:21px; ">
+			<caption>일지작성</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				clear();
+				]]>
+			</script>
+		</button>
+		<group id="group1" style="left:0px; top:78px; width:490px; height:477px; ">
+			<caption id="caption4" class="list_cap02" style="left:5px; top:445px; width:305px; height:30px; font-size:10pt; "/>
+			<caption id="caption2" class="list_cap03" style="left:5px; top:445px; width:70px; height:30px; font-size:10pt; font-weight:bold; vertical-align:middle; ">최종수정</caption>
+			<caption id="caption16" class="list_cap02" style="left:5px; top:29px; width:480px; height:30px; font-size:10pt; "/>
+			<caption id="caption5" class="list_cap02" style="left:5px; top:58px; width:480px; height:30px; font-size:10pt; "/>
+			<caption id="caption8" class="list_cap02" style="left:5px; top:58px; width:480px; height:324px; font-size:10pt; "/>
+			<caption id="caption11" class="list_cap02" style="left:5px; top:381px; width:480px; height:60px; font-size:10pt; "/>
+			<caption id="caption3" class="list_cap02" style="left:5px; top:0px; width:480px; height:30px; font-size:10pt; "/>
+			<caption id="caption14" class="list_cap03" style="left:5px; top:29px; width:35px; height:356px; font-size:10pt; font-weight:bold; text-align:center; vertical-align:middle; padding:0; ">
+				<![CDATA[내
+
+용]]>
+			</caption>
+			<caption id="caption15" class="list_cap03" style="left:5px; top:0px; width:35px; height:30px; font-size:10pt; font-weight:bold; vertical-align:middle; padding:0; ">제목</caption>
+			<input id="input1" ref="/root/resData/resForm/diary/diary_titl" class="req" navindex="6" imemode="hangul" caption="제목" style="left:43px; top:5px; width:435px; height:20px; font-size:10pt; "/>
+			<input id="input2" ref="/root/resData/resForm/diary/make_dt" class="req" navindex="10" inputtype="date" format="yyyy-mm-dd" caption="작성일자" style="left:113px; top:34px; width:105px; height:20px; font-size:10pt; "/>
+			<caption id="caption7" class="list_cap03" style="left:39px; top:29px; width:70px; height:30px; font-size:10pt; font-weight:bold; vertical-align:middle; ">작성일자</caption>
+			<textarea id="textarea1" ref="/root/resData/resForm/diary/diary_cont" class="req" navindex="15" imemode="hangul" caption="내용" style="left:43px; top:63px; width:438px; height:315px; font-size:11pt; text-align:left; vertical-align:top; line-spacing:5; padding:5; "/>
+			<input id="inp_mchrg_pers" ref="/root/resData/resForm/diary/make_pers" class="req" navindex="11" autonext="false" caption="작성자" style="left:298px; top:34px; width:70px; height:20px; font-size:10pt; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					commonSubmission("9005", inp_mchrg_pers.currentText,  inp_mchrg_pers, inp_mchrg_pers_nm);				
+					]]>
+				</script>
+			</input>
+			<textarea id="textarea2" ref="/root/resData/resForm/diary/opn" navindex="16" imemode="hangul" style="left:43px; top:385px; width:438px; height:52px; font-size:11pt; text-align:left; vertical-align:top; line-spacing:5; padding:2; "/>
+			<caption id="caption17" class="list_cap03" style="left:5px; top:381px; width:35px; height:60px; font-size:10pt; font-weight:bold; vertical-align:middle; padding:0; ">
+				<![CDATA[의
+
+견]]>
+			</caption>
+			<input id="inp_mchrg_pers_nm" ref="/root/resData/resForm/diary/make_pers_nm" class="req" navindex="12" imemode="hangul" inputtype="button" caption="작성자" style="left:373px; top:34px; width:90px; height:20px; font-size:10pt; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					searchEmpno("setMchrgPers", "/root/resData/resForm/diary/make_pers", "/root/resData/resForm/diary/make_pers_nm");
+					]]>
+				</script>
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+					if(event.keyCode == "13"){
+						findEmpNoByName("setMchrgPers", inp_mchrg_pers_nm.currentText, inp_mchrg_pers, inp_mchrg_pers_nm);					
+					}						
+					]]>
+				</script>
+			</input>
+			<caption id="caption9" class="list_cap03" style="left:225px; top:29px; width:70px; height:30px; font-size:10pt; font-weight:bold; vertical-align:middle; ">작성자</caption>
+			<input id="input3" ref="/root/resData/resForm/diary/chg_dt_tm" editable="false" style="left:78px; top:450px; width:155px; height:20px; font-size:10pt; text-align:center; "/>
+			<input id="input4" ref="/root/resData/resForm/diary/chg_pers" editable="false" style="left:238px; top:450px; width:65px; height:20px; font-size:10pt; text-align:center; "/>
+		</group>
+		<button id="button2" class="btn02" style="left:379px; top:535px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" style="left:436px; top:535px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

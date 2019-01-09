@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<default/>
+						<comboSet>
+							<cardCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</cardCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<shftaplc_detail_form>
+								<accflag>N</accflag>
+								<shftclsf>130</shftclsf>
+								<rdr_no/>
+								<bocd/>
+								<dlvhopedt/>
+								<medicd/>
+								<rdrflag/>
+								<cardno/>
+								<vdtyprd/>
+								<mediflag>S</mediflag>
+								<rdrnm/>
+								<rdrtel1/>
+								<rdrtel2/>
+								<rdrtel3/>
+								<dlvzip/>
+								<dlvaddr/>
+								<dlvaddrdtls/>
+								<bonm/>
+								<telno1/>
+								<telno2/>
+								<telno3/>
+								<pymtno_2/>
+								<pymtnm/>
+								<pymttel1/>
+								<pymttel2/>
+								<pymttel3/>
+								<cardcmpycd/>
+								<cardno1/>
+								<cardno2/>
+								<cardno3/>
+								<cardno4/>
+								<vdtyprd_y/>
+								<vdtyprd_m/>
+								<prn/>
+								<aplyyymm/>
+								<email/>
+								<job_flag/>
+								<year/>
+								<month/>
+							</shftaplc_detail_form>
+							<card_validation_form>
+								<cardcmpycd/>
+								<accflag/>
+								<cardno/>
+								<expiry/>
+								<jumin/>
+							</card_validation_form>
+							<zip_search_form>
+								<bocd/>
+								<zip/>
+								<pageno/>
+								<pagesize/>
+							</zip_search_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData/>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1410init" action="/ss/cns/1410" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/codeData"/>
+			<submission id="PID1410save" action="/ss/cns/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/card_validation_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			// 목록보기
+				function init()
+				{
+					model.send("PID1410init", false);
+
+					modelCopyValue("/root/reqData/reqform/shftaplc_detail_form/year", "/root/initData/comboSet/codeData/year");
+					modelCopyValue("/root/reqData/reqform/shftaplc_detail_form/month", "/root/initData/comboSet/codeData/month");					
+					model.copyNode("/root/initData/comboSet/cardCombo", "/root/initData/comboSet/codeData/cardCombo");
+					
+					model.removenode("/root/initData/comboSet/codeData");
+					PID1410group3.refresh();
+					PID1410combo1.select(0);					
+				}
+				
+				function onClickZipPopup()
+				{
+					//model.setValue("/root/reqData/reqform/zipForm/job_flag", "A");
+					model.setValue("/root/reqData/reqform/zip_search_form/zip", PID1410input10.value);	//"/root/reqData/reqform/detailForm/vaca_areazip"
+					
+					openZip("/root/reqData/reqform/zip_search_form", "/root/tempData/tempZip");
+	
+					if(model.getValue("/root/tempData/tempZip/zip") == "")
+						return;
+	
+					PID1410input10.value = model.getValue("/root/tempData/tempZip/zip");
+					PID1410input11.value = model.getValue("/root/tempData/tempZip/addr");
+					PID1410input5.value = model.getValue("/root/tempData/tempZip/bonm");
+					PID1410input50.value = model.getValue("/root/tempData/tempZip/bocd");
+					PID1410input6.value = model.getValue("/root/tempData/tempZip/telno1");
+					PID1410input7.value = model.getValue("/root/tempData/tempZip/telno2");
+					PID1410input8.value = model.getValue("/root/tempData/tempZip/telno3");
+				}
+				
+				function onZipKeyDown(pageNo)
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID1410button1");
+	
+						if(!validate_zip(PID1410input10.value)){
+							onClickZipPopup();
+						}else
+						{
+							model.setValue("/root/reqData/reqform/zip_search_form/zip", PID1410input10.value);
+							model.setValue("/root/reqData/reqform/zip_search_form/pageno", pageNo);
+							model.setValue("/root/reqData/reqform/zip_search_form/pagesize", "10000");
+							
+							searchZip("/root/reqData/reqform/zip_search_form", "/root/tempData/resTemp/zipGrid");
+							
+							if((instance1.selectNodes("/root/tempData/resTemp/zipGrid/record/zip")).length == 1)
+							{
+								
+								PID1410input10.value = model.getValue("/root/tempData/resTemp/zipGrid/record/zip");
+								PID1410input11.value = model.getValue("/root/tempData/resTemp/zipGrid/record/addr");
+								PID1410input5.value = model.getValue("/root/tempData/resTemp/zipGrid/record/bonm");
+								PID1410input6.value = model.getValue("/root/tempData/resTemp/zipGrid/record/telno1");
+								PID1410input7.value = model.getValue("/root/tempData/resTemp/zipGrid/record/telno2");
+								PID1410input8.value = model.getValue("/root/tempData/resTemp/zipGrid/record/telno3");
+								PID1410input50.value = model.getValue("/root/tempData/resTemp/zipGrid/record/bocd");
+							}
+							else
+								onClickZipPopup();
+						}
+					}
+				}								
+				
+				function clear()
+				{
+					resetChildControl("PID1410group1", true, false);
+					resetChildControl("PID1410group3", true, false);
+					model.setValue("/root/reqData/reqform/shftaplc_detail_form/accflag", "N");
+					model.setValue("/root/reqData/reqform/shftaplc_detail_form/shftclsf", "130");
+					//model.setFocus("PID1410textarea1");
+				}
+				
+				function write()
+				{
+					if(!commValidate("PID1410group1"))
+						return;
+					if(!commValidate("PID1410group3"))
+						return;		
+						
+					if(model.getValue("/root/reqData/reqform/shftaplc_detail_form/bocd") == "")
+					{
+					        alert("구독자 주소를 올바르게 입력해주세요.");
+					        PID1410input10.value="";
+					        PID1410input11.value="";
+						//model.setFocus("PID1200input5");
+					        return;
+					}
+
+					if(parseInt(model.getValue("/root/reqData/reqform/shftaplc_detail_form/vdtyprd_y")) < parseInt(model.getValue("/root/reqData/reqform/shftaplc_detail_form/year")))
+					{
+					        alert("유효기간이 올바르지 않습니다.");
+					        return;
+					}
+
+					if(model.getValue("/root/reqData/reqform/shftaplc_detail_form/vdtyprd_m") <= model.getValue("/root/reqData/reqform/shftaplc_detail_form/month") &&
+					model.getValue("/root/reqData/reqform/shftaplc_detail_form/vdtyprd_y") == model.getValue("/root/reqData/reqform/shftaplc_detail_form/year"))
+					{
+					        alert("유효기간이 올바르지 않습니다.");
+					        return;
+					}
+
+					if(!confirm("자동이체를 등록하시겠습니까?"))
+						return;
+										
+					model.setValue("/root/reqData/reqform/shftaplc_detail_form/cardno", model.getValue("/root/reqData/reqform/shftaplc_detail_form/cardno1") + model.getValue("/root/reqData/reqform/shftaplc_detail_form/cardno2") + model.getValue("/root/reqData/reqform/shftaplc_detail_form/cardno3") + model.getValue("/root/reqData/reqform/shftaplc_detail_form/cardno4"));
+					model.setValue("/root/reqData/reqform/shftaplc_detail_form/vdtyprd", model.getValue("/root/reqData/reqform/shftaplc_detail_form/vdtyprd_y") + model.getValue("/root/reqData/reqform/shftaplc_detail_form/vdtyprd_m"));
+					model.setValue("/root/reqData/reqform/card_validation_form/cardno", model.getValue("/root/reqData/reqform/shftaplc_detail_form/cardno"));
+					model.setValue("/root/reqData/reqform/card_validation_form/cardcmpycd", model.getValue("/root/reqData/reqform/shftaplc_detail_form/cardcmpycd"));
+
+					if(model.getValue("/root/reqData/reqform/shftaplc_detail_form/prn").length > 10){
+						model.setValue("/root/reqData/reqform/card_validation_form/jumin", model.getValue("/root/reqData/reqform/shftaplc_detail_form/prn").substring(6));
+					}else{
+						model.setValue("/root/reqData/reqform/card_validation_form/jumin", model.getValue("/root/reqData/reqform/shftaplc_detail_form/prn"));
+					}
+
+					model.setValue("/root/reqData/reqform/card_validation_form/expiry", model.getValue("/root/reqData/reqform/shftaplc_detail_form/vdtyprd_y").substring(2) + model.getValue("/root/reqData/reqform/shftaplc_detail_form/vdtyprd_m"));
+					model.setValue("/root/reqData/reqform/shftaplc_detail_form/accflag", "N");
+					model.setValue("/root/reqData/reqform/shftaplc_detail_form/shftclsf", "130");						
+
+					model.send("PID1410save", false);	
+
+					if(!submit_completed())
+						return;
+						
+					resetChildControl("PID1410group1", true, false);
+					resetChildControl("PID1410group3", true, true);						
+				}				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="2,44;1,8;" idprefix="PID1410" style="font-family:굴림; ">
+		<import id="iv_TitleBar" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="PID1410group1" class="gro_tab1" style="left:10px; top:75px; width:926px; height:222px; text-align:center; ">
+			<caption id="PID1410caption6" class="list_cap03" style="left:0px; top:29px; width:166px; height:25px; text-align:left; ">매체선택</caption>
+			<caption id="PID1410caption8" class="list_cap02" style="left:165px; top:29px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption9" class="list_cap03" style="left:0px; top:53px; width:166px; height:25px; text-align:left; ">구독자(회사)명</caption>
+			<caption id="PID1410caption12" class="list_cap02" style="left:165px; top:53px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption13" class="list_cap02" style="left:165px; top:77px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption14" class="list_cap03" style="left:0px; top:77px; width:166px; height:25px; text-align:left; ">전화번호</caption>
+			<caption id="PID1410caption17" class="list_cap02" style="left:165px; top:125px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption18" class="list_cap03" style="left:0px; top:125px; width:166px; height:25px; text-align:left; ">관할지국정보</caption>
+			<caption id="PID1410caption20" class="list_cap03" style="left:0px; top:101px; width:166px; height:25px; text-align:left; ">주소</caption>
+			<caption id="PID1410caption21" class="list_cap02" style="left:165px; top:149px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption22" class="list_cap03" style="left:0px; top:149px; width:166px; height:25px; text-align:left; ">관할지국전화번호</caption>
+			<caption id="PID1410caption1" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">구독자정보(등록시 매체를 먼저 선택하세요. 독자명 검색은 출판매체에 대해 처리합니다.)</caption>
+			<caption id="PID1410caption2" class="list_cap02" style="left:165px; top:173px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption3" class="list_cap03" style="left:0px; top:173px; width:166px; height:25px; text-align:left; ">납부자번호</caption>
+			<caption id="PID1410caption5" class="list_cap02" style="left:165px; top:101px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption7" class="list_cap02" style="left:0px; top:197px; width:926px; height:25px; text-align:left; ">◈ 납부자번호는 지로영수증에 있는 13자리 번호입니다.</caption>
+			<select1 id="PID1410radio1" ref="/root/reqData/reqform/shftaplc_detail_form/mediflag" appearance="full" overflow="visible" style="left:170px; top:33px; width:85px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>신문매체</label>
+						<value>S</value>
+					</item>
+				</choices>
+			</select1>
+			<input id="PID1410input1" ref="/root/reqData/reqform/shftaplc_detail_form/rdrnm" class="req" imemode="hangul" caption="구독자(회사)명" style="left:170px; top:57px; width:100px; height:18px; text-align:left; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					PID1410input16.value = model.getValue("root/reqData/reqform/shftaplc_detail_form/rdrnm");					
+					]]>
+				</script>
+			</input>
+			<input id="PID1410input2" ref="/root/reqData/reqform/shftaplc_detail_form/rdrtel1" class="req" maxlength="4" format="999" dataType="integer" caption="전화번호" style="left:170px; top:81px; width:50px; height:18px; text-align:left; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					PID1410input15.value = model.getValue("root/reqData/reqform/shftaplc_detail_form/rdrtel1");
+					]]>
+				</script>
+			</input>
+			<input id="PID1410input3" ref="/root/reqData/reqform/shftaplc_detail_form/rdrtel2" class="req" maxlength="4" format="9999" dataType="integer" caption="전화번호" style="left:240px; top:81px; width:50px; height:18px; text-align:left; ">
+				<![CDATA[s]]>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					PID1410input13.value = model.getValue("root/reqData/reqform/shftaplc_detail_form/rdrtel2");					
+					]]>
+				</script>
+			</input>
+			<input id="PID1410input4" ref="/root/reqData/reqform/shftaplc_detail_form/rdrtel3" class="req" maxlength="4" format="9999" dataType="integer" caption="전화번호" style="left:310px; top:81px; width:50px; height:18px; text-align:left; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					PID1410input14.value = model.getValue("root/reqData/reqform/shftaplc_detail_form/rdrtel3");					
+					]]>
+				</script>
+			</input>
+			<caption id="PID1410caption10" style="left:223px; top:81px; width:15px; height:20px; ">-</caption>
+			<caption id="PID1410caption11" style="left:293px; top:80px; width:15px; height:20px; ">-</caption>
+			<caption id="PID1410caption15" style="left:223px; top:153px; width:15px; height:20px; ">-</caption>
+			<caption id="PID1410caption16" style="left:293px; top:152px; width:15px; height:20px; ">-</caption>
+			<caption id="PID1410caption19" style="left:254px; top:32px; width:281px; height:20px; text-align:left; ">◈ 출판독자는 현재 자동이체신청을 받지 않습니다.</caption>
+			<input id="PID1410input10" ref="/root/reqData/reqform/shftaplc_detail_form/dlvzip" class="req" dataType="zip" caption="우편번호" style="left:170px; top:104px; width:50px; height:18px; text-align:left; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					onZipKeyDown(1);
+					]]>
+				</script>
+			</input>
+			<button id="PID1410button1" class="btn_grid02" style="left:225px; top:105px; width:42px; height:20px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+					onClickZipPopup();		
+					]]>
+				</script>
+			</button>
+			<input id="PID1410input11" ref="/root/reqData/reqform/shftaplc_detail_form/dlvaddr" class="req" editable="false" caption="주소" style="left:270px; top:105px; width:300px; height:18px; text-align:left; "/>
+			<input id="PID1410input12" ref="/root/reqData/reqform/shftaplc_detail_form/dlvaddrdtls" class="req" caption="상세주소" style="left:575px; top:105px; width:300px; height:18px; text-align:left; "/>
+			<input id="PID1410input5" ref="/root/reqData/reqform/shftaplc_detail_form/bonm" editable="false" style="left:170px; top:129px; width:200px; height:18px; text-align:left; "/>
+			<input id="PID1410input6" ref="/root/reqData/reqform/shftaplc_detail_form/telno1" editable="false" maxlength="4" format="999" dataType="integer" style="left:170px; top:153px; width:50px; height:18px; text-align:left; "/>
+			<input id="PID1410input7" ref="/root/reqData/reqform/shftaplc_detail_form/telno2" editable="false" maxlength="4" format="9999" dataType="integer" style="left:240px; top:153px; width:50px; height:18px; text-align:left; "/>
+			<input id="PID1410input8" ref="/root/reqData/reqform/shftaplc_detail_form/telno3" editable="false" maxlength="4" format="9999" dataType="integer" style="left:310px; top:153px; width:50px; height:18px; text-align:left; "/>
+			<input id="PID1410input9" ref="/root/reqData/reqform/shftaplc_detail_form/pymtno_2" maxlength="13" dataType="integer" len="13" format="9999999999999" caption="납부자번호" style="left:170px; top:177px; width:100px; height:18px; text-align:left; "/>
+			<input id="PID1410input50" ref="/root/reqData/reqform/shftaplc_detail_form/bocd" visibility="hidden" style="left:895px; top:190px; width:15px; height:20px; "/>
+		</group>
+		<group id="PID1410group3" class="gro_tab1" style="left:10px; top:302px; width:926px; height:198px; text-align:center; ">
+			<caption id="PID1410caption4" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">카드 정보</caption>
+			<caption id="PID1410caption23" class="list_cap03" style="left:0px; top:29px; width:166px; height:25px; text-align:left; ">가입자명</caption>
+			<caption id="PID1410caption24" class="list_cap02" style="left:165px; top:29px; width:300px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption25" class="list_cap03" style="left:0px; top:53px; width:166px; height:25px; text-align:left; ">카드종류</caption>
+			<caption id="PID1410caption26" class="list_cap02" style="left:165px; top:53px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption27" class="list_cap03" style="left:0px; top:77px; width:166px; height:25px; text-align:left; ">카드번호</caption>
+			<caption id="PID1410caption28" class="list_cap02" style="left:165px; top:77px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption29" class="list_cap03" style="left:0px; top:125px; width:166px; height:25px; text-align:left; ">주민등록(사업자)번호</caption>
+			<caption id="PID1410caption30" class="list_cap02" style="left:165px; top:125px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption31" class="list_cap02" style="left:165px; top:149px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption32" class="list_cap03" style="left:0px; top:149px; width:166px; height:25px; text-align:left; ">이체시작월</caption>
+			<caption id="PID1410caption33" class="list_cap02" style="left:165px; top:173px; width:761px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption34" class="list_cap03" style="left:0px; top:173px; width:166px; height:25px; text-align:left; ">이메일</caption>
+			<caption id="PID1410caption35" class="list_cap03" style="left:464px; top:29px; width:166px; height:25px; text-align:left; ">가입자 전화번호</caption>
+			<caption id="PID1410caption36" class="list_cap02" style="left:629px; top:29px; width:297px; height:25px; text-align:center; "/>
+			<caption id="PID1410caption37" style="left:686px; top:33px; width:15px; height:20px; ">-</caption>
+			<caption id="PID1410caption38" style="left:756px; top:32px; width:15px; height:20px; ">-</caption>
+			<input id="PID1410input16" ref="/root/reqData/reqform/shftaplc_detail_form/pymtnm" class="req" caption="가입자명" style="left:169px; top:33px; width:150px; height:18px; text-align:left; "/>
+			<input id="PID1410input15" ref="/root/reqData/reqform/shftaplc_detail_form/pymttel1" class="req" maxlength="4" format="999" dataType="integer" caption="가입자전화번호" style="left:633px; top:33px; width:50px; height:18px; text-align:left; "/>
+			<input id="PID1410input13" ref="/root/reqData/reqform/shftaplc_detail_form/pymttel2" class="req" maxlength="4" format="9999" dataType="integer" caption="가입자전화번호" style="left:703px; top:33px; width:50px; height:18px; text-align:left; "/>
+			<input id="PID1410input14" ref="/root/reqData/reqform/shftaplc_detail_form/pymttel3" class="req" maxlength="4" format="9999" dataType="integer" caption="가입자전화번호" style="left:773px; top:33px; width:50px; height:18px; text-align:left; "/>
+			<select1 id="PID1410combo1" ref="/root/reqData/reqform/shftaplc_detail_form/cardcmpycd" appearance="minimal" style="left:169px; top:57px; width:156px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/cardCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="PID1410caption40" style="left:275px; top:153px; width:166px; height:20px; ">◈ 결제일은 매월 28일 입니다.</caption>
+			<caption id="PID1410caption39" class="list_cap03" style="left:0px; top:101px; width:166px; height:25px; text-align:left; ">유효기간</caption>
+			<caption id="PID1410caption41" class="list_cap02" style="left:165px; top:101px; width:761px; height:25px; text-align:center; "/>
+			<input id="PID1410input21" ref="/root/reqData/reqform/shftaplc_detail_form/cardno1" class="req" maxlength="4" format="9999" dataType="integer" caption="카드번호" style="left:170px; top:80px; width:50px; height:18px; text-align:left; "/>
+			<input id="PID1410input17" ref="/root/reqData/reqform/shftaplc_detail_form/cardno2" class="req" maxlength="4" format="9999" dataType="integer" caption="카드번호" style="left:240px; top:80px; width:50px; height:18px; text-align:left; "/>
+			<input id="PID1410input20" ref="/root/reqData/reqform/shftaplc_detail_form/cardno3" class="req" maxlength="4" format="9999" dataType="integer" caption="카드번호" style="left:310px; top:80px; width:50px; height:18px; text-align:left; "/>
+			<caption id="PID1410caption42" style="left:223px; top:80px; width:15px; height:20px; ">-</caption>
+			<caption id="PID1410caption43" style="left:293px; top:79px; width:15px; height:20px; ">-</caption>
+			<input id="PID1410input22" ref="/root/reqData/reqform/shftaplc_detail_form/cardno4" class="req" maxlength="4" format="9999" dataType="integer" caption="카드번호" style="left:380px; top:80px; width:50px; height:18px; text-align:left; "/>
+			<caption id="PID1410caption44" style="left:363px; top:79px; width:15px; height:20px; ">-</caption>
+			<input id="PID1410input23" ref="/root/reqData/reqform/shftaplc_detail_form/vdtyprd_y" class="req" maxlength="4" format="yyyy" dataType="integer" caption="유효기간" style="left:170px; top:105px; width:50px; height:18px; text-align:left; "/>
+			<input id="PID1410input24" ref="/root/reqData/reqform/shftaplc_detail_form/vdtyprd_m" class="req" maxlength="2" format="mm" dataType="integer" caption="유효기간" style="left:240px; top:105px; width:30px; height:18px; text-align:left; "/>
+			<input id="PID1410input18" ref="/root/reqData/reqform/shftaplc_detail_form/prn" class="req" maxlength="14" format="999999-9999999" dataType="juffice" caption="주민등록(사업자)번호" style="left:170px; top:129px; width:250px; height:18px; text-align:left; "/>
+			<select1 id="PID1410combo2" ref="/root/reqData/reqform/shftaplc_detail_form/aplyyymm" class="req" appearance="minimal" caption="이체시작월" style="left:170px; top:153px; width:100px; height:18px; text-align:left; ">
+				<choices>
+					<item>
+						<label>선택</label>
+						<value/>
+					</item>
+					<item>
+						<label>2009년 4월</label>
+						<value>200904</value>
+					</item>
+					<item>
+						<label>2009년 5월</label>
+						<value>200905</value>
+					</item>
+					<item>
+						<label>2009년 6월</label>
+						<value>200906</value>
+					</item>
+					<item>
+						<label>2009년 7월</label>
+						<value>200907</value>
+					</item>
+					<item>
+						<label>2009년 8월</label>
+						<value>200908</value>
+					</item>
+					<item>
+						<label>2009년 9월</label>
+						<value>200909</value>
+					</item>
+					<item>
+						<label>2009년 10월</label>
+						<value>200910</value>
+					</item>
+					<item>
+						<label>2009년 11월</label>
+						<value>200911</value>
+					</item>
+					<item>
+						<label>2009년 12월</label>
+						<value>200912</value>
+					</item>
+					<item>
+						<label>2010년 01월</label>
+						<value>201001</value>
+					</item>
+					<item>
+						<label>2010년 02월</label>
+						<value>201002</value>
+					</item>
+					<item>
+						<label>2010년 03월</label>
+						<value>201003</value>
+					</item>
+				</choices>
+			</select1>
+			<input id="PID1410input19" ref="/root/reqData/reqform/shftaplc_detail_form/email" dataType="email" caption="이메일" style="left:170px; top:177px; width:250px; height:18px; text-align:left; "/>
+			<caption id="PID1410caption45" style="left:222px; top:105px; width:15px; height:20px; ">년</caption>
+			<caption id="PID1410caption46" style="left:273px; top:105px; width:15px; height:20px; ">월</caption>
+		</group>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:44px; width:926px; height:21px; ">
+			<button id="btnA4" class="btn02" style="left:764px; top:0px; width:52px; height:21px; ">
+				<caption>추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					clear();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						write();
+					]]>
+				</script>
+			</button>
+			<button id="PID1410button2" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

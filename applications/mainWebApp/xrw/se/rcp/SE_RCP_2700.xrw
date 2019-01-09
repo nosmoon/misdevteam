@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_RCP_2700.xrw
+* 기능 : 입금관리 - 보증금현황
+* 작성일자 : 2009-4-11
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<yymm/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team_cd/>
+							<part_cd/>
+							<area_cd/>
+							<yymm/>
+							<schlevel/>
+							<dmangyn/>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<colcnt/>
+							<clos_yymm/>
+						</resform>
+						<gridData>
+							<record>
+								<tot_grp/>
+								<dept_nm/>
+								<part_nm/>
+								<area_nm/>
+								<bo_nm/>
+								<bo_head_nm/>
+								<pr_cntr_gurt_amt_stot/>
+								<acml_trgt_amt/>
+								<cr_rcpm_amt/>
+								<cr_cntr_gurt_amt_stot/>
+							</record>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_rcp_2710_l" action="/se/rcp/2710" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					
+					makeTeamSearch(
+						   "se_rcp_2700_m"
+						  , "/se/rcp/2700"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+					model.setValue("/root/reqData/searchData/yymm", model.getValue("/root/initData/comboSet/yymm"));
+					ipt_yymm.refresh();
+					cbo_schlevel.select(0);
+					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//조회
+				function go_search(){
+					var schlevel = model.getValue("/root/reqData/searchData/schlevel");
+					
+					if(!commReqCheck(group_scr)) return;
+					
+					model.setValue("/root/reqData/searchData/schlevel", schlevel + "#" + chkdmang.value); //직영여부설정
+					model.send("se_rcp_2710_l");
+					se_chkGridCnt("datagrid1");		
+					
+					model.setValue("/root/reqData/searchData/schlevel", schlevel ); //직영여부설정복구
+					cbo_schlevel.refresh();
+				
+					if(!submit_completed()) return;
+					
+					//합계뿌리기
+					datagrid1.subtotal("sum", 1, 8, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 9, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 10, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 11, "(-)#,###", se_subtotstyle(), 2, "계"); 						
+				}
+				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="R" style="left:740px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_search();
+				
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area_cd" appearance="minimal" style="left:380px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/schlevel","3");
+						cbo_schlevel.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:153px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/schlevel","2");
+						cbo_schlevel.refresh();
+					]]>
+				</script>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part_cd" appearance="minimal" style="left:227px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/schlevel","3");
+						cbo_schlevel.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:331px; top:0px; width:45px; height:26px; ">지역</caption>
+			<input id="ipt_yymm" ref="/root/reqData/searchData/yymm" class="req" format="yyyy-mm" caption="기준년월" style="left:553px; top:4px; width:80px; height:18px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption8" class="list_cap01" style="left:484px; top:0px; width:65px; height:26px; ">기준년월</caption>
+			<select1 id="cbo_schlevel" ref="/root/reqData/searchData/schlevel" class="req" appearance="minimal" caption="조회형태" style="left:712px; top:4px; width:85px; height:18px; ">
+				<choices>
+					<item>
+						<label>팀단위</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>파트/지사단위</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>지역단위</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>센터단위</label>
+						<value>4</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption2" class="list_cap01" style="left:648px; top:0px; width:60px; height:26px; ">조회형태</caption>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="(그룹)^팀^파트/지사^지역^센터^센터코드^센터대표^전월누계^금월입금목표액^금월입금액^금월누계" colsep="^" colwidth="45, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" frozenbottomrows="1" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" subtotalposition="below" style="left:10px; top:120px; width:926px; height:580px; ">
+			<col ref="tot_grp" visibility="hidden"/>
+			<col ref="dept_nm"/>
+			<col ref="part_nm"/>
+			<col ref="area_nm"/>
+			<col ref="bo_nm"/>
+			<col ref="bo_cd"/>
+			<col ref="bo_head_nm"/>
+			<col ref="pr_cntr_gurt_amt_stot" format="#,###" style="text-align:right; "/>
+			<col ref="acml_trgt_amt" format="#,###" style="text-align:right; "/>
+			<col ref="cr_rcpm_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="cr_cntr_gurt_amt_stot" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<button id="button1" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+					datagrid1.saveExcel(dir);
+				]]>
+			</script>
+		</button>
+		<select id="chkdmang" ref="/root/reqData/searchData/dmangyn" overflow="visible" appearance="full" style="left:660px; top:44px; width:75px; height:20px; border-style:none; ">
+			<choices>
+				<item>
+					<label>직영여부</label>
+					<value>Y</value>
+				</item>
+			</choices>
+		</select>
+	</xhtml:body>
+</xhtml:html>

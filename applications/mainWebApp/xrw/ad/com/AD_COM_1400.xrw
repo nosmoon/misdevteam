@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<fwdData/>
+						<!-- 검색조건 처리 -->
+						<searchData>
+							<search_dt/>
+						</searchData>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<reqform/>
+						<multiUpdateData/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<curlist1>
+								<chrg_pers/>
+								<advt_cont/>
+								<advt_size/>
+								<chro_clsf/>
+								<srch_plac/>
+								<cntc_plac/>
+								<tm/>
+								<agn/>
+								<sect_clsf/>
+								<srch_dt/>
+								<seq/>
+							</curlist1>
+							<curlist2>
+								<pubc_side/>
+								<advcs/>
+								<std/>
+								<slcrg/>
+								<cnfm_matt/>
+								<cnfm_dt/>
+								<seq/>
+							</curlist2>
+						</gridData>
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+					</resData>
+					<tempData>
+						<keyData>
+							<case_id/>
+						</keyData>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="ad_com_1410_l" action="/ad/com/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+			<submission id="ad_com_1420_a" action="/ad/com/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="ad_com_1430_a" action="/ad/com/1430" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="ad_com_1440_p" action="/ad/com/1440" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData"/>
+			<submission id="ad_com_1450_p" action="/ad/com/1450" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.setValue("/root/reqData/searchData/search_dt",getDate());
+					model.setValue("/root/tempData/keyData/case_id","광고원고");					
+					
+					model.removeNodeset("/root/resData/gridData/curlist1");
+					model.removeNodeset("/root/resData/gridData/curlist2");
+					
+					model.refresh();
+					
+					switch1.selectedIndex = 0;
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+			function goReport(gubun){
+					
+				var report			= new Array(	  "SP_AD_COM_1410_P1"
+											, "SP_AD_COM_1410_P2");		
+													
+				var report_gubun		= model.getValue("/root/reqData/searchData/gubun");
+				var report_index		= parseInt(report_gubun) - 1;									
+					
+					
+				// 오즈관련 노드 초기화..					
+				resetOznode();					
+									
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+				makeNodeValue("/root/oz_data/ozrName", "ad/" + report[report_index]);									
+							
+				var root			= "/root/reqData/searchData/";
+											
+				var search_dt		= model.getValue(root + "/search_dt");
+			
+				if ( search_dt == "" ){
+					commAlert("일자가 없습니다.");
+					return;
+				}								
+		
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	
+				makeNodeValue("/root/oz_data/odiParam/iv_search_dt"		, search_dt);	
+				
+			
+				// 레포트뷰어 호출.					
+				openOzwin("/root/oz_data");	
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,70;2,97;" style="font-family:굴림; ">
+		<switch id="switch1" style="left:10px; top:153px; width:926px; height:583px; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist1" caption="담당^광고내용^단수^색도^수배처^연락처^시간^대행사^섹션^SRCH_DT^SEQ" colsep="#" colwidth="73, 100, 85, 50, 120, 150, 100, 110, 66, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:5px; top:3px; width:915px; height:574px; ">
+					<col class="req" imemode="hangul" ref="chrg_pers" type="input" caption="담당"/>
+					<col class="req" imemode="hangul" ref="advt_cont" type="input" caption="광고내용" style="text-align:left; "/>
+					<col ref="advt_size" type="input" style="text-align:left; "/>
+					<col imemode="hangul" ref="chro_clsf" type="input"/>
+					<col imemode="hangul" ref="srch_plac" type="input" style="text-align:left; "/>
+					<col imemode="hangul" ref="cntc_plac" type="input" style="left:578px; top:20px; width:120px; height:20px; text-align:left; "/>
+					<col ref="tm" type="input" style="text-align:left; "/>
+					<col imemode="hangul" ref="agn" type="input" style="text-align:left; "/>
+					<col ref="sect_clsf" type="input"/>
+					<col ref="srch_dt" visibility="hidden"/>
+					<col ref="seq" visibility="hidden"/>
+				</datagrid>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData/curlist2" caption="지면^광고주^규격^영업담당^확인사항^CNFM_DT^SEQ" colsep="#" colwidth="100, 185, 120, 90, 405, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:5px; top:3px; width:915px; height:574px; ">
+					<col class="req" imemode="disabled" ref="pubc_side" type="input" caption="지면"/>
+					<col class="req" imemode="hangul" ref="advcs" type="input" caption="광고주"/>
+					<col ref="std" type="input"/>
+					<col imemode="hangul" ref="slcrg" type="input"/>
+					<col imemode="hangul" ref="cnfm_matt" type="input"/>
+					<col ref="cnfm_dt" visibility="hidden"/>
+					<col ref="seq" visibility="hidden"/>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						if(datagrid2.col == datagrid2.colRef("pubc_side")){
+							var currentText = datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("pubc_side"));
+							currentText 	   = currentText.toUpperCase();
+							datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("pubc_side")) = currentText;
+							datagrid2.refresh();				
+						}
+						]]>
+					</script>
+				</datagrid>
+			</case>
+		</switch>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:28px; ">
+			<caption id="caption3" class="list_cap02" style="left:0px; top:0px; width:926px; height:28px; "/>
+			<input id="input2" ref="/root/reqData/searchData/search_dt" class="req" inputtype="date" format="yyyy-mm-dd" caption="발행일자" style="left:79px; top:5px; width:95px; height:18px; text-align:center; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					model.send("ad_com_1410_l");
+					]]>
+				</script>
+			</input>
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:75px; height:28px; ">근무일자</caption>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:113px; width:926px; height:5px; background-image:/images/line_03.gif; "/>
+		<button id="button8" class="btn02" crud="R" style="left:658px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(commReqCheck("group_scr")){
+					model.send("ad_com_1410_l");
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn02" crud="C" style="left:715px; top:40px; width:50px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(switch1.selectedIndex == 0){
+						if(!isDataGridUpdated(datagrid1)){
+							alert("광고원고(tab)의 저장할 대상이 없습니다.");
+							return;
+						}
+						if(commGridReqCheck("datagrid1")){
+							if(windowConfirm("저장하시겠습니까?")){
+								makeNodeValue("/root/reqData/srch_dt", model.getValue("/root/reqData/searchData/search_dt"));
+								model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());				
+								model.send("ad_com_1420_a");	
+								if(submit_completed()){
+									model.send("ad_com_1410_l");	
+								}
+							}
+						}					
+					}else if(switch1.selectedIndex == 1){
+						if(!isDataGridUpdated(datagrid2)){
+							alert("중점확인(tab)의 저장할 대상이 없습니다.");
+							return;
+						}
+						if(commGridReqCheck("datagrid2")){
+							if(windowConfirm("저장하시겠습니까?")){
+								makeNodeValue("/root/reqData/cnfm_dt", model.getValue("/root/reqData/searchData/search_dt"));
+								model.setValue("/root/reqData/multiUpdateData", datagrid2.getUpdateData());			
+								model.send("ad_com_1430_a");
+								if(submit_completed()){
+									model.send("ad_com_1410_l");	
+								}
+							}
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" style="left:886px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" crud="R" style="left:829px; top:40px; width:50px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){
+					makeNodeValue("/root/reqData/searchData/gubun","1");	
+					goReport("P");	
+				}else if(iSel == 1){
+					makeNodeValue("/root/reqData/searchData/gubun","2");	
+					goReport("P");						
+				}
+
+				]]>
+			</script>
+		</button>
+		<group id="group1" style="left:10px; top:131px; width:184px; height:24px; ">
+			<button id="tab_btn01" class="tab05" group="tab" selected="true" style="left:0px; top:0px; width:92px; height:23px; ">
+				<caption>광고원고</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model.setValue("/root/tempData/keyData/case_id","광고원고");
+					model.toggle("case1");
+				]]>
+				</script>
+			</button>
+			<button id="tab_btn02" class="tab05" group="tab" style="left:92px; top:0px; width:97px; height:23px; ">
+				<caption>중점확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model.setValue("/root/tempData/keyData/case_id","중점확인");					
+					model.toggle("case2");
+				]]>
+				</script>
+			</button>
+		</group>
+		<button id="button6" class="btn02" crud="R" style="left:772px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnG2" class="btn_grid03" crud="C" style="left:762px; top:133px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(switch1.selectedIndex == 0){
+					addRow(datagrid1);
+				}else{
+					addRow(datagrid2);
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn_grid03" crud="C" style="left:822px; top:133px; width:53px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(switch1.selectedIndex == 0){
+					deleteRow(datagrid1);
+				}else{
+					deleteRow(datagrid2);
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn_grid03" crud="C" style="left:882px; top:133px; width:53px; height:17px; ">
+			<caption>취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[							
+				if(switch1.selectedIndex  == 0){
+					cancelRow(datagrid1);
+				}else{
+					cancelRow(datagrid2);
+				}
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

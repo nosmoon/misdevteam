@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<!--=======================================================================-->
+<!-- 페이지 ID :	SearchMenu.xrw									-->
+<!-- 페이지명 :	화면검색 팝업										-->
+<!--=======================================================================-->
+<!--				변		경		사		항					-->
+<!--=======================================================================-->
+<!-- DATE		AUTHOR		DESCRIPTION						-->
+<!--=======================================================================-->
+<!-- 2006.03.16		장현진		최초 작성							-->
+<!--=======================================================================-->
+<?xml-stylesheet type="text/css" href="/css/public_pop1.css" ?>
+<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<xhtml:head>
+		<xhtml:title>마음을 여는 기술 컴스퀘어 X-인터넷 솔루션 리더 트러스트폼 (사례1)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<Searchmenu>
+					</Searchmenu>
+					<Mymenu>
+					</Mymenu>
+					<pageSearch>
+						<txtSearch/>
+						<cboSearch/>
+					</pageSearch>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				// 검색 조건 초기 설정
+				cboSearch.select(0);
+				
+				capTitleBar.text = "화면 검색";
+				]]>
+			</script>
+		</model>
+		<script type="javascript">
+			<![CDATA[
+/***************************************************
+// 함 수 명 : onSearchMenu( node, key, keyword )
+// 내    용 : 현재 노드의 name 어트리뷰터를 보여주고 자식 노드가 있으면 재귀 호출 없으면 형제 노드로 이동
+// PARAM
+//		node : 현재 노드
+// 작 성 자 : 장현진
+// 작 성 일 : 2006-03-15
+***************************************************/
+function onSearchMenu( node, key, keyword )
+{
+	
+	var nameAttr	= node.getAttributeNode("name");
+	var idAttri		= node.getAttributeNode("itemID");
+	
+	if ( idAttri  != null && nameAttr != null) {
+		var nameValue	= nameAttr.text;
+		var idValue	= idAttri.text;
+		
+		if (key == "name") {
+			
+			if (nameValue.indexOf(keyword) != "-1") {
+				createGridRow( "/root/Searchmenu",  nameValue, idValue );	// 그리드에 아이템 추가
+			}	
+		}
+		else {
+			
+			if (idValue.indexOf(keyword) != "-1") {
+				createGridRow( "/root/Searchmenu",  nameValue, idValue );	// 그리드에 아이템 추가
+			}
+		}	
+	}
+	
+	if ( node.hasChildNodes() ) {
+		
+		var childList = node.childNodes;
+		while ( (subnode = childList.nextNode()) )
+			onSearchMenu( subnode, key, keyword );
+	}
+	
+	return;
+}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body overflow="hidden" pagewidth="600" pageheight="470">
+		<group id="grp_serchmenu" class="s1" style="left:5px; top:25px; width:590px; height:28px; ">
+			<select1 id="cboSearch" ref="/root/pageSearch/cboSearch" appearance="minimal" style="left:10px; top:5px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<label>업무 이름</label>
+						<value>name</value>
+					</item>
+					<item>
+						<label>TRAN-ID</label>
+						<value>id</value>
+					</item>
+				</choices>
+			</select1>
+			<input id="txtSearch" ref="/root/pageSearch/txtSearch" class="s" navindex="1" style="left:112px; top:5px; width:250px; height:18px; font-size:9pt; border-style:solid; "/>
+			<button id="btnSearch" class="s2" style="left:364px; top:5px; width:48px; height:19px; ">
+				<caption>검색</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+					var searchtxt = model.getValue("/root/pageSearch/txtSearch");		// 검색어
+					var searchkey = model.getValue("/root/pageSearch/cboSearch");	// 콤보값
+					
+					// 입력확인
+					if ( searchkey=="" ) {
+						alert("검색조건을 입력해 주세요");
+						model.setfocus("cboSearch");
+					}
+					else if ( searchtxt =="" ) {
+						alert("검색어를 입력해 주세요");
+						model.setfocus("txtSearch");
+					}
+					else {
+						// 그리드의 nodeset 초기화
+						model.removenodeset("/root/Searchmenu/data");	
+						onSearchMenu( opener.model.instance2.selectSingleNode("/Menu"), searchkey, searchtxt );
+						model.refresh();
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="GR_Pagelist" nodeset="/root/Searchmenu/data" scroll="vertical" caption="TRAN-ID^업무 이름" colwidth="120, 467" mercellsfixedrows="bycolrec" style="left:5px; top:60px; width:585px; height:380px; ">
+			<col ref="mdiID"/>
+			<col ref="mdiTitle"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+
+				var row = GR_Pagelist.row;
+				
+				if (GR_Pagelist.row >= GR_Pagelist.fixedrows && event.target.substring(0,1) == "_")
+				{
+					var searchvalue = model.getvalue("/root/Searchmenu/data["+row+"]/mdiID");	
+					window.opener.window.document.all("txtMdiID").value = searchvalue;
+					window.opener.window.javaScript.onLoadPage(searchvalue);
+					
+					window.close();
+				}
+			
+				
+				]]>
+			</script>
+		</datagrid>
+		<import id="importStatusBar" src="/common/xrw/POPStatusBar.xrw" bottom="100%" style="left:0px; width:100%; height:22px; border-style:none; "/>
+		<import id="importTitleBar" src="/common/xrw/POPTitleBar.xrw" style="left:0px; top:0px; width:100%; height:20px; border-style:none; "/>
+	</xhtml:body>
+</xhtml:html>

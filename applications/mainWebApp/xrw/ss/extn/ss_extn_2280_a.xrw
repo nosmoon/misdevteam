@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<reqData>
+						<rowData>
+							<record>
+								<chkno/>
+								<rdr_no/>
+								<subsqty/>
+								<valqty/>
+								<extndt/>
+								<extnno/>
+								<extnnm/>
+								<extnaddr/>
+								<extntel/>
+							</record>
+						</rowData>
+					</reqData>
+					<resData>
+						<rowData>
+							<record>
+								<chkno/>
+								<rdr_no/>
+								<subsqty/>
+								<valqty/>
+								<extndt/>
+								<extnno/>
+								<extnnm/>
+								<extnaddr/>
+								<extntel/>
+							</record>
+						</rowData>
+					</resData>
+					<resultsubm>
+						<keyData/>
+					</resultsubm>
+					<initData>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+				</root>
+			</instance>
+			<submission id="PID2290List" action="/ss/extn/2290" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resultsubm"/>
+			<submission id="PID2280Upload" action="/ss/extn/2280" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resultsubm"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+			}
+			
+			function all_release() {
+				for (var i=1; i<PID2280datagrid1.rows; i++) {
+					PID2280datagrid1.valuematrix(i, 0) = 0;
+				}
+				PID2280datagrid1.rebuild();				
+			}
+
+			function all_lock() {
+				for (var i=1; i<PID2280datagrid1.rows; i++) {
+					PID2280datagrid1.valuematrix(i, 0) = 1;
+				}
+				PID2280datagrid1.rebuild();				
+			}
+
+
+			function upload()
+			{
+				var filename = window.fileDialog("open", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+
+				if(filename!="")				
+				{
+					PID2280datagrid1.loadExcel(filename);
+				}
+				for (var i=1; i<PID2280datagrid1.rows; i++) {
+					PID2280datagrid1.valuematrix(i, 0) = 1;
+				}
+				
+				makeNodesetToAppendForm("/root/resData/rowData/record", "/root/reqData/rowData/record", "check", "", "##", true);
+				
+				model.send("PID2290List", false);
+				
+				if(!submit_completed())
+					return;
+					
+			       model.copyNode("/root/resData/rowData", "/root/resultsubm/rowData");
+									
+				PID2280datagrid1.rebuild();
+			}
+			
+			function insert()
+			{				
+				makeNodesetToAppendForm("/root/resData/rowData/record", "/root/reqData/rowData/record", "check", "", "##", true);
+
+				if(model.getValue("/root/reqData/rowData/record/rdr_no") == "")
+				{
+					alert("엑셀 파일을 먼저 업로드해 주세요.");
+					return;
+				}
+				
+				var chkRow = 1;
+				
+				for (var i=1; i<PID2280datagrid1.rows; i++) {
+					if (PID2280datagrid1.valuematrix(i, 0) == 1) {
+						chkRow = i;
+						break;
+					}
+				}				
+				
+				if (i == PID2280datagrid1.rows) {
+					alert("일괄확장 작업을 할 행을 선택하여 주세요.");
+					return;
+				}
+				
+				for (var i=1; i<PID2280datagrid1.rows; i++) {
+					if (PID2280datagrid1.valuematrix(i, 2) > PID2280datagrid1.valuematrix(i, 3)) {
+						alert("요청부수가 실부수보다 적거나 같아야합니다.[독자번호 "+PID2280datagrid1.valuematrix(i, 1)+"]");
+						PID2280datagrid1.isselected(i) = true;
+						return;
+					}
+				}
+				
+				model.send("PID2280Upload", false);
+
+				if(!submit_completed())
+					return;
+
+				makeNodesetToAppendForm("/root/resData/rowData/record", "/root/reqData/rowData/record", "check", "", "##", true);
+				
+				model.send("PID2290List", false);
+				
+				if(!submit_completed())
+					return;
+					
+			       model.copyNode("/root/resData/rowData", "/root/resultsubm/rowData");
+									
+				PID2280datagrid1.rebuild();
+
+				alert("처리되었습니다.");
+			}			
+
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body>
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<datagrid id="PID2280datagrid1" nodeset="/root/resData/rowData/record" caption="선택^독자번호^요청부수^실부수^확장일자^확장번호^확장자^확장자 주소^확장자 전화번호" colsep="^" colwidth="30, 80, 60, 60, 100, 100, 100, 300, 100" mergecellsfixedrows="bycolrec" rowsep="|" style="left:0px; top:70px; width:935px; height:660px; ">
+			<col checkvalue="1,0" ref="chkno" type="checkbox" value="1"/>
+			<col ref="rdr_no" type="output"/>
+			<col ref="subsqty" type="input"/>
+			<col ref="valqty"/>
+			<col ref="extndt"/>
+			<col ref="extnno"/>
+			<col ref="extnnm"/>
+			<col ref="extnaddr"/>
+			<col ref="extntel"/>
+		</datagrid>
+		<button id="PID2280button1" style="left:10px; top:40px; width:75px; height:25px; text-align:center; ">
+			<caption>Upload</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				upload();
+
+				]]>
+			</script>
+		</button>
+		<button id="PID2280button2" style="left:85px; top:40px; width:80px; height:25px; text-align:center; ">
+			<caption>전체해제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				all_release();
+				]]>
+			</script>
+		</button>
+		<button id="PID2280button3" style="left:165px; top:40px; width:80px; height:25px; text-align:center; ">
+			<caption>전체선택</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				all_lock();
+				]]>
+			</script>
+		</button>
+		<button id="PID2280button4" style="left:245px; top:40px; width:65px; height:25px; text-align:center; ">
+			<caption>등록</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				insert();
+				]]>
+			</script>
+		</button>
+		<button id="PID2280button5" style="left:310px; top:40px; width:65px; height:25px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				window.close();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

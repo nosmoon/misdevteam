@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>보통예금통장 잔액확인(FC_ACCT_2590)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<mang_clsf_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mang_clsf_cd>
+						</comboSet>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<sys_clsf>H1</sys_clsf>
+							<mang_clsf_cd/>
+							<frfisc_dt/>
+							<tofisc_dt/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<fc_acct_2591_l>
+								<dataSet>
+									<CURLIST>
+										<record>
+											<acct_nm/>
+											<mang_num/>
+											<acct_num/>
+											<tran_remain/>
+											<bef_amt/>
+											<cha_amt/>
+										</record>
+									</CURLIST>
+								</dataSet>
+							</fc_acct_2591_l>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.setValue("/root/reqData/searchData/frfisc_dt", getCurrentDate());
+					model.setValue("/root/reqData/searchData/tofisc_dt", getCurrentDate());
+					
+					modelSendNoMake("co_bank_1000_m", "/co/bank/1000", "/root/reqData/searchData", "root/tempData");
+					
+					if(submit_completed()){
+						model.copyNode("/root/initData/comboSet/mang_clsf_cd", "/root/tempData/acct_num");
+						makeComboGubun("", "/root/initData/comboSet/mang_clsf_cd", "item", "label", "value")
+					}
+										
+					model.refresh();
+				]]>
+			</script>
+			<submission id="fc_acct_2591_l" action="/fc/acct2000/2591" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/fc_acct_2591_l/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/fcmc_common.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function goReport(gubun){
+					
+				// 오즈관련 노드 초기화..					
+				resetOznode();					
+									
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+				makeNodeValue("/root/oz_data/ozrName", "fcmc/SP_FC_ACCT_2591_P");									
+							
+				var root			= "/root/reqData/searchData";
+					
+				var mang_clsf_cd     	= model.getValue(	root + "/mang_clsf_cd");				
+				var frfisc_dt	     	= model.getValue(	root + "/frfisc_dt");
+				var tofisc_dt     		= model.getValue(	root + "/tofisc_dt");
+					
+				if ( frfisc_dt == "" ){
+					commAlert("조회기간이 없습니다.");
+					return;
+				}
+				if ( tofisc_dt == "" ){
+					commAlert("조회기간이 없습니다.");
+					return;
+				}
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	
+				makeNodeValue("/root/oz_data/odiParam/iv_mang_clsf_cd"	, mang_clsf_cd);				
+				makeNodeValue("/root/oz_data/odiParam/iv_frfisc_dt"		, frfisc_dt);
+				makeNodeValue("/root/oz_data/odiParam/iv_tofisc_dt"		, tofisc_dt);
+									
+				// 레포트뷰어 호출.					
+				openOzwin("/root/oz_data");
+			}
+		
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,935;2,60;2,70;2,97;2,120;" style="font-family:굴림; ">
+		<caption id="caption44" class="list_cap02" style="left:10px; top:70px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption4" class="list_cap01" style="left:10px; top:70px; width:60px; height:28px; ">계좌번호</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:105px; width:926px; height:5px; "/>
+		<button id="button2" class="btn02" crud="R" style="left:711px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn02" crud="R" style="left:653px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					model.send("fc_acct_2591_l");
+					
+					var totalcnt = get_refvalue("/root/resData/gridData/fc_acct_2591_l/dataSet/CURLIST/totalcnt");
+					if(totalcnt == 0){
+						show_message("검색결과가 없습니다.");
+					}
+					/*
+					for(var i =1; i<datagrid1.rows;i++){
+						datagrid1.valueMatrix(i,7) = Number(datagrid1.valueMatrix(i,5)) - Number(datagrid1.valueMatrix(i,6));
+					}	
+					*/				
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button12" class="btn02" crud="R" style="left:822px; top:40px; width:53px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(!checkGridData(datagrid1)){
+					show_message("처리할 내역이 없습니다.");
+					return;
+				}
+													
+				var filename = window.fileDialog("save", ",", false, "통장입금확인", "xls", "Excel File(*.xls)|*.xls");
+				if(filename!=""){
+					datagrid1.saveExcel(filename, "sheetname: 통장입금확인");
+				}							
+				]]>
+			</script>
+		</button>
+		<input id="tofisc_dt" ref="/root/reqData/searchData/tofisc_dt" class="req" navindex="3" inputtype="date" format="yyyy-mm-dd" style="left:298px; top:75px; width:90px; height:18px;"/>
+		<select1 id="mang_clsf_cd" ref="/root/reqData/searchData/mang_clsf_cd" navindex="1" appearance="minimal" editmode="inputsearch" style="left:73px; top:75px; width:155px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/mang_clsf_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(combo_data_contains(mang_clsf_cd, mang_clsf_cd.value) == -1){
+						show_message("정확한 값을 선택해 주세요.");
+						set_refvalue(mang_clsf_cd,"");
+						return;
+					}				
+				]]>
+			</script>
+		</select1>
+		<!--<caption id="caption34" style="left:390px; top:77px; width:15px; height:17px; text-align:center; ">~</caption>-->
+		<caption id="caption5" class="list_cap01" style="left:234px; top:70px; width:60px; height:28px; ">조회기간</caption>
+		<!--<input id="frfisc_dt" ref="/root/reqData/searchData/frfisc_dt" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:298px; top:75px; width:90px; height:18px; "/>-->
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/fc_acct_2591_l/dataSet/CURLIST/record" caption="통  장  명^코드^계좌번호^통장잔액^전표잔액^차이금액^비고" colsep="#" colwidth="155, 70, 120, 130, 130, 120, 179" explorerbar="sort" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:120px; width:926px; height:600px; ">
+			<col ref="acct_nm" style="text-align:center; "/>
+			<col ref="mang_num" style="text-align:center; "/>
+			<col ref="acct_num" style="text-align:center; "/>
+			<col ref="tran_remain" format="(-)#,###" style="text-align:right; "/>
+			<col ref="bef_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="cha_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="rmk" style="text-align:center; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				/*
+				var row = getSelectedRecordIndex(datagrid1);				
+				var mang_num = model.getValue("/root/resData/gridData/fc_acct_2591_l/dataSet/CURLIST/record["+row+"]/mang_num");				
+				var frfisc_dt = model.getValue("/root/reqData/searchData/frfisc_dt");
+				var tofisc_dt = model.getValue("/root/reqData/searchData/tofisc_dt");				
+				
+				if(!isDataRegion(datagrid1)) return;		
+				
+				makeNodeValue("/root/reqData/fwdData/mang_num", mang_num);		
+				makeNodeValue("/root/reqData/fwdData/frfisc_dt", frfisc_dt);	
+				makeNodeValue("/root/reqData/fwdData/tofisc_dt", tofisc_dt);					
+				
+				window.load("./FC_ACCT_2570.xrw"
+						,""
+						,""
+						,""
+						,"/root/reqData/fwdData"
+						,"/root/tempData/keyData");
+				*/
+		
+				model.property("FC_ACCT_2570_mang_num")  = get_refvalue("/root/resData/gridData/fc_acct_2591_l/dataSet/CURLIST/record["+datagrid1.row+"]/mang_num");
+				model.property("FC_ACCT_2570_frfisc_dt")  = model.getValue("/root/reqData/searchData/frfisc_dt");
+				model.property("FC_ACCT_2570_tofisc_dt")  = model.getValue("/root/reqData/searchData/tofisc_dt");
+				
+				viewer("mainFrame").window.javaScript.onLoadExMDIPage("FC_ACCT_2570");		
+
+				]]>
+			</script>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:881px; top:40px; width:53px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" crud="R" style="left:765px; top:40px; width:53px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+					goReport("P");																			
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_3400.xrw
+* 기능 : 판매 - 발송관리 - 대표노선, 노선 설정 
+* 작성일자 : 2009.05.14
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var action	= "se_snd_3410_l";
+					
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					inputTf(false);
+					
+					model.refresh();
+				}
+				
+				function inputTf(tf){
+					var gridRows		= datagrid1.rows - 1;
+					var gridCols 	= datagrid1.cols - 1;
+					
+					datagrid1.isReadOnly(1, 1, gridRows , gridCols) = true;
+				}
+				
+				function goSubSearch(gubun){
+					
+					var row				= datagrid1.row;
+					
+					if ( row < 0 ){
+						return;
+					}
+					
+					var tar_root			= "/root/reqData/searchData";
+					var root				= "/root/reqData/searchData2";
+					var rptv_route_clsf	= datagrid1.valueMatrix(row, 2);
+					var rptv_route_cd		= datagrid1.valueMatrix(row, 5);
+					var prt_plac_cd		= model.getValue("/root/reqData/searchData/prt_plac_cd"	);
+					var route_clsf		= model.getValue("/root/reqData/searchData/route_clsf"	);
+					var ecnt_cd			= model.getValue("/root/reqData/searchData/ecnt_cd"		);
+					var ledt_cd			= model.getValue("/root/reqData/searchData/ledt_cd"		);
+					var medi_cd			= model.getValue("/root/reqData/searchData/medi_cd"		);
+					
+					model.setValue(root + "/rptv_route_clsf"	, rptv_route_clsf);
+					model.setValue(root + "/rptv_route_cd"		, rptv_route_cd	);
+					model.setValue(root + "/prt_plac_cd"		, prt_plac_cd	);
+					model.setValue(root + "/route_clsf"		, route_clsf		);
+					model.setValue(root + "/ecnt_cd"			, ecnt_cd		);
+					model.setValue(root + "/ledt_cd"			, ledt_cd		);
+					model.setValue(root + "/medi_cd"			, medi_cd		);
+					
+					var action 			= "se_snd_3420_l";
+					model.send(action);
+				}
+				
+				function goCopy(gubun){
+					var grid, msg, tmsg, rptv_route_cd, rptv_route_clsf, rptv_route_cd_search;
+					rptv_route_cd_search	= model.getValue("/root/reqData/searchData2/rptv_route_cd");
+					if ( gubun == "L" ){
+						grid 	= "datagrid3";
+						msg		= "비해당노선";
+						tmsg		= "해당노선";
+						rptv_route_cd	= rptv_route_cd_search;
+					} else if ( gubun == "R" ){
+						grid 	= "datagrid2";
+						msg		= "해당노선";
+						tmsg		= "비해당노선";
+						rptv_route_cd 	= "";
+					}
+					
+					var val = window.alert(tmsg + "으로 설정 하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					rptv_route_clsf	= model.getValue("/root/reqData/searchData2/rptv_route_clsf");
+					
+					var rows 	= eval(grid + ".rows");
+					eval(grid + ".clearStatus()");
+					var tf;
+					for ( var i = 1 ; i < rows ; i++ ){
+						val		= eval(grid + ".valueMatrix(" + i + ", 1)");
+						if ( val == "Y" ){
+							eval(grid + ".addStatus(" + i + ", 'update')");
+						}
+					}
+					
+					/*
+					var rows		= eval(grid + ".selectedRows");
+					if ( rows < 1 ){
+						commAlert(msg + "이 선택되지 않았습니다.");
+						return;
+					}
+					
+					var row;
+					for ( var i = 0 ; i < rows ; i++ ){
+						row		= eval(grid + ".selectedRow(" + i + ")");
+						eval(grid + ".addStatus(" + row + ", 'update')");
+					}
+					*/
+					model.setValue("/root/reqData/multiUpDate/multiUpdate", eval(grid + ".getUpdateData()"));
+					model.setValue("/root/reqData/multiUpDate/rptv_route_cd"	, rptv_route_cd	);
+
+					var action 	= "se_snd_3430_a";
+					model.send(action);
+					
+					var action 		= "se_snd_3440_l";
+					model.send(action);
+					
+					var fRow			= datagrid1.findRow(rptv_route_cd_search, 1, 5, true, true);
+					datagrid1.row	= fRow;
+					datagrid1.col	= 1;
+					
+					action 			= "se_snd_3420_l";
+					model.send(action);
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<curlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</curlist>
+							<routelist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</routelist>
+							<medilist>
+								<record>
+									<cd/>
+									<cd_abrv_nm/>
+								</record>
+							</medilist>
+						</comboSet>
+						<pageInfo>
+							<pageTitle/>
+							<pageID/>
+							<pageUrl/>
+							<statusMsg/>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<prt_plac_cd/>
+							<route_clsf/>
+							<ecnt_cd/>
+							<ledt_cd/>
+							<medi_cd/>
+							<route_cd/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate>
+							<multiUpdate/>
+							<rptv_route_cd/>
+						</multiUpDate>
+						<searchData2>
+							<rptv_route_clsf/>
+							<rptv_route_cd/>
+							<prt_plac_cd/>
+							<route_clsf/>
+							<ecnt_cd/>
+							<ledt_cd/>
+							<medi_cd/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<prt_plac_cd/>
+									<route_clsf/>
+									<ecnt_cd/>
+									<ledt_cd/>
+									<rptv_route_cd/>
+									<rptv_route_nm/>
+									<route_cnt/>
+									<qty/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+						<gridData2>
+							<inlist>
+								<recrod/>
+							</inlist>
+							<nolist>
+								<recrod/>
+							</nolist>
+						</gridData2>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action = "se_snd_3400_m";
+					model.send(action);
+					
+					makeComboGubun("A", "/root/initData/comboSet/ecntlist", "record", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/ledtlist", "record", "cdnm", "cd");
+					
+					combo1.select(0);
+					combo2.select(0);
+					combo3.select(0);
+					combo4.select(0);
+					combo5.select(0);
+					
+					inputTf(true);
+										
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_snd_3400_m" action="/se/snd/3400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_snd_3410_l" action="/se/snd/3410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="se_snd_3420_l" action="/se/snd/3420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/resData/gridData2"/>
+			<submission id="se_snd_3430_a" action="/se/snd/3430" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/resData/MsgData"/>
+			<submission id="se_snd_3440_l" action="/se/snd/3410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/resData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:127px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="인쇄처^노선구분^판수^지방판^대표노선코드^대표노선명^노선수^부수" colsep="#" colwidth="110, 100,110,110,110,130,110,110" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:11px; top:145px; width:926px; height:225px; ">
+			<col ref="prt_plac_cd" type="combo">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="rptv_route_clsf" type="combo">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/routelist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="ecnt_cd"/>
+			<col ref="ledt_cd"/>
+			<col ref="rptv_route_cd"/>
+			<col ref="rptv_route_nm" style="text-align:left; "/>
+			<col ref="route_cnt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="qty" format="#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					goSubSearch();
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:51px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption3" class="list_cap01" style="left:198px; top:0px; width:90px; height:26px; ">노선구분</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/route_clsf" class="req" appearance="minimal" caption="노선구분" style="left:294px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/routelist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; ">인쇄처</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/prt_plac_cd" class="req" appearance="minimal" caption="인쇄처" style="left:76px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption2" class="list_cap01" style="left:415px; top:0px; width:50px; height:26px; ">매체</caption>
+			<select1 id="combo2" ref="/root/reqData/searchData/medi_cd" class="req" appearance="minimal" caption="노선구분" style="left:471px; top:5px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medilist/record">
+						<label ref="cd_abrv_nm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption6" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption4" class="list_cap01" style="left:592px; top:0px; width:50px; height:26px; ">판수</caption>
+			<select1 id="combo4" ref="/root/reqData/searchData/ecnt_cd" appearance="minimal" caption="노선구분" style="left:648px; top:5px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/ecntlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:25px; width:70px; height:26px; ">지방판</caption>
+			<select1 id="combo5" ref="/root/reqData/searchData/ledt_cd" appearance="minimal" caption="인쇄처" style="left:76px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/ledtlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/inlist/record" caption="선택^대표노선코드^대표노선명^노선코드^노선명" colsep="#" colwidth="30, 80, 110,70,110" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:11px; top:410px; width:425px; height:315px; ">
+			<col checkvalue="Y,N" ref="chk" type="checkbox"/>
+			<col ref="rptv_route_cd"/>
+			<col ref="rptv_route_nm" style="text-align:left; "/>
+			<col ref="route_cd"/>
+			<col ref="route_nm" style="text-align:left; "/>
+			<col ref="route_clsf" visibility="hidden"/>
+		</datagrid>
+		<caption id="caption10" class="tit02" style="left:10px; top:385px; width:130px; height:20px; ">해당노선</caption>
+		<button id="button1" class="btn_left" crud="C" style="left:453px; top:514px; width:41px; height:18px; ">
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goCopy("L");
+				]]>
+			</script>
+			<caption/>
+		</button>
+		<button id="button3" class="btn_right" crud="C" style="left:453px; top:569px; width:41px; height:18px; ">
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goCopy("R");
+				]]>
+			</script>
+			<caption/>
+		</button>
+		<datagrid id="datagrid3" nodeset="/root/resData/gridData2/nolist/record" caption="선택^대표노선코드^대표노선명^노선코드^노선명" colsep="#" colwidth="30, 80, 110,70,110" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:511px; top:410px; width:425px; height:315px; ">
+			<col checkvalue="Y,N" ref="chk" type="checkbox"/>
+			<col ref="rptv_route_cd"/>
+			<col ref="rptv_route_nm" style="text-align:left; "/>
+			<col ref="route_cd"/>
+			<col ref="route_nm" style="text-align:left; "/>
+			<col ref="route_clsf" visibility="hidden"/>
+		</datagrid>
+		<caption id="caption5" class="tit02" style="left:512px; top:385px; width:130px; height:20px; ">비해당노선</caption>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,414 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<dncompCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</dncompCombo>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<gs_request>N</gs_request>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<search_form>
+								<fr_yymm/>
+								<to_yymm/>
+								<proc_yn/>
+								<proc_dt/>
+								<fr_yymm2/>
+								<to_yymm2/>
+								<rcpm_yn/>
+							</search_form>
+							<init_form>
+								<res_path/>
+							</init_form>
+						</reqform>
+						<multiUpDate>
+							<proc_dt/>
+							<multiUpDate1/>
+						</multiUpDate>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<yymm/>
+									<dncomp/>
+									<dncompnm/>
+									<deptnm/>
+									<adv_nm/>
+									<medi_qty/>
+									<mob_qty/>
+									<medi_amt/>
+									<mob_amt/>
+									<tot_amt/>
+									<rcpm_slip_no/>
+									<proc_yn/>
+									<proc_dt/>
+									<regdt/>
+									<regno/>
+								</record>
+							</listGrid>
+							<listGrid2>
+								<record>
+									<dncomp/>
+									<dncompnm/>
+									<adv_deptnm/>
+									<ern/>
+									<dlco_nm/>
+									<tax_no/>
+									<suply_amt/>
+									<vat_amt/>
+									<sum_amt/>
+									<prx_amt/>
+									<net_inc_amt/>
+									<rcpm_amt/>
+									<rcpm_slip_no/>
+									<budg_cd/>
+									<budg_nm/>
+								</record>
+							</listGrid2>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID5110search" ref="/root/reqData/reqform/search_form" action="/ss/extn/5110" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID5120search" ref="/root/reqData/reqform/search_form" action="/ss/extn/5120" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID5130save" ref="/root/reqData/multiUpDate" action="/ss/extn/5130" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					var d = new Date();
+					var month1;
+					var date1;
+					
+					if(d.getMonth()+1 < 10){
+						month1 = "0"+(d.getMonth()+1);
+					}else{
+						month1 = d.getMonth()+1;	
+					}
+					
+					if(d.getDate() < 10){
+						date1 = "0"+d.getDate();
+					}else{
+						date1 = d.getDate();	
+					}
+					
+					var yymm = d.getYear()+""+month1;
+					
+					var yymmdd = d.getYear()+""+month1+""+date1;
+					
+					model.setValue("/root/reqData/reqform/search_form/fr_yymm", yymm);
+					model.setValue("/root/reqData/reqform/search_form/to_yymm", yymm);
+					
+					model.setValue("/root/reqData/reqform/search_form/fr_yymm2", "20160401");
+					model.setValue("/root/reqData/reqform/search_form/to_yymm2", yymmdd);
+					
+					remakeNode("/root/resData/gridData/listGrid");
+					remakeNode("/root/resData/gridData/listGrid2");
+					model.refresh();
+				}
+				
+				function search()
+				{					
+					if(!commValidate("PID5100group_scr"))
+						return;
+						
+					PID5100datagrid1.clearStatus();	
+									
+					remakeNode("/root/tempData/resTemp");
+					model.send("PID5110search", false);
+					
+					if(!submit_completed())
+						return;
+					//데이터셋팅
+					//-조회목록
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");					
+						
+					//model.refresh();
+					//PID5100datagrid1.clearStatus();
+					PID5100datagrid1.refresh();
+										
+					if(instance1.selectNodes("/root/resData/gridData/listGrid/record/yymm").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					model.removenode("/root/tempData/resTemp");
+					
+					//PID5100multilinegrid1.rebuild();
+					
+					//resetDetail();
+				}
+				
+				function search2()
+				{
+					if(!commValidate("PID5100group_scr2"))
+						return;
+									
+					remakeNode("/root/tempData/resTemp");
+					model.send("PID5120search", false);
+					
+					if(!submit_completed())
+						return;
+					//데이터셋팅
+					//-조회목록
+					model.copyNode("/root/resData/gridData/listGrid2", "/root/tempData/resTemp/listGrid");					
+						
+					//model.refresh();
+					//PID5100datagrid1.clearStatus();
+					PID5100datagrid2.refresh();
+					
+					if(instance1.selectNodes("/root/resData/gridData/listGrid2/record/dncomp").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					model.removenode("/root/tempData/resTemp");
+					
+					//PID5100multilinegrid1.rebuild();
+					
+					//resetDetail();
+				}
+				
+				function excel(){					
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						
+					if(filePath != "") {
+						PID5100datagrid1.saveExcel(filePath);
+						window.exec(filePath);
+					}
+				}
+				
+				function excel2(){					
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						
+					if(filePath != "") {
+						PID5100datagrid2.saveExcel(filePath);
+						window.exec(filePath);
+					}
+				}
+				
+				function save()
+				{				
+				       var val = window.alert("저장 하시겠습니까?", "확인", 1) ;	
+					if ( val == 2 ){
+						return;
+					}						
+					if ( !checkChg("PID5100datagrid1") ){
+						commAlert("저장할 내용이 없습니다.");
+						return;
+					}		
+					
+					if( model.getValue("/root/reqData/reqform/search_form/proc_dt") == ""){
+						alert("처리일자가 누락됐습니다.");
+						return;
+					}				
+						
+					model.resetInstanceNode("/root/reqData/multiUpDate");
+					model.setValue("/root/reqData/multiUpDate/proc_dt", model.getValue("/root/reqData/reqform/search_form/proc_dt"));
+					model.setValue("/root/reqData/multiUpDate/multiUpDate1", PID5100datagrid1.getUpdateData());
+					
+					model.send("PID5130save", false);
+					
+					PID5100datagrid1.clearStatus();
+					search();	
+				}				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="1000" idprefix="PID5100" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:709px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();		
+					]]>
+				</script>
+			</button>
+			<button id="btnA2" class="btn02" style="left:764px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						save();
+					]]>
+				</script>
+			</button>
+			<button id="btnA3" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						excel();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID5100group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:25px; ">
+			<group id="grpCommonSelectQ" style="left:0px; top:0px; width:926px; height:25px; ">
+				<caption id="PID5100caption1" class="list_cap02" style="left:0px; top:0px; width:926px; height:25px; "/>
+				<!--<input id="dncomp" ref="/root/reqData/reqform/search_form/dncomp" inputtype="button" style="left:75px; top:4px; width:100px; height:18px; ">
+					<script type="javascript" ev:event="onbuttonclick">
+						<![CDATA[
+							model.property("BRANCH_RES_XPATH") = "/root/tempData/tempDncomp";
+   			   
+							window.load("/xrw/ss/extn/ss_extn_4602_p.xrw", "modal", "ZIPPOP", style="width:320px; height:430px; align:center; caption:hidden;", "/root/reqData/reqform/dncomp_form", "/root/tempData/dncompForm");
+							
+							if(model.getValue("/root/tempData/tempDncomp/dncomp") == "")
+								return;
+								
+						       	//model.setValue("/root/reqData/reqform/search_form/dncomp",model.getValue("/root/tempData/tempDncomp/dncomp"));
+						       	dncomp.value = model.getValue("/root/tempData/tempDncomp/dncomp");
+						       
+						]]>
+					</script>
+				</input>-->
+				<caption id="PID5100caption3" class="list_cap01" style="left:0px; top:0px; width:80px; height:25px; ">약정월</caption>
+				<input id="PID5100input1" ref="/root/reqData/reqform/search_form/fr_yymm" inputtype="date" format="yyyy-mm" caption="시작월" setHandler="true" relid="PID5100input2" style="left:84px; top:4px; width:80px; height:18px; "/>
+				<caption id="PID5100caption4" style="left:165px; top:0px; width:10px; height:25px; ">-</caption>
+				<input id="PID5100input2" ref="/root/reqData/reqform/search_form/to_yymm" inputtype="date" format="yyyy-mm" caption="종료월" setHandler="true" relid="PID5100input1" style="left:175px; top:4px; width:80px; height:18px; "/>
+				<caption id="PID5100caption5" class="list_cap01" style="left:270px; top:0px; width:80px; height:25px; ">처리여부</caption>
+				<select1 id="PID5100combo1" ref="/root/reqData/reqform/search_form/proc_yn" appearance="minimal" style="left:355px; top:4px; width:80px; height:18px; ">
+					<choices>
+						<item>
+							<label>전체</label>
+							<value/>
+						</item>
+						<item>
+							<label>미처리</label>
+							<value>N</value>
+						</item>
+						<item>
+							<label>처리</label>
+							<value>Y</value>
+						</item>
+					</choices>
+				</select1>
+				<caption id="PID5100caption6" class="list_cap01" style="left:750px; top:0px; width:80px; height:25px; ">처리일자</caption>
+				<input id="PID5100input3" ref="/root/reqData/reqform/search_form/proc_dt" class="req" inputtype="date" format="yyyy-mm-dd" caption="처리일자" setHandler="true" style="left:834px; top:4px; width:90px; height:18px; "/>
+			</group>
+		</group>
+		<group id="PID5100group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="PID5100datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="약정월^대납기업코드^대납기업명^권유부서^권유자^신문부수^e조경부수^신문금액^e조경금액^금액계^입금번호or입금전표번호^처리^처리일" colwidth="60,80,100,150,80,70,70,80,80,80,150,30,70" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" selectionmode="free" rowsep="|" colsep="#" tooltip="true" style="left:10px; top:110px; width:926px; height:300px; ">
+			<col ref="yymm" format="yyyy-mm"/>
+			<col ref="dncomp"/>
+			<col ref="dncompnm"/>
+			<col ref="deptnm"/>
+			<col ref="adv_nm"/>
+			<col ref="medi_qty" format="(-)#,###" style="text-align:right; "/>
+			<col ref="mob_qty" format="(-)#,###" style="text-align:right; "/>
+			<col ref="medi_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="mob_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="tot_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="rcpm_slip_no" type="input" format="99999999-99-9999">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if(PID5100datagrid1.textMatrix(PID5100datagrid1.row, PID5100datagrid1.colRef("rcpm_slip_no"))!=""){
+							PID5100datagrid1.valueMatrix(PID5100datagrid1.row,PID5100datagrid1.colRef("proc_yn")) = "Y";
+						}else{
+							PID5100datagrid1.valueMatrix(PID5100datagrid1.row,PID5100datagrid1.colRef("proc_yn")) = "N";
+						}
+					]]>
+				</script>
+			</col>
+			<col ref="proc_yn" type="checkbox" checkvalue="Y,N"/>
+			<col ref="proc_dt" format="yyyy-mm-dd"/>
+			<col ref="regdt" visibility="hidden"/>
+			<col ref="regno" visibility="hidden"/>
+		</datagrid>
+		<group id="PID5100group_scr2" class="gro_sel" style="left:10px; top:420px; width:926px; height:25px; ">
+			<group id="grpCommonSelectQ2" style="left:0px; top:0px; width:926px; height:25px; ">
+				<caption id="PID5100caption7" class="list_cap02" style="left:0px; top:0px; width:926px; height:25px; "/>
+				<caption id="PID5100caption8" class="list_cap01" style="left:0px; top:0px; width:80px; height:25px; ">기간</caption>
+				<input id="PID5100input4" ref="/root/reqData/reqform/search_form/fr_yymm2" inputtype="date" format="yyyy-mm-dd" caption="시작월" setHandler="true" relid="PID5100input5" style="left:84px; top:4px; width:85px; height:18px; "/>
+				<caption id="PID5100caption9" style="left:170px; top:0px; width:10px; height:25px; ">-</caption>
+				<input id="PID5100input5" ref="/root/reqData/reqform/search_form/to_yymm2" inputtype="date" format="yyyy-mm-dd" caption="종료월" setHandler="true" relid="PID5100input4" style="left:180px; top:4px; width:85px; height:18px; "/>
+				<caption id="PID5100caption10" class="list_cap01" style="left:270px; top:0px; width:80px; height:25px; ">구분</caption>
+				<select1 id="PID5100combo2" ref="/root/reqData/reqform/search_form/rcpm_yn" appearance="minimal" style="left:355px; top:4px; width:80px; height:18px; ">
+					<choices>
+						<item>
+							<label>전체</label>
+							<value/>
+						</item>
+						<item>
+							<label>입금</label>
+							<value>1</value>
+						</item>
+					</choices>
+				</select1>
+				<button id="btnA5" class="btn02" style="left:815px; top:2px; width:52px; height:21px; ">
+					<caption>조회</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+							search2();		
+						]]>
+					</script>
+				</button>
+				<button id="btnA4" class="btn02" style="left:869px; top:2px; width:52px; height:21px; ">
+					<caption>Excel</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+							excel2();		
+						]]>
+					</script>
+				</button>
+			</group>
+		</group>
+		<group id="PID5100group_line2" class="gro_line" style="left:10px; top:447px; width:926px; height:5px; "/>
+		<datagrid id="PID5100datagrid2" nodeset="/root/resData/gridData/listGrid2/record" caption="대납기업코드^대납기업명^권유부서^사업자번호^사업자명^세금계산서번호^공급액^부가세액^합계액^대행료^순수입액^입금액^입금번호or입금전표번호^예산코드^예산명" colwidth="80,100,100,90,100,110,70,70,70,70,70,70,150,70,70" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" selectionmode="free" rowsep="|" colsep="#" tooltip="true" style="left:10px; top:455px; width:924px; height:300px; ">
+			<col ref="dncomp"/>
+			<col ref="dncompnm"/>
+			<col ref="adv_deptnm"/>
+			<col ref="ern"/>
+			<col ref="dlco_nm"/>
+			<col ref="tax_no"/>
+			<col ref="suply_amt" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="vat_amt" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="sum_amt" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="prx_amt" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="net_inc_amt" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="rcpm_amt" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="rcpm_slip_no" type="input" format="99999999-99-9999"/>
+			<col ref="budg_cd"/>
+			<col ref="budg_nm"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

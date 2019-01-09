@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<mcCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mcCombo>
+							<branchCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</branchCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<listSearch>
+								<input_fromdt/>
+								<srch_medicd/>
+								<asinbocd/>
+								<srch_termsubsno/>
+								<input_todt/>
+								<js_fn_nm/>
+								<medicd/>
+								<curr_page_no/>
+								<srch_rdr_no/>
+								<records_per_page/>
+							</listSearch>
+							<detailSearch>
+								<srch_rdr_no/>
+								<srch_medicd/>
+								<srch_termsubsno/>
+							</detailSearch>
+						</searchData>
+						<reqform/>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<userGrid>
+								<record>
+									<rdr_no/>
+									<medicd/>
+									<termsubsno/>
+									<bonm/>
+									<rdrnm/>
+									<medinm/>
+									<subsfrser_no/>
+									<rdrtel_no/>
+									<dlvzip/>
+									<dlvaddr/>
+									<dlvdtlsaddr/>
+									<email/>
+									<acpntypenm/>
+									<sendyncdflag/>
+								</record>
+							</userGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					model.send("PID1701subInit", false);
+
+					//model.setValue("/root/reqData/searchData/listSearch/records_per_page", model.getValue("/root/tempData/initTemp/recordPerPage"));
+					model.setValue("/root/reqData/searchData/listSearch/records_per_page", "5000");
+					model.setValue("/root/reqData/searchData/listSearch/js_fn_nm", model.getValue("/root/tempData/initTemp/js_fn_nm"));
+					model.setValue("/root/reqData/searchData/listSearch/input_fromdt", model.getValue("/root/tempData/initTemp/defaultFrom"));
+					model.setValue("/root/reqData/searchData/listSearch/input_todt", model.getValue("/root/tempData/initTemp/defaultTo"));
+					model.copyNode("/root/initData/comboSet/mcCombo", "/root/tempData/initTemp/mcCombo");
+					model.copyNode("/root/initData/comboSet/branchCombo", "/root/tempData/initTemp/branchCombo");
+					model.removenode("/root/tempData/initTemp");
+
+					model.refresh();
+
+					PID1701combo1.select(0);
+					PID1701combo2.select(0);
+				]]>
+			</script>
+			<submission id="PID1701subInit" action="/ps/reader/1701" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1706search" action="/ps/reader/1706" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/listSearch" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1711print" action="/ps/reader/1711" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/listSearch" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function search()
+				{
+					if(!commValidate(PID1701group_scr))
+						return;
+
+					remakeNode("/root/tempData/resTemp");
+					
+					model.send("PID1706search", false);
+					
+					if(!submit_completed())
+					return;
+					
+					model.copyNode("/root/resData/gridData/userGrid", "/root/tempData/resTemp/userGrid");
+					
+					if(instance1.selectNodes("/root/resData/gridData/userGrid/record/rdr_no").length == 0)
+						model.alert("검색결과가 없습니다.");
+				
+					model.removenode("/root/tempData/resTemp");
+					model.refresh();
+					PID1701datagrid1.rebuild();
+				}
+				
+				function gridClick()
+				{				
+					if(PID1701datagrid1.textMatrix(PID1701datagrid1.row, PID1701datagrid1.colRef("rdr_no")) == "")
+					{
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData/detailSearch/srch_rdr_no",  PID1701datagrid1.textMatrix(PID1701datagrid1.row, PID1701datagrid1.colRef("rdr_no")));
+					model.setValue("/root/reqData/searchData/detailSearch/srch_medicd",  PID1701datagrid1.textMatrix(PID1701datagrid1.row, PID1701datagrid1.colRef("medicd")));
+					model.setValue("/root/reqData/searchData/detailSearch/srch_termsubsno",  PID1701datagrid1.textMatrix(PID1701datagrid1.row, PID1701datagrid1.colRef("termsubsno")));
+					openUserDetailPub("/root/reqData/searchData/detailSearch", "/root/tempData/userForm");
+				}
+				
+				function print_list()
+				{
+					//model.send("PID1711print", false);
+					
+					// 기존 오즈관련 jsp를 그대로 이용하기 위한 공통 모듈
+					callServletPrintPub("/ps/reader/1711","/root/reqData/searchData/listSearch");
+				}				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1701" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="grpCommonBtn" class="gro_btn" style="left:10px; top:50px; width:926px; height:21px; ">
+			<button id="btnCommonSearch" class="btn02" crud="R" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1701group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:25px; ">
+			<caption id="PID1701caption14" class="list_cap01" style="left:308px; top:0px; width:80px; height:25px; text-align:center; ">신청매체</caption>
+			<caption id="PID1701caption15" class="list_cap01" style="left:0px; top:0px; width:82px; height:25px; text-align:center; ">입력일자</caption>
+			<caption id="PID1701caption20" class="list_cap02" style="left:81px; top:0px; width:228px; height:25px; "/>
+			<input id="PID1701input1" ref="/root/reqData/searchData/listSearch/input_fromdt" class="req" autonext="false" inputtype="date" dataType="datefrom" caption="입력일자" setHandler="true" relid="PID1701input2" style="left:85px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnCommonSearch");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<input id="PID1701input2" ref="/root/reqData/searchData/listSearch/input_todt" class="req" autonext="false" inputtype="date" dataType="dateto" caption="입력일자" setHandler="true" relid="PID1701input1" style="left:200px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnCommonSearch");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<caption id="PID1701caption84" style="left:188px; top:3px; width:10px; height:20px; ">-</caption>
+			<caption id="PID1701caption8" class="list_cap01" style="left:546px; top:0px; width:80px; height:25px; text-align:center; ">배정지사</caption>
+			<caption id="PID1701caption1" class="list_cap02" style="left:387px; top:0px; width:160px; height:25px; "/>
+			<caption id="PID1701caption5" class="list_cap02" style="left:625px; top:0px; width:301px; height:25px; "/>
+			<select1 id="PID1701combo1" ref="/root/reqData/searchData/listSearch/medicd" appearance="minimal" style="left:391px; top:4px; width:140px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mcCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="PID1701combo2" ref="/root/reqData/searchData/listSearch/asinbocd" appearance="minimal" style="left:629px; top:4px; width:140px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/branchCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="PID1701group_line" class="gro_line" style="left:10px; top:110px; width:926px; height:5px; "/>
+		<!--<group id="PID1701group2" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID1701paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<group id="PID1701group1" style="left:10px; top:120px; width:926px; height:25px; ">
+			<caption id="PID1701caption4" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">독자목록</caption>
+			<button id="PID1701button1" class="btn_grid02" style="left:880px; top:4px; width:42px; height:17px; ">
+				<caption>인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						print_list();
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="PID1701datagrid1" nodeset="/root/resData/gridData/userGrid/record" caption="caption3^caption2^caption1^독자명/수취명^전화번호^주소^구독매체^구독기간^지사^신규/연결" colsep="^" colwidth="0, 0, 0, 105, 100, 275, 100, 124, 100, 100" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:150px; width:926px; height:575px; cursor:hand; ">
+			<col ref="rdr_no" visibility="hidden"/>
+			<col ref="medicd" visibility="hidden"/>
+			<col ref="termsubsno" visibility="hidden"/>
+			<col ref="rdrnm"/>
+			<col ref="rdrtel_no"/>
+			<col ref="total_addr" style="text-align:left; "/>
+			<col ref="medinm"/>
+			<col ref="subsfrser_no"/>
+			<col ref="bonm"/>
+			<col ref="acpntypenm"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1701datagrid1.mouseCol>PID1701datagrid1.fixedCols-1 && PID1701datagrid1.mouseRow>PID1701datagrid1.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

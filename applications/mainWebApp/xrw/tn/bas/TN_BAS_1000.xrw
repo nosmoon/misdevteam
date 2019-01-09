@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<psgp_cd>
+								<item/>
+							</psgp_cd>
+							<acty_complt_yn>
+								<item/>
+							</acty_complt_yn>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<file_upload/>
+							<filesize_chk/>
+							<organidx/>
+							<ext_chk/>
+							<phot/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+							<phot/>
+							<organidx/>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpData/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<organidx/>
+								<organname/>
+								<businessno/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+						<resForm>
+							<organidx/>
+							<organname/>
+							<businessno/>
+							<address/>
+							<law/>
+							<recipientname/>
+							<stampimagepath/>
+							<etc/>
+							<phot/>
+							<mode/>
+						</resForm>
+						<resPhoto>
+							<phot type="xsd:base64Binary"/>
+						</resPhoto>
+						<totcnt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				function searchList(){
+					
+					model1.removeNode("/root/dataSet");
+					model1.makeNode("/root/dataSet");
+					model1.refresh();
+					
+					model1.send("tn_bas_1000");
+					
+					model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+					
+					model1.removenode("/root/dataSet");
+					model1.makeNode("/root/dataSet");
+					
+					//button6.disabled = true;
+					model1.refresh();
+					var totcnt = datagrid1.rows;
+					//model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+					model1.refresh();
+				}
+				
+				function searchList2(){
+					
+					rowStatus(datagrid1);
+					
+					model1.removeNode("/root/dataSet");
+					model1.makeNode("/root/dataSet");
+					model1.refresh();
+					
+					if(datagrid1.row == 0) return;	
+					
+					if(datagrid1.col != 0){
+						var selectedIdx = datagrid1.selectedRow(0);
+						 model1.setValue("/root/reqData/searchData/organidx",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("organidx")));
+						
+						 //데이터 생성
+						 model1.send("tn_bas_1001");
+						 
+					//	model1.setValue("/root/resData/resForm/dept_nm",model1.getValue("/root/dataSet/dept_nm"));
+						model1.copyNode("/root/resData/resForm" , "/root/dataSet/CURLIST/record");
+						model1.copyNode("/root/resData/resPhoto" , "/root/resPhoto");
+
+						//model1.setValue("/root/resData/resPhoto/phot", model1.getValue("/root/resData/resForm/phot"));
+
+						
+						model1.removeNode("/root/dataSet");
+						model1.makeNode("/root/dataSet");
+						model1.removeNode("/root/resPhoto");
+						//model1.makeNode("/root/resPhoto");
+					
+						//img1.refresh();
+						
+						model1.refresh();
+					}
+				
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					 searchList();
+				]]>
+			</script>
+			<submission id="tn_bas_1000" action="/tn/bas/1000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="tn_bas_1001" action="/tn/bas/1001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="tn_bas_1002" action="/tn/bas/1002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm" resultref="/root/tempData"/>
+			<submission id="tn_bas_1003" action="/tn/bas/1003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+			<submission id="tn_bas_1004" action="/tn/bas/1004" mediatype="multipart/form-data" method="form-data-post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="1600" pageheight="900" guideline="2,38;2,68;2,38;2,69;2,680;1,947;1,889;1,731;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:99%; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:0%; top:5.7%; width:100.00%; height:23px; ">
+			<button id="button4" class="btn02" style="left:95.5%; top:4.35%; width:3.25%; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+				 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:91.94%; top:4.35%; width:3.25%; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(!commReqCheck("group3")) return;
+						
+						if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						model1.send("tn_bas_1002");
+							
+						if(submit_completed()) {
+								var phot =  model1.getValue("/root/reqData/reqForm/phot"); 
+								var organidx = model1.getValue("/root/resData/resForm/organidx");
+								
+							
+								if(phot != "") //사진 경로가 있을 경우만 사진 업로드 프로시저를 타도록 수정 (2013.05.03 수정 이가연)
+								{
+									model1.setValue("/root/reqData/searchData/organidx",organidx); 
+									model1.setValue("/root/reqData/searchData/phot",phot); 
+									model.send("tn_bas_1004");
+								}
+							
+							searchList();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn02" style="left:81.22%; top:4.35%; width:3.25%; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					datagrid1.rowStatus(1) = 0;
+					model1.refresh();
+					 searchList();
+					//datagrid1.clearStatus();
+					//button6.disabled = true;
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:88.38%; top:4.35%; width:3.25%; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						
+						if (!rowDelSubmit(datagrid1)) {
+							return;
+						}
+						
+						model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+						
+						model1.send("tn_bas_1003");
+						if(submit_completed()) {
+							model1.removeNode("root/resData/resForm");
+							model1.makeNode("root/resData/resForm");
+							searchList();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button9" class="btn02" style="left:84.81%; top:4.35%; width:3.25%; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						searchList();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" style="left:10px; top:10.00%; width:45.00%; height:85.00%; ">
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="기관명^사업자등록번호" colsep="#" colwidth="250, 200, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:0px; top:0px; width:99.03%; height:95.3%; ">
+				<col class="req" ref="organname" style="text-align:left; "/>
+				<col class="req" ref="businessno"/>
+				<col class="req" ref="organidx" visibility="hidden"/>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						searchList2();
+					]]>
+				</script>
+			</datagrid>
+		</group>
+		<group id="group3" style="left:46.56%; top:10.00%; width:52.44%; height:81.00%; border-color:#3366ff; border-width:1px; border-style:solid; ">
+			<caption id="caption10" class="list_cap02" style="left:1.43%; top:60.52%; width:97.01%; height:17.88%; text-align:center; "/>
+			<caption id="caption3" class="list_cap02" style="left:1.43%; top:34.25%; width:97.01%; height:13.07%; text-align:center; "/>
+			<caption id="caption4" class="list_cap02" style="left:1.43%; top:72px; width:97.01%; height:26px; text-align:center; "/>
+			<caption id="caption7" class="list_cap02" style="left:1.43%; top:122px; width:97.01%; height:26px; text-align:center; "/>
+			<caption id="caption1" class="list_cap02" style="left:1.43%; top:97px; width:97.01%; height:26px; text-align:center; "/>
+			<caption id="caption18" class="list_cap01" style="left:1.43%; top:122px; width:19.95%; height:26px; text-align:center; ">기부금단체 근거법령</caption>
+			<caption id="caption6" class="list_cap02" style="left:1.43%; top:47px; width:97.01%; height:26px; text-align:center; "/>
+			<caption id="caption14" class="list_cap01" style="left:1.43%; top:47px; width:19.95%; height:26px; text-align:center; ">기관명</caption>
+			<caption id="caption23" class="list_cap01" style="left:1.43%; top:72px; width:19.95%; height:26px; text-align:center; ">사업자 등록번호</caption>
+			<caption id="caption24" class="list_cap01" style="left:1.43%; top:97px; width:19.95%; height:26px; text-align:center; ">소재지</caption>
+			<input id="input4" ref="/root/resData/resForm/law" class="req" navindex="6" maxlength="50" style="left:22.22%; top:126px; width:74.55%; height:18px; "/>
+			<input id="input8" ref="/root/resData/resForm/organname" class="req" navindex="2" style="left:22.22%; top:51px; width:40.02%; height:18px; "/>
+			<input id="input9" ref="/root/resData/resForm/businessno" class="req" navindex="4" format="999-99-99999" style="left:22.22%; top:76px; width:21.98%; height:18px; "/>
+			<input id="input10" ref="/root/resData/resForm/address" class="req" navindex="5" maxlength="15" style="left:22.22%; top:101px; width:74.55%; height:18px; ">
+				<script type="javascript" ev:event="xforms-next">
+					<![CDATA[
+					//alert(commValidateTelNo(input10.currentText));
+					]]>
+				</script>
+			</input>
+			<caption id="caption26" class="tit02" style="left:1.31%; top:2.48%; width:24.49%; height:2.75%; font-weight:bold; ">모금기관</caption>
+			<textarea id="textarea1" ref="/root/resData/resForm/recipientname" navindex="29" maxlength="250" style="left:22.22%; top:35.21%; width:74.43%; height:11.00%; text-align:left; vertical-align:top; "/>
+			<img id="img1" ref="/root/resData/resPhoto/phot" accesskey="ctrl+r" style="left:22.22%; top:61.49%; width:13.74%; height:15.82%; background-stretch:stretch; border-color:#999999; border-style:solid; "/>
+			<button id="button6" class="btn_grid04" style="left:40.74%; top:70.98%; width:8.36%; height:17px; ">
+				<caption>사진변경</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						/*var upload = window.fileDialog("open", "", false, "", "", "");	
+						if (upload != "") {
+
+							var organidx = model1.getValue("/root/resData/resForm/organidx");
+					
+							model1.setValue("/root/reqData/searchData/organidx", organidx);
+					
+							model1.setValue("/root/reqData/searchData/phot", upload);
+							model1.setValue("/root/reqData/searchData/file_upload", upload);
+						
+							upload1.revalidate();
+						
+							var filesize_chk = model1.getValue("/root/reqData/searchData/filesize_chk");
+							var ext_chk = model1.getValue("/root/reqData/searchData/ext_chk");
+							
+							if(ext_chk=="10") {					
+								alert("jpg 만 등록 가능합니다.");
+								 model1.setValue("/root/reqData/searchData/ext_chk","");
+								model1.setValue("/root/reqData/searchData/phot", "");
+								model1.setValue("/root/reqData/searchData/file_upload", "");
+								return;
+							}
+							
+							if(filesize_chk=="10") {
+								alert("30KB이상 업로드 할수 없습니다.");
+								 model1.setValue("/root/reqData/searchData/filesize_chk","");
+								model1.setValue("/root/reqData/searchData/phot", "");
+								model1.setValue("/root/reqData/searchData/file_upload", "");
+								return;
+							}
+							
+														*/
+						var upload_photo = window.fileDialog("open", "", false, "", "", "jpg files (*.jpg)|*.jpg|gif files (*.gif)|*.gif|all files (*.*)|*.*");	
+						if (upload_photo != "") {
+								model.removenode("/root/resData/resPhoto/phot");
+								model.makeNode("/root/resData/resPhoto/phot");
+								model.setValue("/root/resData/resPhoto/phot",upload_photo);
+								model.setValue("/root/reqData/reqForm/phot",upload_photo);
+								var organidx = model1.getValue("/root/resData/resForm/organidx");
+								model1.setValue("/root/reqData/reqForm/organidx", organidx);
+							
+							upload1.revalidate(); // 유효성 체크
+							img1.refresh();
+						}
+						
+						    input16.refresh();
+							/*
+							model1.send("tn_bas_1004");
+						
+							if(submit_completed()) {
+								//alert("사진이 저장되었습니다.");
+								model1.send("hd_info_1002");
+								img1.refresh();
+								return;
+							}
+						*/
+						//}
+					]]>
+				</script>
+			</button>
+			<input id="input16" ref="/root/reqData/searchData/file_upload" visibility="hidden" appearance="output" style="left:40.74%; top:65.61%; width:38.95%; height:18px; "/>
+			<upload id="upload1" filesize="60KB" nodeset="/root/reqData/reqForm/phot" ext="jpg" filecount="1" validate="false" style="left:67.38%; top:61.49%; width:2.39%; height:2.75%; ">
+				<script type="javascript" ev:event="upload-ext-error">
+					<![CDATA[
+						model1.makeNode( "/root/reqData/searchData/ext_chk");
+						model1.setValue( "/root/reqData/searchData/ext_chk","10");
+					]]>
+				</script>
+				<script type="javascript" ev:event="upload-filesize-error">
+					<![CDATA[
+						model1.makeNode( "/root/reqData/searchData/filesize_chk");
+						model1.setValue( "/root/reqData/searchData/filesize_chk","10");
+					]]>
+				</script>
+			</upload>
+			<caption id="caption2" class="list_cap01" style="left:1.43%; top:34.25%; width:19.95%; height:13.07%; text-align:center; ">수령인명</caption>
+			<caption id="caption5" class="tit02" style="left:1.31%; top:30.26%; width:24.49%; height:20px; font-weight:bold; ">기부금 수령인</caption>
+			<caption id="caption8" class="tit02" style="left:1.31%; top:56.40%; width:24.49%; height:20px; font-weight:bold; ">기관직인</caption>
+			<caption id="caption9" class="list_cap01" style="left:1.43%; top:60.52%; width:19.95%; height:17.88%; text-align:center; ">직인 이미지</caption>
+			<input id="input1" ref="/root/resData/resForm/organidx" navindex="2" visibility="hidden" style="left:74.31%; top:51px; width:5.38%; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

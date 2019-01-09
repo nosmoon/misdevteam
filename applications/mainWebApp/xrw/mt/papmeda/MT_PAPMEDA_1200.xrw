@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<session>
+						</session>
+					</initData>
+					<reqData>
+						<searchData>
+							<meda_yymm_fr/>
+							<meda_yymm_to/>
+						</searchData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<meda_yymm/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="mt_papmeda_1200_l" action="/mt/papmeda/1200" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_papmeda_1201_l" action="/mt/papmeda/1201" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//최초 호출시 실행
+				function initBody() {
+					model1.copyNode("/root/initData/pageInfo",parent.root.initData.pageInfo);
+					funDataGrid();
+				}
+				
+				//그리드 생성
+				function funDataGrid() {
+					var iColCnt    = 0;		//위탁처cnt
+					var sRefName   = "";		//ref Name
+					var sCaption   = "";		//캡션명
+					
+					model1.send("mt_papmeda_1200_l");
+					
+					iColCnt = parseInt(model1.getValue("/root/tempData/fac_clsf/totalcnt"));
+					
+					//datagrid Caption 설정
+					sCaption = "조정년월" + funCaption(iColCnt) + "^계";
+					
+					//위탁처수 만큼 node생성 및 컬럼 add
+					for(var i=1; i <= iColCnt; i++) {
+						sRefName = "fac_" + model1.getValue("/root/tempData/fac_clsf/cd["+i+"]");
+						sXpath = "/root/resData/gridData/record/" + sRefName
+						model1.makeNode(sXpath);
+						datagrid1.addColumn("ref:"+sRefName+";format:(-)#,###;type:output", false);
+					}
+					
+					model1.makeNode("/root/resData/gridData/record/total");
+					datagrid1.addColumn("ref:total;format:(-)#,###;type:output", false);
+					
+					datagrid1.caption = sCaption;
+					datagrid1.nodeset = "/root/resData/gridData/record";
+					datagrid1.refresh();
+					
+					datagrid1.visible = true;
+				}
+				
+				
+				function funCaption(iColCnt) {
+					var sCaption = "";
+					
+					for(var i=1; i <= iColCnt; i++) {
+						sCaption = sCaption + "^" + model1.getValue("/root/tempData/fac_clsf/cdnm["+i+"]");
+					}
+					
+					return sCaption;
+				}
+				
+				
+				//조회
+				function funSearch() {
+					if(!commReqCheck("group2")) return;
+					
+					model1.send("mt_papmeda_1201_l");
+					model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+					
+					datagrid1.refresh();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="890" pageheight="575" guideline="2,81;1,10;1,879;">
+		<group id="group1" class="gro_sel" style="left:10px; top:20px; width:870px; height:27px; ">
+			<button id="btnA1" class="btn02" style="left:713px; top:3px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:765px; top:3px; width:52px; height:21px; ">
+				<caption>EXCEL 저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						datagrid1.saveExcel(filename, "sheetname:Transaction;colhiddenextend:true;exportfalserows:;");
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:817px; top:3px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						parent.window.javaScript.winClose();
+						
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:655px; top:3px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						initBody();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" class="gro_sel" style="left:10px; top:53px; width:870px; height:24px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:870px; height:24px; text-align:center; "/>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:120px; height:24px; text-align:center; ">조정년월</caption>
+			<caption id="caption12" tyle="left:644px; top:48px; width:17px; height:16px; text-align:center;">~</caption>
+			<input id="input1" ref="/root/reqData/searchData/meda_yymm_fr" class="req" format="yyyy.mm" caption="조정년월" style="left:125px; top:3px; width:110px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/meda_yymm_to" class="req" format="yyyy.mm" caption="조정년월" style="left:260px; top:3px; width:110px; height:18px; "/>
+			<caption id="caption1" style="left:242px; top:5px; width:15px; height:15px; ">-</caption>
+		</group>
+		<datagrid id="datagrid1" visibility="hidden" caption="조정년월" colsep="^" colwidth="100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:81px; width:869px; height:454px; ">
+			<col ref="meda_yymm" format="yyyy-mm"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

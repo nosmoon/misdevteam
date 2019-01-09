@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<codeData>
+						<hndl_clsf>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</hndl_clsf>
+						<medi_cd>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</medi_cd>
+					</codeData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<hndl_clsf/>
+							<medi_cd/>
+							<frdt/>
+							<todt/>
+							<dt_clsf>03</dt_clsf>
+							<basic_dt/>
+							<security_dt/>
+							<misu>Y</misu>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<medi_nm/>
+								<hndl_clsf_nm/>
+								<dlco_nm/>
+								<advt_fee/>
+								<vat/>
+								<tot_fee/>
+								<dh/>
+								<gjms_advt_fee/>
+								<gjms_vat/>
+								<gjms_tot_fee/>
+								<mchrg_pers/>
+								<prdt_save_amt/>
+								<save_amt/>
+								<medi_cd/>
+								<hndl_clsf/>
+								<dlco_no/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData>
+						</keyData>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				var currentdt = getCurrentDate();
+				var currentmt = getCurrentMonth();	
+				//var frdt = dateAdd("d", 0, currentdt);	//현재일자	
+				//var todt = dateAdd("d", -1, currentdt);	//현재일자				
+				var frdt = dateAdd("m", -1, currentmt+"01");
+				var pre_month = frdt.substring(0,6);
+				var todt = pre_month+commLastDay(pre_month); 	//전월의 말일 	
+				
+				model.setValue("/root/reqData/searchData/frdt", frdt);     
+				model.setValue("/root/reqData/searchData/todt", todt); 
+				model.setValue("/root/reqData/searchData/basic_dt", currentdt); 
+				
+				model.send("ad_dep_2600_m");	
+				model.copyNode("/root/codeData/hndl_clsf", "/root/tempData/hndl_clsf");
+				model.copyNode("/root/codeData/medi_cd", "/root/tempData/medi_cd");
+				
+				model.refresh();
+				
+				initPage();
+			
+				]]>
+			</script>
+			<submission id="ad_dep_2600_m" action="/ad/dep/2600" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData"/>
+			<submission id="ad_dep_2610_l" action="/ad/dep/2610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+			function initPage(){
+				cd_dlco_cd.select(1);  
+				cd_dlco_cd.refresh();
+				
+				cd_medi_cd.select(0); 
+				cd_medi_cd.refresh();
+			}
+			
+			
+			function goReport(gubun){
+					
+				// 오즈관련 노드 초기화..					
+				resetOznode();					
+									
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+				makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_DEP_2610_P");									
+							
+				var root			= "/root/reqData/searchData";
+				
+				
+				var hndl_clsf    	= model.getValue(	root + "/hndl_clsf");
+				var medi_cd     	= model.getValue(	root + "/medi_cd");				
+				var frdt	     	= model.getValue(	root + "/frdt");
+				var todt     	= model.getValue(	root + "/todt");
+				var basic_dt     	= model.getValue(	root + "/basic_dt");		
+				var security_dt 	= model.getValue(	root + "/security_dt");			
+				
+				
+				if ( hndl_clsf == "" ){
+					commAlert("거래처구분이 없습니다.");
+					return;
+				}	
+				if ( medi_cd == "" ){
+					commAlert("매체코드가 없습니다.");
+					return;
+				}	
+				if ( frdt == "" &&  todt == ""){
+					commAlert("게재기간이 없습니다.");
+					return;
+				}
+				if ( basic_dt == ""){
+					commAlert("기준일이 없습니다.");
+					return;
+				}		
+				
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));		
+				makeNodeValue("/root/oz_data/odiParam/iv_hndl_clsf"		, hndl_clsf);				
+				makeNodeValue("/root/oz_data/odiParam/iv_medi_cd"		, medi_cd);	
+				makeNodeValue("/root/oz_data/odiParam/iv_frdt"			, frdt);	
+				makeNodeValue("/root/oz_data/odiParam/iv_todt"			, todt);	
+				makeNodeValue("/root/oz_data/odiParam/iv_basic_dt"		, basic_dt);	
+				makeNodeValue("/root/oz_data/odiParam/iv_security_dt"		, security_dt);	
+
+			
+				// 레포트뷰어 호출.					
+				openOzwin("/root/oz_data");	
+			}					
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,936;2,60;2,70;2,97;2,124;2,132;2,137;2,147;" style="font-family:굴림; ">
+		<caption id="caption16" class="list_cap02" style="left:18px; top:560px; width:910px; height:25px; "/>
+		<caption id="caption1" class="list_cap02" style="left:10px; top:97px; width:927px; height:28px; "/>
+		<caption id="caption12" class="list_cap02" style="left:10px; top:70px; width:927px; height:28px; "/>
+		<caption id="caption4" class="list_cap01" style="left:10px; top:70px; width:90px; height:28px; ">거래처구분</caption>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:132px; width:927px; height:5px; "/>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:97px; width:90px; height:28px; ">기준일</caption>
+		<caption id="caption8" class="list_cap03" style="left:19px; top:560px; width:100px; height:25px; text-align:center; ">게재액</caption>
+		<button id="button1" class="btn02" crud="R" style="left:668px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					model.send("ad_dep_2610_l");
+							
+					if(submit_completed()){
+						if(datagrid1.rows > 0){
+									
+		                                     datagrid1.subtotal("sum", 0, datagrid1.colRef("advt_fee"),"(-)#,###", "background-color:#FFEFDB", 0, "매체계");	
+							datagrid1.subtotal("sum", 0, datagrid1.colRef("vat"),"(-)#,###", "background-color:#FFEFDB", 0, "매체계");	
+							datagrid1.subtotal("sum", 0, datagrid1.colRef("tot_fee"),"(-)#,###", "background-color:#FFEFDB", 0, "매체계");	
+							datagrid1.subtotal("sum", 0, datagrid1.colRef("dh"),"(-)#,###", "background-color:#FFEFDB", 0, "매체계");	
+							datagrid1.subtotal("sum", 0, datagrid1.colRef("gjms_advt_fee"),"(-)#,###", "background-color:#FFEFDB", 0, "매체계");	
+							datagrid1.subtotal("sum", 0, datagrid1.colRef("gjms_vat"),"(-)#,###", "background-color:#FFEFDB", 0, "매체계");	
+							datagrid1.subtotal("sum", 0, datagrid1.colRef("gjms_tot_fee"),"(-)#,###", "background-color:#FFEFDB", 0, "매체계");	
+							
+							datagrid1.subtotal("sum", 1, datagrid1.colRef("advt_fee"),"(-)#,###", "background-color:#FFFFCC", 2, "취급처별합계");							
+							datagrid1.subtotal("sum", 1, datagrid1.colRef("vat"),"(-)#,###", "background-color:#FFFFCC", 2, "취급처별합계");	
+							datagrid1.subtotal("sum", 1, datagrid1.colRef("tot_fee"),"(-)#,###", "background-color:#FFFFCC", 2, "취급처별합계");	
+							datagrid1.subtotal("sum", 1, datagrid1.colRef("dh"),"(-)#,###", "background-color:#FFFFCC", 2, "취급처별합계");	
+							datagrid1.subtotal("sum", 1, datagrid1.colRef("gjms_advt_fee"),"(-)#,###", "background-color:#FFFFCC", 2, "취급처별합계");	
+							datagrid1.subtotal("sum", 1, datagrid1.colRef("gjms_vat"),"(-)#,###", "background-color:#FFFFCC", 2, "취급처별합계");	
+							datagrid1.subtotal("sum", 1, datagrid1.colRef("gjms_tot_fee"),"(-)#,###", "background-color:#FFFFCC", 2, "취급처별합계");
+								
+		//					var currentRow = datagrid1.;
+													
+		//					datagrid1.mergeCol.mergeCol(currentRow,datagrid1.colRef("hndl_clsf_nm"), currentRow, datagrid1.colRef("dlco_nm"));
+						
+							if(datagrid1.rows > 20){
+								datagrid1.attribute("frozenbottomrows") = 1;
+							}	
+							
+							datagrid1.subtotal("sum", -1,datagrid1.colRef("advt_fee"),"(-)#,###",TOTAL_STYLE, 0, "총합계");	
+							datagrid1.subtotal("sum", -1,datagrid1.colRef("vat"),"(-)#,###",TOTAL_STYLE, 0, "총합계");	
+							datagrid1.subtotal("sum", -1,datagrid1.colRef("tot_fee"),"(-)#,###",TOTAL_STYLE, 0, "총합계");	
+							datagrid1.subtotal("sum", -1,datagrid1.colRef("dh"),"(-)#,###",TOTAL_STYLE, 0, "총합계");	
+							datagrid1.subtotal("sum", -1,datagrid1.colRef("gjms_advt_fee"),"(-)#,###",TOTAL_STYLE, 0, "총합계");	
+							datagrid1.subtotal("sum", -1,datagrid1.colRef("gjms_vat"),"(-)#,###",TOTAL_STYLE, 0, "총합계");	
+							datagrid1.subtotal("sum", -1,datagrid1.colRef("gjms_tot_fee"),"(-)#,###",TOTAL_STYLE, 0, "총합계");		
+							
+							datagrid1.mergeByFree(datagrid1.rows-1,datagrid1.colRef("medi_nm"),datagrid1.rows-1,datagrid1.colRef("dlco_nm"));		
+						}
+					}
+				}
+				datagrid1.mergecells= "byrestriccol";
+				datagrid1.mergeCol(4) = false;
+				datagrid1.mergeCol(5) = false;
+				datagrid1.mergeCol(6) = false;
+				datagrid1.mergeCol(7) = false;
+				datagrid1.mergeCol(8) = false;
+				datagrid1.mergeCol(9) = false;
+				datagrid1.mergeCol(10) = false;
+				datagrid1.mergeCol(11) = false;
+				datagrid1.mergeCol(12) = false;
+
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" crud="P" style="left:722px; top:40px; width:50px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("P");
+				]]>
+			</script>
+		</button>
+		<button id="button7" class="btn02" crud="R" style="left:831px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<caption id="caption3" class="list_cap01" style="left:415px; top:70px; width:80px; height:28px; ">게재기간</caption>
+		<caption id="caption11" class="list_cap01" style="left:205px; top:97px; width:80px; height:28px; ">보증기준월</caption>
+		<select1 id="cd_dlco_cd" ref="/root/reqData/searchData/hndl_clsf" navindex="1" appearance="minimal" style="left:105px; top:74px; width:90px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/hndl_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var hndl_clsf = model.getValue("/root/reqData/searchData/hndl_clsf");
+					if(hndl_clsf == "4"){
+						datagrid1.colHidden(datagrid1.colRef("prdt_save_amt")) = false;
+					}else{
+						datagrid1.colHidden(datagrid1.colRef("prdt_save_amt")) = true;						
+					}
+				]]>
+			</script>
+		</select1>
+		<caption id="caption5" style="left:370px; top:105px; width:138px; height:15px; color:#ff0000; ">(적립보증금-본지만해당)</caption>
+		<caption id="caption7" style="left:590px; top:74px; width:25px; height:20px; text-align:center; ">~</caption>
+		<select1 id="cd_medi_cd" ref="/root/reqData/searchData/medi_cd" class="req" navindex="2" appearance="minimal" caption="매체구분" style="left:290px; top:74px; width:115px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/medi_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption9" class="list_cap01" style="left:205px; top:70px; width:80px; height:28px; ">매체구분</caption>
+		<input id="input1" ref="/root/reqData/searchData/frdt" class="req" navindex="3" inputtype="date" caption="게재기간" style="left:500px; top:74px; width:90px; height:18px; "/>
+		<input id="input2" ref="/root/reqData/searchData/todt" class="req" navindex="4" inputtype="date" caption="게재기간" style="left:615px; top:74px; width:90px; height:18px; "/>
+		<input id="input3" ref="/root/reqData/searchData/basic_dt" class="req" navindex="7" inputtype="date" caption="기준일" style="left:105px; top:102px; width:90px; height:18px; "/>
+		<input id="input4" ref="/root/reqData/searchData/security_dt" navindex="8" format="yyyy-mm" style="left:290px; top:102px; width:70px; height:18px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="매체^구분^취급처^광고료^부가세^게재총액^대행료^미수광고료^미수부가세^미수총액^관리담당^예상적립보증금^적립보증금^매체코드^거래처구분코드^거래처코드" colsep="^" colwidth="80, 80, 150, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" explorerbar="sort" frozencols="3" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowsep="|" subtotalposition="below" style="left:10px; top:147px; width:927px; height:598px; word-wrap:none; ">
+			<col ref="medi_nm" style="vertical-align:top; "/>
+			<col ref="hndl_clsf_nm" style="vertical-align:top; "/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="advt_fee" format="(-)#,###" style="text-align:right; "/>
+			<col ref="vat" format="(-)#,###" style="text-align:right; "/>
+			<col ref="tot_fee" format="(-)#,###" style="text-align:right; "/>
+			<col ref="dh" format="(-)#,###" style="text-align:right; "/>
+			<col ref="gjms_advt_fee" format="(-)#,###" style="text-align:right; "/>
+			<col ref="gjms_vat" format="(-)#,###" style="text-align:right; "/>
+			<col ref="gjms_tot_fee" format="(-)#,###" style="text-align:right; "/>
+			<col ref="mchrg_pers"/>
+			<col ref="prdt_save_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="save_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="medi_cd" visibility="hidden"/>
+			<col ref="hndl_clsf" visibility="hidden"/>
+			<col ref="dlco_no" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				
+				if(!isDataRegion(datagrid1)) return;
+				
+				var rownum = datagrid1.row; 
+
+				 /* 타이틀을 클릭한 경우 그냥 리턴 */
+				if ( rownum <= 0 ) {
+					return;
+				}				
+				
+				var dataIndex = getSelectedRecordIndex(datagrid1);
+				
+				var frdt = model.getValue("/root/reqData/searchData/frdt");
+				var todt = model.getValue("/root/reqData/searchData/todt");
+				var medi_cd= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("medi_cd"));	
+				var hndl_clsf= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("hndl_clsf"));	
+				var dlco_no= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dlco_no"));							
+				
+				makeNodeValue("/root/reqData/fwdData/frdt", frdt);
+				makeNodeValue("/root/reqData/fwdData/todt", todt);
+				makeNodeValue("/root/reqData/fwdData/medi_cd", medi_cd);
+				makeNodeValue("/root/reqData/fwdData/hndl_clsf", hndl_clsf);
+				makeNodeValue("/root/reqData/fwdData/dlco_no", dlco_no);
+				
+				window.load("./AD_DEP_3301.xrw"
+						  , "modal"
+						  , ""
+						  , "align:center; width:708; height:407; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden;"
+						  ,"/root/reqData/fwdData"
+						  ,"/root/reqData/fwdData"		
+				);
+				
+				]]>
+			</script>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:885px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				
+				]]>
+			</script>
+		</button>
+		<select1 id="combo2" ref="/root/reqData/searchData/dt_clsf" navindex="5" appearance="minimal" style="left:710px; top:74px; width:67px; height:18px; ">
+			<choices>
+				<item>
+					<label>당일</label>
+					<value>01</value>
+				</item>
+				<item>
+					<label>당월</label>
+					<value>02</value>
+				</item>
+				<item>
+					<label>전월</label>
+					<value>03</value>
+				</item>
+				<item>
+					<label>전년</label>
+					<value>04</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					
+					var currentdt = getCurrentDate();
+					var currentmt = getCurrentMonth();				
+								
+					var dt_clsf = model.getValue("/root/reqData/searchData/dt_clsf"); //선택한 콤보박스 값..
+									
+					if(dt_clsf == "01"){  
+						var frdt = dateAdd("d", 0, currentdt);	//당일
+						var todt = dateAdd("d",0, currentdt);	//당일
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt); 
+					}else if(dt_clsf == "02"){
+						var frdt = currentdt.substring(0,6)+"01"; //당월의 1일부터
+						var todt = dateAdd("d",0, currentdt);	//당월의 현재일 
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt); 
+					}else if(dt_clsf == "03") {
+						var frdt = dateAdd("m", -1, currentmt+"01");
+						var pre_month = frdt.substring(0,6);
+						var todt = pre_month+commLastDay(pre_month); 	//전월의 말일 
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt);
+					}else if(dt_clsf == "04") {
+						var oyold= dateAdd("m", -12, currentdt);
+						var frdt = oyold.substring(0,4)+"0101";    //전년 1월1일
+						var todt = dateAdd("m", -12, currentdt); 	//당일의 전년 
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt);
+					}		
+				
+					model.refresh();
+					
+				]]>
+			</script>
+		</select1>
+		<select id="checkbox1" ref="/root/reqData/searchData/misu" navindex="6" overflow="visible" appearance="full" cols="2" style="left:785px; top:77px; width:45px; height:15px; border-style:none; ">
+			<choices>
+				<item>
+					<label>미수</label>
+					<value>Y</value>
+				</item>
+			</choices>
+		</select>
+		<button id="btnExcelDown" class="btn02" crud="R" style="left:776px; top:40px; width:50px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(!checkGridData(datagrid1)){
+						alert("처리할 내역이 없습니다.");
+						return;
+					}
+					
+					var filename = window.fileDialog("save", ",", false, "취급처별 게재 및 입금현황", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						datagrid1.saveExcel(filename, "sheetname: 취급처별게재액_입금액");
+					}
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>일용직고용보험자료조회</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<duty_yy/>
+							<nm_korn/>
+							<prn/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<multiUpDate/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<msg/>
+						<gridData>
+							<record>
+								<flnm/>
+								<duty_yymm/>
+								<pay_amt/>
+								<emp_insr_fee/>
+								<np_fee/>
+								<hlth_insr_fee/>
+								<hlth_insr_med_care_insr_fee/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setDlco(dlco_no ,ern ,dlco_nm){
+						model1.setValue("/root/reqData/searchData/prn",ern);
+						model1.setValue("/root/reqData/searchData/nm_korn", dlco_nm);
+						model1.refresh();
+					}
+					
+					function get_flnm(){
+						var prn = input3.currentText;
+
+						model.setValue("/root/reqData/searchData/prn", prn);
+						model.send("hd_ddemp_5001");
+						model.setValue("/root/reqData/searchData/nm_korn",model1.getValue("/root/tempData/CURLIST/record/flnm"));
+						model.refresh();
+						if(input2.currentText == ""){
+							alert("조회할 성명이 없습니다.");
+						}else{
+							button2.dispatch("onclick");
+						}
+					}	
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "일용직급여관리(개인별)";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					model1.setValue("/root/reqData/searchData/duty_yy", commCurDate("ym"));
+					group2.refresh();
+				]]>
+			</script>
+			<submission id="hd_ddemp_5000" action="/hd/ddemp/5000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_ddemp_5001" action="/hd/ddemp/5001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/HD_Common.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,932;1,9;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group1" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="button1" class="btn02" style="left:617px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:845px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+							viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:673px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(input3.currentText==""){
+							alert("조회할 주민등록번호가 없습니다.");
+							model1.reset();
+							return;
+						}else{
+							model1.send("hd_ddemp_5000");
+							model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+							model1.removenode("/root/dataSet");
+							datagrid1.refresh();
+							rowCnt.value = "총 "+ (parseInt(datagrid1.rows - datagrid1.fixedRows)) + " 건";
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn05" style="left:729px; top:0px; width:112px; height:21px; ">
+				<caption>엑셀다운로드</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//excel 파일로 저장한다.
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						if(filePath != "") {
+							datagrid1.saveExcel(filePath);
+							window.exec(filePath);
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" visibility="hidden" style="left:0px; top:95px; width:926px; height:5px; "/>
+		<group id="group2" style="left:10px; top:67px; width:926px; height:28px; ">
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:100px; height:26px; ">근로년도</caption>
+			<caption id="caption2" class="list_cap02" style="left:99px; top:0px; width:491px; height:26px; "/>
+			<caption id="caption3" class="list_cap01" style="left:210px; top:0px; width:60px; height:26px; ">성명</caption>
+			<input id="input1" ref="/root/reqData/searchData/duty_yy" class="req" inputtype="date" format="yyyy" style="left:104px; top:4px; width:100px; height:18px; "/>
+			<caption id="caption4" class="list_cap01" style="left:380px; top:0px; width:100px; height:26px; ">주민등록번호</caption>
+			<input id="input2" ref="/root/reqData/searchData/nm_korn" class="req" imemode="hangul" style="left:275px; top:5px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+					if (event.keyCode ==13){
+						if( input2.currentText==""){
+							alert("조회할 이름이 없습니다.");
+							model1.reset();
+							return;
+						}else{
+							var flnm = input2.currentText;
+							model.removeNodeset("/root/reqData/fwdData");  
+							model.makeNode("/root/reqData/fwdData/func_nm");
+							model.setValue("/root/reqData/fwdData/func_nm", "setDlco");
+							model.makeNode("/root/reqData/fwdData/dlco_nm");
+							model.setValue("/root/reqData/fwdData/dlco_nm",flnm);
+							model.makeNode("/root/reqData/fwdData/ern");
+							model.setValue("/root/reqData/fwdData/ern", "");
+							window.load("/xrw/hd/com/HD_COM_1211.xrw","modal", "hd_com_1211", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+							model1.removenode("/root/tempData");
+							return;	
+						}
+					}
+					]]>
+				</script>
+			</input>
+			<input id="input3" ref="/root/reqData/searchData/prn" class="req" format="999999-9999999" style="left:485px; top:5px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						get_flnm();
+					]]>
+				</script>
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+						if (event.keyCode ==13){
+							if(input3.currentText==""){
+								alert("조회할 주민등록번호가 없습니다.");
+								model1.reset();
+								return;
+							}else{
+								model1.removenode("/root/tempData");
+								model1.makeNode("/root/tempData");
+													
+								get_flnm();								
+							}
+						}
+					]]>
+				</script>
+			</input>
+		</group>
+		<group id="group3" class="gro_btn" style="left:10px; top:100px; width:926px; height:20px; ">
+			<caption id="caption5" class="tit02" style="left:2px; top:0px; width:194px; height:20px; font-weight:bold; ">일용직 급여 조회</caption>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="성명^근무년월^급여지급액^고용보험료^국민연금^건강보험료^장기요양보험료" colsep="^" colwidth="75, 70, 100, 100, 100, 100, 100" explorerbar="sortshowmove" frozencols="4" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" tooltip="true" style="left:9px; top:125px; width:666px; height:530px; ">
+			<col ref="flnm"/>
+			<col ref="duty_yymm" format="yyyy-mm"/>
+			<col ref="pay_amt" format="#,###" maxlength="10" caption="급여지급액" style="text-align:right; "/>
+			<col ref="emp_insr_fee" format="#,###" maxlength="10" caption="고용보험료" style="text-align:right; "/>
+			<col ref="np_fee" format="#,###" maxlength="10" caption="국민연금료" style="text-align:right; "/>
+			<col ref="hlth_insr_fee" format="#,###" maxlength="10" caption="건강보험료" style="text-align:right; "/>
+			<col ref="hlth_insr_med_care_insr_fee" format="#,###" maxlength="10" caption="장기요양보험료" style="text-align:right; "/>
+		</datagrid>
+		<caption id="rowCnt" style="left:550px; top:665px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

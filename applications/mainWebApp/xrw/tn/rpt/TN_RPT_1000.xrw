@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>영수증발급대장</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<deptidx_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</deptidx_cd>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<deptidx_cd>all</deptidx_cd>
+							<search_yyyymm/>
+							<start_fr_dt/>
+							<end_to_dt/>
+							<type_gb/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<receiptcode/>
+								<issuedate/>
+								<receiptcategory/>
+								<name/>
+								<regno/>
+								<address/>
+								<mindate/>
+								<maxdate/>
+								<paymentcount/>
+								<price/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setDeptInfo(dept_cd, dept_nm){
+					
+						model1.setValue("/root/reqData/searchData/dept_cd", dept_cd);
+						model1.setValue("/root/reqData/searchData/dept_nm", dept_nm);
+						model1.refresh();
+					}
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//통일나눔 모금부서 콤보박스
+					model1.send("tn_rpt_1010_m");
+					model1.copyNode("/root/initData/comboSet/deptidx_cd", "/root/tempData/deptidx_clsf");
+					model1.removenode("/root/tempData");
+					datagrid1.removeRow();
+					
+					rowCnt.value = "총 "+ (parseInt(datagrid1.rows)-1) + " 건";
+					
+					input1.visible = false;
+					input2.visible = false;	
+					input3.visible = false;	
+					caption5.visible = false;
+					
+					combo1.select(1); //통일과나눔을 기본 선택값으로 지정					
+					radio1.select(0); //연월단위를 기본 선택값으로 지정
+
+					model1.refresh();	
+			]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<submission id="tn_rpt_1010_m" action="/tn/rpt/1010" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="tn_rpt_1020_l" action="/tn/rpt/1020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/record"/>
+			<submission id="tn_rpt_1021_l" action="/tn/rpt/1021" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/msgData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="760" guideline="2,706;" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:1.06%; top:9.21%; width:97.89%; height:3.29%; ">
+			<caption id="caption4" class="list_cap02" style="left:8.53%; top:0.00%; width:91.47%; height:100.00%; text-align:center; "/>
+			<caption id="caption2" class="list_cap01" style="left:0.00%; top:0.00%; width:8.64%; height:100.00%; text-align:center; ">모금부서</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/deptidx_cd" appearance="minimal" style="left:9.07%; top:14.00%; width:12.96%; height:72.00%; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/deptidx_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var selchk = model.getValue("/root/reqData/searchData/deptidx_cd");
+						
+						if("all" == selchk){
+							input1.attribute("visibility") = "hidden";
+							input2.attribute("visibility") = "hidden";
+							input3.attribute("visibility") = "hidden";
+							caption5.attribute("visibility") = "hidden";
+						}else{
+							input1.attribute("visibility") = "visible";
+							input2.attribute("visibility") = "visible";
+							input3.attribute("visibility") = "visible";
+							caption5.attribute("visibility") = "visible";					
+						}
+					]]>
+				</script>
+			</select1>
+			<input id="input1" ref="/root/reqData/searchData/search_yyyymm" visibility="hidden" inputtype="date" format="yyyy-mm" style="left:41.47%; top:16.00%; width:12.96%; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/start_fr_dt" visibility="hidden" inputtype="date" format="yyyy-mm-dd" style="left:41.47%; top:14.00%; width:10.80%; height:72.00%; "/>
+			<input id="input3" ref="/root/reqData/searchData/end_to_dt" visibility="hidden" inputtype="date" format="yyyy-mm-dd" style="left:54.10%; top:16.00%; width:10.80%; height:18px; "/>
+			<caption id="caption5" visibility="hidden" style="left:52.38%; top:24.00%; width:1.62%; height:60.00%; text-align:center; ">~</caption>
+			<select1 id="radio1" ref="/root/reqData/searchData/type_gb" appearance="full" cols="2" rows="0" overflow="visible" style="left:26.13%; top:14.00%; width:143px; height:17px; border-style:none; ">
+				<choices>
+					<item>
+						<label>년월단위</label>
+						<value>10</value>
+					</item>
+					<item>
+						<label>기간입력</label>
+						<value>20</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					//라디오 버튼 선택이 변경될때마다 값을 초기화 한다.
+					model.setValue("/root/reqData/searchData/search_yyyymm","");
+					model.setValue("/root/reqData/searchData/start_fr_dt","");
+					model.setValue("/root/reqData/searchData/end_to_dt","");
+					
+					var tmp1 = radio1.value;					
+					if ( tmp1 == "10"){ //연월단위
+						input1.visible = true;
+						input2.visible = false;	
+						input3.visible = false;	
+						caption5.visible = false;
+					}else{    			//기간입력
+						input1.visible = false;
+						input2.visible = true;	
+						input3.visible = true;	
+						caption5.visible = true;
+					}
+				]]>
+				</script>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:left:10px; top:5px; width:99%; height:29px; background-stretch:stretch; "/>
+		<button id="btnA1" class="btn02" style="left:68.92%; top:5.26%; width:5.50%; height:2.76%; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.removeNodeset("/root/resData/gridData/record");  
+					if(model.getValue("/root/reqData/searchData/type_gb") == '10'){
+						if(model.getValue("/root/reqData/searchData/search_yyyymm") == ""){
+							model.alert("조회년월을 선택하시고 조회 버튼을 누르시기 바랍니다.");
+							return;
+						}
+					}
+					
+					if(model.getValue("/root/reqData/searchData/type_gb") == '20'){
+						if(model.getValue("/root/reqData/searchData/start_fr_dt") == ""){
+							model.alert("조회 시작일자를 선택하시기 바랍니다.");
+							return;
+						}
+						if(model.getValue("/root/reqData/searchData/end_to_dt") == ""){
+							model.alert("조회 종료일자를 선택하시기 바랍니다.");
+							return;
+						}
+					}
+					
+					model1.send("tn_rpt_1020_l");
+					//model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					//model1.removenode("/root/dataSet");
+			
+					datagrid1.refresh();
+					model1.refresh();
+					
+					//var obj = htmldocument.SessionInfo;							
+					
+				    rowCnt.value = "총 "+ (parseInt(datagrid1.rows)-1) + " 건";
+				]]>
+			</script>
+		</button>
+		<button id="btnA4" class="btn02" style="left:93.66%; top:5.26%; width:5.50%; height:2.76%; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				  viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn04" style="left:74.63%; top:5.26%; width:9.30%; height:2.76%; ">
+			<caption>엑셀다운로드</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					var cnt = parseInt(datagrid1.rows)-1;
+					if(cnt==""){
+						progressBarStart();
+						model1.send("tn_rpt_1021_l");
+						progressBarEnd();
+					}else{	
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						
+						if(filePath != "") {
+							datagrid1.saveExcel(filePath);
+							window.exec(filePath);
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="rowCnt" style="left:88.27%; top:93.42%; width:9.20%; height:2.63%; font-weight:bold; text-align:right; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" scroll="auto" caption="영수증번호^발급일^기부자분류^성명^주민(사업자)번호^주소^납입기간시작일^납입기간종료일^납입건수^발급금액" colsep="#" colwidth="100, 90, 70, 120, 110, 270, 90, 90, 50, 100" datatype="delimeter" explorerbar="sortshowmove" extendlastcol="scroll" rowheader="seq" rowsep="|" style="left:1.06%; top:13.82%; width:97.89%; height:78.95%; ">
+			<col ref="receiptcode" caption="영수증번호"/>
+			<col ref="issuedate" caption="발급일"/>
+			<col explorerbar="sort" ref="receiptcategory" caption="기부자분류"/>
+			<col explorerbar="sort" ref="name" caption="성명"/>
+			<col ref="regno" caption="주민번호"/>
+			<col ref="address" caption="주소" style="text-align:left; "/>
+			<col ref="mindate" format="yyyy-mm-dd" caption="납입기간시작일"/>
+			<col ref="maxdate" format="yyyy-mm-dd" caption="납입기간종료일"/>
+			<col ref="paymentcount" format="(-)#,###" caption="납입건수"/>
+			<col ref="price" format="(-)#,###" caption="발급금액"/>
+		</datagrid>
+		<button id="button1" class="btn04" style="left:84.14%; top:5.26%; width:9.30%; height:2.76%; ">
+			<caption>장표출력</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					var oz_search_yyyymm = model.getValue("/root/reqData/searchData/search_yyyymm");  
+					var oz_start_fr_dt = model.getValue("/root/reqData/searchData/start_fr_dt");
+					var oz_end_to_dt = model.getValue("/root/reqData/searchData/end_to_dt");
+					var oz_deptidx_cd = model.getValue("/root/reqData/searchData/deptidx_cd");
+					var oz_type_gb = model.getValue("/root/reqData/searchData/type_gb");
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName","tn/SP_TN_RPT_1030_P");  //영수증발급대장
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				//페이지용지설정(기본 A4)																				
+								
+					// odi 파라미터 설정.					
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_search_yyyymm" , oz_search_yyyymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_start_fr_dt" , oz_start_fr_dt );
+					makeNodeValue("/root/oz_data/odiParam/iv_end_to_dt" , oz_end_to_dt );
+					makeNodeValue("/root/oz_data/odiParam/iv_deptidx_cd" , oz_deptidx_cd );
+					makeNodeValue("/root/oz_data/odiParam/iv_type_gb" , oz_type_gb );
+								
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

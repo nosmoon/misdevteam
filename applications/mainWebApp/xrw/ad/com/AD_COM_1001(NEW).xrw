@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<comboSet>
+							<orga>
+								<item>
+									<label/>
+									<value/>
+									<img/>
+									<sel_img/>
+								</item>
+							</orga>
+						</comboSet>
+						<job_clsf/>
+					</initData>
+					<reqData>
+						<gridData>
+							<record>
+								<team/>
+								<part/>
+								<rmsg_pers_nm/>
+								<ptph_no/>
+								<team_cd/>
+								<part_cd/>
+								<rmsg_pers/>
+								<job_clsf/>
+								<cntc_seq/>
+								<rmsg_seq/>
+							</record>
+						</gridData>
+						<make_pers/>
+						<make_dt/>
+						<answer_yn/>
+						<sms_yn/>
+						<titl/>
+						<cont/>
+						<add_file_nm/>
+						<file_delyn/>
+						<multiUpdateData/>
+						<job_clsf/>
+					</reqData>
+					<resData>
+					</resData>
+					<tempData>
+						<flag/>
+						<detail>
+							<cmpy_cd/>
+							<medi_clsf/>
+							<cntc_seq/>
+						</detail>
+						<selected/>
+					</tempData>
+					<msgData/>
+					<fwdData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+					model.send("ad_com_1001_m");
+					
+					model.copyNode("/root/initData/comboSet/orga", "/root/tempData/orga")
+					model.setValue("/root/initData/job_clsf", model.getValue("/root/tempData/job_clsf"));
+				
+					for(var i=0; i<treeview1.length; i++){
+						if(i==0){	
+							treeview1.item(0).attribute("font-weight") = "bold";
+							treeview1.item(0).attribute("width") = "100%";		
+							treeview1.item(0).attribute("background-stretch") = "stretch";	
+							treeview1.item(0).attribute("text-align") = "left";
+							treeview1.item(0).attribute("left-padding") = "-100";	
+						}else{
+							treeview1.item(i).attribute("width") = "100%";		
+							treeview1.item(i).attribute("text-align") = "left";
+							treeview1.item(i).attribute("left-padding") = "-100";	
+						}
+					}
+
+					var job_clsf = model.getValue("/root/fwdData/job_clsf");
+					var cntc_seq = model.getValue("/root/fwdData/cntc_seq");
+					if(job_clsf == "" && cntc_seq == ""){
+						model.setValue("/root/reqData/make_dt",getDate());
+						model.setValue("/root/reqData/make_pers", getProperty("emp_no"));
+						
+						btnIns.disabled = false;
+						btnUpd.disabled = true;
+						btnDel.disabled = true;
+						
+					}else{
+						model.send("ad_com_1020_s");
+						cb_file.visible = true;
+						btnIns.disabled = true;
+						btnUpd.disabled = false;
+						btnDel.disabled = false;
+					}
+					
+					model.refresh();
+									
+				]]>
+			</script>
+			<submission id="ad_com_1020_s" action="/ad/com/1020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/fwdData" resultref="/root/reqData"/>
+			<submission id="ad_com_1050_a" action="/jsp/ad/com/ad_com_1050_a.jsp" mediatype="multipart/form-data" method="form-data-post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="ad_com_1030_l" action="/ad/com/1030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/detail" resultref="/root/resData"/>
+			<submission id="ad_com_1070_a" action="/ad/com/1070" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="ad_com_1001_m" action="/ad/com/1001" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="ad_com_1080_l" action="/ad/com/1080" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/tempData" resultref="/root/reqData/gridData"/>
+			<submission id="ad_com_1081_l" action="/ad/com/1081" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/tempData" resultref="/root/reqData/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				/**
+	 * @function   :  cfDetailView
+	 * @access : public
+	 * @desc   : 두개의 노드를 비교해서 같은 엘리먼트가 있으면 값을 복사한다.
+	 * @sig    : datagridID, f_set
+	 * @param  : f_set  - 복사될 곳의 위치
+	 * @param  : datagridID  - 선택한 행의 그리드ID
+	 * @return : 없음. 
+	 */ 
+	function cfDetailView(datagridID,f_set) {
+	
+		if( typeof datagridID == 'string' ) datagridID = document.controls(datagridID);
+		var f_get = datagridID.attribute("nodeset")+"["+(datagridID.row-datagridID.fixedRows+1)+"]";
+	
+		var node = instance1.selectSingleNode(f_get);
+		if(node != null){
+			var nodeChild = node.childNodes;
+			var node_detail = instance1.selectSingleNode(f_set);
+			var nodeChild_detail = node_detail.childNodes;
+			var tag = "";
+			var tag_detail = "";
+			var get_value = "";
+			var lower_tag = "";
+			for(var i = 0; i < nodeChild.length; i ++) {
+				tag = nodeChild.item(i).tagname;
+				get_value = model.getValue(f_get+ "/"+ tag);
+				for(var y = 0 ; y < nodeChild_detail.length; y ++ ) {			
+					tag_detail = nodeChild_detail.item(y).tagname;
+					if(tag == tag_detail) { 
+						model.setValue(f_set+ "/"+ tag_detail, get_value);
+					}
+				}
+			}
+			model.refresh();
+		}
+	}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,69;1,444;" style="font-family:굴림; ">
+		<caption id="caption15" class="list_cap02" style="left:10px; top:712px; width:927px; height:26px; "/>
+		<caption id="caption5" class="list_cap02" style="left:10px; top:437px; width:927px; height:276px; "/>
+		<caption id="caption14" class="list_cap02" style="left:10px; top:412px; width:927px; height:26px; "/>
+		<input id="input2" style="left:131px; top:391px; width:91px; height:18px; "/>
+		<caption id="caption29" class="cell2" style="left:512px; top:487px; width:180px; height:-57px; "/>
+		<button id="btnUpd" class="btn02" style="left:657px; top:40px; width:50px; height:21px; ">
+			<caption>수정</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!checkGridData(datagrid1)){
+					alert("수신처가 없습니다.");
+					return;
+				}	
+					
+				if(validateReq()){				
+					var cont = model.getValue("/root/reqData/cont");
+					if(cont == ""){
+						alert("지시사항을 입력하세요.");
+						return;
+					}
+					
+					if(windowConfirm("수정하시겠습니까?")){	
+						for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+							datagrid1.addStatus(i, "update");
+						}
+						model.makeNode("/root/reqData/flag");
+						model.setValue("/root/reqData/flag", "U");
+						model.makeNode("/root/reqData/job_clsf");
+						model.setValue("/root/reqData/job_clsf", model.getValue("/root/fwdData/job_clsf"));
+						model.makeNode("/root/reqData/cntc_seq");
+						model.setValue("/root/reqData/cntc_seq", model.getValue("/root/fwdData/cntc_seq"));
+						model.makeNode("/root/reqData/multiUpdateData");
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						
+						model.send("ad_com_1050_a");
+						if(submit_completed()){
+							window.load("./AD_COM_1000.xrw", "replace", "", "", "", "");
+						}
+					}		
+				}			
+				
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn02" style="left:886px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn03" style="left:819px; top:40px; width:63px; height:21px; ">
+			<caption>업무지시</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.load("./AD_COM_1000.xrw");
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnDel" class="btn02" style="left:711px; top:40px; width:50px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+					if(windowConfirm("삭제하시겠습니까?")){	
+						model.makeNode("/root/reqData/flag");
+						model.setValue("/root/reqData/flag", "D");
+						model.makeNode("/root/reqData/job_clsf");
+						model.setValue("/root/reqData/job_clsf", model.getValue("/root/fwdData/job_clsf"));
+						model.makeNode("/root/reqData/cntc_seq");
+						model.setValue("/root/reqData/cntc_seq", model.getValue("/root/fwdData/cntc_seq"));
+						model.makeNode("/root/reqData/multiUpdateData");
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						
+						model.send("ad_com_1050_a");
+						if(submit_completed()){
+							window.load("./AD_COM_1000.xrw", "replace", "", "", "", "");
+						}
+					}	
+				]]>
+			</script>
+		</button>
+		<button id="btnIns" class="btn02" style="left:603px; top:40px; width:50px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!checkGridData(datagrid1)){
+					alert("수신처가 없습니다.");
+					return;
+				}	
+					
+				if(validateReq()){				
+					var cont = model.getValue("/root/reqData/cont");
+					if(cont == ""){
+						alert("지시사항을 입력하세요.");
+						return;
+					}
+					
+					
+					if(windowConfirm("등록하시겠습니까?")){
+						for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+							datagrid1.addStatus(i, "update");
+						}
+						model.makeNode("/root/reqData/flag");
+						model.setValue("/root/reqData/flag", "I");
+						model.makeNode("/root/reqData/job_clsf");
+						model.setValue("/root/reqData/job_clsf", model.getValue("/root/initData/job_clsf"));
+						model.makeNode("/root/reqData/multiUpdateData");
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_com_1050_a");
+						if(submit_completed()){
+							window.load("./AD_COM_1000.xrw", "replace", "", "", "", "");
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<caption id="caption9" class="list_cap02" style="left:10px; top:387px; width:927px; height:26px; "/>
+		<caption id="caption10" class="list_cap03" style="left:10px; top:387px; width:110px; height:26px; text-align:center; ">작성자</caption>
+		<caption id="caption11" class="list_cap03" style="left:256px; top:387px; width:110px; height:26px; text-align:center; ">작성일자</caption>
+		<caption id="caption12" class="list_cap03" style="left:489px; top:387px; width:110px; height:26px; text-align:center; ">답변요망</caption>
+		<caption id="caption13" class="list_cap03" style="left:10px; top:412px; width:110px; height:26px; text-align:center; ">제목</caption>
+		<input id="input5" ref="/root/reqData/titl" class="req" navindex="5" imemode="hangul" caption="제목" style="left:123px; top:416px; width:808px; height:18px; "/>
+		<caption id="caption3" class="list_cap03" style="left:10px; top:437px; width:110px; height:276px; text-align:center; ">지시사항</caption>
+		<caption id="caption6" class="list_cap03" style="left:10px; top:712px; width:110px; height:26px; text-align:center; ">첨부파일</caption>
+		<textarea id="textarea1" ref="/root/reqData/cont" navindex="6" imemode="hangul" caption="지시사항" style="left:123px; top:442px; width:808px; height:267px; vertical-align:top; padding:2; "/>
+		<output id="output1" ref="/root/reqData/add_file_nm" style="left:123px; top:716px; width:582px; height:18px; text-align:left; vertical-align:middle; "/>
+		<button id="button2" class="btn03" style="left:780px; top:716px; width:63px; height:21px; ">
+			<caption>파일받기</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+
+										
+					if(model.getValue("/root/reqData/add_file_nm") != ""){
+						model.makeNode("/root/reqData/job_clsf");
+						model.setValue("/root/reqData/job_clsf", model.getValue("/root/fwdData/job_clsf"));
+						model.makeNode("/root/reqData/cntc_seq");
+						model.setValue("/root/reqData/cntc_seq", model.getValue("/root/fwdData/cntc_seq"));
+												
+						model.send("ad_com_1070_a")
+					}else{
+						alert("다운받을 파일이 없습니다.");
+					}
+				]]>
+			</script>
+		</button>
+		<output id="output2" ref="/root/reqData/make_pers" style="left:123px; top:391px; width:126px; height:18px; focus-rect:hidden; "/>
+		<output id="output3" ref="/root/reqData/make_dt" format="yyyy-mm-dd" inputtype="date" appearance="output" style="left:370px; top:391px; width:111px; height:18px; text-align:center; "/>
+		<button id="btnInit" class="btn02" style="left:765px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+
+				var selected = "";
+				for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+					selected += datagrid1.valueMatrix(i, datagrid1.colRef("team_cd"));
+					selected += "|";
+					selected += datagrid1.valueMatrix(i, datagrid1.colRef("part_cd"));
+					selected += "|";
+					selected += datagrid1.valueMatrix(i, datagrid1.colRef("rmsg_pers"));
+					
+					if(i<datagrid1.rows-1){
+						selected += "^";
+					}
+					
+				}
+				
+				model.makeNode("/root/tempData/job_clsf");
+				model.setValue("/root/tempData/job_clsf", model.getValue("/root/initData/job_clsf"));			
+				model.makeNode("/root/tempData/selected");
+				model.setValue("/root/tempData/selected", selected);	
+				model.send("ad_com_1081_l");			
+								
+				model.reset();
+				
+				]]>
+			</script>
+		</button>
+		<upload id="upload1" nodeset="/root/reqData/add_file_nm" filesize="10MB" style="left:610px; top:716px; width:80px; height:20px; "/>
+		<bool id="bool1" navindex="3" checkvalue="Y,N" ref="/root/reqData/answer_yn" style="left:603px; top:390px; width:20px; height:20px; "/>
+		<button id="button6" class="btn03" style="left:710px; top:716px; width:63px; height:21px; ">
+			<caption>파일찾기</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					var file = window.fileDialog("open");
+					model.setValue("/root/reqData/add_file_nm",file);
+					model.refresh();
+				]]>
+			</script>
+		</button>
+		<caption id="subtitle" class="tit02" style="left:10px; top:70px; width:104px; height:20px; ">조직도</caption>
+		<treeview id="treeview1" oneclickexpand="true" style="left:10px; top:90px; width:435px; height:290px; letter-spacing:2; padding:5; ">
+			<itemset nodeset="/root/initData/comboSet/orga/item">
+				<label ref="label"/>
+				<value ref="value"/>
+				<image ref="img"/>
+				<selectedimage ref="sel_img"/>
+			</itemset>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					
+				]]>
+			</script>
+		</treeview>
+		<datagrid id="datagrid1" nodeset="/root/reqData/gridData/record" caption="소속^소속^수신자^핸드폰번호^팀코드^파트코드^수신자사번^업무구분^연락일련번호^수신일련번호" colsep="#" colwidth="120, 110, 100, 100, 100, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:457px; top:90px; width:480px; height:290px; ">
+			<col ref="team" style="text-align:left; "/>
+			<col ref="part" style="text-align:left; "/>
+			<col ref="rmsg_pers_nm" style="text-align:left; "/>
+			<col ref="ptph_no"/>
+			<col ref="team_cd" visibility="hidden"/>
+			<col ref="part_cd" visibility="hidden"/>
+			<col ref="rmsg_pers" visibility="hidden"/>
+			<col ref="job_clsf" visibility="hidden"/>
+			<col ref="cntc_seq" visibility="hidden"/>
+			<col ref="rmsg_seq" visibility="hidden"/>
+		</datagrid>
+		<button id="button13" class="btn_grid02" crud="R" style="left:893px; top:70px; width:43px; height:17px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				var dataIndex = getSelectedRecordIndex(datagrid1);
+				
+				var team_cd = model.getValue("/root/reqData/gridData/record["+dataIndex+"]/team_cd");
+				var part_cd = model.getValue("/root/reqData/gridData/record["+dataIndex+"]/part_cd");
+				var rmsg_pers = model.getValue("/root/reqData/gridData/record["+dataIndex+"]/rmsg_pers");
+				
+				if(rmsg_pers == ""){
+					alert("삭제할 수신자를 선택하세요.");
+					return;
+				}
+
+				deleteRow(datagrid1);
+				
+				model.makeNode("/root/tempData/job_clsf");
+				model.setValue("/root/tempData/job_clsf", model.getValue("/root/initData/job_clsf"));		
+				model.makeNode("/root/tempData/cntc_seq");	
+				model.setValue("/root/tempData/cntc_seq", model.getValue("/root/fwdData/cntc_seq"));	
+				model.makeNode("/root/tempData/selected");
+				model.setValue("/root/tempData/selected", datagrid1.getUpdateData());	
+				model.send("ad_com_1081_l");			
+				
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn_grid02" crud="R" style="left:401px; top:69px; width:43px; height:17px; ">
+			<caption>추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.makeNode("/root/tempData/job_clsf");
+				model.setValue("/root/tempData/job_clsf", model.getValue("/root/initData/job_clsf"));				
+				model.makeNode("/root/tempData/selected");
+				model.setValue("/root/tempData/selected", treeview1.value);	
+				model.send("ad_com_1080_l");			
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="tit02" style="left:457px; top:69px; width:104px; height:20px; ">수신자</caption>
+		<bool id="bool2" navindex="4" checkvalue="Y,N" ref="/root/reqData/sms_yn" style="left:774px; top:390px; width:20px; height:20px; "/>
+		<caption id="caption2" class="list_cap03" style="left:660px; top:387px; width:110px; height:26px; text-align:center; ">SMS전송</caption>
+		<select1 id="cb_file" ref="/root/reqData/file_delyn" visibility="hidden" appearance="minimal" style="left:849px; top:716px; width:80px; height:18px; ">
+			<choices>
+				<item>
+					<label>파일유지</label>
+					<value>C</value>
+				</item>
+				<item>
+					<label>파일갱신</label>
+					<value>U</value>
+				</item>
+				<item>
+					<label>파일삭제</label>
+					<value>D</value>
+				</item>
+			</choices>
+		</select1>
+	</xhtml:body>
+</xhtml:html>

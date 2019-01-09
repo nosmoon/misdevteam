@@ -1,0 +1,696 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session>
+						</session>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</fac_clsf>
+						</comboSet>
+					</initData>
+					<reqData>
+						<mang_cd_3/>
+						<searchData>
+							<fac_clsf_s/>
+							<aply_dt_fr_s/>
+							<aply_dt_to_s/>
+							<mode/>
+							<occr_dt/>
+							<seq/>
+							<aply_dt/>
+							<fac_clsf/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<searchData2>
+							<matr_cd/>
+							<fac_clsf/>
+						</searchData2>
+						<reqForm>
+							<aply_dt/>
+							<fac_clsf/>
+							<max_ewh_wgt/>
+							<oth_prts_ratio/>
+							<tot_ewh_ratio/>
+							<multiUpData/>
+							<mode/>
+							<occr_dt/>
+							<seq/>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData1>
+							<record>
+								<rowCnt/>
+								<aply_dt/>
+								<fac_clsf/>
+								<matr_cd/>
+								<matr_nm/>
+								<roll_wgt/>
+								<std_ewh_roll_cnt/>
+								<std_ewh_wgt/>
+								<max_ewh_roll_cnt/>
+								<max_ewh_wgt/>
+								<oth_prts_ratio/>
+								<std_amss_ratio/>
+								<occr_dt/>
+								<seq/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record/>
+						</gridData2>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					funComboSet();	//공장콤보
+					//datagrid1.isReadOnly(1, 1, 1, 12)  = true;		//첫번째 행 readonly
+					model.removenode("/root/resData/gridData1/record");
+					model.removenode("/root/resData/gridData2/record");
+					model1.setValue("/root/reqData/searchData/mode", "I");
+					datagrid1.refresh();
+					
+					model.setValue("/root/reqData/reqForm/aply_dt", getDate("yyyymmdd"));
+					input3.refresh();
+					model.setValue("/root/reqData/searchData/fac_clsf_s", "10");
+					combo1.refresh();
+					funSearch();
+				]]>
+			</script>
+			<submission id="mt_papord_1000_m" action="/mt/papord/1000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/mang_cd_3" resultref="/root/tempData"/>
+			<submission id="mt_papord_1001_l" action="/mt/papord/1001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_common_matr_0001_l" action="/mt/common/0003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/tempData"/>
+			<submission id="mt_papord_1002_l" action="/mt/papord/1002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/tempData"/>
+			<submission id="mt_papord_1003_l" action="/mt/papord/1003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papord_1007_a" action="/mt/papord/1007" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+			<submission id="mt_papord_1005_l" action="/mt/papord/1005" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papord_1006_l" action="/mt/papord/1006" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//행입력
+				function addRow() {
+					var rowCnt      = 0;
+					var selectedIdx = datagrid1.rows-1;
+					var aply_dt     = model1.getValue("/root/resData/gridData/record[1]/aply_dt");	
+					
+					if(aply_dt=="") {
+						rowCnt = datagrid1.rows;
+						
+						if(rowCnt > 1) {
+							datagrid1.isReadOnly(1, 1, 1, 12)  =false;
+							datagrid1.addStatus(selectedIdx, "insert");
+							//model1.setValue("/root/resData/gridData/record[1]/aply_dt", getCurrentDate());
+							return false;
+						} else {
+							datagrid1.addRow(true, true);
+							return true;
+						}
+					}else{				
+						datagrid1.addRow(true, true);
+						return true;
+					}
+				}
+				
+				
+				//공장combo
+				function funComboSet() {
+					model1.setValue("/root/reqData/mang_cd_3","MF");
+					model1.send("mt_papord_1000_m");
+					model1.copyNode("/root/initData/comboSet/fac_clsf","/root/tempData/fac_clsf");			//공장콤보
+					model1.copyNode("/root/initData/comboSet/fac_clsf","/root/tempData/fac_clsf");
+					
+					model1.refresh();
+				}
+				
+				//조회
+				function funSearch() {
+					//datagrid1.isReadOnly(1, 1, 1, 12)  =false;
+					
+					model1.send("mt_papord_1003_l");
+					model1.copyNode("/root/resData/gridData1","/root/tempData/gridData1");
+
+					datagrid1.refresh();
+					//datagrid1.clearStatus();
+					
+					//for (i = 1; i <= datagrid1.rows; i++) {
+					//	datagrid1.isReadOnly(i, 3, i, 4) = true;
+					//}
+				}
+				
+				//저장
+				function funSave(mode) {
+					
+					var fac_clsf = model.getValue("/root/reqData/reqForm/fac_clsf");
+					var aply_dt_fr = model.getValue("/root/reqData/reqForm/aply_dt");
+					var aply_dt_to = model.getValue("/root/reqData/reqForm/aply_dt");
+					
+					//필수입력값체크
+					if(!commGridReqCheck("datagrid2")) return;
+					
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					model1.setValue("/root/reqData/reqForm/mode", mode);
+					model1.setValue("/root/reqData/reqForm/multiUpData",datagrid2.getUpdateData());
+					
+
+					model1.send("mt_papord_1007_a");
+					
+					if(submit_completed()) {
+						alert("저장 완료되었습니다.");
+						model.setValue("/root/reqData/searchData/fac_clsf_s", fac_clsf);
+						model.setValue("/root/reqData/searchData/aply_dt_fr_s", aply_dt_fr);
+						model.setValue("/root/reqData/searchData/aply_dt_to_s", aply_dt_to);
+						funSearch();
+					}
+				}
+				
+				//최초 load시 첫번째 행 삭제
+				function funDataGirdClear() {
+					datagrid1.deleteRow(1,true);
+					datagrid1.clearStatus();
+				}
+				
+				//자재팝업에서 데이터 선택시
+				function setMatr_cd(matr_cd, matr_nm) {
+					var iSelectedRow = 0;
+					
+					iSelectedRow = datagrid1.row;
+					
+					model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_cd",matr_cd);
+					model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_nm",matr_nm);
+					
+					funMatrCheck(iSelectedRow);
+				}
+				
+				//적정수용량 계산
+				function funWgt(iSelectedRow) {
+					var iRollWgt = 0;		//롤당중량
+					var iRollCnt = 0;		//롤수
+					var iEwhWgt  = 0;		//적정수용량
+					
+					iRollWgt = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/roll_wgt");
+					iRollCnt = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/std_ewh_roll_cnt");
+					
+					if(iRollWgt.length == 0) {
+						alert("롤당중량(kg)는 필수 입력 항목입니다.");
+						return;
+					}
+					
+					if(iRollCnt.length == 0) {
+						alert("롤수는 필수 입력 항목입니다.");
+						return;
+					}
+					
+					iEwhWgt = iRollCnt * iRollWgt;
+					model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/std_ewh_wgt", iEwhWgt);
+				}
+				
+				//최대수용중량 계산
+				function funMaxWgt(iSelectedRow) {
+					var iRollWgt    = 0;		//롤당중량
+					var iMaxRollCnt = 0;		//최대롤수
+					var iMaxEwhWgt  = 0;		//최대수용량
+
+					iRollWgt    = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/roll_wgt");
+					iMaxRollCnt = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/max_ewh_roll_cnt");
+
+					if(iRollWgt.length == 0) {
+						alert("롤당중량(kg)는 필수 입력 항목입니다.");
+						return;
+					}
+					
+					if(iMaxRollCnt.length == 0) {
+						alert("롤수는 필수 입력 항목입니다.");
+						return;
+					}
+
+					iMaxEwhWgt = iRollWgt * iMaxRollCnt;
+					//alert(iMaxEwhWgt);
+					model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/max_ewh_wgt", iMaxEwhWgt);
+					
+				}
+				
+				//적정비율 계산
+				function funStdRatio(iSelectedRow, sOth) {
+					var iStd_ewh_wgt = 0;		//적정수용량
+					var iMax_ewh_wgt = 0;		//최대수용중량
+					var iStdRatio    = 0;    //적정적재비율
+					var iOth         = 0;		//외간점유비율
+					
+					iStd_ewh_wgt = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/std_ewh_wgt");
+					iMax_ewh_wgt = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/max_ewh_wgt");
+					//iOth         = parseInt(model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/oth_prts_ratio"));
+					
+					if(sOth == "") {
+						iOth = 0;
+					} else {
+						iOth = parseInt(sOth);
+					}
+					
+					iStdRatio = ((iStd_ewh_wgt / iMax_ewh_wgt) * 100) + iOth;
+					iStdRatio = iStdRatio.GetRound(-3,0);
+					
+					if(iStdRatio > 100) {
+						alert("적정비율은 100이하까지 입력 가능합니다.");
+						return;
+					}
+					model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/std_amss_ratio", iStdRatio);
+					
+				}
+				
+				//공장 및 자재코드 체크(기존데이터가 있을시 insert를 하지 않고 return시킨다)
+				function funDataCheck(fac_clsf, matr_cd, iSelectedRow) {
+					for(var i=1; i <= datagrid1.rows; i++) {
+						if(iSelectedRow != i) {
+							if(datagrid1.valueMatrix(i,3) == fac_clsf && datagrid1.valueMatrix(i,4) == matr_cd) {
+								return false;
+							}
+						}
+					}
+					return true;
+				}
+				
+				//자재코드 입력시 공장 선택 여부 확인
+				function funFacChkSelect(iSelectedRow) {
+					if(model1.getValue("/root/resData/gridData/record[" + iSelectedRow + "]/fac_clsf") == "") {
+						alert("공장 선택 후 입력 바랍니다.");
+						
+						model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_cd","");
+						return false;
+					}
+				}
+				
+				
+				//자재코드 입력시 체크
+				function funMatrCheck(iSelectedRow) {
+					if(funFacChkSelect(iSelectedRow) == false) {
+						return;
+					}
+					
+					if(datagrid1.valueMatrix(iSelectedRow,4).length == 7) {
+						model1.setValue("/root/reqData/searchData2/matr_cd",datagrid1.valueMatrix(iSelectedRow,4));
+						model1.setValue("/root/reqData/searchData2/fac_clsf",datagrid1.valueMatrix(iSelectedRow,3));
+						model1.send("mt_papord_1002_l");		//용지Roll당중량(TAMTM_PAPERROLLWGT) 조회하여 데이터 유무 확인
+						
+						model1.makeNode("/root/resData/cnt");
+						model1.setValue("/root/resData/cnt",model1.getValue("/root/tempData/mt_papord_1002_l/cnt"));
+						
+						if(model1.getValue("/root/resData/cnt") == 0) {
+							alert("해당 자재코드가 존재하지 않습니다.\n다시 입력 바랍니다.");
+							model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_cd","");
+							model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_nm","");
+							return;
+						}
+						
+						//기존 데이터 존재 유무 확인(데이터가 있을시 재입력)
+						/*
+						if(funDataCheck(datagrid1.valueMatrix(iSelectedRow,3),datagrid1.valueMatrix(iSelectedRow,4), iSelectedRow) == false) {
+							alert("데이터가 이미 존재합니다.\n공장 및 자재코드를 재입력 하시오");
+							model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/fac_clsf","");
+							model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_cd","");
+							model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_nm","");
+							
+							return;
+						}
+						*/
+						
+						model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/roll_wgt",model1.getValue("/root/tempData/mt_papord_1002_l/roll_wgt"));
+						
+						model1.send("mt_common_matr_0001_l");    //자재코드 -> 자재명 조회
+						model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_nm",model1.getValue("/root/tempData/cd_nm"));
+						
+					} else {
+						alert("자재코드는 정확히 입력하시오.(7자리)");
+						model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/matr_cd","");
+						return;
+					}
+				}
+				
+				function func_setRatio(){
+					var max_ewh_wgt = model.getValue("/root/reqData/reqForm/max_ewh_wgt");
+					var sum_val	= 0;
+					var ratio_val = 0;
+					if (max_ewh_wgt == ""){
+						max_ewh_wgt = 0;
+					} else {
+						max_ewh_wgt = eval(max_ewh_wgt);
+					}
+					datagrid2.subtotal("clear",-1,7);
+					//alert("..");
+					for (var i=1; i<datagrid2.rows; i++){
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("matr_cd")) != "합계") {
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("std_ewh_wgt")) == ""){
+								sum_val = sum_val + 0;
+							} else {
+								sum_val = sum_val + eval(datagrid2.valueMatrix(i, datagrid2.colRef("std_ewh_wgt")));
+							}
+						}
+					}
+					ratio_val = Math.round((sum_val / max_ewh_wgt) * 100);
+					//ratio_val = Math.round((sum_val / max_ewh_wgt) * 100) * 100;
+					model.setValue("/root/reqData/reqForm/tot_ewh_ratio", ratio_val);
+					output1.refresh();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="1,956;2,125;1,935;">
+		<group id="group1" class="gro_sel" style="left:10px; top:42px; width:926px; height:27px; ">
+			<button id="button2" class="btn02" style="left:587px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:759px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSave('D');
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:816px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					model1.setValue("/root/reqData/searchData/mode", "I");
+					model.removenode("/root/resData/gridData1/record");
+					model.removenode("/root/resData/gridData2/record");
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:873px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:645px; top:0px; width:52px; height:21px; ">
+				<caption>등록</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSave('I');
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:703px; top:0px; width:52px; height:21px; ">
+				<caption>수정</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSave('U');
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group2" style="left:10px; top:75px; width:926px; height:24px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:0px; width:926px; height:24px; text-align:center; "/>
+			<caption id="caption3" class="list_cap01" style="left:0px; top:0px; width:140px; height:24px; text-align:center; ">공장구분</caption>
+			<caption id="caption1" class="list_cap01" style="left:430px; top:0px; width:140px; height:24px; text-align:center; ">적용일자</caption>
+			<caption id="caption4" style="left:705px; top:3px; width:15px; height:20px; ">~</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/fac_clsf_s" navindex="1" appearance="minimal" style="left:143px; top:3px; width:116px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input1" ref="/root/reqData/searchData/aply_dt_fr_s" navindex="12" inputtype="date" style="left:575px; top:3px; width:100px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/aply_dt_to_s" navindex="12" inputtype="date" style="left:750px; top:3px; width:100px; height:18px; "/>
+		</group>
+		<button id="button9" class="btn_grid03" style="left:826px; top:105px; width:52px; height:17px; ">
+			<caption>행입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+					var iSelectedRow = 0;
+					if(addRow()) {
+						iSelectedRow = datagrid1.selectedRow(0);
+						
+						//model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/aply_dt", getCurrentDate());
+					}
+					
+					
+//						var selectedIdx = 0;
+//
+//						datagrid1.addRow(true, true);
+//						selectedIdx = datagrid1.selectedRow(0);
+//
+//						//model1.send("hd_affr_1200");
+//						//model1.copyNode("/root/initData/comboSet", "/root/tempData");
+//						model1.setValue("/root/resData/resForm/rowCnt_h", selectedIdx);
+//						model1.setValue("/root/resData/resForm/temp_h", "1");
+//						
+//						model1.refresh();
+ 					]]>
+			</script>
+		</button>
+		<button id="button10" class="btn_grid03" style="left:881px; top:105px; width:52px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var iSelectedRow = 0;
+					var sDelGubun = "";
+					
+					iSelectedRow = datagrid1.selectedRow(0);
+					
+					sDelGubun = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/rowCnt");
+					
+					if(sDelGubun != "") {
+						datagrid1.addStatus(datagrid1.row, "delete");
+					} else {
+						datagrid1.deleteRow(iSelectedRow,true);
+					}
+					
+				]]>
+			</script>
+		</button>
+		<group id="group3" style="left:10px; top:125px; width:545px; height:415px; ">
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" scroll="auto" caption="적용일자^공장^공장^최대수용중량^외간점유비율^발생일자^일련번호^최대중량합계^caption12^caption13^caption14^caption15" colsep="#" colwidth="126, 95, 64, 107, 100, 46, 50, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:0px; top:0px; width:535px; height:280px; ">
+				<col ref="aply_dt" format="yyyy-mm-dd"/>
+				<col ref="fac_clsf_nm" style="text-align:center; "/>
+				<col ref="fac_clsf" visibility="hidden"/>
+				<col ref="max_ewh_wgt" visibility="hidden" format="#,###"/>
+				<col ref="oth_prts_ratio" visibility="hidden" format="#,###" maxlength="3"/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<col ref="std_ewh_wgt" format="#,###"/>
+				<script type="javascript" ev:event="onendedit">
+					<![CDATA[
+					var sStdRoll     = "";	//롤수
+					var sMaxRoll     = "";	//최대수용롤수
+					var sOth         = "";	//외간점유비율
+					var iSelectedRow =  0;
+					var cell			= datagrid1.selectedCells;
+					if(cell.length < 1){
+						alert("select a Cell");
+						return;
+					}
+					
+					var col			= eval(cell.item(0).col);
+					var row			= eval(cell.item(0).row);
+					
+					sStdRoll = model1.getValue("/root/resData/gridData/record["+ row +"]/std_ewh_roll_cnt"); 
+					sMaxRoll = model1.getValue("/root/resData/gridData/record["+ row + "]/max_ewh_roll_cnt");
+					sOth     = model1.getValue("/root/resData/gridData/record[" + row +"]/oth_prts_ratio");
+					
+					if(datagrid1.col == 7) {
+						funWgt(row);    //적정수용량 계산
+						if(sMaxRoll != "") {
+							funStdRatio(row, sOth);	//적정비율 계산
+						}
+					} else if(datagrid1.col == 4) {
+						funMatrCheck(row);	//자재코드 입력시 데이터 체크
+					} else if(datagrid1.col == 9) {	//최대수용롤수 입력시 최대수용중량 계산
+						funMaxWgt(row);		//최대수용중량 계산
+						if(sStdRoll != "") {
+							funStdRatio(row, sOth);	//적정비율 계산
+						}
+					} else if(datagrid1.col == 11) {		//외간점유비율
+						if(sStdRoll != "") {
+							funStdRatio(row, sOth);	//적정비율 계산
+						}
+					}
+					
+				]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					var iSelectedRow = 0;
+					
+					iSelectedRow = datagrid1.row;
+					//자재코드 팝업버튼 클릭시
+					if(datagrid1.col== 4) {
+						if(funFacChkSelect(iSelectedRow) == false) {
+							return;
+						}
+						
+						model1.setValue("/root/reqData/fwdData/func_nm", "setMatr_cd");
+						window.load("/xrw/mt/common/MT_COMMON_MATR_0002.xrw","mdi", "MT_COMMON_MATR_0002", "width:450px;height:400px;", "/root/reqData/fwdData", "/root/reqData/fwdData"); 
+					}
+				]]>
+				</script>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					var cell			= datagrid1.selectedCells;
+					if(cell.length < 1){
+						alert("select a Cell");
+						return;
+					}
+					
+					var col			= eval(cell.item(0).col);
+					var row			= eval(cell.item(0).row);
+					
+					model.setValue("/root/reqData/reqForm/aply_dt", datagrid1.valueMatrix(row, datagrid1.colRef("aply_dt")));
+					model.setValue("/root/reqData/reqForm/fac_clsf", datagrid1.valueMatrix(row, datagrid1.colRef("fac_clsf")));
+					model.setValue("/root/reqData/reqForm/max_ewh_wgt", datagrid1.valueMatrix(row, datagrid1.colRef("max_ewh_wgt")));
+					model.setValue("/root/reqData/reqForm/oth_prts_ratio", datagrid1.valueMatrix(row, datagrid1.colRef("oth_prts_ratio")));
+					model.setValue("/root/reqData/reqForm/occr_dt", datagrid1.valueMatrix(row, datagrid1.colRef("occr_dt")));
+					model.setValue("/root/reqData/reqForm/seq", datagrid1.valueMatrix(row, datagrid1.colRef("seq")));
+					model.setValue("/root/reqData/searchData/aply_dt", datagrid1.valueMatrix(row, datagrid1.colRef("aply_dt")));
+					model.setValue("/root/reqData/searchData/fac_clsf", datagrid1.valueMatrix(row, datagrid1.colRef("fac_clsf")));
+					model.setValue("/root/reqData/searchData/occr_dt", datagrid1.valueMatrix(row, datagrid1.colRef("occr_dt")));
+					model.setValue("/root/reqData/searchData/seq", datagrid1.valueMatrix(row, datagrid1.colRef("seq")));
+					
+					model.send("mt_papord_1005_l");
+					model.copyNode("/root/resData/gridData2", "/root/tempData/gridData2");
+					
+					datagrid2.refresh();
+					func_setRatio();
+					
+					datagrid2.subtotal("clear",-1,7);
+					datagrid2.subtotalPosition = "below";
+						
+					//datagrid2.subtotalPosition = "below";
+					//datagrid1.subtotal("sum", -1, 3, "#,###", "background-color:#99ff99", 1, "합계");
+					datagrid2.subtotal("sum", -1, 4, "#,###", "background-color:#99ff99", 1, "합계");
+					datagrid2.subtotal("sum", -1, 5, "#,###", "background-color:#99ff99", 1, "합계");
+					]]>
+				</script>
+			</datagrid>
+		</group>
+		<group id="group4" style="left:570px; top:125px; width:365px; height:415px; ">
+			<caption id="caption5" class="list_cap01" style="left:0px; top:0px; width:125px; height:24px; text-align:center; ">적용일자</caption>
+			<caption id="caption6" class="list_cap02" style="left:124px; top:0px; width:241px; height:24px; text-align:center; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:23px; width:125px; height:24px; text-align:center; ">공장구분</caption>
+			<caption id="caption8" class="list_cap01" style="left:0px; top:46px; width:125px; height:24px; text-align:center; ">최대수용중량</caption>
+			<caption id="caption9" class="list_cap01" visibility="hidden" style="left:0px; top:69px; width:125px; height:24px; text-align:center; ">외간점유비율</caption>
+			<caption id="caption10" class="list_cap02" style="left:124px; top:23px; width:241px; height:24px; text-align:center; "/>
+			<caption id="caption11" class="list_cap02" style="left:124px; top:46px; width:241px; height:24px; text-align:center; "/>
+			<caption id="caption12" class="list_cap02" visibility="hidden" style="left:124px; top:69px; width:241px; height:24px; text-align:center; "/>
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" scroll="auto" caption="자재코드^자재코드^롤당중량^적정롤수^적정중량^발생일자^일련번호^caption12^caption13^caption14^caption15" colsep="#" colwidth="100, 42, 70, 80, 90, 59, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:0px; top:105px; width:365px; height:175px; ">
+				<col class="req" ref="matr_nm" type="inputbutton"/>
+				<col class="req" ref="matr_cd" visibility="hidden"/>
+				<col ref="roll_wgt"/>
+				<col ref="std_ewh_roll_cnt" type="input" format="#,###" style="text-align:right; "/>
+				<col ref="std_ewh_wgt" type="input" format="#,###" style="text-align:right; "/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden" style="left:461px; top:20px; width:100px; height:20px; "/>
+				<script type="javascript" ev:event="onendedit">
+					<![CDATA[
+					var sStdRoll     = "";	//롤수
+					var sMaxRoll     = "";	//최대수용롤수
+					var sOth         = "";	//외간점유비율
+					var iSelectedRow =  0;
+					var cell			= datagrid2.selectedCells;
+					if(cell.length < 1){
+						alert("select a Cell");
+						return;
+					}
+					
+					var col			= eval(cell.item(0).col);
+					var row			= eval(cell.item(0).row);
+					
+					if(datagrid2.col == 4) {
+						sStdRoll = eval(datagrid2.valueMatrix(row, datagrid2.colRef("roll_wgt")));
+						if (datagrid2.valueMatrix(row, datagrid2.colRef("std_ewh_roll_cnt")) == ""){
+							datagrid2.valueMatrix(row, datagrid2.colRef("std_ewh_roll_cnt")) = 0;
+						}
+						sMaxRoll = eval(datagrid2.valueMatrix(row, datagrid2.colRef("std_ewh_roll_cnt")));
+						datagrid2.valueMatrix(row, datagrid2.colRef("std_ewh_wgt")) = sStdRoll * sMaxRoll;
+						func_setRatio();
+					}
+					
+				]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					var iSelectedRow = 0;
+					
+					iSelectedRow = datagrid2.row;
+					//자재코드 팝업버튼 클릭시
+					if(datagrid2.col== 1) {
+						if(funFacChkSelect(iSelectedRow) == false) {
+							return;
+						}
+						
+						model1.setValue("/root/reqData/fwdData/func_nm", "setMatr_cd");
+						window.load("/xrw/mt/common/MT_COMMON_MATR_0002.xrw","mdi", "MT_COMMON_MATR_0002", "width:450px;height:400px;", "/root/reqData/fwdData", "/root/reqData/fwdData"); 
+					}
+				]]>
+				</script>
+			</datagrid>
+			<input id="input3" ref="/root/reqData/reqForm/aply_dt" inputtype="date" style="left:130px; top:3px; width:100px; height:18px; "/>
+			<select1 id="combo2" ref="/root/reqData/reqForm/fac_clsf" appearance="minimal" style="left:130px; top:26px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					model.setValue("/root/reqData/searchData/fac_clsf", model.getValue("/root/reqData/reqForm/fac_clsf"));
+					model.setValue("/root/reqData/searchData/aply_dt", model.getValue("/root/reqData/reqForm/aply_dt"));
+					model.send("mt_papord_1006_l");
+					
+					model.copyNode("/root/resData/gridData2", "/root/tempData/gridData2");
+					datagrid2.refresh();
+					
+					]]>
+				</script>
+			</select1>
+			<input id="input4" ref="/root/reqData/reqForm/max_ewh_wgt" format="#,###" style="left:130px; top:49px; width:100px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					func_setRatio();
+					]]>
+				</script>
+			</input>
+			<input id="input5" ref="/root/reqData/reqForm/oth_prts_ratio" visibility="hidden" format="#,###" style="left:130px; top:72px; width:100px; height:18px; text-align:right; "/>
+			<caption id="caption13" class="list_cap01" visibility="hidden" style="left:0px; top:92px; width:125px; height:24px; text-align:center; ">입고비율</caption>
+			<caption id="caption14" class="list_cap02" visibility="hidden" style="left:124px; top:92px; width:241px; height:24px; text-align:center; "/>
+			<output id="output1" ref="/root/reqData/reqForm/tot_ewh_ratio" visibility="hidden" style="left:130px; top:95px; width:100px; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

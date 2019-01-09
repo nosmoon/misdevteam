@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>납부세액 또는 환급세액 재계산 내역 팝업(FC_ACCT_6253)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<!-- 저장소 -->
+					<popupData>
+						<fwdData3>
+							<gds_purc_vat_amt/>
+							<ck_rate/>
+							<txn_prd_cnt/>
+							<redu_ratio_pymt_re_calc/>
+							<incr_redu_rtax_enpr_ratio/>
+							<adjm_add_non_dduc_purc_vat/>
+							<adjm_calc_aft_suply_amt/>
+						</fwdData3>
+					</popupData>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript" src="/js/fcmc_common.js"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;" style="font-family:굴림; ">
+		<group id="group1" class="gro_sel" style="left:15px; top:85px; width:420px; height:270px; ">
+			<caption id="caption42" class="list_cap02" style="left:224px; top:171px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption11" class="list_cap02" style="left:224px; top:84px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption33" class="list_cap02" style="left:224px; top:113px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption14" class="list_cap02" style="left:224px; top:26px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption9" class="list_cap02" style="left:0px; top:26px; width:225px; height:30px; text-align:left; ">(19)해당재화의 매입세액</caption>
+			<caption id="caption17" class="list_cap02" style="left:224px; top:55px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption40" class="list_cap03" style="left:0px; top:1px; width:225px; height:26px; text-align:center; ">구분</caption>
+			<caption id="caption43" class="list_cap02" style="left:224px; top:142px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption51" class="list_cap02" style="left:224px; top:200px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption16" class="list_cap02" style="left:0px; top:55px; width:225px; height:30px; text-align:left; ">(A)체감률(%)</caption>
+			<caption id="caption19" class="list_cap02" style="left:0px; top:84px; width:225px; height:30px; text-align:left; ">(B)경과된 과세기간 수</caption>
+			<caption id="caption32" class="list_cap02" style="left:0px; top:113px; width:225px; height:30px; text-align:left; ">(20)경감률(%)(1-(A)x(B))</caption>
+			<caption id="caption5" class="list_cap02" style="left:0px; top:142px; width:225px; height:30px; text-align:left; ">(21)증가 감소된 면세공급가액비율(%)</caption>
+			<caption id="caption25" class="list_cap02" style="left:0px; top:171px; width:225px; height:30px; text-align:left; ">
+				<![CDATA[(22)가산또는공제되는 매입세액
+     ((19)x(20)x(21))]]>
+			</caption>
+			<caption id="caption30" class="list_cap02" style="left:0px; top:200px; width:225px; height:30px; text-align:left; ">계산후 공급가액((22)/0.1)</caption>
+			<caption id="caption8" class="list_cap03" style="left:224px; top:1px; width:171px; height:26px; text-align:center; ">금액</caption>
+			<input id="draft_expn_amt" ref="/root/popupData/fwdData3/gds_purc_vat_amt" navindex="11" format="(-)#,###" style="left:230px; top:32px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (20)경감률, (22)가산또는공제되는매입세액, 계산후 공급가액을 구한다.
+						
+						//20번 경감률 계산(1-((A)x(B)))
+						var tmp20_a = model1.getValue("/root/popupData/fwdData3/ck_rate"); //A 체감률
+						var tmp20_b = model1.getValue("/root/popupData/fwdData3/txn_prd_cnt"); //B 경과된 과세기간 수
+						//계산수행
+						var tmp20_result = 1 - (Number(tmp20_a) * Number(tmp20_b));
+						var tmp20_str = String(tmp20_result); //소수 4자리로 자르기 위해 문자열로 변환
+						var result_20 = Number(tmp20_str.substring(0,6));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc",result_20); //경감률
+
+						//22번 가산또는공제되는매입세액 계산(19번 * 20번 * 21번)
+						var tmp22_19 = model1.getValue("/root/popupData/fwdData3/gds_purc_vat_amt");  //해당재화의 매입세액
+						var tmp22_20 = model1.getValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc"); //경감률
+						var tmp22_21 = model1.getValue("/root/popupData/fwdData3/incr_redu_rtax_enpr_ratio"); //증가 감소된 면세공급가액비율
+						//계산 수행
+						var tmp22_result = Number(tmp22_19) * Number(tmp22_20) * Number(tmp22_21);
+						//소수점 자리는 잘라버린다.
+						var result22 = parseInt(tmp22_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat",result22);
+						
+						//계산 후 공급가액 계산(22번 / 0.1)
+						var tmpsuply_22 = model1.getValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat"); //가산 또는 공제되는 매입세액
+						//계산 수행
+						var tmp_suply= Number(tmpsuply_22) / 0.1;
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/adjm_calc_aft_suply_amt",tmp_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input9" ref="/root/popupData/fwdData3/redu_ratio_pymt_re_calc" navindex="11" format="(-)#,###.#" style="left:230px; top:119px; width:160px; height:18px; text-align:right; "/>
+			<input id="input20" ref="/root/popupData/fwdData3/adjm_calc_aft_suply_amt" navindex="11" format="(-)#,###.#" style="left:230px; top:206px; width:160px; height:18px; text-align:right; "/>
+			<input id="input14" ref="/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat" navindex="11" format="(-)#,###" style="left:230px; top:177px; width:160px; height:18px; text-align:right; "/>
+			<input id="input16" ref="/root/popupData/fwdData3/incr_redu_rtax_enpr_ratio" navindex="11" format="(-)#,###.#" style="left:230px; top:148px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (20)경감률, (22)가산또는공제되는매입세액, 계산후 공급가액을 구한다.
+						
+						//20번 경감률 계산(1-((A)x(B)))
+						var tmp20_a = model1.getValue("/root/popupData/fwdData3/ck_rate"); //A 체감률
+						var tmp20_b = model1.getValue("/root/popupData/fwdData3/txn_prd_cnt"); //B 경과된 과세기간 수
+						//계산수행
+						var tmp20_result = 1 - (Number(tmp20_a) * Number(tmp20_b));
+						var tmp20_str = String(tmp20_result); //소수 4자리로 자르기 위해 문자열로 변환
+						var result_20 = Number(tmp20_str.substring(0,6));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc",result_20); //경감률
+
+						//22번 가산또는공제되는매입세액 계산(19번 * 20번 * 21번)
+						var tmp22_19 = model1.getValue("/root/popupData/fwdData3/gds_purc_vat_amt");  //해당재화의 매입세액
+						var tmp22_20 = model1.getValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc"); //경감률
+						var tmp22_21 = model1.getValue("/root/popupData/fwdData3/incr_redu_rtax_enpr_ratio"); //증가 감소된 면세공급가액비율
+						//계산 수행
+						var tmp22_result = Number(tmp22_19) * Number(tmp22_20) * Number(tmp22_21);
+						//소수점 자리는 잘라버린다.
+						var result22 = parseInt(tmp22_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat",result22);
+						
+						//계산 후 공급가액 계산(22번 / 0.1)
+						var tmpsuply_22 = model1.getValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat"); //가산 또는 공제되는 매입세액
+						//계산 수행
+						var tmp_suply= Number(tmpsuply_22) / 0.1;
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/adjm_calc_aft_suply_amt",tmp_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input1" ref="/root/popupData/fwdData3/txn_prd_cnt" navindex="11" format="(-)#,###" style="left:230px; top:90px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (20)경감률, (22)가산또는공제되는매입세액, 계산후 공급가액을 구한다.
+						
+						//20번 경감률 계산(1-((A)x(B)))
+						var tmp20_a = model1.getValue("/root/popupData/fwdData3/ck_rate"); //A 체감률
+						var tmp20_b = model1.getValue("/root/popupData/fwdData3/txn_prd_cnt"); //B 경과된 과세기간 수
+						//계산수행
+						var tmp20_result = 1 - (Number(tmp20_a) * Number(tmp20_b));
+						var tmp20_str = String(tmp20_result); //소수 4자리로 자르기 위해 문자열로 변환
+						var result_20 = Number(tmp20_str.substring(0,6));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc",result_20); //경감률
+
+						//22번 가산또는공제되는매입세액 계산(19번 * 20번 * 21번)
+						var tmp22_19 = model1.getValue("/root/popupData/fwdData3/gds_purc_vat_amt");  //해당재화의 매입세액
+						var tmp22_20 = model1.getValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc"); //경감률
+						var tmp22_21 = model1.getValue("/root/popupData/fwdData3/incr_redu_rtax_enpr_ratio"); //증가 감소된 면세공급가액비율
+						//계산 수행
+						var tmp22_result = Number(tmp22_19) * Number(tmp22_20) * Number(tmp22_21);
+						//소수점 자리는 잘라버린다.
+						var result22 = parseInt(tmp22_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat",result22);
+						
+						//계산 후 공급가액 계산(22번 / 0.1)
+						var tmpsuply_22 = model1.getValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat"); //가산 또는 공제되는 매입세액
+						//계산 수행
+						var tmp_suply= Number(tmpsuply_22) / 0.1;
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/adjm_calc_aft_suply_amt",tmp_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input3" ref="/root/popupData/fwdData3/ck_rate" navindex="11" format="(-)#,###.#" style="left:230px; top:61px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (20)경감률, (22)가산또는공제되는매입세액, 계산후 공급가액을 구한다.
+						
+						//20번 경감률 계산(1-((A)x(B)))
+						var tmp20_a = model1.getValue("/root/popupData/fwdData3/ck_rate"); //A 체감률
+						var tmp20_b = model1.getValue("/root/popupData/fwdData3/txn_prd_cnt"); //B 경과된 과세기간 수
+						//계산수행
+						var tmp20_result = 1 - (Number(tmp20_a) * Number(tmp20_b));
+						var tmp20_str = String(tmp20_result); //소수 4자리로 자르기 위해 문자열로 변환
+						var result_20 = Number(tmp20_str.substring(0,6));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc",result_20); //경감률
+
+						//22번 가산또는공제되는매입세액 계산(19번 * 20번 * 21번)
+						var tmp22_19 = model1.getValue("/root/popupData/fwdData3/gds_purc_vat_amt");  //해당재화의 매입세액
+						var tmp22_20 = model1.getValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc"); //경감률
+						var tmp22_21 = model1.getValue("/root/popupData/fwdData3/incr_redu_rtax_enpr_ratio"); //증가 감소된 면세공급가액비율
+						//계산 수행
+						var tmp22_result = Number(tmp22_19) * Number(tmp22_20) * Number(tmp22_21);
+						//소수점 자리는 잘라버린다.
+						var result22 = parseInt(tmp22_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat",result22);
+						
+						//계산 후 공급가액 계산(22번 / 0.1)
+						var tmpsuply_22 = model1.getValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat"); //가산 또는 공제되는 매입세액
+						//계산 수행
+						var tmp_suply= Number(tmpsuply_22) / 0.1;
+						//셋팅
+						model1.setValue("/root/popupData/fwdData3/adjm_calc_aft_suply_amt",tmp_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+		</group>
+		<caption id="caption1" class="tit01" style="left:10px; top:6px; width:340px; height:27px; ">5.납부세액 또는 환급세액 재계산 내역</caption>
+		<group id="grp_buttons" class="gro_sel" style="left:10px; top:51px; width:400px; height:21px; ">
+			<button id="btn_insert" class="btn02" style="left:287px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//부모 인스턴스로 값 셋팅
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/gds_purc_vat_amt", model.getValue("/root/popupData/fwdData3/gds_purc_vat_amt")); //해당재화의 매입세액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/ck_rate", model.getValue("/root/popupData/fwdData3/ck_rate")); //체감률
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/txn_prd_cnt", model.getValue("/root/popupData/fwdData3/txn_prd_cnt")); //경과된 과세기간 수
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/redu_ratio_pymt_re_calc", model.getValue("/root/popupData/fwdData3/redu_ratio_pymt_re_calc")); //경감률
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/incr_redu_rtax_enpr_ratio", model.getValue("/root/popupData/fwdData3/incr_redu_rtax_enpr_ratio")); //증가 감소된 면세공급가액비율
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/adjm_add_non_dduc_purc_vat", model.getValue("/root/popupData/fwdData3/adjm_add_non_dduc_purc_vat")); //가산또는 공제되는 매입세액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/adjm_calc_aft_suply_amt", model.getValue("/root/popupData/fwdData3/adjm_calc_aft_suply_amt")); //계산후 공급가액
+
+						window.close();	
+					]]>
+				</script>
+			</button>
+			<button id="btn_update" class="btn02" style="left:344px; top:0px; width:52px; height:21px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();	
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

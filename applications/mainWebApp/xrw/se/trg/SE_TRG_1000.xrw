@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_TRG_1000.xrw
+* 기능 : 목표관리 - 지역별목표등록
+* 작성일자 : 2009-02-21
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<team_cd/>
+								<part_cd/>
+								<area_cd/>
+								<yyyy/>
+								<callgb/>
+							</searchTop>
+							<searchDtl>
+								<area_cd/>
+								<yyyy/>
+							</searchDtl>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+							<area_cd/>
+							<yyyy/>
+							<clos_yn/>
+							<clos_yymm/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<colcnt/>
+							<clos_yymm/>
+						</resform>
+						<gridData>
+							<arealist>
+								<record>
+									<grp/>
+									<area_cd/>
+									<area_nm/>
+									<chrg_pers/>
+									<chrg_flnm/>
+									<clos_yn/>
+								</record>
+							</arealist>
+							<trgtlist>
+								<record>
+									<trgt_clsf_nm/>
+									<trgt_clsf/>
+									<pr_trgt/>
+									<pr_rslt/>
+									<trgt_yy/>
+									<trgt_01/>
+									<trgt_02/>
+									<trgt_03/>
+									<trgt_04/>
+									<trgt_05/>
+									<trgt_06/>
+									<trgt_07/>
+									<trgt_08/>
+									<trgt_09/>
+									<trgt_10/>
+									<trgt_11/>
+									<trgt_12/>
+								</record>
+							</trgtlist>
+							<xlslist>
+								<record>
+									<dept_nm/>
+									<part_nm/>
+									<area_nm/>
+									<chrg_pers/>
+									<chrg_flnm/>
+								</record>
+							</xlslist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_trg_1010_l" action="/se/trg/1010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData/arealist/record"/>
+			<submission id="se_trg_1020_l" action="/se/trg/1020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchDtl" resultref="/root/resData/gridData/trgtlist"/>
+			<submission id="se_trg_1025_l" action="/se/trg/1025" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData/xlslist/record"/>
+			<submission id="se_trg_1030_a" action="/se/trg/1030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<submission id="se_trg_1040_a" action="/se/trg/1040" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<submission id="se_trg_1050_s" action="/se/trg/1050" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/resform"/>
+			<submission id="se_trg_1060_a" action="/se/trg/1060" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					model.attribute("showProgressbar") = "false";
+					makeTeamSearch(
+						   "se_trg_1000_m"
+						  , "/se/trg/1000"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+					model.setValue("/root/reqData/searchData/searchTop/yyyy", getCurrentDate().substring(0,4));
+			
+					model.send("se_trg_1050_s");
+					if(!submit_completed()) return;
+					
+					var len = 7 + parseInt(model.getValue("/root/resData/resform/colcnt"));      // 실제 컬럼수
+					var colLen = datagrid1.cols;                                                   	       // 현재 선언된 컬럼수 
+					
+					if ( colLen > len ){
+						datagrid1.addRow();
+						for ( var i = 0 ; i < colLen - len ; i++ ){
+							datagrid1.removeColumn();
+						}
+						datagrid1.removeRow();
+					} else if ( colLen < len ) {
+						datagrid1.addRow();
+						for ( var i = 0 ; i < len - colLen ; i++ ){
+							 datagrid1.addColumn("ref:col_" + i); 
+						
+						}
+						datagrid1.removeRow();
+					}					
+					datagrid1.refresh();
+			
+					model.attribute("showProgressbar") = "true";
+					model.setValue("/root/reqData/searchData/searchTop/callgb", "1");		//초기화면에서 호출
+					model.send("se_trg_1010_l");
+					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function go_search(){
+				se_cleargrid("datagrid1");	//라이트 그리드 조회시 지우고 새로조회해야됨
+					
+				model.send("se_trg_1050_s");
+				if(!submit_completed()) return;
+				
+				var varNum = model.getValue("/root/resData/resform/colcnt");
+				var len = 7 + se_eval(varNum);      // 실제 컬럼수
+				var colLen = datagrid1.cols;                                                   	       // 현재 선언된 컬럼수 
+				
+				if ( colLen > len ){
+					datagrid1.addRow();
+					for ( var i = 0 ; i < colLen - len ; i++ ){
+						datagrid1.removeColumn();
+					}
+					datagrid1.removeRow();
+				} else if ( colLen < len ) {
+					datagrid1.addRow();
+					for ( var i = 0 ; i < len - colLen ; i++ ){
+						 datagrid1.addColumn("ref:col_" + i); 
+					
+					}
+					datagrid1.removeRow();
+				}					
+				datagrid1.refresh();
+		
+				model.setValue("/root/reqData/searchData/searchTop/callgb", "2");		//내역 조회시
+				model.setValue("/root/reqData/searchData/searchDtl/yyyy", model.getValue("/root/reqData/searchData/searchTop/yyyy"));		//상세조회용 년도 세팅
+				model.setValue("/root/reqData/reqform/yyyy", model.getValue("/root/reqData/searchData/searchTop/yyyy"));				//저장,마감시의 년도세팅
+									
+				if(commReqCheck(group_scr)){							
+					model.send("se_trg_1010_l");					
+					se_chkGridCnt("datagrid1");
+				}
+				
+				//합계뿌리기
+				/*
+				for(var i=0; i<varNum; i++){
+					datagrid1.subtotal("sum", 1, 7+i, "(-)#,###", se_subtotstyle(), 3, "계"); 
+				}*/
+				
+				//1050실행후 가져온 확정월 보이기
+				model.setValue("/root/reqData/reqform/clos_yymm", model.getValue("/root/resData/resform/clos_yymm"));
+				ipt_clos_yymm.refresh();
+				
+				model.resetInstanceNode("/root/resData/gridData/trgtlist/record");	
+				datagrid4.refresh();
+			}			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="R" style="left:533px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_search();
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid4" nodeset="/root/resData/gridData/trgtlist/record" caption="목표구분^(코드)^전년목표^전년실적^연간^1월^2월^3월^4월^5월^6월^7월^8월^9월^10월^11월^12월" colsep="#" colwidth="110, 59, 80, 80, 80, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70, 70" fixedcols="2" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:450px; width:926px; height:260px; ">
+			<col ref="trgt_clsf_nm"/>
+			<col ref="trgt_clsf" visibility="hidden"/>
+			<col ref="pr_trgt" format="#,###" style="text-align:right; "/>
+			<col ref="pr_rslt" format="#,###" style="text-align:right; "/>
+			<col ref="trgt_yy" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_01" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_02" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_03" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_04" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_05" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_06" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_07" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_08" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_09" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_10" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_11" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<col ref="trgt_12" type="input" format="#,###" maxlength="12" style="text-align:right; "/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var rRow = datagrid4.row;
+				var rCol = datagrid4.col;
+				
+				if(rCol == 5){	//연간 입력시					
+					if(!commConfirmBox("연간값으로 12개월을 자동분배 하시겠습니까?")){												
+						var yytot = 0;
+						for(var i=0; i<12; i++){
+							yytot = yytot + se_eval(datagrid4.valueMatrix(rRow, 6+i));
+						}
+					 	datagrid4.valueMatrix(rRow, 5) = yytot;
+						datagrid4.refresh();
+						return;
+					}
+					var yytot = datagrid4.valueMatrix(rRow, rCol);
+					
+					var yymm_trgt = Math.floor(yytot/12);
+					for(var i=0; i<12; i++){
+						if(i==11){
+							datagrid4.valueMatrix(rRow, 6+i) = (yymm_trgt + (yytot - (yymm_trgt*12)));
+						}else{
+							datagrid4.valueMatrix(rRow, 6+i) = yymm_trgt;
+						}
+					}
+				}else if(rCol > 5){
+					var yytot = 0;
+					for(var i=0; i<12; i++){
+						yytot = yytot + se_eval(datagrid4.valueMatrix(rRow, 6+i));
+					}
+					 datagrid4.valueMatrix(rRow, 5) = yytot;
+				}
+				datagrid4.refresh();
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:15px; top:428px; width:265px; height:20px; ">목표 등록</caption>
+		<button id="button1" class="btn03" crud="P" style="left:669px; top:44px; width:63px; height:21px; ">
+			<caption>마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+								
+				if(!commConfirmBox("현재 조회된 지역들의 마감을 실행 하시겠습니까?")) return;
+				
+				for(var i=1; i<datagrid1.rows; i++){
+					datagrid1.rowstatus(i) = 2;					
+				}
+				
+				model.setValue("/root/reqData/reqform/clos_yn", "Y");		//마감
+				model.setValue("/root/reqData/reqform/multiUpDate",datagrid1.getUpdateData());
+				
+				model.send("se_trg_1040_a");
+				
+				if(submit_completed()){
+					go_search();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" crud="P" style="left:737px; top:44px; width:63px; height:21px; ">
+			<caption>마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!commConfirmBox("현재 조회된 지역들의 마감취소를 실행 하시겠습니까?")) return;
+				
+				for(var i=1; i<datagrid1.rows; i++){
+					datagrid1.rowstatus(i) = 2;					
+				}
+				
+				model.setValue("/root/reqData/reqform/clos_yn", "N");		//마감취소
+				model.setValue("/root/reqData/reqform/multiUpDate",datagrid1.getUpdateData());
+				
+				model.send("se_trg_1040_a");
+				
+				if(submit_completed()){
+					go_search();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn03" crud="U" style="left:601px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!commConfirmBox("저장 하시겠습니까?")) return;
+				
+				var area_cd = model.getValue("/root/reqData/reqform/area_cd");					
+				if(area_cd == ""){
+					commAlert("지역을 선택하십시오.");
+					return;
+				}
+				model.setValue("/root/reqData/reqform/multiUpDate",datagrid4.getUpdateData());
+										
+				model.send("se_trg_1030_a");
+				
+				//조회 태움
+				if(submit_completed()){
+					go_search();
+				}
+				]]>
+			</script>
+		</button>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/searchTop/area_cd" appearance="minimal" style="left:381px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:154px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<select1 id="team_combo" ref="/root/reqData/searchData/searchTop/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/searchTop/part_cd" appearance="minimal" style="left:228px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:332px; top:0px; width:45px; height:26px; ">지역</caption>
+			<input id="input1" ref="/root/reqData/searchData/searchTop/yyyy" class="req" format="yyyy" caption="년도" style="left:535px; top:4px; width:70px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					/*
+					if(event.keyCode == 13){						
+						model.setFocus("button7");
+						go_search();
+					}	*/	
+					]]>
+				</script>
+			</input>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption8" class="list_cap01" style="left:486px; top:0px; width:45px; height:26px; ">년도</caption>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/arealist/record" caption="(그룹)^지역코드(히든)^지역명^사번^담당자명^마감" colsep="#" colwidth="45, 91, 120, 120, 120, 80" datatype="delimeter" frozencols="3" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" subtotalposition="below" style="left:10px; top:145px; width:926px; height:260px; ">
+			<col ref="grp"/>
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="area_nm"/>
+			<col ref="chrg_pers" visibility="hidden"/>
+			<col ref="chrg_flnm" visibility="hidden"/>
+			<col ref="clos_yn"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				
+					var rownum = datagrid1.row;
+					if(rownum < 1) return;
+					var area_cd = datagrid1.valueMatrix(rownum,2);
+					var clos_yn = datagrid1.valueMatrix(rownum,6);
+					
+					model.setValue("/root/reqData/searchData/searchDtl/area_cd", area_cd);
+					
+					//상세조회시 저장시의 지역,년도,마감여부 미리세팅
+					model.setValue("/root/reqData/reqform/area_cd", model.getValue("/root/reqData/searchData/searchDtl/area_cd"));
+					
+					//model.setValue("/root/reqData/reqform/clos_yn", datagrid1.valueMatrix(rownum,5));	//마감여부
+				
+					model.send("se_trg_1020_l");
+					
+					if(submit_completed()){
+						var area_nm = datagrid1.valueMatrix(rownum,3);
+						caption1.value = "목표 등록 ["+area_nm+"]";
+					
+						var rowCnt = datagrid4.rows;
+						var colCnt = datagrid4.cols;
+						var clos_yymm = model.getValue("/root/resData/resform/clos_yymm");
+						if(clos_yymm=="") clos_yymm = "0";
+						var iyymm = se_eval(clos_yymm);
+						if(iyymm==0) iyymm = -1;
+						
+						if(clos_yn == "Y"){
+							datagrid4.isReadOnly(1,1,rowCnt-1,colCnt-1) = true;
+						}else{
+							datagrid4.isReadOnly(1,1,rowCnt-1,5+iyymm) = true;
+							datagrid4.isReadOnly(1,5+iyymm,rowCnt-1,(datagrid4.cols-1)) = false;
+						}						
+					}
+					
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption70" class="list_cap02" style="left:10px; top:120px; width:200px; height:26px; "/>
+		<caption id="caption9" class="list_cap03" style="left:10px; top:120px; width:100px; height:26px; ">확정월</caption>
+		<input id="ipt_clos_yymm" ref="/root/reqData/reqform/clos_yymm" class="req" format="mm" style="left:114px; top:124px; width:40px; height:18px; "/>
+		<button id="button3" class="btn04" crud="A" style="left:215px; top:123px; width:87px; height:21px; ">
+			<caption>확정월 저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+								
+				if(!commConfirmBox("확정월로 전체마감 하시겠습니까?")) return;
+				
+				var clos_yymm = model.getValue("/root/reqData/reqform/clos_yymm");
+				if(clos_yymm == ""){
+					commAlert("확정월을 입력해 주십시오(월 2자리)");
+					model.setFocus("ipt_clos_yymm");
+					return;
+				}
+				
+				var yymm = model.getValue("/root/reqData/reqform/yyyy");
+				if(yymm=="") model.setValue("/root/reqData/reqform/yyyy", model.getValue("/root/reqData/searchData/searchTop/yyyy"));
+				
+				model.send("se_trg_1060_a");				
+			
+				if(submit_completed()){
+					var rowCnt = datagrid4.rows
+					var clos_yymm = model.getValue("/root/reqData/reqform/clos_yymm");
+					if(clos_yymm=="") clos_yymm = "0";
+					var iyymm = se_eval(clos_yymm);
+					if(iyymm==0) iyymm = -1;
+					datagrid4.isReadOnly(1,1,rowCnt-1,5+iyymm) = true;
+					datagrid4.isReadOnly(1,6+iyymm,rowCnt-1,(datagrid4.cols-1)) = false;
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" crud="R" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			
+				//엑셀용 그리드 가변세팅					
+				var colLen2 = datagrid2.cols;                                                   	       // 현재 선언된 컬럼수 		
+				var len2 = 6 + parseInt(model.getValue("/root/resData/resform/colcnt"))*12;      // 실제 컬럼수			
+				if ( colLen2 > len2 ){
+					datagrid2.addRow();
+					for ( var i = 0 ; i < colLen2 - len2 ; i++ ){
+						datagrid2.removeColumn();
+					}
+					datagrid2.removeRow();
+				} else if ( colLen2 < len2 ) {
+					datagrid2.addRow();
+					for ( var i = 0 ; i < len2 - colLen2 ; i++ ){
+						 datagrid2.addColumn("ref:col_" + i); 
+					
+					}
+					datagrid2.removeRow();
+				}						
+				datagrid2.refresh();	
+				
+				se_cleargrid("datagrid2");	//라이트 그리드 조회시 지우고 새로조회해야됨
+				if(commReqCheck(group_scr)){							
+					model.send("se_trg_1025_l");	
+					//se_chkGridCnt("datagrid2");
+				}
+				
+				var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+				if(dir != "") datagrid2.saveExcel(dir);
+				
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/xlslist/record" visibility="hidden" caption="팀명^파트명^지역명^사번^담당자명|팀명^파트명^지역명^사번^담당자명" colsep="#" colwidth="120, 120, 120, 100, 100" datatype="delimeter" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:105px; top:335px; width:750px; height:90px; ">
+			<col ref="dept_nm"/>
+			<col ref="part_nm"/>
+			<col ref="area_nm"/>
+			<col ref="chrg_pers"/>
+			<col ref="chrg_flnm"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

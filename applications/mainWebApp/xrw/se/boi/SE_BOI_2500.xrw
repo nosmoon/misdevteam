@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_BOI_2500.xrw
+* 기능 : 해약관리 - 정리구좌입금
+* 작성일자 : 2009-05-29
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<bank_cd>
+								<item>
+									<label/>
+									<value/>
+									<acct_mang_cd/>
+								</item>
+							</bank_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<team_cd/>
+								<part_cd/>
+								<area_cd/>
+								<rcpm_dt1/>
+								<rcpm_dt2/>
+								<bank_cd/>
+							</searchTop>
+							<searchDtl>
+								<area_cd/>
+								<occr_dt/>
+								<slip_clsf/>
+								<seq/>
+							</searchDtl>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+							<area_cd/>
+							<bank_cd/>
+							<occr_dt/>
+							<slip_clsf/>
+							<seq/>
+							<accflag/>
+							<rcpm_dt/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<colcnt/>
+							<clos_yymm/>
+						</resform>
+						<gridData>
+							<grid1>
+								<record>
+									<occr_dt/>
+									<slip_clsf/>
+									<seq/>
+									<dept_cd/>
+									<dept_nm/>
+									<rcpm_dt/>
+									<cnt/>
+									<actu_slip_no/>
+									<acct_slip_no/>
+									<rcpm_amt/>
+									<clos_yn/>
+									<bank_cd/>
+								</record>
+							</grid1>
+							<grid2>
+								<record>
+									<area_cd/>
+									<area_nm/>
+									<bo_cdseq/>
+									<bo_nm/>
+									<chrg_pers/>
+									<bo_head_nm/>
+									<amt1/>
+									<amt2/>
+									<amt3/>
+									<amt4/>
+									<amt5/>
+									<select/>
+									<rmtt_dt/>
+									<rmtt_plac/>
+									<rcpm_shet_no/>
+									<tran_amt/>
+									<biz_reg_no/>
+									<bank_id/>
+									<acct_num/>
+									<tran_date_seq/>
+								</record>
+							</grid2>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData>
+							<acct_mang_cd/>
+						</keyData>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_boi_2510_l" action="/se/boi/2510" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData/grid1"/>
+			<submission id="se_boi_2520_l" action="/se/boi/2520" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchDtl" resultref="/root/resData/gridData/grid2"/>
+			<submission id="se_boi_2530_l" action="/se/boi/2530" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData/grid2"/>
+			<submission id="se_boi_2540_a" action="/se/boi/2540" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<submission id="se_boi_2550_a" action="/se/boi/2550" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					
+					makeTeamSearch(
+						   "se_boi_2500_m"
+						  , "/se/boi/2500"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+					model.setValue("/root/reqData/searchData/searchTop/rcpm_dt1", dateAdd('d', -6, getCurrentDate()));
+					model.setValue("/root/reqData/searchData/searchTop/rcpm_dt2", getCurrentDate());
+					ipt_rcpm_dt1.refresh();
+					ipt_rcpm_dt2.refresh();
+										
+					cbo_bank_cd.select(0);
+					
+				]]>
+			</script>
+			<bind id="bind1" ref="/root/resData/gridData/grid2/record/amt5" calculate="../amt3 - ../amt4"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//처리내역조회(상단)
+				function go_topsearch(){
+						
+					if(!commReqCheck(group_scr)) return;
+					if(!se_chkOverDate(model.getValue("/root/reqData/searchData/searchTop/rcpm_dt1"),model.getValue("/root/reqData/searchData/searchTop/rcpm_dt2"))) return;
+					model.send("se_boi_2510_l");
+					se_chkGridCnt("datagrid1");
+											
+					model.resetInstanceNode("/root/resData/gridData/grid2/record");	
+					se_setGridStatReset("datagrid2");
+					datagrid2.refresh();
+									
+				}
+				
+				//처리내역조회(하단)
+				function go_dtlsearch(){
+					var rCnt = datagrid1.row;
+					if(rCnt < 1) return;
+					model.setValue("/root/reqData/searchData/searchDtl/occr_dt", datagrid1.valueMatrix(rCnt,1));
+					model.setValue("/root/reqData/searchData/searchDtl/slip_clsf", datagrid1.valueMatrix(rCnt,2));
+					model.setValue("/root/reqData/searchData/searchDtl/seq", datagrid1.valueMatrix(rCnt,3));
+									
+					model.setValue("/root/reqData/reqform/occr_dt", datagrid1.valueMatrix(rCnt,1));
+					model.setValue("/root/reqData/reqform/slip_clsf", datagrid1.valueMatrix(rCnt,2));
+					model.setValue("/root/reqData/reqform/seq", datagrid1.valueMatrix(rCnt,3));
+					
+					cbo_bank_cd.value = datagrid1.valueMatrix(rCnt,12);
+					
+					model.send("se_boi_2520_l");
+					model.setValue("/root/reqData/reqform/accflag", "U");	//삭제(취소)를 위한 모드
+					
+					//조회만가능
+					var rowCnt = datagrid2.rows;
+					datagrid2.isReadOnly(1,9,rowCnt-1,13) = true;
+				}
+				
+				//처리대상조회
+				function go_trgtsearch(){
+					
+					var team_cd = model.getValue("/root/reqData/searchData/searchTop/team_cd");
+					var part_cd = model.getValue("/root/reqData/searchData/searchTop/part_cd");
+					var area_cd = model.getValue("/root/reqData/searchData/searchTop/area_cd");
+					if(team_cd == "" && part_cd == "" && area_cd == ""){
+						commAlert("팀,파트,지역 중 하나는 선택해야 합니다.");
+						return;
+					}
+						
+					model.send("se_boi_2530_l");
+					se_chkGridCnt("datagrid2");
+					
+					model.setValue("/root/reqData/reqform/accflag", "I");	//저장을 위한 모드
+									
+					//입력가능
+					var rowCnt = datagrid2.rows;
+					datagrid2.isReadOnly(1,9,rowCnt-1,13) = false;
+
+					model.setValue("/root/tempData/keyData/acct_mang_cd","");	//은행코드 키값초기화
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn04" crud="R" style="left:582px; top:44px; width:86px; height:21px; ">
+			<caption>처리내역조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_topsearch();
+					
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/searchTop/area_cd" appearance="minimal" style="left:373px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:149px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<select1 id="team_combo" ref="/root/reqData/searchData/searchTop/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/searchTop/part_cd" appearance="minimal" style="left:223px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:324px; top:0px; width:45px; height:26px; ">지역</caption>
+			<input id="ipt_rcpm_dt1" ref="/root/reqData/searchData/searchTop/rcpm_dt1" class="req" inputtype="date" format="yyyy-mm-dd" caption="입금일자1" style="left:542px; top:4px; width:85px; height:18px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption8" class="list_cap01" style="left:473px; top:0px; width:65px; height:26px; ">입금일자</caption>
+			<caption id="caption2" style="left:629px; top:6px; width:15px; height:15px; ">~</caption>
+			<input id="ipt_rcpm_dt2" ref="/root/reqData/searchData/searchTop/rcpm_dt2" class="req" inputtype="date" format="yyyy-mm-dd" caption="입금일자2" style="left:642px; top:4px; width:85px; height:18px; "/>
+			<caption id="caption5" class="list_cap01" style="left:738px; top:0px; width:65px; height:26px; ">은행코드</caption>
+			<select1 id="cbo_bank_cd" ref="/root/reqData/searchData/searchTop/bank_cd" appearance="minimal" style="left:807px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/bank_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/grid1/record" caption="(발생일자)^(전표구분)^(순번)^(팀)^팀명^입금일자^건수^입금번호^전표번호^입금액^마감여부^(bank_cd)" colsep="^" colwidth="63, 63, 41, 51, 150, 120, 100, 170, 170, 130, 80, 59" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:10px; top:120px; width:926px; height:195px; ">
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="slip_clsf" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="dept_nm"/>
+			<col ref="rcpm_dt" format="yyyy-mm-dd"/>
+			<col ref="cnt" format="#,###" style="text-align:right; "/>
+			<col ref="actu_slip_no"/>
+			<col ref="acct_slip_no"/>
+			<col ref="rcpm_amt" format="###,###,###,##0" style="text-align:right; "/>
+			<col ref="clos_yn" style="text-align:center; "/>
+			<col ref="bank_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				go_dtlsearch();
+				
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:10px; top:329px; width:130px; height:20px; ">입금처리 등록</caption>
+		<button id="button1" class="btn04" crud="R" style="left:491px; top:44px; width:86px; height:21px; ">
+			<caption>처리대상조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				go_trgtsearch();
+					
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/grid2/record" caption="(지역)^지역명^(코드)^센터^(담당자)^센터대표명^최초이월금액^현입금누계액^현잔액^입금액^입금후잔액^계좌선택^송금일^송금처^입금표^(tran_amt)^(biz_reg_no)^(bank_id)^(acct_num)^(tran_date_seq)" colsep="#" colwidth="46, 95, 38, 95, 51, 100, 92, 92, 92, 92, 92, 70, 90, 100, 85, 65, 74, 60, 71, 97" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:350px; width:926px; height:355px; ">
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="area_nm"/>
+			<col ref="bo_cdseq" visibility="hidden"/>
+			<col ref="bo_nm"/>
+			<col ref="chrg_pers" visibility="hidden"/>
+			<col ref="bo_head_nm"/>
+			<col ref="amt1" format="###,###,###,##0" style="text-align:right; "/>
+			<col ref="amt2" format="###,###,###,##0" style="text-align:right; "/>
+			<col ref="amt3" format="###,###,###,##0" style="text-align:right; "/>
+			<col ref="amt4" type="input" format="###,###,###,##0" style="text-align:right; "/>
+			<col ref="amt5" format="###,###,###,##0" style="text-align:right; "/>
+			<col ref="select" style="color:#000080; cursor:hand; "/>
+			<col ref="rmtt_dt" type="inputdate" format="yyyy-mm-dd"/>
+			<col ref="rmtt_plac" type="input" style="text-align:left; "/>
+			<col ref="rcpm_shet_no" type="input"/>
+			<col ref="tran_amt" visibility="hidden"/>
+			<col ref="biz_reg_no" visibility="hidden"/>
+			<col ref="bank_id" visibility="hidden"/>
+			<col ref="acct_num" visibility="hidden"/>
+			<col ref="tran_date_seq" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				var cCnt = datagrid2.col;
+				if(cCnt == 12){		
+					var accflag = model.getValue("/root/reqData/reqform/accflag");
+					if(accflag != "I") return;
+							
+					var cbo_inx = cbo_bank_cd.focusIndex;
+					var acct_mang_no = model.getValue("/root/initData/comboSet/bank_cd/item["+(cbo_inx+1)+"]/acct_mang_cd");
+					var bank_cd = cbo_bank_cd.value;
+					var acct_mang_org = model.getValue("/root/tempData/keyData/acct_mang_cd");
+					if(acct_mang_org !="" && acct_mang_org != acct_mang_no){
+						commAlert("은행코드는 두개이상 선택할 수 없습니다.");
+						return;
+					}
+					
+					if(bank_cd == "" || bank_cd == "00"){
+						commAlert("은행을 먼저 선택하십시오.");
+						model.setFocus("cbo_bank_cd");
+						return;
+					}
+					
+					if(!datagrid2.iscell(event.target))  return;
+	
+	  				var dataIndex = datagrid2.row;
+					if(dataIndex > 0){	
+						
+	  					model.makeNode("/root/reqData/fwdData/tran_amt_ref");	
+	  					model.setValue("/root/reqData/fwdData/tran_amt_ref", "/root/resData/gridData/grid2/record["+dataIndex+"]/tran_amt");
+	  					model.makeNode("/root/reqData/fwdData/tran_content_ref");	
+	  					model.setValue("/root/reqData/fwdData/tran_content_ref", "/root/resData/gridData/grid2/record["+dataIndex+"]/rmtt_plac");		
+	  							
+						loadRcpmDtlsPop("S1"
+						                ,acct_mang_no
+						                ,"/root/resData/gridData/grid2/record["+dataIndex+"]/biz_reg_no"
+						                ,"/root/resData/gridData/grid2/record["+dataIndex+"]/bank_id"
+						                ,"/root/resData/gridData/grid2/record["+dataIndex+"]/acct_num"
+						                ,"/root/resData/gridData/grid2/record["+dataIndex+"]/rmtt_dt"
+						                ,"/root/resData/gridData/grid2/record["+dataIndex+"]/tran_date_seq"
+						                ,"/root/tempData/keyData"
+									,"/root/reqData/fwdData"); 
+						
+						var tran_amt = model.getValue("/root/resData/gridData/grid2/record["+dataIndex+"]/tran_amt");
+						if(tran_amt != ""){
+							model.setValue("/root/tempData/keyData/acct_mang_cd", acct_mang_no);
+							model.setValue("/root/resData/gridData/grid2/record["+dataIndex+"]/amt4", tran_amt);	
+							datagrid2.valueMatrix(dataIndex,11) = se_eval(datagrid2.valueMatrix(dataIndex,8))-se_eval(tran_amt);
+							datagrid2.rowStatus(dataIndex) = 2;
+						}
+	  					
+						datagrid2.refresh();
+									   			   
+					}		
+					
+				}
+				]]>
+			</script>
+		</datagrid>
+		<button id="button10" class="btn03" crud="D" style="left:741px; top:44px; width:63px; height:21px; ">
+			<caption>입금취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!commConfirmBox("입금취소 하시겠습니까?")) return;
+				
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(accflag != "U"){
+					commAlert("처리내역 조회/선택 후 취소하십시오.");
+					return;
+				}
+				
+				var rCnt = datagrid2.rows;
+				var dCnt = 0;
+								
+				var len = datagrid2.selectedRows;	
+				if(len==0){
+					commAlert("취소처리할 내역을 선택하십시오.");
+					return;
+				}			
+				var index;
+				for (var i=0; i<len; i++){		
+					index = datagrid2.selectedRow(i);
+					var tot_amt = datagrid2.valueMatrix(index,9);
+					if(se_eval(tot_amt) > 0){					
+						datagrid2.rowStatus(index) = 4;
+						dCnt++;
+					}
+				}
+						
+				if(dCnt==0){
+					commAlert("취소처리할 내역이 없습니다.");
+					return;
+				}
+				
+				var area_cd = datagrid2.valueMatrix(1,1);
+				model.setValue("/root/reqData/reqform/area_cd", area_cd);
+				
+				model.setValue("/root/reqData/reqform/occr_dt", model.getValue("/root/reqData/searchData/searchDtl/occr_dt"));
+				model.setValue("/root/reqData/reqform/slip_clsf", model.getValue("/root/reqData/searchData/searchDtl/slip_clsf"));
+				model.setValue("/root/reqData/reqform/seq", model.getValue("/root/reqData/searchData/searchDtl/seq"));
+				model.setValue("/root/reqData/reqform/multiUpDate", datagrid2.getUpdateData());
+				
+				model.send("se_boi_2550_a");
+				
+				if(submit_completed()){
+					model.setValue("/root/reqData/reqform/accflag", "");
+					go_topsearch();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" crud="C" style="left:673px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(!commConfirmBox("저장 하시겠습니까?")) return;
+				
+				//수정불가
+				if(accflag != "I"){
+					commAlert("처리대상 조회후 저장 하십시오.");
+					return;
+				}
+				
+				var rNum = datagrid2.rows;
+				if(rNum < 2){
+					commAlert("대상 내역이 없습니다.");
+					return;
+				}
+				
+				if(!checkChg("datagrid2")){
+					commAlert("입력한 내역이 없습니다.");
+					return;
+				}
+				
+				var area_cd = datagrid2.valueMatrix(2,1);
+				model.setValue("/root/reqData/reqform/area_cd", area_cd);
+				
+				var bank_cd = cbo_bank_cd.value;				
+				if(bank_cd == ""){
+					if(!commConfirmBox("은행코드 미선택시 현금으로 입금처리 됩니다. 계속 하시겠습니까?")) return;
+				}
+
+				var cbo_inx = cbo_bank_cd.focusIndex;
+				var acct_mang_no = model.getValue("/root/initData/comboSet/bank_cd/item["+(cbo_inx+1)+"]/acct_mang_cd");
+				var bank_cd = cbo_bank_cd.value;
+				var acct_mang_org = model.getValue("/root/tempData/keyData/acct_mang_cd");
+				if(acct_mang_org !="" && acct_mang_org != acct_mang_no){
+					commAlert("입금처리할 은행코드와 저장선택한 은행코드가 다릅니다.");
+					return;
+				}
+					
+				/*
+				//기존내역 수정시
+				if(accflag == "U"){
+					
+					if(!commConfirmBox("기존 입금내역은 전부 삭제되고 새로 등록됩니다. 계속 하시겠습니까?")) return;
+						
+					var rCnt = datagrid2.rows;
+					for(var i=1; i<rCnt; i++){
+						var amt_tot = se_eval(datagrid2.valueMatrix(i,9));
+						if(amt_tot > 0){
+							datagrid2.rowStatus(i) = 2;
+						}
+					}					
+				}
+				*/
+				model.setValue("/root/reqData/reqform/bank_cd", model.getValue("/root/reqData/searchData/searchTop/bank_cd"));
+				model.setValue("/root/reqData/reqform/multiUpDate", datagrid2.getUpdateData());
+				
+				model.send("se_boi_2540_a");
+				
+				if(submit_completed()){
+					model.setValue("/root/reqData/reqform/accflag", "");
+					go_topsearch();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" crud="R" style="left:807px; top:44px; width:63px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+					datagrid2.saveExcel(dir);
+					commAlert("엑셀 저장이 완료되었습니다.");
+					return;
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

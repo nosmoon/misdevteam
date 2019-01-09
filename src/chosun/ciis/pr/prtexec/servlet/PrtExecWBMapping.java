@@ -1,0 +1,67 @@
+package chosun.ciis.pr.prtexec.servlet;
+
+public class PrtExecWBMapping {
+
+	public static final int PR_PRTEXEC_1000 = 1000;		// 인쇄기준정보 조회
+	public static final int PR_PRTEXEC_1001 = 1001;		// 인쇄기준정보 화면설정 조회
+	public static final int PR_PRTEXEC_1002 = 1002;		// 인쇄기준정보 등록
+	public static final int PR_PRTEXEC_1003 = 1003;		// 인쇄기준 매체별 섹션 조회
+	public static final int PR_PRTEXEC_1100 = 1100;		// 인쇄실행정보 조회
+	public static final int PR_PRTEXEC_1101 = 1101;		// 인쇄실행정보 구성을 위한 발송정보 조회
+	public static final int PR_PRTEXEC_1102 = 1102;		// 인쇄실행정보 등록
+	public static final int PR_PRTEXEC_1103 = 1103;		// 인쇄실행정보 특기사항 조회
+	public static final int PR_PRTEXEC_1104 = 1104;		// 인쇄실행정보 특기사항 등록
+	public static final int PR_PRTEXEC_1105 = 1105;		// 인쇄실행정보 특기사항 초기화면
+	public static final int PR_PRTEXEC_1200 = 1200;		// 제작시간현황 조회
+	public static final int PR_PRTEXEC_1300 = 1300;		// 인쇄기준정보 조회
+	public static final int PR_PRTEXEC_1301 = 1301;		// 인쇄기준정보 매체코드에 따른 섹션코드 조회
+	public static final int PR_PRTEXEC_1302 = 1302;		// 인쇄기준정보 등록
+	public static final int PR_PRTEXEC_1400 = 1400;		// 인쇄실행면수 조회
+	public static final int PR_PRTEXEC_1401 = 1401;		// 인쇄실행면수 등록
+	public static final int PR_PRTEXEC_2000 = 2000;
+	public static final int PR_PRTEXEC_2001 = 2001;
+	public static final int PR_PRTEXEC_2002 = 2002;
+	public static final int PR_PRTEXEC_2003 = 2003;
+	public static final int PR_PRTEXEC_2004 = 2004;
+	public static final int PR_PRTEXEC_2005 = 2005;
+	public static final int PR_PRTEXEC_2006 = 2006;
+	public static final int PR_PRTEXEC_2007 = 2007;
+	public static final int PR_PRTEXEC_2008 = 2008;
+	public static final int PR_PRTEXEC_2009 = 2009;
+	public static final int PR_PRTEXEC_2010 = 2010;
+	public static final int PR_PRTEXEC_2011 = 2011;
+	public static final int PR_PRTEXEC_2012 = 2012;
+	public static final int PR_PRTEXEC_2013 = 2013;		//	주간발행정보 확정여부 업데이트
+	public static final int PR_PRTEXEC_2014 = 2014;		//	광고데이터와 면수정보 일치
+	public static final int PR_PRTEXEC_2015 = 2015;		//	주간발행계획을 PM실에서 추가 ////공장별 완료정보 클릭을 위한 설정
+	public static final int PR_PRTEXEC_2016 = 2016;		//	주간발행계획 수도권 분공장 자동생성
+	public static final int PR_PRTEXEC_3000 = 3000;		//	주간발행계획 복사
+	public static final int PR_PRTEXEC_4000 = 4000;		//	공장코드 조회
+	public static final int PR_PRTEXEC_4001 = 4001;		//	공장의 일자별, 매체별 주간발행정보 조회
+	public static final int PR_PRTEXEC_4002 = 4002;		//	공장의 주간발행기간의 합쇄, 비합쇄정보 조회
+	public static final int PR_PRTEXEC_4003 = 4003;		//	PM실의 최종 완료처리된 주간발행정보를 조회
+	public static final int PR_PRTEXEC_4004 = 4004;		//	공장의 주간발행기간의 합쇄, 비합쇄정보 조회
+	public static final int PR_PRTEXEC_5000 = 5000;		//	전체발행내역 조회
+	public static final int PR_PRTEXEC_5011 = 5011;		//	전표부수 변경 확인
+	public static final int PR_PRTEXEC_5012 = 5012;		//	전표부수 변경 이력
+	public static final int PR_PRTEXEC_5013 = 5013;		//	매체별 자재
+	public static final int PR_PRTEXEC_5014 = 5014;		//	매체별 자재(저장)
+	public static final int PR_PRTEXEC_5020 = 5020;		//	전체발행내역 마감(분공장)
+	public static final int PR_PRTEXEC_5030 = 5030;		//	전체발행내역 마감취소(분공장)
+	public static final int PR_PRTEXEC_5031 = 5031;		//	전체발행내역 마감(자재)
+	public static final int PR_PRTEXEC_5032 = 5032;		//	전체발행내역 마감취소(자재)
+	public static final int PR_PRTEXEC_5033 = 5033;		//	전체발행내역 참고사항 조회
+	public static final int PR_PRTEXEC_5034 = 5034;		//	전체발행내역 참고사항 등록
+	public static final int PR_PRTEXEC_5040 = 5040;
+	public static final int PR_PRTEXEC_5050 = 5050;
+	public static final int PR_PRTEXEC_5060 = 5060;
+	public static final int PR_PRTEXEC_5070 = 5070;
+	public static final int PR_PRTEXEC_5080 = 5080;		//	부재료출고매체체크	
+	public static final int PR_PRTEXEC_5090 = 5090;
+	public static final int PR_PRTEXEC_6000 = 6000;
+	public static final int PR_PRTEXEC_6010 = 6010;
+	public static final int PR_PRTEXEC_6020 = 6020;
+	public static final int PR_PRTEXEC_7000 = 7000;
+	public static final int PR_PRTEXEC_7001 = 7001;
+	public static final int PR_PRTEXEC_7010 = 7010;
+}

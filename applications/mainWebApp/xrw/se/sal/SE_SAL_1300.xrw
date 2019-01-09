@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SAL_1300.xrw
+* 기능 : 판매 - 지대관리 - 매출관리 - 지국별 순매출액 조정
+* 작성일자 : 2009.03.31
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var yymm		= model.getValue("/root/reqData/searchData/yymm");
+					
+					if ( yymm == ""  ){
+						commAlert("지대년월이 없습니다");
+						return;
+					}
+					
+					var srcRoot = "/root/reqData/searchData";
+					var tarRoot = "/root/reqData/searchData2";
+					
+					model.setValue(tarRoot + "/yymm"			, model.getValue(srcRoot + "/yymm"			));
+					model.setValue(tarRoot + "/team"			, model.getValue(srcRoot + "/team"			));
+					model.setValue(tarRoot + "/part"			, model.getValue(srcRoot + "/part"			));
+					model.setValue(tarRoot + "/area"			, model.getValue(srcRoot + "/area"			));
+					model.setValue(tarRoot + "/searchGubun"	, model.getValue(srcRoot + "/searchGubun"	));
+					model.setValue(tarRoot + "/clos_yn"		, model.getValue(srcRoot + "/clos_yn"		));
+
+					var searchGubun	= model.getValue("/root/reqData/searchData/searchGubun");
+					var hiddenYn, width;
+					var hCnt	= 0;
+					
+					if ( searchGubun == "1" ){
+						hiddenYn = new Array(false, true, true, true);
+						width = new Array(30, 100, 0, 0, 0, 70, 110, 70, 70, 70, 70, 70, 70, 110, 110, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100);
+					} else if ( searchGubun == "2" ){
+						hiddenYn = new Array(false, false, true, true);
+						width = new Array(30, 90, 90, 0, 0, 65, 100, 65, 65, 65, 65, 65, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100);
+					} else if ( searchGubun == "3" ){
+						hiddenYn = new Array(false, false, false, true);
+						width = new Array(30, 90, 90, 90, 0, 65, 100, 65, 65, 65, 65, 65, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100);
+					} else if ( searchGubun == "4" ){
+						hiddenYn = new Array(false, false, false, false);
+						width = new Array(30, 90, 90, 90, 90, 65, 100, 65, 65, 65, 65, 65, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100);
+					}
+					
+					for ( var i = 0 ; i < hiddenYn.length ; i++ ){
+						datagrid1.colHidden(i + 2) = hiddenYn[i];
+						if ( !hiddenYn[i] ) { hCnt++ };
+					}
+					
+					for ( var i = 0 ; i < width.length ; i++ ){
+						datagrid1.colWidth(i + 1) = width[i];
+					}
+					
+					model.setValue("/root/reqData/searchData/searchGubun", searchGubun + "#" + chkdmang.value); //직영여부설정
+					var action = "se_sal_1320_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					model.setValue("/root/reqData/searchData/searchGubun", searchGubun ); //직영여부설정복구
+					//searchGubun.refresh();
+						
+					//합계뿌리기
+					//datagrid1.subtotal("sum", 1, 6, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 7, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 8, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					//datagrid1.subtotal("sum", 1, 10, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 11, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 12, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					//datagrid1.subtotal("sum", 1, 13, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 14, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					datagrid1.subtotal("sum", 1, 15, "(-)#,###", se_subtotstyle(), 2, "계"); 
+					
+					var rows = datagrid1.rows;
+					/*
+					if ( rows > datagrid1.fixedRows ){
+						datagrid1.mergeByFree(rows - 1, 1, rows - 1, hCnt);
+					}
+					*/
+					model.refresh();
+					
+					//조회형태가 지국일경우만 수정가능
+					if(model.getValue("/root/reqData/searchData/searchGubun") == "4"){
+						datagrid1.isReadOnly(1,9,rows-1,9) = false;
+						for(i=2;i<rows-3;i++){
+							datagrid1.rowstyle(i, "data", "background-color") = "#FFFFFF";
+						}
+
+						//소규모지국 수정불가처리
+						readonlyGrid();
+					}else{
+						datagrid1.isReadOnly(1,9,rows-1,9) = true;
+						for(i=2;i<rows-3;i++){
+							datagrid1.rowstyle(i, "data", "background-color") = "#FFFFFF";
+						}
+					}
+
+				}
+				
+				function getClosYn(){
+					var yymm = model.getValue("/root/reqData/searchData/yymm");
+					var area = model.getValue("/root/reqData/searchData/area");
+					var value = "";
+					var clos_yn = "";
+					var chrg_pers = "";			
+
+					if ( yymm != "" && area != "" ){
+						var action = "se_sal_1310_s";
+						model.send(action);
+
+						var out_data = model.getValue("/root/initData/closInfo/clos_yn");
+						//chrg_pers = model.getValue("/root/initData/closInfo/chrg_pers");
+
+						clos_yn = out_data.substring(0,1);
+						value = out_data.substring(1,out_data.length);
+/*
+						if ( clos_yn == "Y" ){
+							value = "확정";
+						} else {
+							value = "미확정";
+						}
+*/
+					}						
+					model.setValue("/root/reqData/searchData/clos_nm", value);
+					model.setValue("/root/reqData/searchData/clos_yn", clos_yn);
+					//model.setValue("/root/reqData/searchData/chrg_pers", chrg_pers);
+					output1.refresh();
+					//output2.refresh();
+				}
+				
+				function goSave(){					
+					var val = window.alert("저장 하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+									
+					var searchGubun 	= model.getValue("/root/reqData/searchData2/searchGubun");
+					var area			= model.getValue("/root/reqData/searchData2/area");
+					var clos_yn		= model.getValue("/root/reqData/searchData2/clos_yn");
+					
+					if ( searchGubun != "4" ){
+						commAlert("조회형태가 센터일 경우만 저장이 가능합니다.");
+						return;						
+					}
+					
+					if ( clos_yn == "Y" ){
+						commAlert("이미 마감 되었습니다.");
+						return;						
+					}
+					
+					if ( !checkChg("datagrid1") ){
+						commAlert("저장할 내용이 없습니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					var action = "se_sal_1330_a";
+					model.send(action);
+					goSearch();
+				}
+				function encur_amt_chk(){
+					var gridRows = datagrid1.rows;	
+					var str1 ="";
+					for(var i = 1;i < gridRows-2;i++){						
+						var cntr_uprc = model.getValue("/root/resData/gridData/curlist/record["+i+"]/cntr_uprc");
+						var fpymt_encur_amt = model.getValue("/root/resData/gridData/curlist/record["+i+"]/fpymt_encur_amt");
+						var bo_nm = model.getValue("/root/resData/gridData/curlist/record["+i+"]/bo_nm");
+						var minus_amt = cntr_uprc - fpymt_encur_amt;
+						
+						if(minus_amt <= 2400){	
+							if(str1 == ""){
+							str1 = bo_nm;
+							}else{
+							str1 =str1+","+bo_nm;
+							}
+						}
+					}
+					model.setValue("/root/encurData",str1);
+				}
+				function goClosYn(){
+					var gridRows = datagrid1.rows;	
+					var str2 ="";
+					for(var i = 1;i < gridRows-2;i++){						
+						var net_sale_amt = model.getValue("/root/resData/gridData/curlist/record["+i+"]/net_sale_amt");
+						var bo_nm = model.getValue("/root/resData/gridData/curlist/record["+i+"]/bo_nm");
+						if(net_sale_amt % 10 != 0){
+							if(str2 == ""){
+								str2 = bo_nm;
+								}else{
+								str2 =str2+","+bo_nm;
+							}
+						}	
+					}
+					if(str2 != ""){
+						alert(str2+" 센터의 순매출액을 확인하십시오.");
+						return;
+					}
+					encur_amt_chk();
+					var str11 = model.getValue("/root/encurData");
+					if(str11 != ""){
+						var val = window.alert(str11+" 센터의 완납장려금을 확인하십시오."+"\n마감 하시겠습니까?", "확인", 1) ;
+					}else{
+						var val = window.alert("마감 하시겠습니까?", "확인", 1) ;
+					}
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var rows	= datagrid1.rows;
+					if ( rows <= datagrid1.fixedRows ){
+						commAlert("마감할 대상이 없습니다.");
+					}
+					
+					var searchGubun 	= model.getValue("/root/reqData/searchData2/searchGubun");
+					var area			= model.getValue("/root/reqData/searchData2/area");
+					var clos_yn		= model.getValue("/root/reqData/searchData2/clos_yn");
+					
+					if ( searchGubun != "4" ){
+						commAlert("조회형태가 센터일 경우만 마감이 가능합니다.");
+						return;						
+					}
+					
+					if ( area == "" ){
+						commAlert("지역을 선택하여야 합니다.");
+						return;						
+					}
+
+					if ( clos_yn == "Y" ){
+						commAlert("이미 마감 되었습니다.");
+						return;						
+					}
+					
+					var action = "se_sal_1340_a";
+					model.send(action);
+					goSearch();
+				}
+				
+				function goCancClosYn(){
+					var val = window.alert("마감취소 하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var rows	= datagrid1.rows;
+					if ( rows <= datagrid1.fixedRows ){
+						commAlert("마감취소할 대상이 없습니다.");
+					}
+					
+					var searchGubun 	= model.getValue("/root/reqData/searchData2/searchGubun");
+					var area			= model.getValue("/root/reqData/searchData2/area");
+					var clos_yn		= model.getValue("/root/reqData/searchData2/clos_yn");
+					
+					if ( searchGubun != "4" ){
+						commAlert("조회형태가 센터일 경우만 마감취소가 가능합니다.");
+						return;						
+					}
+					
+					if ( area == "" ){
+						commAlert("지역을 선택하여야 합니다.");
+						return;						
+					}
+
+					if ( clos_yn == "N" ){
+						commAlert("마감된 자료가 아닙니다.");
+						return;						
+					}
+					
+					var action = "se_sal_1350_a";
+					model.send(action);
+					goSearch();
+				}
+
+				//소규모 지국 단가증감  Readonly 처리
+				function readonlyGrid(){
+					var gridRows = datagrid1.rows;						//처리할 그리드 row수(fixed row,총계 제외)
+					var jd_sell_net_clsf = "";							//지대구분 ALUE(M인경우 readonly)
+					
+					//건수체크
+					if(gridRows < 4){
+						return;
+					}
+					
+					//GRID ROW만큼 반복수행
+					for(var i = 1;i < gridRows-2;i++){
+						//조건 Get
+						jd_sell_net_clsf = model.getValue("/root/resData/gridData/curlist/record["+i+"]/jd_sell_net_clsf");
+						bo_nm = model.getValue("/root/resData/gridData/curlist/record["+i+"]/bo_nm")
+						
+						//조건에 따라 해당 Row Readonly 처리
+						if(jd_sell_net_clsf == "M"||jd_sell_net_clsf == "N"||jd_sell_net_clsf == "L"||jd_sell_net_clsf == "L2"){
+							datagrid1.isReadOnly(i+1, 9, i+1, 9) = true;
+							datagrid1.cellStyle("background-color", i+1, datagrid1.colRef("icdc_uprc")) = "#99ccff";
+							//datagrid1.rowstyle(i+1, "data", "background-color") = "#999999";
+						}else{
+							datagrid1.isReadOnly(i+1, 9, i+1, 9) = false;
+							datagrid1.rowstyle(i+1, "data", "background-color") = "#FFFFFF";
+						}
+						
+						jd_sell_net_clsf = "";
+					}
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<search_sell_net_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</search_sell_net_clsf>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<closInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<yymm/>
+							<team/>
+							<part/>
+							<area/>
+							<searchGubun>1</searchGubun>
+							<sell_net_clsf/>
+							<clos_nm/>
+							<clos_yn/>
+							<cntr_uprc_fr/>
+							<cntr_uprc_to/>
+							<jd_sell_net_clsf/>
+							<chrg_pers/>
+							<dmangyn/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData2>
+							<yymm/>
+							<team/>
+							<part/>
+							<area/>
+							<searchGubun/>
+							<clos_yn/>
+							<medi_cd>110</medi_cd>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<grp/>
+									<dept_nm/>
+									<sub_dept_nm/>
+									<area_nm/>
+									<bo_nm/>
+									<prvmm_val_qty/>
+									<cntr_uprc_be/>
+									<net_sale_amt_be/>
+									<qty/>
+									<icdc_uprc/>
+									<cntr_uprc/>
+									<dnt_amt/>
+									<fpymt_encur_amt/>
+									<net_sale_amt/>
+									<icdc_net_sale_amt/>
+									<icdc_area/>
+									<basi_amt/>
+									<surplus_amt/>
+									<medi_cd/>
+									<area_cd/>
+									<yymm/>
+									<bo_cd/>
+									<bo_seq/>
+									<subs_uprc/>
+									<jd_sell_net_clsf/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+					<encurData/>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					makeTeamSearch(
+									"se_sal_1300_m"
+								  , "/se/sal/1300"
+								  , "/root/reqData"  
+		                            , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  , "area_combo"
+								  );
+					var yymm		= model.getValue("/root/initData/yymm");			  
+					model.setValue("/root/reqData/searchData/yymm", yymm);
+					
+					datagrid1.rowHeight(1) = 35;
+					
+					makeComboGubun("A", "/root/initData/comboSet/search_sell_net_clsf", "item", "label", "value");
+					
+					model.refresh();
+					
+				]]>
+			</script>
+			<submission id="se_sal_1300_m" action="/se/sal/1300" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_sal_1310_s" action="/se/sal/1310" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/initData/closInfo"/>
+			<submission id="se_sal_1320_l" action="/se/sal/1320" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="se_sal_1330_a" action="/se/sal/1330" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/resData/MsgData"/>
+			<submission id="se_sal_1340_a" action="/se/sal/1340" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/resData/MsgData"/>
+			<submission id="se_sal_1350_a" action="/se/sal/1350" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:127px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="(그룹)^팀^파트^지역^센터^전월매출^전월매출^당월매출^당월매출^당월매출^당월매출^당월매출^당월매출^당월매출^순매출증감액^지역차합계^기준금액^초과금액^caption1^caption2|(그룹)^팀^파트^지역^센터^매출단가^순매출액^유가부수^단가증감^매출단가^기증지&#xA;매출감액^전월&#xA;유가부수^완납&#xA;장려금^순매출액^순매출증감액^지역차합계^기준금액^초과금액^caption1^caption2" colsep="#" colwidth="30, 90, 90, 90, 90, 65, 100, 65, 65, 65, 65, 65, 50, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" frozenbottomrows="1" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" subtotalposition="below" style="left:10px; top:145px; width:926px; height:580px; ">
+			<col ref="grp" visibility="hidden"/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="sub_dept_nm" style="text-align:left; "/>
+			<col ref="area_nm" style="text-align:left; "/>
+			<col ref="bo_nm" style="text-align:left; "/>
+			<col ref="cntr_uprc_be" format="(-)#,###" style="text-align:right; "/>
+			<col ref="net_sale_amt_be" format="(-)#,###" style="left:500px; top:40px; width:90px; height:20px; text-align:right; "/>
+			<col ref="qty" format="(-)#,###" style="text-align:right; "/>
+			<col ref="icdc_uprc" type="input" format="(-)#,###" style="text-align:right; "/>
+			<col ref="cntr_uprc" format="(-)#,###" style="text-align:right; "/>
+			<col ref="dnt_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="prvmm_val_qty" format="(-)#,###" style="left:400px; top:40px; width:105px; height:20px; text-align:right; "/>
+			<col ref="fpymt_encur_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="net_sale_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="icdc_net_sale_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="icdc_area" visibility="hidden" format="(-)#,###" style="text-align:right; "/>
+			<col ref="basi_amt" visibility="hidden" format="(-)#,###" style="left:1105px; top:40px; width:110px; height:20px; text-align:right; "/>
+			<col ref="surplus_amt" visibility="hidden" format="(-)#,###" style="text-align:right; margin-right:50; "/>
+			<col ref="medi_cd" visibility="hidden"/>
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="yymm" visibility="hidden"/>
+			<col ref="bo_cd" visibility="hidden"/>
+			<col ref="bo_seq" visibility="hidden"/>
+			<col ref="subs_uprc" visibility="hidden"/>
+			<col ref="jd_sell_net_clsf" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var col	= datagrid1.col;
+					var row	= datagrid1.row;
+					
+					if ( col == 9 ){
+						var cntr_uprc_be		= se_eval(datagrid1.valueMatrix(row, 6));
+						var icdc_uprc		= se_eval(datagrid1.valueMatrix(row, 9));
+						var cntr_uprc		= cntr_uprc_be + icdc_uprc;
+						var subs_uprc		= se_eval(datagrid1.valueMatrix(row, 24));
+						if ( cntr_uprc > subs_uprc ){
+							commAlert("매출단가는 " + subs_uprc + "원을 넘을 수 없습니다."); 
+							datagrid1.valueMatrix(row, 9) = 0;
+							cntr_uprc		= cntr_uprc_be + 0;
+						}
+						
+						datagrid1.valueMatrix(row, 10) = cntr_uprc;
+						
+						var qty 				= se_eval(datagrid1.valueMatrix(row, 8));
+						var qty_be			= se_eval(datagrid1.valueMatrix(row, 12));
+						var dnt_amt			= se_eval(datagrid1.valueMatrix(row, 11));
+						var fpymt_encur_amt	= se_eval(datagrid1.valueMatrix(row, 13));
+						
+						var sum				= (qty * cntr_uprc) - (qty_be * fpymt_encur_amt) - dnt_amt;
+						
+						if ( qty == 0 ) { //당월 유가부수가 0이면 0원처리한다
+							sum = 0;
+						}
+						
+						datagrid1.valueMatrix(row, 14) = sum;
+						
+						var net_sale_amt_be	= se_eval(datagrid1.valueMatrix(row, 7));
+						var icdc_amt			= sum - net_sale_amt_be;
+						
+						datagrid1.valueMatrix(row, 15) = icdc_amt;
+						
+						//합계 계산
+						var endRow = datagrid1.rows-1;
+						var tot11=0;
+						var tot12=0;
+						var tot13=0;
+						var tot14=0;
+						var tot15=0;
+						for(var j=2; j<endRow; j++){
+						//	tot11 = tot11 + se_eval(datagrid1.valueMatrix(j,10));
+							tot12 = tot12 + se_eval(datagrid1.valueMatrix(j,11));
+						//	tot13 = tot13 + se_eval(datagrid1.valueMatrix(j,13));
+							tot14 = tot14 + se_eval(datagrid1.valueMatrix(j,14));
+							tot15 = tot15 + se_eval(datagrid1.valueMatrix(j,15));
+						}						
+						//datagrid1.valueMatrix(endRow,10) = tot11;
+						datagrid1.valueMatrix(endRow,11) = tot12;
+						//datagrid1.valueMatrix(endRow,13) = tot13;
+						datagrid1.valueMatrix(endRow,14) = tot14;
+						datagrid1.valueMatrix(endRow,15) = tot15;
+						datagrid1.refresh();
+					}
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:51px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">지대년월</caption>
+			<input id="input3" ref="/root/reqData/searchData/yymm" class="req" navindex="1" format="yyyy-mm" caption="지급시작일자" style="left:87px; top:4px; width:110px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						getClosYn();
+					]]>
+				</script>
+			</input>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team" appearance="minimal" style="left:294px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData2/searchGubun","2");
+						searchGubun.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:207px; top:0px; width:80px; height:26px; ">팀</caption>
+			<caption id="caption2" class="list_cap01" style="left:414px; top:0px; width:80px; height:26px; ">파트</caption>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part" appearance="minimal" style="left:501px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData2/searchGubun","3");
+						searchGubun.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:681px; top:0px; width:100px; height:26px; ">지역</caption>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area" appearance="minimal" style="left:788px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						getClosYn();		
+						model.setValue("/root/reqData/searchData2/searchGubun","4");
+						searchGubun.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:25px; width:80px; height:26px; ">조회형태</caption>
+			<select1 id="searchGubun" ref="/root/reqData/searchData/searchGubun" appearance="minimal" style="left:87px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<item>
+						<label>팀</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>파트</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>지역</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>센터</label>
+						<value>4</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption6" class="list_cap01" style="left:207px; top:25px; width:80px; height:26px; ">확정여부</caption>
+			<output id="output1" ref="/root/reqData/searchData/clos_nm" style="left:294px; top:29px; width:110px; height:18px; text-align:left; "/>
+			<caption id="caption8" class="list_cap01" style="left:414px; top:25px; width:80px; height:26px; ">매출단가</caption>
+			<caption id="caption9" class="list_cap01" style="left:681px; top:25px; width:100px; height:26px; ">판매망구분</caption>
+			<input id="input1" ref="/root/reqData/searchData/cntr_uprc_fr" format="###,###" style="left:501px; top:29px; width:65px; height:18px; text-align:right; "/>
+			<input id="input2" ref="/root/reqData/searchData/cntr_uprc_to" format="###,###" style="left:588px; top:29px; width:65px; height:18px; text-align:right; "/>
+			<caption id="caption10" style="left:570px; top:30px; width:15px; height:20px; text-align:center; ">~</caption>
+			<select1 id="combo2" ref="/root/reqData/searchData/sell_net_clsf" appearance="minimal" style="left:788px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/search_sell_net_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:535px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" crud="C" style="left:603px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSave();
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn03" crud="C" style="left:671px; top:44px; width:63px; height:21px; ">
+			<caption>마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goClosYn();
+					getClosYn();
+					var clos_yn		= model.getValue("/root/initData/closInfo/clos_yn");
+					model.setValue("/root/reqData/searchData2/clos_yn", clos_yn);
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn03" crud="A" style="left:739px; top:44px; width:63px; height:21px; ">
+			<caption>마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goCancClosYn();
+					getClosYn();
+					var clos_yn		= model.getValue("/root/initData/closInfo/clos_yn");
+					model.setValue("/root/reqData/searchData2/clos_yn", clos_yn);
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+					if(dir!="") datagrid1.saveExcel(dir);
+				]]>
+			</script>
+		</button>
+		<select id="chkdmang" ref="/root/reqData/searchData/dmangyn" overflow="visible" appearance="full" style="left:455px; top:45px; width:75px; height:20px; border-style:none; ">
+			<choices>
+				<item>
+					<label>직영여부</label>
+					<value>Y</value>
+				</item>
+			</choices>
+		</select>
+	</xhtml:body>
+</xhtml:html>

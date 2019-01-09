@@ -1,0 +1,79 @@
+/***************************************************************************************************
+* 파일명 : HD_TRIP_1405_A.java
+* 기능 :   해외출장내역신청(서무)
+* 작성일자 :
+* 작성자 :
+***************************************************************************************************/
+/***************************************************************************************************
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업 :
+***************************************************************************************************/
+
+
+package chosun.ciis.hd.trip.ds;
+
+import java.sql.*;
+import java.util.*;
+import somo.framework.db.*;
+import somo.framework.util.*;
+import chosun.ciis.hd.trip.dm.*;
+import chosun.ciis.hd.trip.rec.*;
+
+/**
+ * 해외출장내역신청(서무)
+ */
+
+public class HD_TRIP_1405_ADataSet extends somo.framework.db.BaseDataSet implements java.io.Serializable{
+	public String errcode;
+	public String errmsg;
+
+	public HD_TRIP_1405_ADataSet(){}
+	public HD_TRIP_1405_ADataSet(String errcode, String errmsg){
+		this.errcode = errcode;
+		this.errmsg = errmsg;
+	}
+
+	public void setErrcode(String errcode){
+		this.errcode = errcode;
+	}
+
+	public void setErrmsg(String errmsg){
+		this.errmsg = errmsg;
+	}
+
+	public String getErrcode(){
+		return this.errcode;
+	}
+
+	public String getErrmsg(){
+		return this.errmsg;
+	}
+
+	public void getValues(CallableStatement cstmt) throws SQLException{
+		this.errcode = Util.checkString(cstmt.getString(1));
+		this.errmsg = Util.checkString(cstmt.getString(2));
+	}
+}/*----------------------------------------------------------------------------------------------------
+Web Tier에서 DataSet 객체 관련 코드 작성시 사용하십시오.
+
+<%
+	HD_TRIP_1405_ADataSet ds = (HD_TRIP_1405_ADataSet)request.getAttribute("ds");
+%>
+Web Tier에서 Record 객체 관련 코드 작성시 사용하십시오.
+
+----------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 DataSet 객체의 <%= %> 작성시 사용하십시오.
+
+<%= ds.getErrcode()%>
+<%= ds.getErrmsg()%>
+----------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 Record 객체의 <%= %> 작성시 사용하십시오.
+
+----------------------------------------------------------------------------------------------------*/
+
+
+/* 작성시간 : Tue Jul 07 10:29:00 KST 2009 */

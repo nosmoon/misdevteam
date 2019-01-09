@@ -1,0 +1,77 @@
+/***************************************************************************************************
+* 파일명 : SL_L_DTLSADDRRESITYPELISTRecord.java
+* 기능 :  해당지국의아파트 주소코드에 따른 동 리스트 리턴_모바일용
+* 작성일자 : 2017-01-13
+* 작성자 : 장 선 희
+***************************************************************************************************/
+/***************************************************************************************************
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업 :
+***************************************************************************************************/
+
+package chosun.ciis.ss.sls.brmgr.rec;
+
+import java.sql.*;
+import chosun.ciis.ss.sls.brmgr.dm.*;
+import chosun.ciis.ss.sls.brmgr.ds.*;
+
+/**
+ *
+ */
+
+public class SL_L_DTLSADDRRESITYPELISTRecord extends java.lang.Object implements
+		java.io.Serializable {
+
+	public String cicodeval;
+	public String cicdnm;
+	public String ciymgbcd;
+	public String cicdgb;
+	public String cicdynm;
+
+	public SL_L_DTLSADDRRESITYPELISTRecord() {
+	}
+
+	public void setCicodeval(String cicodeval) {
+		this.cicodeval = cicodeval;
+	}
+
+	public void setCicdnm(String cicdnm) {
+		this.cicdnm = cicdnm;
+	}
+
+	public void setCiymgbcd(String ciymgbcd) {
+		this.ciymgbcd = ciymgbcd;
+	}
+
+	public void setCicdgb(String cicdgb) {
+		this.cicdgb = cicdgb;
+	}
+
+	public void setCicdynm(String cicdynm) {
+		this.cicdynm = cicdynm;
+	}
+
+	public String getCicodeval() {
+		return this.cicodeval;
+	}
+
+	public String getCicdnm() {
+		return this.cicdnm;
+	}
+
+	public String getCiymgbcd() {
+		return this.ciymgbcd;
+	}
+
+	public String getCicdgb() {
+		return this.cicdgb;
+	}
+
+	public String getCicdynm() {
+		return this.cicdynm;
+	}
+}
+
+/* 작성시간 : Mon May 15 10:55:42 KST 2006 */

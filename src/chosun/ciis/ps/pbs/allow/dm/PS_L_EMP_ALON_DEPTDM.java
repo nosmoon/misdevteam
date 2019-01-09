@@ -1,0 +1,111 @@
+/***************************************************************************************************
+* 파일명 : SP_PS_L_EMP_ALON_DEPT.java
+* 수당-수당관리 지사별 부서코드
+* 작성일자 : 2004-03-08
+* 작성자 : 김건호 
+***************************************************************************************************/
+/***************************************************************************************************
+* 수정내역 :
+* 수정자 :
+* 수정일자 :   
+* 백업 :   
+***************************************************************************************************/
+
+
+package chosun.ciis.ps.pbs.allow.dm;
+
+import java.sql.*;
+import oracle.jdbc.driver.*;
+import somo.framework.db.*;
+import somo.framework.util.*;
+import chosun.ciis.ps.pbs.allow.ds.*;
+import chosun.ciis.ps.pbs.allow.rec.*;
+
+/**
+ * 수당-수당관리 지사별 부서코드 조회화면  
+ *
+ */ 
+
+ 
+
+public class PS_L_EMP_ALON_DEPTDM extends somo.framework.db.BaseDM implements java.io.Serializable{
+
+	public String cmpycd;
+	public String bocd;
+
+	public PS_L_EMP_ALON_DEPTDM(){}
+	public PS_L_EMP_ALON_DEPTDM(String cmpycd, String bocd){
+		this.cmpycd = cmpycd;
+		this.bocd = bocd;
+	}
+
+	public void setCmpycd(String cmpycd){
+		this.cmpycd = cmpycd;
+	}
+
+	public void setBocd(String bocd){
+		this.bocd = bocd;
+	}
+
+	public String getCmpycd(){
+		return this.cmpycd;
+	}
+
+	public String getBocd(){
+		return this.bocd;
+	}
+
+	public String getSQL(){
+		 return "{ call SP_PS_L_EMP_ALON_DEPT( ?, ?, ?, ?, ?) }";
+	}
+
+	public void setParams(CallableStatement cstmt, BaseDM bdm) throws SQLException{
+		PS_L_EMP_ALON_DEPTDM dm = (PS_L_EMP_ALON_DEPTDM)bdm;
+		cstmt.registerOutParameter(1, Types.VARCHAR);
+		cstmt.registerOutParameter(2, Types.VARCHAR);
+		cstmt.setString(3, dm.cmpycd);
+		cstmt.setString(4, dm.bocd);
+		cstmt.registerOutParameter(5, OracleTypes.CURSOR);
+	}
+
+	public BaseDataSet createDataSetObject(){
+		return new chosun.ciis.ps.pbs.allow.ds.PS_L_EMP_ALON_DEPTDataSet();
+	}
+}
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 req.getParameter() 처리 및 결과확인 검사시 사용하십시오.
+
+String cmpycd = req.getParameter("cmpycd");
+if( cmpycd == null){
+	System.out.println(this.toString+" : cmpycd is null" );
+}else{
+	System.out.println(this.toString+" : cmpycd is "+cmpycd );
+}
+String bocd = req.getParameter("bocd");
+if( bocd == null){
+	System.out.println(this.toString+" : bocd is null" );
+}else{
+	System.out.println(this.toString+" : bocd is "+bocd );
+}
+----------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 req.getParameter() 처리시 사용하십시오.
+
+String cmpycd = Util.checkString(req.getParameter("cmpycd"));
+String bocd = Util.checkString(req.getParameter("bocd"));
+----------------------------------------------------------------------------------------------------*//*----------------------------------------------------------------------------------------------------
+Web Tier에서 한글처리와 동시에 req.getParameter() 처리시 사용하십시오.
+
+String cmpycd = Util.Uni2Ksc(Util.checkString(req.getParameter("cmpycd")));
+String bocd = Util.Uni2Ksc(Util.checkString(req.getParameter("bocd")));
+----------------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 DM 파일의 변수를 설정시 사용하십시오.
+
+dm.setCmpycd(cmpycd);
+dm.setBocd(bocd);
+----------------------------------------------------------------------------------------------------*/
+
+
+/* 작성시간 : Mon Mar 08 14:54:16 KST 2004 */

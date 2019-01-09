@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>1차평가자 조정의견등록 팝업 화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_grad_cd>
+								<item/>
+							</evlu_grad_cd>
+							<evlu_grad_cd>
+								<item/>
+							</evlu_grad_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+						</searchData>
+						<reqForm>
+							<evlu_yy/>
+							<tms_clsf/>
+							<emp_no/>
+							<evlu_pers_meda_opn_1tms/>
+							<evlu_pers_meda_grad_1tms/>
+							<remkbyte/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<evlu_pers_meda_opn_1tms/>
+							<evlu_pers_meda_grad_1tms/>
+							<evlu_proc_stat_1tms/>
+							<tmp_grad/>
+						</resForm>
+						<gridData>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.setValue("/root/reqData/reqForm/evlu_yy",window.opener.model1.getValue("/root/reqData/fwdData/evlu_yy"));
+					model1.setValue("/root/reqData/reqForm/tms_clsf",window.opener.model1.getValue("/root/reqData/fwdData/tms_clsf"));
+					model1.setValue("/root/reqData/reqForm/emp_no",window.opener.model1.getValue("/root/reqData/fwdData/emp_no"));
+					
+					maintitle.text = "조정 건의의견";
+					model1.refresh();
+					//평가등급 콤보박스 생성
+					model1.send("hd_evlu_1700_m");
+					model1.copyNode("/root/initData/comboSet/evlu_grad_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					//목록생성
+					searchList();
+					
+					//readonly 일 경우 객체설정
+					var readonly = model1.getValue("/root/reqData/fwdData/readonly");
+					if(readonly == "true"){
+						button2.visible = false;
+						button5.visible = false;
+						button3.visible = false; // 2014.03.29  2차 평가 대상자일 경우 삭제 버튼도 필요 없을것 같음 
+
+						textarea1.attribute("editable") = "false";
+						combo1.disabled = "true";
+					}
+					
+					//길이셋팅
+					setLength();
+				]]>
+			</script>
+			<submission id="hd_evlu_3201_l" action="/servlet/hd/evlu/3201" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_3202_u" action="/servlet/hd/evlu/3202" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_1700_m" action="/servlet/hd/evlu/1700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				var msg_clock; //메시지창 처리_최호정_20141024
+				//평가그룹 목록생성
+				function searchList(){
+					//상태값 초기화
+					//model1.removeNode("/root/resData/gridData1");
+					//model1.makeNode("/root/resData/gridData1");
+					//model1.refresh();
+					model1.send("hd_evlu_3201_l");
+					if(submit_completed()){
+						model1.setValue("/root/resData/resForm/evlu_pers_meda_opn_1tms",model1.getValue("/root/dataSet/evlu_pers_meda_opn_1tms"));
+						model1.setValue("/root/resData/resForm/evlu_pers_meda_grad_1tms",model1.getValue("/root/dataSet/evlu_pers_meda_grad_1tms"));
+						model1.setValue("/root/resData/resForm/evlu_proc_stat_1tms",model1.getValue("/root/dataSet/evlu_proc_stat_1tms"));
+						model1.setValue("/root/resData/resForm/tmp_grad",model1.getValue("/root/dataSet/tmp_grad")); //잠정등급추가_20151126
+						
+						
+						if(model1.getValue("/root/resData/resForm/evlu_proc_stat_1tms")  ==  "20"  ) 
+						{
+							button5.disabled = true;
+							//textarea1.disabled = true;
+							textarea1.attribute("editable")="false";
+							combo1.disabled = true;
+						}
+						else 
+						{
+							button5.disabled = false;
+							textarea1.disabled = false;
+							combo1.disabled = false;
+
+						}
+						
+						model1.removeNode("/root/dataSet");
+						model.refresh();
+					}
+				}
+				
+				function setLength(){
+					var remkCont = textarea1.currentText;
+					var length = calculate_msglen(remkCont);
+					var limitLength = length/2;
+					limitLength = parseInt(limitLength);
+					model1.setValue("/root/reqData/reqForm/remkbyte",limitLength);
+					output1.refresh();
+				}
+				
+				function checkByteCnt(restLength){
+                	var remk_chk = model1.getValue("/root/resData/resForm/evlu_pers_meda_opn_1tms");
+                	var length = calculate_msglen(remk_chk);
+					
+				    if( length > restLength){
+						alert("최대 한글["+(restLength/2)+"], 영문["+restLength+"]글자까지 입력하실 수 있습니다. \r\n초과된 글자는 자동으로 삭제됩니다.");
+				        var retRemk = fncom_chk_strlength_cut(restLength, remk_chk);
+				        model1.setValue("/root/resData/resForm/evlu_pers_meda_opn_1tms",retRemk);
+				        model1.refresh();
+				        return;
+				        }
+					}
+					
+				function calculate_msglen(message){
+					var nbytes = 0;
+					for (i=0; i<message.length; i++){
+						var ch = message.charAt(i);
+						if(escape(ch).length > 4){
+							nbytes += 2;
+						}else if(ch != '\r'){
+							nbytes++;
+						}
+					}
+					return nbytes;
+				}
+						
+				function fncom_chk_strlength_cut(vn_maxlength, vn_str){
+					var vn_sumlength=0;
+					var vn_restr='';
+					for(var i=0;i < vn_str.length; i++){
+						if( escape(vn_str.charAt(i)).length > 3 ){
+							vn_length = 2;
+						}else if (vn_str.charAt(i) == '<' || vn_str.charAt(i) == '>'){
+							vn_length = 4;
+						}else{
+							vn_length = 1 ;
+						}
+						if ( vn_maxlength < (vn_sumlength + vn_length) ) { break; }
+						vn_sumlength += vn_length;
+						vn_restr += vn_str.charAt(i);
+					}
+					return (vn_restr);
+				}
+				//메시지창 처리_최호정_20141024
+				function msg_close(){
+						group99.visible = false;
+						window.clearInterval(msg_clock);
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="600" pageheight="480" guideline="1,10;2,31;2,39;2,746;2,59;1,437;2,352;2,360;" style="font-family:굴림; ">
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<group id="group_ActionBtn" style="left:10px; top:10px; width:580px; height:31px; ">
+			<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:0px; top:0px; width:575px; height:27px; "/>
+			<button id="button1" class="btn03" style="left:501px; top:1px; width:65px; height:21px; ">
+				<caption>취소하기</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						window.close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" visibility="hidden" style="left:169px; top:1px; width:52px; height:21px; ">
+				<caption>창닫기</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="evlu_btn04" style="left:410px; top:1px; width:88px; height:21px; ">
+				<caption>조정건의하기</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(model1.getValue("/root/resData/resForm/evlu_pers_meda_opn_1tms") == ""){
+							alert("조정건의 의견을 입력하세요.");
+							return;
+						}
+						//조정건의등급과 잠정등급이 동일한 경우 등급 변경 메시지를 보여준다_20151126
+						if(model1.getValue("/root/resData/resForm/evlu_pers_meda_grad_1tms") == model1.getValue("/root/resData/resForm/tmp_grad")){
+							alert("조정건의 등급을 변경하지 않으셨습니다.\n\n등급을 변경해주시기 바랍니다.");
+							return;
+						}
+						model1.setValue("/root/reqData/reqForm/evlu_pers_meda_opn_1tms",model1.getValue("/root/resData/resForm/evlu_pers_meda_opn_1tms"));
+						model1.setValue("/root/reqData/reqForm/evlu_pers_meda_grad_1tms",model1.getValue("/root/resData/resForm/evlu_pers_meda_grad_1tms"));
+						//20141024_최호정_메시지삭제
+						//if(window.alert("등록 하시겠습니까?", "확인", 1)!=1) return;
+						model1.send("hd_evlu_3202_u");
+						if(submit_completed()){
+							//최호정_20141024
+							caption99.value="정상적으로 처리되었습니다.";
+							group99.visible= true;
+							msg_clock = window.setInterval("msg_close()",2000);
+									
+							var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+							eval("window.opener.javascript." + retFunc + "('" + combo1.label + "')");
+							window.close();		
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" visibility="hidden" style="left:114px; top:1px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(window.alert("삭제 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/reqForm/evlu_pers_meda_opn_1tms","");
+						model1.setValue("/root/reqData/reqForm/evlu_pers_meda_grad_1tms","");
+						model1.send("hd_evlu_3202_u");
+						if(submit_completed()){
+							var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+							eval("window.opener.javascript." + retFunc + "('')");
+							searchList();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<!-- 검색조건 항목 -->
+		<!-- 평가년도별 차수등록 -->
+		<caption id="caption1" class="list_cap01" style="left:9px; top:53px; width:583px; height:26px; text-align:center; ">조정 건의의견</caption>
+		<caption id="caption2" class="list_cap02" style="left:9px; top:78px; width:583px; height:364px; "/>
+		<textarea id="textarea1" ref="/root/resData/resForm/evlu_pers_meda_opn_1tms" class="req" style="left:15px; top:113px; width:572px; height:318px; font-size:20pt; text-align:left; vertical-align:top; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					checkByteCnt(500);
+					textarea1.dispatch("onkeyup");
+					model1.setfocus("textarea1",true);
+					return;
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					setLength();
+				]]>
+			</script>
+		</textarea>
+		<caption id="caption5" class="list_cap02" style="left:9px; top:437px; width:583px; height:26px; "/>
+		<caption id="caption3" class="list_cap01" style="left:9px; top:437px; width:100px; height:26px; ">조정건의등급</caption>
+		<select1 id="combo1" ref="/root/resData/resForm/evlu_pers_meda_grad_1tms" class="req" appearance="minimal" style="left:114px; top:441px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_grad_cd/item">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<output id="output1" ref="/root/reqData/reqForm/remkbyte" style="left:15px; top:89px; width:100px; height:18px; text-align:right; "/>
+		<caption id="caption6" style="left:117px; top:89px; width:100px; height:20px; ">byte</caption>
+		<group id="group99" visibility="hidden" style="left:40%; top:45%; width:215px; height:70px; border-style:none; ">
+			<caption id="caption99" style="left:8px; top:9px; width:200px; height:45px; font-size:10pt; font-weight:bolder; color:#000000; text-align:center; vertical-align:middle; background-color:#eee8aa; border-color:#c2cbfb; border-width:2px; border-style:solid; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

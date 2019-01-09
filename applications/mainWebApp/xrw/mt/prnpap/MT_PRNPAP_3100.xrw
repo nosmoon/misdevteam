@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</fac_clsf>
+							<paper_cmpy>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</paper_cmpy>
+							<pa_gb>
+							</pa_gb>
+							<paper_gubun>
+							</paper_gubun>
+						</comboSet>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<multiUpData/>
+						<searchData>
+							<issu_dt/>
+							<fac_clsf/>
+							<clos/>
+						</searchData>
+						<comboValue>
+							<fac_clsf/>
+							<matr_cd2/>
+							<roll_cnt/>
+						</comboValue>
+						<login_info>
+							<use_yn/>
+						</login_info>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<roll_wgt/>
+								<roll_cnt/>
+								<wgt/>
+								<cmpy_cd/>
+								<occr_dt/>
+								<seq/>
+								<paper_cmpy/>
+								<paper_clsf_cd/>
+							</record>
+						</gridData>
+						<resForm>
+							<temp/>
+						</resForm>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				function setInitData( issu_dt , fac_clsf , magam_yn ){
+					model1.setValue("/root/reqData/searchData/issu_dt",  issu_dt);
+					model1.setValue("/root/reqData/searchData/fac_clsf",  fac_clsf);
+					model1.setValue("/root/reqData/searchData/clos",      magam_yn);
+					
+					//model.send("mt_prnpap_3009");
+					//model.copyNode("/root/resData/gridData", "/root/tempData/gridData");
+					
+					var node = instance1.selectNodes("/root/resData/gridData");
+					node.reset();
+					datagrid1.clearStatus();
+					datagrid1.refresh();
+					
+					model1.copyNode("/root/resData/gridData" , "/root/resData/resForm/temp");
+					datagrid1.refresh();
+					
+					for( var i = 1 ; i < datagrid1.rows; i++ ){
+						if (datagrid1.valueMatrix(i, datagrid1.colRef("seq")) == ""){
+							datagrid1.rowStatus(i) = 1;
+						}
+						//Call_matr_cd2(i , datagrid1.valueMatrix(i, 1 )) ;
+					}
+					
+					var magam = model1.getValue("/root/reqData/searchData/clos");
+ 						  
+					if( magam == '00' ){  // 마감 안된 데이터 
+	 					datagrid1.isReadOnly(1, 1, datagrid1.rows-1 , datagrid1.cols-1) = false;
+	 					button1.disabled = false;
+					} else { // 01 공장 마감  02 자재 마감 처리 
+	 					datagrid1.isReadOnly(1, 1, datagrid1.rows-1 , datagrid1.cols-1) = true;
+	 					button1.disabled = true;
+					}
+					datagrid1.subtotal("clear", -1, 4);
+					subTotal();
+				}
+				
+				function setPapcmpy(fNodeList){
+					//alert(fNodeList.length);
+					for (var i=0; i<fNodeList.length; i++){
+						datagrid1.addRow(true, true);
+						
+						model.makeNode("/root/initData/comboSet/paper_gubun/item[" + (i+1) + "]");
+						model.makeNode("/root/initData/comboSet/paper_gubun/item[" + (i+1) + "]/label");
+						model.makeNode("/root/initData/comboSet/paper_gubun/item[" + (i+1) + "]/value");
+						model.setValue("/root/initData/comboSet/paper_gubun/item[" + (i + 1) + "]/label", fNodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value);
+						model.setValue("/root/initData/comboSet/paper_gubun/item[" + (i + 1) + "]/value", fNodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value);
+						
+						model.setValue("/root/resData/gridData/record[" + (i + 1) + "]/paper_cmpy", fNodeList.item(i).getElementsByTagName("matr_cd").item(0).value.substring(0,4));
+						model.setValue("/root/resData/gridData/record[" + (i + 1) + "]/paper_clsf_cd", fNodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value);
+						
+//						fNodeList.item(i).getElementsByTagName("pap_cmpy").item(0).value;
+//						fNodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value;
+//						fNodeList.item(i).getElementsByTagName("matr_cd").item(0).value;
+					}
+					
+					datagrid1.refresh();
+				}
+				   
+				function load() {
+					datagrid1.isReadOnly(1,1,datagrid1.rows- 1,datagrid1.cols-1) = true;
+
+					//model1.send("mt_prnpap_3102");
+					//model1.copyNode("/root/initData/comboSet/paper_cmpy", "/root/tempData/paper_cmpy"); 
+				}
+				
+				function subTotal(){
+					datagrid1.subtotalPosition = "below";
+					datagrid1.subtotal("sum", -1, 4, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+					datagrid1.subtotal("sum", -1, 5, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+				}
+
+					
+					// 자재코드 콤보 세팅
+    					function Call_matr_cd2(iSelectedRow, sValue){
+ 				
+	 					model1.makeNode("/root/reqData/searchData/paper_cmpy");
+	 					model1.setValue("/root/reqData/searchData/paper_cmpy" , sValue);
+	 					model1.send("mt_prnpap_3103");
+	 					
+	 					var nodeStr = "/root/initData/comboSet/paper_gubun_" + iSelectedRow ;
+	 					model1.makeNode(nodeStr);
+	 					
+	 					model1.copyNode(nodeStr , "/root/tempData/paper_gubun") ;
+	 					model1.destroy("/root/reqData/searchData/paper_cmpy");
+	 					datagrid1.cellComboNodeset(iSelectedRow, 2) = nodeStr + "/item";
+	 					
+	 					datagrid1.refresh();
+	 				}
+					
+					// 용지구분 콤보 세팅
+					function Call_pa_gb(){
+						
+						var iSelectedRow = datagrid1.row ;
+						
+						if( datagrid1.valueMatrix(iSelectedRow, 1) == '' || datagrid1.valueMatrix(iSelectedRow, 2) == '' ){ return;}
+						
+						for ( var i = 1 ; i < datagrid1.rows ; i++){
+							var tmpCmpy = datagrid1.valueMatrix(i, 1) ;
+							var tmpPapClsf = datagrid1.valueMatrix(i, 2) ;
+							
+							if( tmpCmpy == datagrid1.valueMatrix(iSelectedRow, 1) && tmpPapClsf == datagrid1.valueMatrix(iSelectedRow, 2) ){
+								if (iSelectedRow == i ) continue;
+								if( datagrid1.rowStatus(i) == 4 ) continue; // 삭제
+								if( window.alert("같은 제지사의 용지가 중복 입력이 불가능 합니다.\n 계속 하시겠습니까?", "조선일보 MIS", 1) != 1){
+									return;
+								}		 
+							}
+						}
+						model1.makeNode("/root/reqData/searchData/paper_cmpy");
+						model1.makeNode("/root/reqData/searchData/paper_clsf_cd");
+						
+						model1.setValue("/root/reqData/searchData/paper_cmpy",  datagrid1.valueMatrix(iSelectedRow, 1));
+						model1.setValue("/root/reqData/searchData/paper_clsf_cd" , datagrid1.valueMatrix(iSelectedRow, 2));
+						
+						model1.send("mt_prnpap_3104");
+						
+						if( Number(model1.getValue("/root/tempData/totalcnt")) == 0 ){
+							alert(model1.getValue("/root/reqData/searchData/fac_clsf") + "공장에 선택된 제지사의 용지 구분에 대한 자재코드 또는 롤당 중량이 없습니다.\확인해주세요");
+							datagrid1.valueMatrix(iSelectedRow, 3) = "";
+							datagrid1.valueMatrix(iSelectedRow, 4) = "";
+							datagrid1.valueMatrix(iSelectedRow, 6) = "";
+							return;
+						}
+						datagrid1.valueMatrix(iSelectedRow, 3) = model1.getValue("/root/tempData/matr_cd");
+						datagrid1.valueMatrix(iSelectedRow, 6) = model1.getValue("/root/tempData/roll_wgt");
+						
+						model1.destroy("/root/reqData/searchData/paper_cmpy");
+						model1.destroy("/root/reqData/searchData/paper_clsf_cd");
+					}
+					
+					// 중량계산
+					function Call_roll_wgt(){
+						var iSelectedRow = datagrid1.row ;
+						var rollCnt =  datagrid1.valueMatrix(iSelectedRow, 4);
+						var rollWgt =  datagrid1.valueMatrix(iSelectedRow, 6);
+						datagrid1.valueMatrix(iSelectedRow, 5) = Number(rollCnt) * Number(rollWgt);
+					}
+					
+					
+					//행입력
+					function addRow() {
+						var rowCnt      = 0;
+						var selectedIdx = datagrid1.rows-1 ; 
+
+						if(datagrid1.isReadOnly(1,1) == true && datagrid1.valueMatrix(1,1) =="") {
+							datagrid1.isReadOnly(1, 1, 1, datagrid1.cols- 1)  = false;
+							datagrid1.addStatus(selectedIdx, "insert");
+						} else {
+							datagrid1.addRow(true, true);
+						}
+					}
+					// 초기화
+					function funReset() {
+						model1.reset();
+						datagrid1.clearStatus();
+						load();
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<submission id="mt_prnpap_3100" action="/mt/prnpap/3100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3102" action="/mt/prnpap/3102" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3103" action="/mt/prnpap/3103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3104" action="/mt/prnpap/3104" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3105" action="/mt/prnpap/3105" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3009" action="/mt/prnpap/3009" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3101_A" action="/mt/prnpap/3101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body pagewidth="925" pageheight="400" guideline="1,9;2,391;2,39;1,908;">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:165px; width:0px; height:0px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="제지사^용지구분^자재코드^롤수^중량^롤당중량^회사코드^occr_dt^seq^제지사코드" colsep="#" colwidth="190, 107, 178, 111, 118, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:9px; top:42px; width:899px; height:260px; text-align:center; ">
+			<col ref="paper_cmpy_nm" caption="제지사" style="text-align:left; "/>
+			<col ref="paper_clsf_cd" caption="용지구분" style="text-align:left; "/>
+			<col ref="matr_cd" caption="자재코드" style="text-align:left; "/>
+			<col class="req" ref="roll_cnt" type="input" format="#,###" maxlength="9" caption="롤수" style="text-align:right; padding-right:10; "/>
+			<col ref="wgt" type="input" format="#,###" style="text-align:right; padding-right:10; "/>
+			<col ref="roll_wgt" format="#,###" style="text-align:right; padding-right:10; "/>
+			<col ref="cmpy_cd" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="paper_cmpy" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var iSelectedCol = datagrid1.col;
+					var iSelectedRow = datagrid1.row;
+					var sValue = "";
+					
+					if(iSelectedCol == 4){
+						var rowState = datagrid1.rowStatus(	iSelectedRow );
+						/*
+						if( datagrid1.valueMatrix(iSelectedRow, 1) == ''){
+							alert("제지사를 선택해주세요");
+							datagrid1.valueMatrix(iSelectedRow, 4) = 0;
+							datagrid1.rowStatus(iSelectedRow) = rowState;
+							return;
+						}
+						if( datagrid1.valueMatrix(iSelectedRow, 2) == ''){
+							alert("용지구분을 선택해주세요");
+							datagrid1.valueMatrix(iSelectedRow, 4) = 0;
+							datagrid1.rowStatus(iSelectedRow) = rowState;
+							return;
+						}
+						if( datagrid1.valueMatrix(iSelectedRow, 3) == ''){
+							alert("해당 공장에 선택된 제지사의 용지구분에 대한 자재코드 또는 롤당 중량이 존재하지 않습니다");
+							datagrid1.valueMatrix(iSelectedRow, 4) = 0;
+							datagrid1.rowStatus(iSelectedRow) = rowState;
+							return;
+						}
+						*/
+						// 롤수 계산
+						Call_roll_wgt();
+						datagrid1.subtotal("clear", -1, 4);
+						subTotal();
+					}
+
+				]]>
+			</script>
+		</datagrid>
+		<!--
+		<button id="button9" class="btn_grid03" style="left:802px; top:23px; width:52px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				       if( model1.getValue("/root/reqData/searchData/fac_clsf") == ''  || model1.getValue("/root/reqData/searchData/issu_dt") == '' ){
+				       		alert("조회 후 입력 해주세요");
+				       		return;
+				       }
+				       
+					if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+						alert(" 마감된 데이터입니다. \n 행추가할 수 없습니다.");
+						return;
+					}
+					addRow();
+					
+					model1.refresh();
+ 				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn_grid03" style="left:857px; top:23px; width:52px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						var row = datagrid1.row;
+						if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+							alert(" 마감된 데이터입니다. \n 행삭제할 수 없습니다.");
+							return;
+						}
+						
+						if( row < 1 )
+						{
+							alert("삭제할 데이터를 선택해 주세요");
+							return;
+						}
+						
+						var cmpy_cd = datagrid1.valueMatrix(row, 7 ) ;
+						
+						if(cmpy_cd=="" ){ // 데이터가 없으면 행삭제
+							datagrid1.deleteRow(datagrid1.row);
+						}else{ // 데이터가 있으면 빨간색 표시
+							datagrid1.addStatus(datagrid1.row, "delete");
+						}
+					]]>
+			</script>
+		</button>
+		-->
+		<button id="button1" class="btn02" style="left:855px; top:1px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+						alert(" 마감된 데이터입니다. \n 저장할 수 없습니다.");
+						return;
+					}
+					
+					if(!commGridReqCheck("datagrid1")) return;
+					
+					var cnt = 0;
+					
+					for( var i = 1 ; i < datagrid1.rows ; i++){
+						if( datagrid1.rowStatus(i) != 0 ){
+							cnt = cnt + 1;
+						} 
+					}
+					
+					if( cnt == 0 ) {
+						alert("저장할 데이터가 없습니다.");
+						return;
+					}
+					for ( var i = 1 ; i < datagrid1.rows ; i++){
+							var tmpCmpy = datagrid1.valueMatrix(i, 1) ;
+							var tmpPapClsf = datagrid1.valueMatrix(i, 3) ;
+							
+							if( datagrid1.rowStatus(i) == 4 ) continue; // 삭제
+							 
+							for ( var j = 1 ; j < datagrid1.rows ; j++){
+							    	var tmpCmpy2 = datagrid1.valueMatrix(j, 1) ;
+								var tmpPapClsf2 = datagrid1.valueMatrix(j, 3) ;
+								
+								if( tmpCmpy == tmpCmpy2 && tmpPapClsf == tmpPapClsf2){
+									//alert("i: " + i  + " j :" + j + "\ntmpCmpy=" + tmpCmpy +"         tmpCmpy2" + tmpCmpy2 + "\ntmpPapClsf :  " + tmpPapClsf + "        tmpPapClsf2 :" + tmpPapClsf2);
+									if (i == j ) continue;
+									if( datagrid1.rowStatus(j) == 4 ) continue; // 삭제
+									alert("같은 제지사의 용지가 중복 입력이 불가능 합니다.");
+									return;
+								}
+							}
+					}
+					
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}					
+					
+					
+					model1.makeNode("/root/reqData/searchData/multiUpData");
+					model1.setValue("/root/reqData/searchData/multiUpData",     datagrid1.getUpdateData());
+		
+					model1.send("mt_prnpap_3101_A");
+						
+					if(submit_completed()) {							
+						model1.destroy("/root/reqData/searchData/multiUpData" );
+						
+						//parent.window.javascript.funbtnSearch(2);
+						
+						model1.send("mt_prnpap_3105");
+						
+						model1.copyNode("/root/resData/gridData", "/root/tempData/thisPage" );
+					        model1.copyNode(parent.root.resData.gridData , " /root/tempData/mainGrid");
+					        datagrid1.clearStatus();
+					        model1.refresh();
+					        parent.datagrid1.refresh();
+					        
+					        parent.window.javascript.subTotal();
+					        
+					        
+					}
+					model1.destroy("/root/reqData/searchData/multiUpData" );	
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

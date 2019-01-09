@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_RCP_2100.xrw
+* 기능 : 입금관리 - 입금전표조회
+* 작성일자 : 2009-05-02
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<slip_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</slip_clsf>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team_cd/>
+							<part_cd/>
+							<area_cd/>
+							<rcpm_dt1/>
+							<rcpm_dt2/>
+							<slip_clsf/>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<colcnt/>
+							<clos_yymm/>
+						</resform>
+						<gridData>
+							<record>
+								<tot_grp/>
+								<rcpm_dt/>
+								<slip_number/>
+								<bo_nm/>
+								<budg_nm1/>
+								<d_amt/>
+								<budg_nm2/>
+								<c_amt/>
+								<bank_nm/>
+								<rcpm_shet_no/>
+							</record>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_rcp_2110_l" action="/se/rcp/2110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					
+					makeTeamSearch(
+						   "se_rcp_2100_m"
+						  , "/se/rcp/2100"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+						  
+					model.setValue("/root/reqData/searchData/rcpm_dt1", dateAdd('d', -6, getCurrentDate()));
+					model.setValue("/root/reqData/searchData/rcpm_dt2", getCurrentDate());
+					ipt_rcpm_dt1.refresh();
+					ipt_rcpm_dt2.refresh();
+										
+					makeComboGubun("A", "/root/initData/comboSet/slip_clsf", "item", "label", "value");
+					cbo_slip_clsf.select(0);					
+					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="R" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!commReqCheck(group_scr)) return;
+				if(!se_chkOverDate(model.getValue("/root/reqData/searchData/rcpm_dt1"),model.getValue("/root/reqData/searchData/rcpm_dt2"))) return;
+				model.send("se_rcp_2110_l");
+				se_chkGridCnt("datagrid1");
+				if(!submit_completed()) return;
+								
+				//합계뿌리기
+				datagrid1.subtotal("sum", 1, 6, "(-)#,###", se_subtotstyle(), 2, "계"); 
+				datagrid1.subtotal("sum", 1, 8, "(-)#,###", se_subtotstyle(), 2, "계"); 
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area_cd" appearance="minimal" style="left:376px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:151px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part_cd" appearance="minimal" style="left:225px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:327px; top:0px; width:45px; height:26px; ">지역</caption>
+			<input id="ipt_rcpm_dt1" ref="/root/reqData/searchData/rcpm_dt1" class="req" inputtype="date" format="yyyy-mm-dd" caption="입금일자1" style="left:546px; top:4px; width:85px; height:18px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption8" class="list_cap01" style="left:477px; top:0px; width:65px; height:26px; ">입금일자</caption>
+			<caption id="caption2" class="list_cap01" style="left:742px; top:0px; width:65px; height:26px; ">전표구분</caption>
+			<select1 id="cbo_slip_clsf" ref="/root/reqData/searchData/slip_clsf" appearance="minimal" style="left:811px; top:4px; width:85px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/slip_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption1" style="left:633px; top:6px; width:15px; height:15px; ">~</caption>
+			<input id="ipt_rcpm_dt2" ref="/root/reqData/searchData/rcpm_dt2" class="req" inputtype="date" format="yyyy-mm-dd" caption="입금일자2" style="left:645px; top:4px; width:85px; height:18px; "/>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="(그룹)^입금일자^전표번호^센터명^차변^차변^대변^대변^대변^대변|(그룹)^입금일자^전표번호^센터명^예산^금액^예산^금액^은행명^입금표번호" colsep="^" colwidth="40, 90, 120, 85, 125, 85, 125, 85, 85, 90" frozenbottomrows="1" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" subtotalposition="below" style="left:10px; top:120px; width:926px; height:585px; ">
+			<col ref="tot_grp" visibility="hidden"/>
+			<col ref="rcpm_dt" format="yyyy-mm-dd" style="left:20px; top:25px; width:80px; height:20px; text-align:center; "/>
+			<col ref="slip_number"/>
+			<col ref="bo_nm"/>
+			<col ref="budg_nm1"/>
+			<col ref="d_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="budg_nm2"/>
+			<col ref="c_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="bank_nm"/>
+			<col ref="rcpm_shet_no" style="text-align:right; "/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

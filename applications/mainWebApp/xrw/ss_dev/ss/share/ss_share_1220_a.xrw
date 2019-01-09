@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<defaultData/>
+						<session/>
+						<comboSet>
+							<codeData/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<searchform/>
+							<infoexg_update_form>
+								<seq/>
+								<makepersid/>
+								<makepersnm/>
+								<posicd/>
+								<posinm/>
+								<deptcd/>
+								<deptnm/>
+								<rmsgclsf/>
+								<rmsgdept/>
+								<rmsgdeptnm/>
+								<rmsgarea/>
+								<rmsgareanm/>
+								<anncbgntm/>
+								<anncendtm/>
+								<annctitl/>
+								<annccont/>
+								<incmgpers/>
+								<incmgdt/>
+								<chgpers/>
+								<chgdt/>
+								<common_deptcd/>
+								<areacd/>
+								<anncbgntm_time/>
+								<anncendtm_time/>
+							</infoexg_update_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData/>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();				
+				]]>
+			</script>
+			<submission id="PID1220save" action="/ss/share/1216" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/infoexg_update_form" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1220delete" action="/ss/share/1217" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/infoexg_update_form" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1220choiceSave" action="/ss/share/1350" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/infoexg_view_form" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1220down" action="/ss/share/1360" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/infoexg_view_form" resultref="/root/tempData/initTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[			
+			function init()
+			{
+				makeTeamSearch("getTeamInit", "/ss/share/1220", "/root/reqData/reqform/searchform", "/root/initData/comboSet/dataTemp", "cmbCommonTeamQ", "cmbCommonPartQ", "cmbCommonAreaQ");
+
+				makeTeamEvent("getAreaList", "/ss/common/1103", "/root/reqData/reqform/infoexg_update_form", "/root/initData/comboSet/dataTemp", "cmbCommonTeamQ", "cmbCommonAreaQ", "preActionTeam();");
+
+				childValueCopy("/root/reqData/reqform/infoexg_update_form", "/root/initData/comboSet/dataTemp/infoGrid"); // 조회된 노드들을 대상에 한번에 전부 카피한다.
+
+				//modelCopyValue("/root/reqData/reqform/infoexg_update_form/areacd", 		"/root/initData/comboSet/dataTemp/infoGrid/rmsgarea");
+				
+				// 공지 시작일자 및 시간 처리
+				model.setValue("/root/reqData/reqform/infoexg_update_form/anncbgntm", model.getValue("/root/initData/comboSet/dataTemp/infoGrid/anncbgntm").substring(0,8));
+				model.setValue("/root/reqData/reqform/infoexg_update_form/anncendtm", model.getValue("/root/initData/comboSet/dataTemp/infoGrid/anncendtm").substring(0,8));
+				model.setValue("/root/reqData/reqform/infoexg_update_form/anncbgntm_time", model.getValue("/root/initData/comboSet/dataTemp/infoGrid/anncbgntm").substring(8));
+				model.setValue("/root/reqData/reqform/infoexg_update_form/anncendtm_time", model.getValue("/root/initData/comboSet/dataTemp/infoGrid/anncendtm").substring(8));
+		
+				model.refresh();
+				
+				clockTimer = window.setInterval("setText()", 500); // 에디터 처리
+				
+				//PID1220combo1.select(0);
+				model.removenode("/root/tempData/dataTemp");
+			}
+			
+			function setText()
+			{
+				// 내용부분 에디터 스크립트 통신처리			
+				var  objWin = PID1220browser1.document.parentWindow;
+							
+				if(objWin.LOADFLAG == "Y") {									
+					var text = model.getValue("/root/initData/comboSet/dataTemp/infoGrid/annccont");
+					objWin.putText(text);
+					window.clearInterval(clockTimer);
+				}
+					
+			}
+				
+			function preActionTeam()
+			{
+				modelCopyValue("/root/reqData/reqform/infoexg_update_form/common_deptcd", "/root/reqData/reqform/infoexg_update_form/deptcd");
+			}
+			
+			function golist1()
+			{
+				window.load("/xrw/ss/share/ss_share_1200_a.xrw");
+			}
+						
+			function save1()
+			{
+				if(model.getValue("/root/reqData/reqform/infoexg_update_form/annctitl") == "")
+				{
+				        alert("제목을 입력해주세요.");
+					model.setFocus("PID1220input5");
+				        return;
+				}
+				
+				if(model.getValue("/root/reqData/reqform/infoexg_update_form/anncbgntm") == "")
+				{
+				        alert("게시시작일자를 입력하세요.");
+					model.setFocus("PID1220input1");
+				        return;
+				}
+				
+				if(model.getValue("/root/reqData/reqform/infoexg_update_form/anncbgntm_time") == "")
+				{
+				        alert("게시시작시간을 입력하세요.");
+					model.setFocus("PID1220input2");
+				        return;
+				}
+				
+				if(model.getValue("/root/reqData/reqform/infoexg_update_form/anncendtm") == "")
+				{
+				        alert("게시종료일자를 입력하세요.");
+					model.setFocus("PID1220input4");
+				        return;
+				}
+
+				if(model.getValue("/root/reqData/reqform/infoexg_update_form/anncendtm_time") == "")
+				{
+				        alert("게시종료시간을 입력하세요.");
+					model.setFocus("PID1220input3");
+				        return;
+				}
+				
+				//별도의 사간 정보까지 합쳐서 검증해야 하므로 공통 모듈을 사용하지 않고 저장시 체크.
+				var btm = model.getValue("/root/reqData/reqform/infoexg_update_form/anncbgntm") + model.getValue("/root/reqData/reqform/infoexg_update_form/anncbgntm_time");
+				var etm = model.getValue("/root/reqData/reqform/infoexg_update_form/anncendtm") + model.getValue("/root/reqData/reqform/infoexg_update_form/anncendtm_time");
+				if(btm > etm)
+				{
+					model.alert("시작 시각은 종료 시각보다 빨라야 합니다.");
+					model.setFocus("PID1220input1");
+				       return;
+				}
+				
+				// 내용부분 에디터 스크립트 통신처리		
+				var  objWin = PID1220browser1.document.parentWindow;					
+				model.setValue("/root/reqData/reqform/infoexg_update_form/annccont", objWin.getText());
+
+				if(model.getValue("/root/reqData/reqform/infoexg_update_form/annccont") == "")
+				{
+				        alert("내용을 입력해주세요.");
+					//model.setFocus("PID1210textarea1");
+				        return;
+				}
+
+				if(!commValidate("PID1220group3"))
+					return;
+					
+				if(!confirm("수정하시겠습니까?"))
+					return;
+											
+				model.setValue("/root/reqData/reqform/infoexg_update_form/anncbgntm", model.getValue("/root/reqData/reqform/infoexg_update_form/anncbgntm") + model.getValue("/root/reqData/reqform/infoexg_update_form/anncbgntm_time"));
+				model.setValue("/root/reqData/reqform/infoexg_update_form/anncendtm", model.getValue("/root/reqData/reqform/infoexg_update_form/anncendtm") + model.getValue("/root/reqData/reqform/infoexg_update_form/anncendtm_time"));
+
+				model.setValue("/root/reqData/reqform/infoexg_update_form/rmsgdept", model.getValue("/root/reqData/reqform/infoexg_update_form/deptcd"));
+				if(model.getValue("/root/reqData/reqform/infoexg_update_form/deptcd") == "")
+				{
+					model.setValue("/root/reqData/reqform/infoexg_update_form/rmsgdeptnm", "");
+				}
+				
+				model.setValue("/root/reqData/reqform/infoexg_update_form/rmsgarea", model.getValue("/root/reqData/reqform/infoexg_update_form/areacd"));
+				
+				if(model.getValue("/root/reqData/reqform/infoexg_update_form/areacd") == "")
+				{
+					model.setValue("/root/reqData/reqform/infoexg_update_form/rmsgareanm", "");
+				}
+									
+				 model.send("PID1220save", false);
+				 
+				 if(!submit_completed())
+						return;
+						
+				golist1();
+			}
+				
+			function fileDown()
+			{
+				if(PID1220caption17.value == "") {
+					return;
+				} else {					
+					model.send("PID1220down", false);
+						
+					body.disabled = false;
+					progressBarEnd();
+				}
+			}
+			
+				function rmsgexttcd_change()
+				{
+					if(model.getValue("/root/reqData/reqform/infoexg_update_form/rmsgexttcd") == ("40") || model.getValue("/root/reqData/reqform/infoexg_update_form/rmsgexttcd") ==("70") || model.getValue("/root/reqData/reqform/infoexg_update_form/rmsgexttcd") ==("80"))
+					{
+						cmbCommonTeamQ.disabled = true;
+						cmbCommonPartQ.disabled = true;
+						cmbCommonAreaQ.disabled = true;
+					}else{			
+						cmbCommonTeamQ.disabled = false;
+						cmbCommonPartQ.disabled = false;
+						cmbCommonAreaQ.disabled = false;
+					}
+				}				
+			
+			function delete1()
+			{
+				if(model.alert("삭제하시겠습니까?", "", 4) == "6") 
+				{				
+				    model.send("PID1220delete", false);
+				    
+				    if(!submit_completed())
+					return;
+					
+				    golist1();
+					} else {
+			 		       return ;
+				}	
+			}
+			
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1220" style="font-family:굴림; ">
+		<import id="iv_TitleBar" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="PID1220group2" class="gro_sel" style="left:10px; top:105px; width:926px; height:25px; ">
+			<caption id="PID1220caption10" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">실시간 지국공지 상세내역</caption>
+		</group>
+		<group id="PID1220group3" class="gro_sel" style="left:10px; top:135px; width:926px; height:540px; ">
+			<caption id="PID1220caption4" class="list_cap02" style="left:119px; top:72px; width:807px; height:444px; text-align:left; "/>
+			<caption id="PID1220caption3" class="list_cap01" style="left:0px; top:0px; width:120px; height:25px; text-align:left; ">등록자</caption>
+			<caption id="PID1220caption1" class="list_cap01" style="left:0px; top:24px; width:120px; height:25px; text-align:left; ">공지시작일자</caption>
+			<caption id="PID1220caption5" class="list_cap01" style="left:0px; top:48px; width:120px; height:25px; text-align:left; ">제목</caption>
+			<caption id="PID1220caption6" class="list_cap01" style="left:0px; top:72px; width:120px; height:444px; text-align:left; ">내용</caption>
+			<caption id="PID1220caption7" ref="/root/reqData/reqform/infoexg_update_form/makepersnm" class="list_cap02" style="left:119px; top:0px; width:290px; height:25px; text-align:left; "/>
+			<caption id="PID1220caption14" class="list_cap02" style="left:119px; top:24px; width:290px; height:25px; text-align:left; "/>
+			<caption id="PID1220caption16" class="list_cap02" style="left:119px; top:48px; width:807px; height:25px; text-align:left; "/>
+			<input id="PID1220input5" ref="/root/reqData/reqform/infoexg_update_form/annctitl" style="left:123px; top:52px; width:635px; height:18px; "/>
+			<caption id="PID1220caption21" class="list_cap01" style="left:408px; top:24px; width:120px; height:25px; text-align:left; ">공지종료일자</caption>
+			<caption id="PID1220caption22" class="list_cap02" style="left:527px; top:24px; width:399px; height:25px; text-align:left; "/>
+			<caption id="PID1220caption23" class="list_cap01" style="left:408px; top:0px; width:120px; height:25px; text-align:left; ">등록일자</caption>
+			<caption id="PID1220caption24" ref="/root/reqData/reqform/infoexg_update_form/incmgdt" class="list_cap02" format="yyyy-mm-dd hh:mm" style="left:527px; top:0px; width:399px; height:25px; text-align:left; "/>
+			<input id="PID1220input1" ref="/root/reqData/reqform/infoexg_update_form/anncbgntm" inputtype="date" format="yyyy-mm-dd" style="left:123px; top:28px; width:110px; height:18px; "/>
+			<input id="PID1220input4" ref="/root/reqData/reqform/infoexg_update_form/anncendtm" inputtype="date" format="yyyy-mm-dd" style="left:531px; top:28px; width:110px; height:18px; "/>
+			<browser id="PID1220browser1" src="http://220.73.135.220:7777/crm_editor.jsp" style="left:123px; top:76px; width:799px; height:435px; "/>
+			<input id="PID1220input2" ref="/root/reqData/reqform/infoexg_update_form/anncbgntm_time" format="hh:nn" style="left:236px; top:28px; width:50px; height:18px; "/>
+			<input id="PID1220input3" ref="/root/reqData/reqform/infoexg_update_form/anncendtm_time" format="hh:nn" style="left:645px; top:28px; width:50px; height:18px; "/>
+		</group>
+		<group id="PID1220group1" class="gro_sel" style="left:10px; top:75px; width:926px; height:25px; ">
+			<caption id="PID1220caption20" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; "/>
+			<caption id="PID1220caption18" style="left:7px; top:3px; width:40px; height:20px; ">팀</caption>
+			<caption id="PID1220caption19" style="left:115px; top:3px; width:40px; height:20px; ">지역</caption>
+			<select1 id="cmbCommonTeamQ" ref="/root/reqData/reqform/infoexg_update_form/deptcd" appearance="minimal" style="left:29px; top:4px; width:80px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dataTemp/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var index = cmbCommonTeamQ.focusIndex + 1;
+					model.setValue("/root/reqData/reqform/infoexg_update_form/rmsgdeptnm", model.getValue("/root/initData/comboSet/dataTemp/teamlist/record[" + index + "]/dept_nm"));
+					model.refresh();
+					]]>
+				</script>
+			</select1>
+			<select1 id="cmbCommonAreaQ" ref="/root/reqData/reqform/infoexg_update_form/areacd" appearance="minimal" style="left:147px; top:4px; width:70px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dataTemp/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var index = cmbCommonAreaQ.focusIndex + 1;
+					model.setValue("/root/reqData/reqform/infoexg_update_form/rmsgareanm", model.getValue("/root/initData/comboSet/dataTemp/arealist/record[" + index + "]/area_nm"));
+					model.refresh();
+					]]>
+				</script>
+			</select1>
+		</group>
+		<caption id="PID1220caption29" class="list_cap01" style="left:10px; top:650px; width:926px; height:25px; text-align:center; "/>
+		<button id="PID1220button5" class="btn_grid02" style="left:439px; top:654px; width:42px; height:17px; ">
+			<caption>수정</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						save1();
+					]]>
+			</script>
+		</button>
+		<button id="PID1220button6" class="btn_grid02" style="left:484px; top:654px; width:42px; height:17px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						delete1();
+					]]>
+			</script>
+		</button>
+		<button id="PID1321button1" class="btn_grid04" style="left:868px; top:654px; width:64px; height:17px; ">
+			<caption>목록으로</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						golist1();
+					]]>
+			</script>
+		</button>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:44px; width:926px; height:21px; ">
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

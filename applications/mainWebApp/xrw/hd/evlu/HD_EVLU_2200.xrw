@@ -1,0 +1,403 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>정규직(MIS) - 평가대상 제외자 선정기준 관리화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_cd>
+								<item>
+								</item>
+							</evlu_cd>
+							<appmt_cd>
+								<item>
+								</item>
+							</appmt_cd>
+							<vaca_cd>
+								<item>
+								</item>
+							</vaca_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<evlu_cd/>
+						</searchData>
+						<reqForm>
+							<evlu_yy/>
+							<tms_clsf/>
+							<evlu_excl_dd/>
+							<evlu_excl_daycnt/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<valid_evlu_cd/>
+							<evlu_excl_dd/>
+						</resForm>
+						<gridData1>
+							<record>
+								<appmt_cd/>
+								<remk/>
+								<db_status/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record>
+								<vaca_cd/>
+								<remk/>
+								<db_status/>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//평가구분 콤보박스 생성
+					model1.send("hd_evlu_9000_l");
+					model1.setValue("/root/resData/resForm/valid_evlu_cd",model1.getValue("/root/dataSet/valid_evlu_cd"));
+					model1.copyNode("/root/initData/comboSet/evlu_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					//평가구분 코드 설정
+					var op_evlu_cd = window.opener.model1.getValue("/root/resData/resForm/evlu_cd");
+					model1.setValue("/root/reqData/searchData/evlu_cd",op_evlu_cd);
+					combo1.refresh();
+					combo1.disabled = true;
+					//현재 선택한 평가구분에 대한 정보설정
+					model1.setValue("/root/reqData/reqForm/evlu_yy",model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+					model1.setValue("/root/reqData/reqForm/tms_clsf",model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					//콤보박스 생성
+					model1.send("hd_evlu_2200_m");
+					model1.copyNode("/root/initData/comboSet/appmt_cd", "/root/dataSet/CURLIST1");
+					model1.copyNode("/root/initData/comboSet/vaca_cd", "/root/dataSet/CURLIST2");
+					model1.removeNode("/root/dataSet");
+					//그리드 첫행 제거
+					model1.removeNode("/root/resData/gridData1/record");
+					model1.removeNode("/root/resData/gridData2/record");
+					//평가제외 기준일 검색조건에 설정
+					model1.send("hd_evlu_2201_s");
+					model1.setValue("/root/reqData/reqForm/evlu_excl_dd",model1.getValue("/root/dataSet/evlu_excl_dd"));
+					model1.setValue("/root/reqData/reqForm/evlu_excl_daycnt",model1.getValue("/root/dataSet/evlu_excl_daycnt"));
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					//발령, 휴가목록 생성
+					searchList1();
+					searchList2();
+				]]>
+			</script>
+			<submission id="hd_evlu_2200_m" action="/servlet/hd/evlu/2200" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2201_s" action="/servlet/hd/evlu/2201" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2202_l" action="/servlet/hd/evlu/2202" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2203_l" action="/servlet/hd/evlu/2203" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2204_a" action="/servlet/hd/evlu/2204" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2205_a" action="/servlet/hd/evlu/2205" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_9000_l" action="/servlet/hd/evlu/9000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//발령기준 목록
+				function searchList1(){
+					//기존의 노드를 모두 초기화
+					model1.removeNode("/root/dataSet");
+					model1.removeNode("/root/resData/gridData1");
+					model1.makeNode("/root/resData/gridData1");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_2202_l");	
+					model1.copyNode("/root/resData/gridData1","/root/dataSet/CURLIST");
+					caption6.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					for(var i=datagrid1.fixedRows; i<=datagrid1.rows; i++){
+						datagrid1.isReadOnly(i,datagrid1.colRef("appmt_cd")) = true;
+					}
+				}
+				//휴가기준 목록
+				function searchList2(){
+					//기존의 노드를 모두 초기화
+					model1.removeNode("/root/dataSet");
+					model1.removeNode("/root/resData/gridData2");
+					model1.makeNode("/root/resData/gridData2");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_2203_l");	
+					model1.copyNode("/root/resData/gridData2","/root/dataSet/CURLIST");
+					caption7.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					for(var i=datagrid2.fixedRows; i<=datagrid2.rows; i++){
+						datagrid2.isReadOnly(i,datagrid2.colRef("vaca_cd")) = true;
+					}
+				}
+				
+				//datagrid1 비고 입력함수
+				function setRemk1(remk){
+					var preRemk = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk"));
+					var nxtRemk = model1.getValue("/root/reqData/fwdData/resRemk");
+					datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")) = model1.getValue("/root/reqData/fwdData/resRemk");
+					if(datagrid1.rowStatus(datagrid1.row)==0){
+						if(preRemk!=nxtRemk){
+							datagrid1.rowStatus(datagrid1.row) = 2;
+						}
+					}
+				}
+				
+				//datagrid2 비고 입력함수
+				function setRemk2(remk){
+					var preRemk = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("remk"));
+					var nxtRemk = model1.getValue("/root/reqData/fwdData/resRemk");
+					datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("remk")) = model1.getValue("/root/reqData/fwdData/resRemk");
+					if(datagrid2.rowStatus(datagrid2.row)==0){
+						if(preRemk!=nxtRemk){
+							datagrid2.rowStatus(datagrid2.row) = 2;
+						}
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;2,30;2,39;2,64;2,89;2,746;1,20;1,437;2,352;2,358;" style="font-family:굴림; ">
+		<caption id="caption4" class="list_cap02" style="left:10px; top:64px; width:427px; height:26px; "/>
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:600px; height:29px; "/-->
+		<group id="group_ActionBtn" style="left:10px; top:9px; width:427px; height:21px; ">
+			<button id="button1" class="btn02" style="left:375px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						window.close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:320px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(switch1.selectedIndex==0){
+							if(!rowInSubmit(datagrid1)){return;}
+							if(!commGridReqCheck("datagrid1")) return;
+							if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+							model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+							model1.send("hd_evlu_2204_a");
+							if(submit_completed()) searchList1();
+						}else if(switch1.selectedIndex==1){
+							if(!rowInSubmit(datagrid2)){return;}
+							if(!commGridReqCheck("datagrid2")) return;
+							if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+							model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+							model1.send("hd_evlu_2205_a");
+							if(submit_completed()) searchList2();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button11" class="btn02" style="left:265px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(switch1.selectedIndex==0){
+							if(!rowDelSubmit(datagrid1)){return;}
+							if(window.alert("삭제 하시겠습니까?", "확인", 1)!=1) return;
+							model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+							model1.send("hd_evlu_2204_a");
+							if(submit_completed()) searchList1();
+						}else if(switch1.selectedIndex==1){
+							if(!rowDelSubmit(datagrid2)){return;}
+							if(window.alert("삭제 하시겠습니까?", "확인", 1)!=1) return;
+							model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+							model1.send("hd_evlu_2205_a");
+							if(submit_completed()) searchList2();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:97px; width:425px; height:5px; "/>
+		<!-- 검색조건 항목 -->
+		<caption id="captoin1" class="list_cap02" style="left:10px; top:39px; width:427px; height:26px; "/>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:39px; width:100px; height:26px; ">평가구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/evlu_cd" appearance="minimal" style="left:113px; top:43px; width:100px; height:18px; text-align:center; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<!-- 평가대상 제외자 선정기준일 -->
+		<caption id="caption3" class="list_cap01" style="left:10px; top:64px; width:100px; height:26px; ">제외기준일/수</caption>
+		<output id="input1" ref="/root/reqData/reqForm/evlu_excl_dd" format="yyyy/mm/dd" inputtype="date" appearance="output" style="left:113px; top:68px; width:80px; height:18px; text-align:center; "/>
+		<!-- 평가대상 제외자 선정기준 -->
+		<caption id="caption5" class="tit02" style="left:10px; top:112px; width:427px; height:20px; ">평가대상 제외자 선정기준</caption>
+		<button id="button6" class="tab04" style="left:10px; top:133px; width:78px; height:23px; ">
+			<caption>발령</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.toggle("case1");
+				]]>
+			</script>
+		</button>
+		<button id="button7" class="tab04" style="left:92px; top:133px; width:78px; height:23px; ">
+			<caption>휴가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.toggle("case2");
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" style="left:10px; top:155px; width:427px; height:235px; ">
+			<case id="case1" selected="true" style="left:0px; top:0px; width:425px; height:283px; ">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" allowselection="false" allowuserresize="false" caption="발령^비고^DB상태값" colsep="#" colwidth="100, 260, 5" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" tooltip="true" style="left:9px; top:30px; width:407px; height:167px; ">
+					<col class="req" ref="appmt_cd" type="combo" caption="발령코드" style="text-align:left; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/appmt_cd/item">
+								<label ref="cdnm"/>
+								<value ref="cd"/>
+							</itemset>
+						</choices>
+					</col>
+					<col ref="remk" type="inputbutton" style="text-align:left; "/>
+					<col ref="db_status" visibility="hidden"/>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+							if(datagrid1.colType(datagrid1.col)==""){
+								rowStatus(datagrid1);
+								return;
+							}
+							if(datagrid1.col == datagrid1.colRef("remk")){
+								datagrid1.dispatch("onbuttonclick");
+							}
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							if(datagrid1.col == datagrid1.colRef("appmt_cd")){
+								for(var i=1; i<=(datagrid1.rows-datagrid1.fixedRows); i++){
+									if(datagrid1.row==i) continue;
+									if(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("appmt_cd")) == datagrid1.valueMatrix(i,datagrid1.colRef("appmt_cd"))){
+										alert("중복된 발령코드 선택값이 존재합니다.");
+										datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("appmt_cd")) = "";
+										datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")) = "";
+										datagrid1.rowStatus(datagrid1.row) = "1";	//상태값을 "1"로 바꿔줘야 행저장, 삭제시 사라짐.
+										return;
+									}
+								}
+							}
+						]]>
+					</script>
+					<script type="javascript" ev:event="onbuttonclick">
+						<![CDATA[
+							if(datagrid1.col == datagrid1.colRef("remk")){
+								model1.removenode("/root/reqData/fwdData");
+								model1.makeNode("/root/reqData/fwdData");
+								model1.makeNode("/root/reqData/fwdData/maintitle");
+								model1.makeNode("/root/reqData/fwdData/remk");
+								model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+								model1.makeNode("/root/reqData/fwdData/maxlength");
+								model1.makeNode("/root/reqData/fwdData/func_nm");
+								model1.setValue("/root/reqData/fwdData/maintitle","발령정보 비고");
+								model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")));
+								model1.setValue("/root/reqData/fwdData/maxlength", "5000");
+								model1.setValue("/root/reqData/fwdData/func_nm","setRemk1");
+								window.load("/xrw/hd/evlu/HD_EVLU_1010.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+							}
+						]]>
+					</script>
+				</datagrid>
+				<button id="button5" class="btn_grid03" style="left:360px; top:9px; width:53px; height:17px; ">
+					<caption>행추가</caption>
+					<script type="javascript" ev:event="DOMActivate">
+						<![CDATA[
+							datagrid1.addItem();
+						]]>
+					</script>
+				</button>
+				<caption id="caption6" style="left:315px; top:202px; width:100px; height:20px; text-align:right; "/>
+			</case>
+			<case id="case2" style="left:0px; top:0px; width:425px; height:283px; ">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" allowselection="false" allowuserresize="false" caption="휴가^비고^DB상태값" colsep="#" colwidth="100, 260, 5" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" tooltip="true" style="left:9px; top:30px; width:407px; height:167px; ">
+					<col class="req" ref="vaca_cd" type="combo" caption="휴가코드" style="text-align:left; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/vaca_cd/item">
+								<label ref="cdnm"/>
+								<value ref="cd"/>
+							</itemset>
+						</choices>
+					</col>
+					<col ref="remk" type="inputbutton" style="text-align:left; "/>
+					<col ref="db_status" visibility="hidden"/>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+							if(datagrid2.colType(datagrid2.col)==""){
+								rowStatus(datagrid2);
+								return;
+							}
+							if(datagrid2.col == datagrid2.colRef("remk")){
+								datagrid2.dispatch("onbuttonclick");
+							}
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							if(datagrid2.col == datagrid2.colRef("vaca_cd")){
+								for(var i=1; i<=(datagrid2.rows-datagrid2.fixedRows); i++){
+									if(datagrid2.row==i) continue;
+									if(datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("vaca_cd")) == datagrid2.valueMatrix(i,datagrid2.colRef("vaca_cd"))){
+										alert("중복된 휴가코드 선택값이 존재합니다.");
+										datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("vaca_cd")) = "";
+										datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("remk")) = "";
+										datagrid2.rowStatus(datagrid2.row) = "1";	//상태값을 "1"로 바꿔줘야 행저장, 삭제시 사라짐.
+										return;
+									}
+								}
+							}
+						]]>
+					</script>
+					<script type="javascript" ev:event="onbuttonclick">
+						<![CDATA[
+							if(datagrid2.col == datagrid2.colRef("remk")){
+								model1.removenode("/root/reqData/fwdData");
+								model1.makeNode("/root/reqData/fwdData");
+								model1.makeNode("/root/reqData/fwdData/maintitle");
+								model1.makeNode("/root/reqData/fwdData/remk");
+								model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+								model1.makeNode("/root/reqData/fwdData/maxlength");
+								model1.makeNode("/root/reqData/fwdData/func_nm");
+								model1.setValue("/root/reqData/fwdData/maintitle","휴가정보 비고");
+								model1.setValue("/root/reqData/fwdData/remk",datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("remk")));
+								model1.setValue("/root/reqData/fwdData/maxlength", "5000");
+								model1.setValue("/root/reqData/fwdData/func_nm","setRemk2");
+								window.load("/xrw/hd/evlu/HD_EVLU_1010.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+							}
+						]]>
+					</script>
+				</datagrid>
+				<button id="button8" class="btn_grid03" style="left:360px; top:9px; width:53px; height:17px; ">
+					<caption>행추가</caption>
+					<script type="javascript" ev:event="DOMActivate">
+						<![CDATA[
+							datagrid2.addItem();
+						]]>
+					</script>
+				</button>
+				<caption id="caption7" style="left:315px; top:202px; width:100px; height:20px; text-align:right; "/>
+			</case>
+		</switch>
+		<output id="output1" ref="/root/reqData/reqForm/evlu_excl_daycnt" style="left:214px; top:67px; width:30px; height:18px; text-align:center; "/>
+		<caption id="caption1" style="left:198px; top:68px; width:11px; height:20px; ">/</caption>
+	</xhtml:body>
+</xhtml:html>

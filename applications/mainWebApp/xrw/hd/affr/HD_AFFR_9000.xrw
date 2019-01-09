@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>증명서 발급신청</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<dataSet>
+							<xx_mm_clos_yn/>
+							<xx_prvmm_clos_yn/>
+							<xx_emp_no_010/>
+						</dataSet>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<basi_dt/>
+							<use_yn/>
+							<mm_issu_tms/>
+						</searchData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<emp_no/>
+							<nm_korn/>
+							<dept_name/>
+							<dty_name/>
+							<posi_name/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				
+				function CurTab(fID, fName, fBool){
+					this.id = fID;
+					this.name = fName;
+					this.status = fBool;
+				}
+				
+				function setDate(num){
+					var basi_dt  ;
+						basi_dt  =  model1.getValue("/root/reqData/searchData/basi_dt" );
+						use_yn  = model1.getValue("/root/reqData/searchData/use_yn");
+						
+						
+						if(num == "1") 
+						{
+							iv1.window.javascript.loadData(basi_dt, use_yn);
+						}
+						else if(num == "2") 
+						{
+							iv2.window.javascript.loadData(basi_dt, use_yn);
+						}
+						else if(num == "3") 
+						{
+							iv3.window.javascript.loadData(basi_dt, use_yn);
+						}
+						else if(num == "4") 
+						{
+							iv4.window.javascript.loadData(basi_dt, use_yn);
+						}
+						else if(num == "5") 
+						{
+							iv5.window.javascript.loadData(basi_dt);
+						}
+						else 
+						{
+							iv1.window.javascript.loadData(basi_dt, use_yn);
+							iv2.window.javascript.loadData(basi_dt, use_yn);
+							iv3.window.javascript.loadData(basi_dt, use_yn);
+							iv4.window.javascript.loadData(basi_dt, use_yn);
+						}
+					
+						
+						model1.refresh();
+				}
+				
+				function getCurTab_id(){
+//					alert(this.id);
+					return this.id;
+				}
+					
+				function DateDemo()
+				{
+					var s="";
+					var now_date = new Date();
+					var year = now_date.getYear();
+					var month = now_date.getMonth() + 1;
+					var day = now_date.getDate();    
+					var month_tm = '0' + month;
+				    
+					if(month_tm.length == 3){
+						month_tm = month_tm.substring(1, 2);
+					}
+					
+					dt = year + month_tm ;
+					return(dt);
+				}
+				
+				function  changeBtn() 
+				{
+					
+					if(model1.getValue("/root/initData/dataSet/xx_mm_clos_yn") == "N" && model1.getValue("/root/initData/dataSet/xx_prvmm_clos_yn") == "Y" ) // 기준월이 마감전이고 , 전월이 마감일때 
+					{
+						button1.disabled = false; // 전월내역복사 
+						button2.disabled = false; // 마감 
+						button3.disabled = true;  // 마감취소 
+						
+						model1.setValue("/root/reqData/searchData/use_yn", "Y");  //자식창의 저장,삭제 버튼 제어 
+					}
+					else if (model1.getValue("/root/initData/dataSet/xx_mm_clos_yn") == "Y" && model1.getValue("/root/initData/dataSet/xx_prvmm_clos_yn") == "Y" ) 
+					{
+						button1.disabled = true; // 전월내역복사 
+						button2.disabled = true; // 마감 
+						button3.disabled = false;  // 마감취소 
+						
+						model1.setValue("/root/reqData/searchData/use_yn", "N");  //자식창의 저장,삭제 버튼 제어 
+					}
+					else 
+					{
+						button1.disabled = true; // 전월내역복사 
+						button2.disabled = true; // 마감 
+						button3.disabled = true;  // 마감취소 
+						
+						model1.setValue("/root/reqData/searchData/use_yn", "N");  //자식창의 저장,삭제 버튼 제어 
+					}
+
+					
+					model1.refresh();
+				}
+				
+				function setLoad()
+				{
+					
+					model1.setValue("/root/reqData/searchData/basi_dt", input1.value); 
+			 	
+				    model1.send("hd_affr_9000");
+					//model1.copyNode("/root/resData/resForm","/root/tempData");
+					model1.refresh();
+					var obj = htmldocument.SessionInfo;
+					
+					var pattern = ","+obj.emp_no.value+",";
+					//var pattern = ","+"199049"+",";
+					var validation  = (","+model.getValue("/root/initData/dataSet/xx_emp_no_010")+",").indexOf(pattern)>-1;
+					
+					if(validation){ 	
+						changeBtn() ;
+					}
+					tab1.dispatch("onclick");
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "사내외 신문 잡지관리";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					
+					
+					input1.value =  DateDemo();
+					 setLoad();
+				
+					tab1.dispatch("onclick");
+					
+				]]>
+			</script>
+			<submission id="hd_affr_9003" action="/hd/affr/9003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_9002" action="/hd/affr/9002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_9001" action="/hd/affr/9001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_9000" action="/hd/affr/9000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/initData/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="760" guideline="2,720;1,302;" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:71px; width:926px; height:27px; ">
+			<caption id="caption4" class="list_cap02" style="left:85px; top:0px; width:840px; height:26px; text-align:center; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:95px; height:26px; text-align:center; ">기준월</caption>
+			<input id="input1" ref="/root/reqData/searchData/basi_dt" inputtype="date" format="yyyy-mm" style="left:100px; top:4px; width:140px; height:18px; text-align:center; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						setLoad();
+						setDate();
+					]]>
+				</script>
+			</input>
+			<caption id="caption2" class="list_cap01" style="left:623px; top:0px; width:95px; height:26px; text-align:center; ">마감여부</caption>
+			<caption id="caption3" ref="/root/initData/dataSet/xx_mm_clos_yn" style="left:723px; top:3px; width:100px; height:20px; "/>
+			<caption id="caption5" class="list_cap01" style="left:318px; top:0px; width:95px; height:26px; text-align:center; ">주간지발행횟수</caption>
+			<input id="input2" ref="/root/reqData/searchData/mm_issu_tms" format="#,###" style="left:418px; top:4px; width:80px; height:18px; "/>
+		</group>
+		<button id="tab2" class="tab07" group="tab" selected="true" style="left:128px; top:105px; width:120px; height:23px; ">
+			<caption>사내지(타지)</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case2");
+					CurTab("iv2", "case2", true);
+					iv2.window.javascript.searchList();
+					model.refresh();
+				]]>
+			</script>
+			<hint>
+				<![CDATA[증명서발급이력조회]]>
+			</hint>
+		</button>
+		<button id="tab1" class="tab07" group="tab" style="left:10px; top:105px; width:120px; height:23px; ">
+			<caption>사내지(본지)</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case1");
+					CurTab("iv1", "case1", true);
+					model.refresh();
+					iv1.window.javascript.searchList();
+				]]>
+			</script>
+			<hint>
+				<![CDATA[증명서발급신청]]>
+			</hint>
+		</button>
+		<switch id="switch1" style="left:10px; top:127px; width:926px; height:593px; ">
+			<case id="case1" scroll="none" selected="true">
+				<iviewer id="iv1" src="/xrw/hd/affr/HD_AFFR_9010.xrw" overflow="hidden" scroll="none" style="left:0px; top:0px; width:100.00%; height:100%; "/>
+			</case>
+			<case id="case2" scroll="none">
+				<iviewer id="iv2" src="/xrw/hd/affr/HD_AFFR_9020.xrw" overflow="hidden" scroll="none" style="left:0px; top:0%; width:100%; height:100%; "/>
+			</case>
+			<case id="case3" scroll="none">
+				<iviewer id="iv3" src="/xrw/hd/affr/HD_AFFR_9030.xrw" overflow="hidden" scroll="none" style="left:0px; top:0%; width:100%; height:100%; "/>
+			</case>
+			<case id="case4" scroll="none">
+				<iviewer id="iv4" src="/xrw/hd/affr/HD_AFFR_9040.xrw" overflow="hidden" scroll="none" style="left:0px; top:0%; width:100%; height:100%; "/>
+			</case>
+			<case id="case5" scroll="none">
+				<iviewer id="iv5" src="/xrw/hd/affr/HD_AFFR_9050.xrw" overflow="hidden" scroll="none" style="left:0px; top:0%; width:100%; height:100%; "/>
+			</case>
+		</switch>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:42px; width:926px; height:21px; ">
+			<button id="button2" class="btn02" disabled="true" visibility="visible" style="left:742px; top:0px; width:52px; height:21px; ">
+				<caption>마감</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var basi_dt = model1.getValue("/root/reqData/searchData/basi_dt");
+						var mm_clos_yn = model1.getValue("/root/initData/dataSet/xx_mm_clos_yn");
+						var prvmm_clos_yn = model1.getValue("/root/initData/dataSet/xx_prvmm_clos_yn");
+						
+						
+						if (basi_dt == ""){
+							alert("기준월을 입력해주세요");
+							return;
+						}
+						
+						if (prvmm_clos_yn != "Y"){
+							alert("전월이 마감되지 않았습니다. 전월 마감 후 이용 바랍니다.");
+							return;
+						}
+
+						
+						if (mm_clos_yn == "Y"){
+							alert("이미 마감된 기준월 입니다. 마감취소 후 이용바랍니다.");
+							return;
+						}
+						
+					    if (window.alert("마감 하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}			
+						model1.send("hd_affr_9002");
+						
+						if(submit_completed()) {
+							setLoad();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+				 	if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn06" disabled="true" style="left:644px; top:0px; width:94px; height:21px; ">
+				<caption>전월내역복사</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var basi_dt = model1.getValue("/root/reqData/searchData/basi_dt");
+						var mm_clos_yn = model1.getValue("/root/initData/dataSet/xx_mm_clos_yn");
+						var prvmm_clos_yn = model1.getValue("/root/initData/dataSet/xx_prvmm_clos_yn");
+						var mm_issu_tms = model1.getValue("/root/reqData/searchData/mm_issu_tms");
+						
+						
+						if (basi_dt == ""){
+							alert("기준월을 입력해주세요");
+							return;
+						}
+						
+						if (prvmm_clos_yn != "Y"){
+							alert("전월이 마감되지 않았습니다. 전월 마감 후 이용 바랍니다.");
+							return;
+						}
+
+						
+						if (mm_clos_yn == "Y"){
+							alert("이미 마감된 기준월 입니다. 마감취소 후 이용바랍니다.");
+							return;
+						}
+						
+						if (mm_issu_tms == ""){
+							alert("월간발행횟수를  입력해주세요.");
+							return;
+						}
+						
+					    if (window.alert("기준월에 입력된 데이터가 삭제 후 복사됩니다. 진행 하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}			
+						
+						
+						
+						model1.send("hd_affr_9001");
+						
+						if(submit_completed()) {
+							setLoad();
+						}
+				
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn04" disabled="true" visibility="visible" style="left:798px; top:0px; width:68px; height:21px; ">
+				<caption>마감취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var basi_dt = model1.getValue("/root/reqData/searchData/basi_dt");
+						var mm_clos_yn = model1.getValue("/root/initData/dataSet/xx_mm_clos_yn");
+						
+						
+						if (basi_dt == ""){
+							alert("기준월을 입력해주세요");
+							return;
+						}
+						
+						if (mm_clos_yn == "N"){
+							alert("이미 마감 취소된 기준월 입니다. ");
+							return;
+						}
+						
+					    if (window.alert("마감취소 하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}			
+						model1.send("hd_affr_9003");
+						
+						if(submit_completed()) {
+							setLoad();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<button id="tab3" class="tab07" group="tab" selected="true" style="left:246px; top:105px; width:120px; height:23px; ">
+			<caption>기증지</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case3");
+					CurTab("iv3", "case3", true);
+					iv3.window.javascript.searchList();
+					model.refresh();
+				]]>
+			</script>
+			<hint>
+				<![CDATA[증명서발급이력조회]]>
+			</hint>
+		</button>
+		<button id="tab4" class="tab07" group="tab" selected="true" style="left:364px; top:105px; width:118px; height:23px; ">
+			<caption>잡지</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case4");
+					CurTab("iv4", "case4", true);
+					
+					iv4.window.javascript.searchList();
+					model.refresh();
+				]]>
+			</script>
+			<hint>
+				<![CDATA[증명서발급이력조회]]>
+			</hint>
+		</button>
+		<button id="tab5" class="tab07" group="tab" selected="true" style="left:482px; top:105px; width:118px; height:23px; ">
+			<caption>구독료</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case5");
+					CurTab("iv5", "case5", true);
+					
+					iv5.window.javascript.searchList();
+					model.refresh();
+				]]>
+			</script>
+			<hint>
+				<![CDATA[증명서발급이력조회]]>
+			</hint>
+		</button>
+	</xhtml:body>
+</xhtml:html>

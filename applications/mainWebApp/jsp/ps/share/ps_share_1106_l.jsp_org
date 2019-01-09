@@ -1,0 +1,94 @@
+<%@ page contentType="text/html; charset=KSC5601" %>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_share_1106_l.jsp
+* 기능 : 정보공유 일정 리스트 가져오기
+* 작성일자 : 2004-02-23
+* 작성자 : 전현표
+---------------------------------------------------------------------------------------------------%>
+
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%-- dataset 인스턴스 선언부분--%>
+<%
+    PS_L_TACOM_SCHEDataSet ds = (PS_L_TACOM_SCHEDataSet)request.getAttribute("ds");    // request dataset
+    int moveListCount = 10;	// 한 화면당 리스트 항목 수
+%>
+
+      <!--IFRAME ID=TACOM_SCHE_LIST START------------------------------------------------------------------------->
+      <table border="0" cellspacing="0" cellpadding="0" id="tacom_sche_list">
+      <tr><td>
+      <table width="830" border="0" cellspacing="0" cellpadding="1" class="gray" bgcolor="#FFFFFF">
+	   <form name="tacom_sche_list_form" method="post" action="">
+		<input type="hidden" name="cmpycd">
+		<input type="hidden" name="frdt">
+		<input type="hidden" name="todt">
+        <tr bgcolor="#dddddd" align="center">
+          <td class="gray" width="70" > 시작일자 </td>
+          <td class="gray" width="70" > 종료일자 </td>
+          <td class="gray" width="650" > 설명 </td>
+        </tr>
+    <%-- 정보공유 리스트 가져 오는 부분--%>
+    <%
+    for(int i=0 ; i< ds.curcommlist.size(); i++) {
+        PS_L_TACOM_SCHECURCOMMLISTRecord rec = (PS_L_TACOM_SCHECURCOMMLISTRecord)ds.curcommlist.get(i);
+    %>
+        <tr onClick="tacom_sche_view('<%=rec.getSeq()%>');" onmouseover="this.style.backgroundColor='#EDFFF1'" onmouseout="this.style.backgroundColor=''" style="cursor:hand;">
+          <td class="gray" width="70" align="center" >&nbsp; <%=Util.Timestamp2Str(rec.getFrdt())%> </td>
+          <td class="gray" width="70" align="center" >&nbsp; <%=Util.Timestamp2Str(rec.getTodt())%> </td>
+          <td class="gray" width="650" >&nbsp; <%=Util.checkString(rec.getRemk())%></td>
+        </tr>
+    <%}%>
+    <%-- 화면당 보여줄 항목이 적을 경우 빈 항목 출력 시작 --%>
+    <%for(int i=0; i<(moveListCount-ds.curcommlist.size()); i++){%>
+        <tr>
+          <td class="gray" width="70" align="center" >&nbsp;</td>
+          <td class="gray" width="70" align="center" >&nbsp;</td>
+          <td class="gray" width="650" >&nbsp;</td>
+        </tr>
+    <%}%>
+        <%-- 초기화면 목록 반복 끝 --%>
+        <tr bgcolor="#dddddd" align="right">
+          <td colspan="7" height="23" class="gray"> <img src="/html/comm_img/ic_arr06.gif" width="7" height="7">총건수
+            <b><%=ds.getTotalcnt()%> </b>건</td>
+        </tr>
+      </table>
+      <!---button-->
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2">
+        <tr>
+          <td align="center" height="2" colspan="7">
+            <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td align="center" height="24" bgcolor="#E8E8E8" colspan="7">
+		    <!--JSP PAGE START---------------------------------------------------------------------------------->
+		    <%
+		        String curr_page_no = request.getParameter("curr_page_no");
+	        	String records_per_page = request.getParameter("records_per_page");
+		        String total_records = String.valueOf(ds.getTotalcnt());
+		        String js_fn_nm = request.getParameter("js_fn_nm");
+		    %>
+		    <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+		    <jsp:param name = "curr_page_no" 		value="<%=curr_page_no%>"/>
+		    <jsp:param name = "total_records" 		value="<%=ds.getTotalcnt()%>"/>
+		    <jsp:param name = "js_fn_nm" 			value="<%=js_fn_nm%>"/>
+		    <jsp:param name = "records_per_page" 	value="<%=records_per_page%>"/>
+		    <jsp:param name = "page_set_gubun" 		value="0"/>
+		    </jsp:include>
+		    <!--JSP PAGE END------------------------------------------------------------------------------------>
+        </tr>
+      </form>
+      </table>
+      </td></tr>
+      </table>
+      <!--IFRAME ID=TACOM_SCHE_LIST END--------------------------------------------------------------------------->
+
+
+<script>
+    parent.document.all.tacom_sche_list.outerHTML = tacom_sche_list.outerHTML;
+</script>

@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<sect_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</sect_cd>
+						</comboSet>
+					</initData>
+					<reqData>
+						<searchData>
+							<issu_dt/>
+							<fac_clsf/>
+							<clos/>
+						</searchData>
+						<clos/>
+						<searchWgt>
+							<rem_length/>
+						</searchWgt>
+						<multi>
+							<multiUpData/>
+							<issu_dt/>
+							<fac_clsf/>
+						</multi>
+						<add>
+							<medi_cd/>
+							<sect_cd/>
+						</add>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<medi_cd/>
+								<medi_nm/>
+								<sect_cd/>
+								<sect_nm/>
+								<cdnm/>
+								<rem_qunt/>
+								<cnt/>
+								<wgt/>
+								<mang_cd_1/>
+								<occr_dt/>
+								<pj_kind/>
+								<seq/>
+							</record>
+						</gridData>
+						<resForm>
+							<temp/>
+						</resForm>
+						<initData>
+							<record>
+								<cdnm/>
+								<rem_qunt/>
+								<cnt/>
+								<wgt/>
+								<mang_cd_1/>
+								<seq/>
+								<occr_dt/>
+								<pj_kind/>
+							</record>
+						</initData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[             
+					function setInitData( issu_dt , fac_clsf , magam_yn){
+				        		model1.setValue("/root/reqData/searchData/issu_dt",  issu_dt);
+				        		model1.setValue("/root/reqData/searchData/fac_clsf", fac_clsf);
+				        		model1.setValue("/root/reqData/searchData/clos",      magam_yn);
+				        }
+				        
+					//   
+					function load() {
+						datagrid1.isReadOnly(1,1,datagrid1.rows- 1,datagrid1.cols-1) = true;
+						
+					}
+					function setInitData( issu_dt , fac_clsf , magam_yn ){
+				        	
+				        		model1.setValue("/root/reqData/searchData/issu_dt",  issu_dt);
+				        		model1.setValue("/root/reqData/searchData/fac_clsf",  fac_clsf);
+				        		model1.setValue("/root/reqData/searchData/clos",      magam_yn);
+				        		
+				       			var node = instance1.selectNodes("/root/resData/gridData");
+				       			node.reset();
+							datagrid1.refresh();
+							
+							model1.copyNode("/root/resData/gridData" , "/root/resData/resForm/temp");
+							datagrid1.refresh();
+							
+							var magam = model1.getValue("/root/reqData/searchData/clos");
+ 						 
+	 						if( magam == '00' ){  // 마감 안된 데이터 
+	 							  datagrid1.isReadOnly(1, 1, datagrid1.rows-1 , datagrid1.cols-1) = false;
+	 							 
+	 						}
+	 						else { // 01 공장 마감  02 자재 마감 처리 
+	 							  datagrid1.isReadOnly(1, 1, datagrid1.rows-1 , datagrid1.cols-1) = true;
+	 						}
+	 						
+	 						 for( var i = 1 ; i < datagrid1.rows; i++){
+									rowStateset(i);
+							 }
+				        }
+				        
+				 
+				// 조회 
+//				function funSearch(issu_dt){
+//					
+//					datagrid1.clearStatus();
+//					if (issu_dt == ""){
+//						alert("발행일자를 입력하세요.");
+//						return;
+//					}
+//					model1.setValue("/root/reqData/searchData/issu_dt",issu_dt);
+//					model1.send("mt_prnpap_3500_L");
+//					model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+//					
+//					datagrid1.refresh();
+//					
+////					for(var i=1; i < datagrid1.rows; i++) {
+////						for(var j=4; j <=5; j++) {
+////							datagrid1.isReadOnly(i,j) = false;
+////						}
+////					}
+//					
+//					if (model1.getValue("/root/reqData/clos") == "true"){ // 마감된 데이터 
+//					
+//						for(var i=1; i < datagrid1.rows; i++) {
+//							for(var j=6; j <=7; j++) {
+//								datagrid1.isReadOnly(i,j) = true;
+//							}
+//						}
+//						
+//					}else{	// 마감안된 데이터 
+//					
+//						for(var i=1; i < datagrid1.rows; i++) {		
+//							datagrid1.isReadOnly(i,6) = false;
+//							for(var j=1; j <= datagrid1.cols; j++) {  								
+//							 	
+//							 	if(j == 9 && datagrid1.valueMatrix(i, 9) != "Y"){  // Y가 아니면 개수입력불가
+//
+//									datagrid1.isReadOnly(i,7) = true;
+//								//}else{
+//									
+//								}
+//							} // j end
+//						} // i end
+//					}					
+//
+//					datagrid1.refresh();
+//
+//
+//				}
+//				// 초기화
+//				function funReset() {
+//					var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+//					//var issu_dt = model1.getValue("/root/reqData/searchData/issu_dt");
+//					model1.reset();	
+//					datagrid1.clearStatus();		
+//
+//					datagrid1.deleteRow((datagrid1.rows-1));
+//					load();
+//					model1.setValue("/root/reqData/searchData/fac_clsf",fac_clsf);
+//					//model1.setValue("/root/reqData/searchData/issu_dt",issu_dt);
+//					model1.setValue("/root/reqData/multi/fac_clsf", model1.getValue( "/root/reqData/searchData/fac_clsf"));
+//					model1.setValue("/root/reqData/multi/issu_dt", model1.getValue( "/root/reqData/searchData/issu_dt"));
+//
+//				}
+				function funReset() {
+						model1.reset();
+						datagrid1.clearStatus();
+						load();
+				}
+				function wgt2(iSelectedCol, iSelectedRow){
+					var rem_length = datagrid1.valueMatrix(iSelectedRow, 5);
+					var cd	= datagrid1.valueMatrix(iSelectedRow, 4);
+					cd = cd.substring(0,1);
+					//alert(cd);
+					model1.setValue("/root/reqData/searchWgt/rem_length",rem_length);
+					model1.send("mt_prnpap_3202_M");					
+					var wgt =  eval(model1.getValue("/root/tempData/wgt"));
+					
+					if (cd == 4){
+						wgt = wgt / 2;
+					} else if (cd == 6){
+						wgt = wgt * (3/4);
+					}
+					var wgt2 = wgt * eval(datagrid1.valueMatrix(iSelectedRow, 6));
+
+					datagrid1.valueMatrix(iSelectedRow,7 ) = wgt2;
+					datagrid1.refresh();
+				}
+				
+				function addRow() {
+
+					//var selectedIdx = datagrid1.rows-1 ; 
+					
+					// 매체와 섹션의 값이 모두 있을때 
+					if(combo1.value !="" && combo2.value != "" || combo1.value == "110" ) {
+						
+						var initLength = model1.getValue("/root/resData/initData/totalcnt");
+						
+						for (var i=1 ; i <= initLength ; i++){
+
+							// 조회된 데이터가 없으면 
+							if(datagrid1.valueMatrix(i, 10) == ""){ // seq가 없으면
+
+								if(datagrid1.rows <=  6){
+									datagrid1.addRow(true, true);
+								}
+								
+								model1.setValue("/root/resData/gridData/record["+i+"]/medi_cd_1", combo1.label);
+								model1.setValue("/root/resData/gridData/record["+i+"]/medi_cd", combo1.value);
+								model1.setValue("/root/resData/gridData/record["+i+"]/sect_cd_1", combo2.label);
+								model1.setValue("/root/resData/gridData/record["+i+"]/sect_cd", combo2.value);
+								model1.setValue("/root/resData/gridData/record["+i+"]/cdnm", model1.getValue("/root/resData/initData/record["+i+"]/cdnm"));	
+								model1.setValue("/root/resData/gridData/record["+i+"]/pj_kind", model1.getValue("/root/resData/initData/record["+i+"]/pj_kind"));	
+								model1.setValue("/root/resData/gridData/record["+i+"]/mang_cd_1", model1.getValue("/root/resData/initData/record["+i+"]/mang_cd_1"));	
+								datagrid1.addStatus(i, "insert");	
+								
+							}else{
+								
+								datagrid1.addRow(true, true);
+								var row = datagrid1.rows-1;
+								model1.setValue("/root/resData/gridData/record["+row+"]/medi_cd_1", combo1.label);
+								model1.setValue("/root/resData/gridData/record["+row+"]/sect_cd_1", combo2.label);
+								model1.setValue("/root/resData/gridData/record["+row+"]/medi_cd", combo1.value);
+								model1.setValue("/root/resData/gridData/record["+row+"]/sect_cd", combo2.value);
+								model1.setValue("/root/resData/gridData/record["+row+"]/cdnm", model1.getValue("/root/resData/initData/record["+i+"]/cdnm"));	
+								model1.setValue("/root/resData/gridData/record["+row+"]/pj_kind", model1.getValue("/root/resData/initData/record["+i+"]/pj_kind"));	
+								model1.setValue("/root/resData/gridData/record["+row+"]/mang_cd_1", model1.getValue("/root/resData/initData/record["+i+"]/mang_cd_1"));	
+								datagrid1.addStatus(row, "insert");	
+							}
+						}
+						
+						var be_row = datagrid1.rows-1;
+
+						for(var i=be_row; i < datagrid1.rows; i++) {		
+
+							for(var j=1; j <= datagrid1.cols; j++) {  								
+							 	
+							 	if(j==7 && datagrid1.valueMatrix(i, 7) != "Y"){  // Y 가 아니면 개수입력불가 
+							
+									datagrid1.isReadOnly(i,7) = true;
+						
+								}
+							} // j end
+						} // i end
+						datagrid1.refresh();
+						
+					} else {
+						alert("섹션코드를 입력해주세요.");
+						return;
+					}
+				}
+				function  rowStateset(row){
+					var dataValue = datagrid1.valueMatrix(row ,  8);
+					var magam = model1.getValue("/root/reqData/searchData/clos");
+					
+					if( dataValue == 'Y' ){
+					     if( magam == '00') {
+					              //datagrid1.isReadOnly(row,7) = true;
+					     }
+                              //datagrid1.cellStyle("background-color", row, 7) = "#c0c0c0";
+                         }else {
+                              if( magam == '00') {
+                                    datagrid1.isReadOnly(row, 5, row, 6) = true;
+                              }
+                              datagrid1.cellStyle("background-color", row, 5, row, 6) = "#c0c0c0";
+                        }
+					
+				}
+			]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<submission id="mt_prnpap_3500" action="/mt/prnpap/3500" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3202_M" action="/mt/prnpap/3202" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchWgt" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3501_A" action="/mt/prnpap/3501" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3502_M" action="/mt/prnpap/3502" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body pagewidth="925" pageheight="400" guideline="1,9;2,391;2,58;1,908;1,-18;2,-5;">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:165px; width:0px; height:0px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="매체^매체^섹션^섹션^파지종류^수치/잔량^개수^중량^mang_cd_1^occr_dt^seq" colsep="#" colwidth="100, 100, 100, 100, 120, 170, 170, 165, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="free" style="left:9px; top:43px; width:899px; height:260px; text-align:center; ">
+			<col ref="medi_cd" visibility="hidden" style="left:20px; top:20px; width:100px; height:20px; "/>
+			<col ref="medi_nm"/>
+			<col ref="sect_cd" visibility="hidden"/>
+			<col ref="sect_nm"/>
+			<col ref="cdnm" style="text-align:center; "/>
+			<col ref="rem_qunt" type="input" format="#,###.##" style="text-align:right; "/>
+			<col ref="cnt" type="input" style="text-align:right; "/>
+			<col ref="wgt" type="input" style="text-align:right; "/>
+			<col ref="mang_cd_1" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="onendedit">
+				<![CDATA[
+					
+					var iSelectedCol = datagrid1.col;
+					var iSelectedRow = datagrid1.row;
+					
+					
+					if(iSelectedCol== 5 || iSelectedCol== 6){ // 수치/잔량 입력시
+							var data1 =datagrid1.valueMatrix(iSelectedRow, 5 );
+							var data2 =datagrid1.valueMatrix(iSelectedRow, 6 );
+							
+							if( data1 == '' || data2 == '' ){
+								data1 =  ( data1 == '' ) ? 0 : data1;
+								data2 =  ( data2 == '' ) ? 0 : data2;
+								
+								datagrid1.valueMatrix( iSelectedRow , 7 ) = Number(data1) + Number(data2);
+							}
+							else {
+							 	wgt2(iSelectedCol, iSelectedRow);
+							}
+					}
+					
+				]]>
+			</script>
+		</datagrid>
+		<button id="button1" class="btn02" style="left:855px; top:9px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( model1.getValue("/root/reqData/searchData/fac_clsf") == ''  || model1.getValue("/root/reqData/searchData/issu_dt") == '' ){
+				       		alert("조회 후 입력 해주세요");
+				       		return;
+				       }
+				       
+					if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+						alert(" 마감된 데이터입니다. \n 저장 할 수 없습니다.");
+						return;
+					}
+					 
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+							return;
+					}
+					
+					var multiUpData= "gubun#occr_dt#seq#medi_cd#sect_cd#pj_kind#rem_qunt#cnt#wgt";
+					
+					
+					for ( var i = 1 ; i < datagrid1.rows; i++){
+							var muliRowData = "";
+							var occr_dt = datagrid1.valueMatrix( i , 9 ) ;
+							var seq     =  datagrid1.valueMatrix( i , 10 ) ;
+							var gubun  =  ( occr_dt == '' ) ? 'i' : 'u';
+							var medi_cd = datagrid1.valueMatrix( i , 0 ) ;
+							var sect_cd  = datagrid1.valueMatrix( i , 2 ) ;
+							//alert(datagrid1.valueMatrix( i , 4 ) + "@@" + datagrid1.valueMatrix( i , 4 ).substr(0, 1 ));
+							var pj_kind = datagrid1.valueMatrix( i , 4 ).substr(0, 1 ) ;
+							var rem_qunt =   ( datagrid1.valueMatrix( i , 5) == '' ) ? '0' :  datagrid1.valueMatrix( i , 5);
+							var cnt          =   ( datagrid1.valueMatrix( i , 6) == '' ) ? '0' :  datagrid1.valueMatrix( i , 6);
+							var wgt         =   ( datagrid1.valueMatrix( i , 7) == '' ) ? '0' :  datagrid1.valueMatrix( i , 7);
+							
+							 muliRowData = "|" + gubun + "#" + occr_dt + "#" + seq  + "#" + medi_cd + "#" + sect_cd + "#" + pj_kind + "#" + rem_qunt + "#" + cnt + "#" + wgt;
+							 
+							 multiUpData = multiUpData + muliRowData;
+					}
+					 
+					model1.makeNode("/root/reqData/searchData/multiUpData");
+					model1.setValue("/root/reqData/searchData/multiUpData", multiUpData);
+					
+					model1.send("mt_prnpap_3501_A");						
+					if(submit_completed()) {							
+						model1.destroy("/root/reqData/searchData/multiUpData" );
+						
+						parent.window.javascript.funbtnSearch(2);
+					}
+					model1.destroy("/root/reqData/searchData/multiUpData" );	
+
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" style="left:15px; top:20px; width:144px; height:20px; ">
+			<![CDATA[>> 파지종류별 금액]]>
+		</caption>
+	</xhtml:body>
+</xhtml:html>

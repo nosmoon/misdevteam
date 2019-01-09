@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<codeData/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<naviInfo>
+							<pageno>0</pageno>
+							<totalcnt>0</totalcnt>
+							<js_fn_nm>page_move</js_fn_nm>
+							<pagesize/>
+							<page_set_gubun>0</page_set_gubun>
+						</naviInfo>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<searchForm>
+								<js_fn_nm>page_move</js_fn_nm>
+								<pageno>1</pageno>
+								<pagesize/>
+								<rdrnm/>
+								<addr3/>
+								<rdrtel_no1/>
+								<rdrtel_no2/>
+								<rdrtel_no3/>
+								<rdr_no/>
+								<onlmembid/>
+							</searchForm>
+							<listForm>
+								<rdr_no/>
+								<bocd/>
+							</listForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<bocd/>
+									<bonm/>
+									<tel_no11/>
+									<tel_no12/>
+									<tel_no13/>
+									<rdr_no/>
+									<rdrnm/>
+									<rdrtel_no1/>
+									<rdrtel_no2/>
+									<rdrtel_no3/>
+									<dlvaddr/>
+									<dlvdtlsaddr/>
+									<dlvqty/>
+									<!--added-->
+									<rdrtel/>
+									<tel/>
+									<addr/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+			<submission id="PID1000subInit" action="/ss/reader/1000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1000subSearch" action="/ss/reader/1005" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/searchForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				model.send("PID1000subInit", false);
+				
+				//기타 데이터 셋팅
+				modelCopyValue("/root/reqData/reqform/searchForm/pagesize", 		"/root/tempData/resTemp/pagesize");
+				modelCopyValue("/root/initData/naviInfo/pagesize", 					"/root/tempData/resTemp/pagesize");
+				
+				model.setFocus("PID1000input1");
+			}
+			
+			function search()
+			{
+				if(!commValidate(PID1000group2))
+					return;
+					
+				if(PID1000input1.value == "" &&
+				   PID1000input3.value == "" &&
+				   PID1000input4.value == "" &&
+				   PID1000input5.value == "" &&
+				   PID1000input6.value == "")
+				{
+					model.alert("독자번호, 이름, 전화번호 중 적어도 하나는 입력해야 합니다.");
+					return;
+				}
+				
+				if((PID1000input3.value  != '') && ((PID1000input4.value == '') || (PID1000input5.value == '')) ||
+				   (PID1000input4.value != '') && ((PID1000input3.value == '') || (PID1000input5.value == '')) ||
+				   (PID1000input5.value != '') && ((PID1000input3.value == '') || (PID1000input4.value == '')))
+				{
+					model.alert("전화번호 검색은 모든 전화번호를 입력해야 합니다.");
+					return;
+				}
+				
+				if(PID1000input1.value != '' && PID1000input1.value.length < 2){
+					model.alert("이름검색은 2글자 이상을 입력해야 합니다.");
+					return;
+				}
+				
+				if( (PID1000input6.value != '') && (PID1000input6.value.length != 9)){
+					model.alert("독자번호는 9자리입니다.");
+					return;
+				}
+				
+				model.setValue("/root/reqData/reqform/searchForm/pageno", "1");
+				
+				//조회
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1000subSearch", false);
+				
+				//데이터셋팅
+				//-조회목록
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+				//-기타
+				modelCopyValue("/root/initData/naviInfo/pageno", "/root/tempData/resTemp/pageno");
+				modelCopyValue("/root/initData/naviInfo/totalcnt", "/root/tempData/resTemp/totalcnt");
+				modelCopyValue("/root/initData/naviInfo/js_fn_nm", "/root/tempData/resTemp/js_fn_nm");
+				modelCopyValue("/root/initData/naviInfo/pagesize", "/root/tempData/resTemp/pagesize");
+				//PID1000caption4.value = "총건수 " + model.getValue("/root/tempData/resTemp/totalcnt_f") + " 건";
+				
+				PID1000datagrid1.refresh();
+				
+				if(instance1.selectNodes("/root/resData/gridData/listGrid/record/rdr_no").length == 0)
+					model.alert("검색결과가 없습니다.");
+				else
+				{
+					//row 별 색깔 변경.
+					var trow = PID1000datagrid1.rows - PID1000datagrid1.fixedRows;
+					var irow = PID1000datagrid1.fixedRows;
+					for(; irow <= trow; irow++)
+					{
+						if(gridRefColValue(PID1000datagrid1, irow, "dlvqty") == 0)
+							PID1000datagrid1.rowStyle(irow, "data", "color") = "#FF0000";
+						else
+							PID1000datagrid1.rowStyle(irow, "data", "color") = "#000000";
+					}
+				}
+					
+				model.removenode("/root/tempData/resTemp");
+			}
+			
+			function page_move(pageno)
+			{
+				//페이징 없음.
+			}
+			
+			function detailVeiwReaderPopup()
+			{
+				gridRowValueCopy("/root/reqData/reqform/listForm", PID1000datagrid1, PID1000datagrid1.row);
+				openReaderDetailView("/root/reqData/reqform/listForm");
+			}
+						
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1000" style="font-family:굴림; ">
+		<!--group id="PID1000group_tab" class="gro_tab1" style="left:10px; top:715px; width:926px; height:25px; ">
+			<caption id="PID1000caption4" style="left:745px; top:0px; width:180px; height:20px; text-align:right; vertical-align:middle; ">총건수  건</caption>
+		</group-->
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:50px; width:926px; height:21px; ">
+			<button id="btnA4" class="btn02" crud="R" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					search();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1000group_line" class="gro_line" style="left:10px; top:110px; width:926px; height:5px; "/>
+		<datagrid id="PID1000datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="독자번호^독자명^독자전화번호^지국명^지국전화번호^주소^모플아이디" colsep="^" colwidth="90, 90, 120, 102, 120, 281, 100, 0, 0" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:115px; width:926px; height:620px; ">
+			<col ref="rdr_no" style="text-align:center; "/>
+			<col ref="rdrnm" style="text-align:left; "/>
+			<col ref="rdrtel" style="text-align:center; "/>
+			<col ref="bonm" style="text-align:left; "/>
+			<col ref="tel" style="text-align:center; "/>
+			<col ref="addr" style="text-align:left; "/>
+			<col ref="onlmembid"/>
+			<col ref="dlvqty" visibility="hidden"/>
+			<col ref="bocd" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(checkNotFixedCell(PID1000datagrid1))
+					{
+						detailVeiwReaderPopup();
+					}
+				}    
+				]]>
+			</script>
+		</datagrid>
+		<!--group id="PID1000group9" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID1000paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group-->
+		<group id="PID1000group2" class="gro_sel" style="left:10px; top:80px; width:926px; height:25px; ">
+			<caption id="PID1000caption10" class="list_cap01" style="left:0px; top:0px; width:60px; height:25px; ">이름</caption>
+			<caption id="PID1000caption11" class="list_cap01" style="left:160px; top:0px; width:60px; height:25px; ">읍/면/동</caption>
+			<caption id="PID1000caption13" class="list_cap01" style="left:335px; top:0px; width:60px; height:25px; ">전화번호</caption>
+			<caption id="PID1000caption14" class="list_cap01" style="left:600px; top:0px; width:60px; height:25px; ">독자번호</caption>
+			<caption id="PID1000caption15" class="list_cap02" style="left:59px; top:0px; width:102px; height:25px; "/>
+			<caption id="PID1000caption16" class="list_cap02" style="left:219px; top:0px; width:117px; height:25px; "/>
+			<caption id="PID1000caption17" class="list_cap02" style="left:394px; top:0px; width:207px; height:25px; "/>
+			<caption id="PID1000caption18" class="list_cap02" style="left:659px; top:0px; width:107px; height:25px; "/>
+			<input id="PID1000input1" ref="/root/reqData/reqform/searchForm/rdrnm" imemode="hangul" style="left:63px; top:4px; width:85px; height:18px; "/>
+			<input id="PID1000input2" ref="/root/reqData/reqform/searchForm/addr3" style="left:224px; top:4px; width:107px; height:18px; "/>
+			<input id="PID1000input3" ref="/root/reqData/reqform/searchForm/rdrtel_no1" format="999" style="left:400px; top:4px; width:50px; height:18px; "/>
+			<input id="PID1000input4" ref="/root/reqData/reqform/searchForm/rdrtel_no2" format="9999" style="left:474px; top:4px; width:50px; height:18px; "/>
+			<input id="PID1000input5" ref="/root/reqData/reqform/searchForm/rdrtel_no3" format="9999" style="left:545px; top:4px; width:50px; height:18px; "/>
+			<input id="PID1000input6" ref="/root/reqData/reqform/searchForm/rdr_no" format="999999999" style="left:664px; top:4px; width:97px; height:18px; "/>
+			<script type="javascript" ev:event="onkeydown">
+				<![CDATA[
+				if(event.keyCode == 13)
+				{
+					model.setFocus("btnA4");
+					search();
+				}
+				]]>
+			</script>
+			<caption id="PID1000caption1" style="left:458px; top:5px; width:10px; height:20px; ">-</caption>
+			<caption id="PID1000caption2" style="left:530px; top:5px; width:10px; height:20px; ">-</caption>
+			<caption id="PID1000caption3" class="list_cap01" style="left:765px; top:0px; width:70px; height:25px; ">모플아이디</caption>
+			<caption id="PID1000caption4" class="list_cap02" style="left:834px; top:0px; width:92px; height:25px; "/>
+			<input id="PID1000input7" ref="/root/reqData/reqform/searchForm/onlmembid" style="left:838px; top:4px; width:84px; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</fac_clsf>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<search_dt_fr/>
+							<search_dt_to/>
+							<list_gbn/>
+							<fac_clsf/>
+							<gbn_data/>
+							<gs_gbn/>
+							<submatr_gbn/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm/>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<selectCnt/>
+							<arvyul/>
+							<pajiyul/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<CURLIST>
+								<record>
+									<dlco_nm/>
+									<matr_nm/>
+									<ewh_qunt/>
+									<ewh_uprc/>
+									<ewh_amt/>
+									<stok/>
+									<safe_stok/>
+									<rest_amt/>
+									<remk/>
+									<unit/>
+									<fac_clsf/>
+									<matr_clas_nm/>
+									<incmg_pers/>
+								</record>
+							</CURLIST>
+						</gridData>
+						<gridData3>
+							<record>
+								<ewh_mm/>
+								<qunt10/>
+								<amt10/>
+								<qunt22/>
+								<amt22/>
+								<qunt25/>
+								<amt25/>
+								<qunttot/>
+								<amttot/>
+							</record>
+						</gridData3>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript">
+				<![CDATA[
+				function date(gubun) {
+				var d = new Date();
+				var rec = "";
+				var brec = "";
+				var mm= "";
+				var dd= "";
+									
+				if(gubun.substring(0,2) == 'BY')
+				{
+					mm = (new Date(d.getYear(),0 ,0)).getMonth() + 1;							
+				}else{
+					if(gubun.substring(0,1) == 'B')
+					{
+						mm = d.getMonth() ;
+					}
+					else{
+						mm = d.getMonth() + 1;
+					}
+				}
+				
+				var ldd = (new Date(d.getYear(),mm ,0)).getDate();
+										
+				rec =  "" + d.getYear();
+				brec =  "" + (new Date(d.getYear(),0 ,0)).getYear();
+				
+				if( d.getDate() < 10 ) dd = "0" + d.getDate();
+				else dd =   d.getDate();
+			
+				if(mm< 10 )  mm = "0" + (mm) ;
+				else if (mm>= 10 )mm = (mm) ;
+				
+				if( gubun == 'FROM'){
+						rec   = rec + mm + "01";
+				}else if ( gubun == 'TO' ) {
+						rec   = rec + mm +   dd;
+				}else if ( gubun == 'BFROM') {
+						rec   = rec + mm +  "01";
+				}else if ( gubun == 'BLAST') {
+						rec   = rec + mm +  ldd;
+				}else if ( gubun == 'BYFROM') {
+						rec   = brec + "0101";
+				}else if ( gubun == 'BYTO') {
+						rec   = brec + "1231";
+				}
+									
+				return rec;
+			 }
+				
+				function TRUNC(arg){
+					  		var data = "" + arg;
+					  		 
+					  		if( data.indexOf(".") == -1 ) {
+					  		} 
+					  		else {
+					  			  data = data.substr( 0 , data.indexOf("."));
+					  		}
+					  		return Number(data);
+				}
+				
+				function setCollValue2(irow, fbool){
+					var tmpPcnt	= 0;
+					var qty		= 0;
+					var pyung		= model.getValue("/root/tempData/arvyul");
+					var pajiyul	= model.getValue("/root/tempData/pajiyul");
+					
+					//for (var i=1; i<datagrid2.rows; i++){
+					datagrid2.rowStatus(irow) = 1;
+					qty = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("slip_qty")));
+					
+					if (datagrid2.valueMatrix(irow, datagrid2.colRef("pap_std")) == "T"){
+						tmpPcnt = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("issu_pcnt"))) / 2;
+					} else {
+						tmpPcnt = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("issu_pcnt")));
+					}
+					
+					if (tmpPcnt == 36){
+						
+						datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * 16) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = Math.round((qty * 12) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+					} else if (tmpPcnt == 40){
+						datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = 0;
+						datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+					} else {
+						datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+					}	
+				}
+				
+				function loadList(){
+					var list_gbn = model1.getValue("/root/reqData/searchData/list_gbn");
+					var gs_gbn = model1.getValue("/root/reqData/searchData/gs_gbn");
+					model1.send("mt_commatr_7110_l");
+					model1.copyNode("/root/resData/gridData/CURLIST","/root/tempData/dataSet/CURLIST");
+					model1.refresh();
+					if( list_gbn == "D"){
+						datagrid1.visible = true;
+						var rowcnt1 = datagrid1.rows - datagrid1.fixedRows;
+				
+						if(rowcnt1 > 0){
+							datagrid1.subtotal("clear", -1, 0,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+							datagrid1.attribute("frozenbottomrows") = 0;
+							
+							datagrid1.subtotalPosition = "below";	
+							for(var i=datagrid1.colRef("ewh_qunt") ; i<datagrid1.cols ; i++){
+//								if(i != 7){ 
+//									datagrid1.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+//								}
+								if(i != 7){
+									if(i != 10){
+										if(i != 8){ 
+											datagrid1.subtotal("sum", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+										}//단가는 출력되지 않도록 20140224
+//										else
+//										{
+//											datagrid1.subtotal("average", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+//										}
+									}
+								}
+		//						
+							}
+							//datagrid1.attribute("frozenbottomrows") = 1;									
+						}
+						 
+					}
+					else{
+						datagrid2.visible = true;
+						if(gs_gbn =="S")
+						{
+							datagrid2.caption = "공장^소모일자^구입월^사업자명^자재분류^품목^적요^소모량^단위^단가^금액(세별도)^등록자";
+						}else
+						{
+							datagrid2.caption = "공장^구입일자^구입월^사업자명^자재분류^품목^적요^구입량^단위^단가^금액(세별도)^등록자";
+						}
+						
+						var rowcnt1 = datagrid2.rows - datagrid2.fixedRows;
+				
+						if(rowcnt1 > 0){
+							datagrid2.subtotal("clear", -1, 0,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+							datagrid2.attribute("frozenbottomrows") = 0;
+							
+							datagrid2.subtotalPosition = "below";	
+							for(var i=datagrid2.colRef("ewh_qunt") ; i<datagrid2.cols ; i++){
+								if(i != 8){
+									if(i != 11){
+										if(i != 9){ 
+											datagrid2.subtotal("sum", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+										}//단가는 출력되지 않도록 20140224
+//										else
+//										{
+//											datagrid2.subtotal("average", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+//										}
+									}
+								}
+		//						
+							}
+							//datagrid1.attribute("frozenbottomrows") = 1;									
+						}
+					}
+					
+					
+					
+					
+				}
+				
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					
+					//combo1.disabled = false;
+					//var todt	=	getCurrentDate();
+					//var frdt	=	dateAdd("m", -1, getCurrentDate());
+					//model.setValue("/root/reqData/searchData/search_dt_fr", frdt);
+					//model.setValue("/root/reqData/searchData/search_dt_to", todt);
+					model.send("mt_commatr_7000_m");		
+					model1.copyNode("/root/initData/comboSet/fac_clsf", "/root/tempData/fact_cd");
+					combo1.refresh();
+					
+					model1.copyNode("/root/reqData/searchData", parent.root.reqData.mdichild);
+					model1.refresh();
+					
+					loadList();	
+					
+				]]>
+			</script>
+			<submission id="mt_commatr_7000_m" action="/mt/commatr/7000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_commatr_7110_l" action="/mt/commatr/7110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="mt_commatr_7111_l" action="/mt/commatr/7111" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="926" pageheight="700" guideline="2,49;2,69;1,907;" style="font-family:굴림; ">
+		<button id="button1" class="btn02" style="left:797px; top:49px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//if(  commReqCheck(group2) == false ) return;
+				
+					loadList();
+				
+				]]>
+			</script>
+		</button>
+		<button id="btnA4" class="btn02" style="left:852px; top:49px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:350px; height:27px; ">사업자 및 자재분류 상세조회</caption>
+		<group id="group2" class="gro_sel" style="left:10px; top:80px; width:897px; height:30px; ">
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:80px; height:24px; text-align:center; ">기간</caption>
+			<caption id="caption5" class="list_cap02" style="left:79px; top:0px; width:818px; height:24px; text-align:center; "/>
+			<caption id="caption35" class="list_cap01" style="left:540px; top:0px; width:80px; height:24px; text-align:center; ">공  장</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/fac_clsf" class="req" appearance="minimal" caption="공장" style="left:625px; top:3px; width:113px; height:18px; background-color:#ffffcc; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input7" ref="/root/reqData/searchData/search_dt_to" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:198px; top:2px; width:95px; height:18px; text-align:center; "/>
+			<caption id="caption21" style="left:182px; top:2px; width:15px; height:7px; ">~</caption>
+			<input id="input5" ref="/root/reqData/searchData/search_dt_fr" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" style="left:83px; top:2px; width:95px; height:18px; text-align:center; "/>
+			<button id="button5" class="btn02" style="left:300px; top:0px; width:50px; height:21px; ">
+				<caption>당일</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					    model1.setValue("/root/reqData/searchData/search_dt_fr", date("TO"));
+						model1.setValue("/root/reqData/searchData/search_dt_to", date("TO"));
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:360px; top:0px; width:50px; height:21px; ">
+				<caption>당월</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					    model1.setValue("/root/reqData/searchData/search_dt_fr", date("FROM"));
+						model1.setValue("/root/reqData/searchData/search_dt_to", date("TO"));
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn02" style="left:420px; top:0px; width:50px; height:21px; ">
+				<caption>전월</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.setValue("/root/reqData/searchData/search_dt_fr", date("BFROM"));
+						model1.setValue("/root/reqData/searchData/search_dt_to", date("BLAST"));  	
+						model1.refresh(); 
+					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn02" style="left:480px; top:0px; width:50px; height:21px; ">
+				<caption>전년</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					    model1.setValue("/root/reqData/searchData/search_dt_fr", date("BYFROM"));
+						model1.setValue("/root/reqData/searchData/search_dt_to", date("BYTO"));
+						model1.refresh(); 
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/CURLIST/record" visibility="hidden" caption="공장^구입일자^구입월^사업자명^품목^적요^구입량^단위^단가^금액(세별도)^등록자" colsep="#" colwidth="62, 83, 66, 107, 109, 145, 72, 50, 73, 104, 74" explorerbar="sort" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:11px; top:140px; width:896px; height:553px; ">
+			<col ref="fac_clsf"/>
+			<col ref="ewh_dt" format="yyyy-mm-dd"/>
+			<col ref="ewh_mm"/>
+			<col ref="dlco_nm"/>
+			<col ref="matr_nm"/>
+			<col ref="remk"/>
+			<col ref="ewh_qunt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="unit"/>
+			<col ref="ewh_uprc" format="(-)#,###" style="text-align:right; "/>
+			<col ref="ewh_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="incmg_pers"/>
+			<script type="javascript" ev:event="onbeforesort">
+				<![CDATA[
+						for(var i=1 ; i<datagrid1.rows + 1; i++){
+							var rowValue = datagrid1.valuematrix(i, 1);		
+							if(rowValue == '합 계'){
+								datagrid1.deleteRow(i );
+							}
+						}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onaftersort">
+				<![CDATA[
+					var rowcnt1 = datagrid1.rows - datagrid1.fixedRows;
+				
+					if(rowcnt1 > 0){
+						datagrid1.subtotal("clear", -1, 0,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+						datagrid1.attribute("frozenbottomrows") = 0;
+						
+						datagrid1.subtotalPosition = "below";	
+						for(var i=datagrid1.colRef("ewh_qunt") ; i<datagrid1.cols; i++){
+//							if(i != 7){ 
+//								datagrid1.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+//							}
+							if(i != 7){ 
+								if(i != 10){	
+									if(i != 8){ 
+										datagrid1.subtotal("sum", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+									}else
+									{
+										datagrid1.subtotal("average", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+									}
+								}
+							}
+	//						
+						}
+						//datagrid1.attribute("frozenbottomrows") = 1;									
+					}
+				]]>
+			</script>
+		</datagrid>
+		<button id="button4" class="btn02" style="left:742px; top:49px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model1.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" style="left:12px; top:49px; width:52px; height:21px; ">
+			<caption>EXCEL</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var list_gbn = model1.getValue("/root/reqData/searchData/list_gbn");
+					
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						if( list_gbn == "D"){
+							datagrid1.saveExcel(filename, "sheetname:Transaction;colhiddenextend:false;exportfalserows:;");
+						}else{
+							datagrid2.saveExcel(filename, "sheetname:Transaction;colhiddenextend:false;exportfalserows:;");
+						}
+					}
+					]]>
+			</script>
+		</button>
+		<caption id="caption14" style="left:10px; top:109px; width:287px; height:20px; font-weight:bold; text-align:center; background-color:#eaeaea; ">※항목명을 클릭하면 항목기준으로 정렬됩니다.</caption>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/CURLIST/record" visibility="hidden" caption="공장^구입일자^구입월^사업자명^자재분류^품목^적요^구입량^단위^단가^금액(세별도)^등록자" colsep="#" colwidth="37, 69, 63, 107, 67, 109, 145, 72, 50, 60, 104, 75" explorerbar="sort" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:11px; top:140px; width:896px; height:490px; ">
+			<col ref="fac_clsf"/>
+			<col ref="ewh_dt" format="yyyy-mm-dd"/>
+			<col ref="ewh_mm"/>
+			<col ref="dlco_nm"/>
+			<col ref="matr_clas_nm"/>
+			<col ref="matr_nm"/>
+			<col ref="remk"/>
+			<col ref="ewh_qunt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="unit"/>
+			<col ref="ewh_uprc" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="ewh_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="incmg_pers"/>
+			<script type="javascript" ev:event="onbeforesort">
+				<![CDATA[
+						for(var i=1 ; i<datagrid2.rows + 1; i++){
+							var rowValue = datagrid2.valuematrix(i, 1);		
+							if(rowValue == '합 계'){
+								datagrid2.deleteRow(i );
+							}
+						}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onaftersort">
+				<![CDATA[
+					var rowcnt1 = datagrid2.rows - datagrid2.fixedRows;
+				
+					if(rowcnt1 > 0){
+						datagrid2.subtotal("clear", -1, 0,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+						datagrid2.attribute("frozenbottomrows") = 0;
+						
+						datagrid2.subtotalPosition = "below";	
+						for(var i=datagrid2.colRef("ewh_qunt") ; i<datagrid2.cols; i++){
+							if(i != 8){ 
+								if(i != 11){	
+									if(i != 9){ 
+										datagrid2.subtotal("sum", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+									}//단가는 출력되지 않도록 20140224
+//									else
+//									{
+//										datagrid2.subtotal("average", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+//									}
+								}
+							}
+	//						
+						}
+						//datagrid1.attribute("frozenbottomrows") = 1;									
+					}
+				]]>
+			</script>
+		</datagrid>
+		<button id="button9" class="btn03" navindex="11" style="left:615px; top:49px; width:120px; height:21px; ">
+			<caption>월별·공장별조회</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					 	grp_summary.visible = true;
+						var gbn_data = model1.getValue("/root/reqData/searchData/gbn_data");
+						if (gbn_data  =="001"){
+							button2.visible = true;
+						}
+				
+						model.send("mt_commatr_7111_l");
+						model.copyNode("/root/resData/gridData3","/root/tempData/gridData3");
+					
+						datagrid3.refresh();
+						
+						var rowcnt1 = datagrid3.rows - datagrid3.fixedRows;
+			
+						if(rowcnt1 > 0){
+							datagrid3.subtotal("clear", -1, 0,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "계");	
+							datagrid3.attribute("frozenbottomrows") = 0;
+							
+							datagrid3.subtotalPosition = "below";	
+							for(var i=datagrid3.colRef("qunt10") ; i<datagrid3.cols; i++){
+								
+								//datagrid1.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+								//if(i != 3){ //단가인 경우에는 평균을 출력
+								datagrid3.subtotal("sum", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "계");	
+								//}//단가는 출력하지 않도록 수정 20140224
+		//						else
+		//						{
+		//							datagrid1.subtotal("average", -1, i,"(-)#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+		//						}
+							}
+							//datagrid1.attribute("frozenbottomrows") = 1;									
+						}
+					
+				]]>
+			</script>
+		</button>
+		<group id="grp_summary" visibility="hidden" style="left:65px; top:95px; width:815px; height:486px; background-color:#ffffff; border-color:#99ccff; border-style:solid; ">
+			<caption id="caption66" class="list_cap02" style="left:-1px; top:-1px; width:814px; height:485px; "/>
+			<caption id="caption67" class="tit02" style="left:9px; top:9px; width:220px; height:20px; ">월별·공장별조회</caption>
+			<datagrid id="datagrid3" nodeset="/root/resData/gridData3/record" backcoloralternate="transparent" backcolorfrozen="transparent" caption="월^정동^정동^성남^성남^부평^부평^계^계|월^수량^금액^수량^금액^수량^금액^수량^금액" colsep="#" colwidth="82, 70, 90, 70, 90, 70, 90, 73, 103" dataheight="25" mergecellsfixedrows="bycolrec" rowheader="select" rowheight="25" rowsep="|" selectionmode="free" style="left:29px; top:44px; width:755px; height:425px; ">
+				<col ref="ewh_mm"/>
+				<col ref="qunt10" format="(-)#,###" style="left:100px; top:25px; width:100px; height:20px; font-size:14pt; text-align:right; "/>
+				<col ref="amt10" format="(-)#,###" style="left:200px; top:25px; width:100px; height:20px; font-size:14pt; text-align:right; "/>
+				<col ref="qunt22" format="(-)#,###" style="left:300px; top:25px; width:100px; height:20px; font-size:14pt; text-align:right; "/>
+				<col ref="amt22" format="(-)#,###" style="left:400px; top:25px; width:99px; height:20px; font-size:14pt; text-align:right; "/>
+				<col ref="qunt25" format="(-)#,###" style="left:400px; top:25px; width:99px; height:20px; font-size:14pt; text-align:right; "/>
+				<col ref="amt25" format="(-)#,###" style="left:400px; top:25px; width:99px; height:20px; font-size:14pt; text-align:right; "/>
+				<col ref="qunttot" format="(-)#,###" style="left:400px; top:25px; width:99px; height:20px; font-size:14pt; text-align:right; "/>
+				<col ref="amttot" format="(-)#,###" style="left:400px; top:25px; width:99px; height:20px; font-size:14pt; text-align:right; "/>
+			</datagrid>
+			<button id="button10" class="btn02" style="left:704px; top:9px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					grp_summary.visible = false;		
+					]]>
+				</script>
+			</button>
+			<button id="button11" class="btn02" CRUD="R" style="left:644px; top:9px; width:52px; height:21px; ">
+				<caption>EXCEL</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						datagrid3.saveExcel(filename, "sheetname:Transaction;colhiddenextend:true;exportfalserows:;");
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn03" navindex="11" visibility="hidden" style="left:489px; top:9px; width:150px; height:21px; ">
+				<caption>자재월보출력(위탁처포함)</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						var clos_yymm = model1.getValue("/root/reqData/searchData/search_dt_to").substring(0,6);
+						
+						//오즈관련 노드초기화
+						resetOznode();
+						//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+						makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1240_P");
+						makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+						makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+						//odi파라미터 설정
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+						makeNodeValue("/root/oz_data/odiParam/iv_prt_yymm" , clos_yymm );
+						makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2" );
+						
+						makeNodeValue("/root/oz_data/childCount", "1");
+						
+						makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1270_P");
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_prt_yymm" , clos_yymm );
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_page_clsf" , "2" );
+						//레포트뷰어 호출
+						openOzwin("/root/oz_data");
+					
+				]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

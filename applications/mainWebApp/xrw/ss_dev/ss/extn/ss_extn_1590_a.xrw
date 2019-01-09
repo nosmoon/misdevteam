@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<adjm_search_form>
+								<todt/>
+								<js_fn_nm/>
+								<frdt/>
+								<clsfcd/>
+								<pageno/>
+								<stafnm/>
+								<pagesize/>
+							</adjm_search_form>
+							<adjm_list_form>
+								<basidt/>
+								<stafno/>
+							</adjm_list_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<infoGrid>
+								<record>
+									<basidt/>
+									<stafno/>
+									<stafnm/>
+									<ptph_no1/>
+									<ptph_no2/>
+									<ptph_no3/>
+									<email/>
+									<totqty/>
+									<servcost/>
+								</record>
+							</infoGrid>
+							<detailGrid>
+								<record>
+									<medinm/>
+									<deptnm/>
+									<resitypenm/>
+									<basiamt/>
+									<rdr_extnqty/>
+									<adjmqty/>
+									<errqty/>
+									<servcost/>
+								</record>
+							</detailGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+			<submission id="PID1590subInit" action="/ss/extn/1590" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1592search" action="/ss/extn/1592" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/adjm_search_form" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1575excel" action="/ss/extn/1575" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/adjm_search_form" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1594search" action="/ss/extn/1594" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/adjm_list_form" resultref="/root/tempData/initTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{	
+				model.send("PID1590subInit", false);
+								
+				model.setValue("/root/reqData/reqform/adjm_search_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/adjm_search_form/pageno", 	"1");
+				//model.setValue("/root/reqData/reqform/adjm_search_form/pagesize", 	"20");
+				model.setValue("/root/reqData/reqform/adjm_search_form/pagesize", 	"5000");
+				
+				modelCopyValue("/root/reqData/reqform/adjm_search_form/frdt", 	"/root/tempData/initTemp/defalutDate");
+				modelCopyValue("/root/reqData/reqform/adjm_search_form/todt", 	"/root/tempData/initTemp/defalutDate");
+
+				model.removenode("/root/tempData/initTemp");
+									
+				model.refresh();
+			}
+			
+			function search()
+			{
+				if(model.getValue("/root/reqData/reqform/adjm_search_form/frdt") == '' || model.getValue("/root/reqData/reqform/adjm_search_form/todt") == ''){
+					alert("검색월을 입력하세요");
+					return;
+				}
+    
+				remakeNode("/root/tempData/dataTemp");
+				model.send("PID1592search", false);
+				
+				if(!submit_completed())
+					return;
+				
+			       model.copyNode("/root/resData/gridData/infoGrid", "/root/tempData/dataTemp/infoGrid");
+			       
+			      // PID1590caption4.value= "총건수 " + model.getValue("/root/tempData/dataTemp/totalCount") + " 건";
+
+			 	if(instance1.selectNodes("/root/resData/gridData/infoGrid/record/basidt").length == 0)
+					model.alert("검색결과가 없습니다.");
+													
+				model.removenode("/root/tempData/dataTemp");
+				
+				model.refresh();
+				PID1590datagrid1.rebuild();	
+				
+				if(model.getValue("/root/resData/gridData/detailGrid/record/medinm") != ""){
+					resetDetail();
+				}
+			}
+			
+			function gridClick()
+			{
+				if(PID1590datagrid1.textMatrix(PID1590datagrid1.row, PID1590datagrid1.colRef("basidt")) == "" )
+					return;
+					
+				remakeNode("/root/tempData/dataTemp");
+				
+				model.setValue("/root/reqData/reqform/adjm_list_form/basidt", PID1590datagrid1.textMatrix(PID1590datagrid1.row, PID1590datagrid1.colRef("basidt")));
+				model.setValue("/root/reqData/reqform/adjm_list_form/stafno", PID1590datagrid1.textMatrix(PID1590datagrid1.row, PID1590datagrid1.colRef("stafno")));
+				
+				model.send("PID1594search", false);
+				
+			       model.copyNode("/root/resData/gridData/detailGrid", "/root/tempData/dataTemp/detailGrid");
+				model.removenode("/root/tempData/dataTemp");
+				
+				model.refresh();
+				PID1590datagrid2.rebuild();
+			}
+			
+			function excelDown()
+			{
+				if(model.getValue("/root/reqData/reqform/adjm_search_form/frdt") == '' || model.getValue("/root/reqData/reqform/adjm_search_form/todt") == ''){
+					alert("검색월을 입력하세요");
+					return;
+				}
+				
+				model.send("PID1575excel", false);
+					
+				body.disabled = false;
+				progressBarEnd();
+			}
+			
+			function resetDetail()
+			{
+				model.removenode("/root/resData/gridData/detailGrid");
+				remakeNode("/root/resData/gridData/detailGrid");
+				PID1590datagrid2.refresh();
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1590" style="font-family:굴림; ">
+		<!--<group id="PID1590group_tab" class="gro_tab1" style="left:10px; top:540px; width:926px; height:25px; ">
+			<caption id="PID1590caption4" style="left:820px; top:0px; width:105px; height:20px; text-align:right; vertical-align:middle; ">총건수  건</caption>
+		</group>-->
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					search();
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1590group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:25px; ">
+			<caption id="PID1590caption9" class="list_cap02" style="left:481px; top:0px; width:444px; height:25px; "/>
+			<caption id="PID1590caption6" class="list_cap02" style="left:49px; top:0px; width:226px; height:25px; "/>
+			<caption id="PID1590caption1" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">검색월</caption>
+			<caption id="PID1590caption2" class="list_cap01" style="left:274px; top:0px; width:50px; height:25px; ">요원명</caption>
+			<caption id="PID1590caption3" class="list_cap02" style="left:323px; top:0px; width:110px; height:25px; "/>
+			<input id="PID1590input1" ref="/root/reqData/reqform/adjm_search_form/frdt" inputtype="date" format="yyyy-mm" dataType="month" style="left:53px; top:3px; width:100px; height:18px; "/>
+			<input id="PID1590input2" ref="/root/reqData/reqform/adjm_search_form/todt" inputtype="date" format="yyyy-mm" dataType="month" style="left:169px; top:3px; width:100px; height:18px; "/>
+			<caption id="PID1590caption7" style="left:156px; top:3px; width:10px; height:20px; ">-</caption>
+			<caption id="PID1590caption5" class="list_cap01" style="left:432px; top:0px; width:50px; height:25px; ">구분</caption>
+			<input id="PID1590input3" ref="/root/reqData/reqform/adjm_search_form/stafnm" style="left:327px; top:4px; width:100px; height:18px; "/>
+			<select1 id="PID1590combo1" ref="/root/reqData/reqform/adjm_search_form/clsfcd" appearance="minimal" style="left:485px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>IS요원</label>
+						<value>10</value>
+					</item>
+					<item>
+						<label>MC</label>
+						<value>60</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<group id="PID1590group_line" class="gro_line" style="left:10px; top:105px; width:926px; height:5px; "/>
+		<datagrid id="PID1590datagrid1" nodeset="/root/resData/gridData/infoGrid/record" caption="기준월^요원명^요원번호^휴대폰번호^이메일^부수^용역비" colsep="^" colwidth="126, 126, 126, 141, 225, 80, 80" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:145px; width:926px; height:395px; ">
+			<col ref="basidt" type="output" format="yyyy-mm" style="text-align:center; "/>
+			<col ref="stafnm" style="text-align:center; "/>
+			<col ref="stafno" type="output" style="text-align:center; "/>
+			<col ref="phone_detail" style="text-align:center; "/>
+			<col ref="email" type="output" style="text-align:left; "/>
+			<col ref="totqty" type="output" format="#,###" style="text-align:right; "/>
+			<col ref="servcost" type="output" format="#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1590datagrid1.mouseCol>PID1590datagrid1.fixedCols-1 && PID1590datagrid1.mouseRow>PID1590datagrid1.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}				
+					]]>
+			</script>
+		</datagrid>
+		<group id="PID1590group3" style="left:10px; top:115px; width:926px; height:25px; ">
+			<caption id="PID1590caption10" class="list_cap02" style="left:199px; top:0px; width:727px; height:25px; "/>
+			<caption id="PID1590caption8" class="list_cap01" style="left:0px; top:0px; width:200px; height:25px; ">요원별 확장용역 마감내역</caption>
+			<button id="PID1590button3" class="btn_grid03" style="left:869px; top:4px; width:53px; height:21px; ">
+				<caption>EXCEL</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						excelDown();
+					]]>
+				</script>
+			</button>
+		</group>
+		<!--<group id="PID1590group2" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID1590iviewer1" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<datagrid id="PID1590datagrid2" nodeset="/root/resData/gridData/detailGrid/record" caption="매체^부서^주거형태^기준금액^확장부수^정산부수^오류부수^용역비" colsep="^" colwidth="130, 130, 110, 110, 105, 105, 105, 108" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:545px; width:925px; height:190px; ">
+			<col ref="medinm" style="text-align:left; "/>
+			<col ref="deptnm" style="text-align:left; "/>
+			<col ref="resitypenm" style="text-align:left; "/>
+			<col ref="basiamt" format="#,###" style="text-align:right; "/>
+			<col ref="rdr_extnqty" format="#,###" style="text-align:right; "/>
+			<col ref="adjmqty" format="#,###" style="text-align:right; "/>
+			<col ref="errqty" format="#,###" style="text-align:right; "/>
+			<col ref="servcost" format="#,###" style="text-align:right; "/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

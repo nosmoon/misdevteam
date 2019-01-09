@@ -1,0 +1,532 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<!--JSP COMMENT START------------------------------------------------------------------------------->
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_send_2001_a.jsp
+* 기능 : 지로추가발송처리 초기화면
+* 작성일자 : 2004/03/15
+* 작성자 : 장수환
+---------------------------------------------------------------------------------------------------%>
+
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    //  dataset 인스턴스 선언부분
+    PS_S_SEND_LUMP_PROCDataSet ds = (PS_S_SEND_LUMP_PROCDataSet)request.getAttribute("ds");  // request dataset
+
+    // 화면당 보여줄 Row수
+    int li_per = 20;
+%>
+<html>
+<head>
+
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+    setInputBackgroundColor();
+}
+// 초과입금 처리리스트를 조회한다
+function list_search() {
+    var lo_form1 = document.list_form;
+    var lo_form2 = document.detail_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+    // 업무구분값과 코드구분값을 "/ps/bill/1406" URL로 PUBBillkServlet서블릿을 호출한다
+    lo_form1.action = "/ps/send/2011";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+
+    setEventHandler();
+}
+
+// 상세정보를 표기한다
+function detail_view(str1,str2,str3,str4,str5,str6,str7,str8,str9) {
+    var lo_form1 = document.list_form;
+    var lo_form2 = document.detail_form;
+
+    // Flag를 설정한다.
+    lo_form2.accflag.value = 'U';
+
+    lo_form2.rdr_no.readOnly = true;
+    lo_form2.medicd.readOnly = true;
+    lo_form2.termsubsno.readOnly = true;
+    lo_form2.rdr_no.style.backgroundColor  =  "#E8E8E8";
+    lo_form2.medicd.style.backgroundColor   =  "#E8E8E8";
+    lo_form2.termsubsno.style.backgroundColor  =  "#E8E8E8";
+
+
+    // 선택된 record value를 상세화면에 표시한다.
+    lo_form2.rdr_no.value = str1;
+    lo_form2.medicd.value = str2;
+    lo_form2.termsubsno.value = str3;
+    lo_form2.issuseq.value = str4;
+    lo_form2.rdrnm.value = str5;
+    lo_form2.medinm.value = str6;
+    lo_form2.agrmntdt.value = str7;
+    lo_form2.agrmntamt.value = str8;
+    lo_form2.senddt.value = str9;
+    setEventHandler();
+}
+
+// navigator선택시 페이지 move처리
+function page_move(curr_page_no) {
+    var lo_form = document.list_form;
+
+    if(!curr_page_no) {
+        lo_form.curr_page_no.value = '1';
+    } else {
+        lo_form.curr_page_no.value = curr_page_no;
+    }
+
+    list_search();
+}
+
+// 상세정보를 신규등록/수정 처리한다
+function detail_correct() {
+    var lo_form1 = document.detail_form;
+    var accflag = lo_form1.accflag.value
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+
+    if (accflag == ''){
+        lo_form1.accflag.value = 'I';
+    }
+
+  //  o_form1.method = "post";
+    lo_form1.action = "/ps/send/2006";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+    setEventHandler();
+}
+
+// Check Box의 Header를 선택시 호출된다
+function checkAll(){
+var size = document.list_form.chkhead.checked;
+var len  = document.list_form.chk.length;
+
+    if(document.list_form.chk == null) {                        // 선택된 건이 없는 경우
+        return;
+    } else if (document.list_form.chk.type == "checkbox"){      // 한건인 경우
+        list_form.chk.checked = size;
+    } else {
+    for(var i=0; i<len; i++) {                              // 여러건인 경우
+        if(!document.list_form.chk[i].disabled){
+            list_form.chk[i].checked = size;
+        }
+      }
+    }
+}
+
+// Check Box의 각각의 Row를 선택시 호출된다
+function checkOne(){
+var len  = document.list_form.chk.length;
+var check = true;
+    for (var i=0; i<len; i++){
+        if(!list_form.chk[i].checked) {
+            check = false;
+        }
+    }
+    document.list_form.chkhead.checked = check;
+    window.event.cancelBubble=true;
+}
+
+// 삭제버튼 선택시 호출된다
+function list_delete() {
+    var lo_form = document.list_form;
+    var rdr_no="";
+    var medicd="";
+    var termsubsno="";
+    var issuseq="";
+
+    if(lo_form.chk == null) {
+        alert("삭제할 목록을 체크하십시요");
+        return false;
+    }
+
+    var len  = lo_form.chk.length;
+
+    for(var i = 0; i < len; i++){
+        if(lo_form.chk[i].checked){
+            var temp=lo_form.chk[i].value;
+            var ss = temp.split("##");
+            if(ss[3].length <= 0) {
+                alert(i+"번째 선택한 데이타는 삭제대상이 아닙니다 .");
+                return false;
+            } else {
+                rdr_no += "##"+ss[0];
+                medicd += "##"+ss[1];
+                termsubsno += "##" +ss[2];
+                issuseq += "##"+ss[3];
+            }
+        }
+    }
+    if(rdr_no != ""){
+        rdr_no = rdr_no.substr(2);
+        medicd = medicd.substr(2);
+        termsubsno = termsubsno.substr(2);
+        issuseq = issuseq.substr(2);
+    } else {
+        alert("삭제할 목록을 체크하십시요");
+        return false;
+    }
+    lo_form.rdr_no.value=rdr_no;
+    lo_form.medicd.value=medicd;
+    lo_form.termsubsno.value=termsubsno;
+    lo_form.issuseq.value=issuseq;
+
+    lo_form.accflag.value="D";
+    lo_form.action = "/ps/send/2026";
+    lo_form.target = "ifrm";
+    lo_form.submit();
+    setEventHandler();
+}
+
+/**
+ * form 단위로 유효성을 검증
+ */
+function check_all(detail_form){
+    if(!validate(detail_form)) {return false; }
+    else{
+        makeValue(detail_form);
+        detail_form.submit();
+        return true;
+    }
+}
+
+
+/**
+ * form element 단위로 유효성을 검증
+ */
+function check_obj(detail_form){
+    for(var i=0; i< detail_form.elements.length; i++){
+        var obj = detail_form.elements(i);
+        if(!validateObj(detail_form, obj)) return false; // 필드 Object 단위별 유효성 검증
+    }
+    makeValue(detail_form);
+    detail_form.submit();
+}
+
+// 독자명,매체명 찾기
+function search_rdr_info() {
+
+    var lo_form = document.detail_form;
+    lo_form.setFunction.value = "setReader";
+    lo_form.action="/ps/common/1601";
+    lo_form.target="ifrm";
+    lo_form.submit();
+    lo_form.rdr_no.value= "";
+    lo_form.medicd.value= "";
+    lo_form.termsubsno.value= "";
+    lo_form.rdrnm.value= "";
+    lo_form.medinm.value= "";
+}
+
+// 독자번호로 독자정보 set
+function setReader(rdr_no,medicd,termsubsno,rdrnm,medinm)
+{
+    var lo_form1 = document.detail_form;
+    lo_form1.rdr_no.value= rdr_no;
+    lo_form1.medicd.value= medicd;
+    lo_form1.termsubsno.value= termsubsno;
+    lo_form1.rdrnm.value= rdrnm;
+    lo_form1.medinm.value= medinm;
+    lo_form1.agrmntdt.focus();
+    setEventHandler();
+}
+
+//화면초기화
+function detail_reset() {
+    var lo_form1 = document.detail_form;
+
+    // 처리 구분 flag를 초기화시킨다
+    lo_form1.accflag.value = '';
+
+    lo_form1.action = "/ps/send/2001";
+    lo_form1.target = "ifrm";
+    lo_form1.method = "post";
+    lo_form1.submit();
+
+    lo_form1.reset();
+    lo_form1.rdr_no.readOnly = false;
+    lo_form1.medicd.readOnly = false;
+    lo_form1.termsubsno.readOnly = false;
+    lo_form1.rdr_no.style.backgroundColor  =  "#FFFFFF";
+    lo_form1.medicd.style.backgroundColor   =  "#FFFFFF";
+    lo_form1.termsubsno.style.backgroundColor  =  "#FFFFFF";
+    return;
+}
+
+// 추가발송 리스트 인쇄
+function print() {
+    var lo_form1 = document.list_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+
+    lo_form1.action = "/ps/send/2031";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+    setEventHandler();
+}
+
+// 추가발송 지로봉투 인쇄
+function print_case() {
+    var lo_form1 = document.list_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+
+    lo_form1.action = "/ps/send/2036";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+    setEventHandler();
+}
+
+// 추가발송 지로 인쇄
+function print_ocr() {
+    var lo_form1 = document.list_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+
+    lo_form1.action = "/ps/send/2041";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+    setEventHandler();
+}
+</script>
+
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onload="init()">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle">발송
+      &gt; </b>지로발송 &gt; 추가발송</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+
+<%--------------------------------------------------------------------------------------------추가발송등록 부분 제외(지사에서 처리)
+  <form name="detail_form" method="post" action="">
+  <input type="hidden" name="issuseq">
+  <input type="hidden" name="accflag">
+  <input type="hidden" name="setFunction" >
+  <tr>
+    <td>
+      <!--print title -->
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td height="27" class="title" bgcolor="#EBE9DC"><b>추가발송등록</b></td>
+          <td height="27" class="title" width="120"  bgcolor="#EBE9DC" align="right">
+            <img src="/html/comm_img/bu1_reset.gif" width="73"  align="absmiddle" border="0" style="cursor:hand"
+                 onclick="javascript:detail_reset();window.event.returnValue=false;">
+            <img src="/html/comm_img/bu_save.gif" width="39" height="19" align="absmiddle" border="0"
+                 onclick="javascript:detail_correct();window.event.returnValue=false;" style="cursor:hand"></td>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list -->
+      <table  cellspacing="0" width="830" cellpadding="2" border="0" bgcolor="#FFFFFF" class="gray">
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray" > 발송일자<font color="red">*</font> </td>
+          <td width="200" class="gray" >
+            <input type="text" name="senddt" size="10" tabIndex="1" class="text_box" caption="발송일자" dataType="date" notEmpty>
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray" > 독자번호<font color="red">*</font> </td>
+          <td class="gray" >
+            <input type="text" name="rdr_no" size="9" maxlength="9" tabIndex="2" class="text_box" caption="독자번호"  notEmpty
+              >
+            -
+            <input type="text" name="medicd" size="3" maxlength="3" tabIndex="3" class="text_box" caption="독자번호"  notEmpty
+              >
+            -
+            <input type="text" name="termsubsno" size="4" maxlength="4" tabIndex="4" class="text_box" caption="독자번호"  notEmpty
+             onChange="search_rdr_info();window.event.returnValue=false;">
+            <input type="text" name="rdrnm" size="5" value="" class="text_box" readOnly>
+            <input type="text" name="medinm" size="10" value="" class="text_box" readOnly>
+          </td>
+        </tr>
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray"> 약정일자<font color="red">*</font></td>
+          <td width="200" class="gray">
+            <input type="text" name="agrmntdt" size="10" tabIndex="5" class="text_box" caption="약정일자" dataType="date" notEmpty>
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray"> 약정금액<font color="red">*</font></td>
+          <td class="gray">
+            <input type="text" name="agrmntamt" size="7" tabIndex="6" class="text_box" caption="약정금액" dataType="number" notEmpty comma>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  </form>
+
+  <tr>
+    <td height="10">
+      <!------여백--- -->
+    </td>
+  </tr>
+------------------------------------------------------------------------------------------------------%>
+
+  <form name="list_form" method="post" action="">
+  <input type="hidden" name="accflag">
+  <input type="hidden" name="medicd">
+  <input type="hidden" name="issuseq">
+  <input type="hidden" name="rdr_no">
+  <input type="hidden" name="termsubsno">
+  <input type="hidden" name="curr_page_no"     value="1">
+  <input type="hidden" name="records_per_page" value="<%=li_per%>">
+  <input type="hidden" name="js_fn_nm"         value="page_move">
+  <input type="hidden" name="bocd"             value="">
+  <tr>
+    <td>
+      <!--search-->
+      <table width="830" border="0" cellspacing="0" cellpadding="2" class="title1" bgcolor="#EBE9DC">
+        <tr>
+          <td bgcolor="#EBE9DC" width="70"  ><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">발송일자<font color="red">*</font></td>
+          <td width="150">
+            <input name="senddt" type="text" size="10" class="text_box" caption="발송일자" dataType="date"  value="<%=Util.addDate(Util.getDate(),-1)%>" notEmpty>
+          </td>
+          <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송지사</td>
+          <td width="150" >
+            <select name="sendbrch" size="1"  class="sel_all">
+              <option value="ALL"  selected >전체</option>
+              <%= ds.bocdcurOptHtml("") %>
+            </select>
+          <td align="right">
+            <input type="image" src="/html/comm_img/bu_search.gif" width="36" height="19" align="absmiddle" border="0" onclick="javascript:list_search();window.event.returnValue=false;" style="cursor:hand">
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td height="3">
+      <!--여백 -->
+    </td>
+  </tr>
+  <tr>
+    <td width="80">
+      <!--타이틀 -->
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td height="27" class="title" bgcolor="#EBE9DC"><b>추가발송목록</b></td>
+          <td height="27" class="title" width="230"  bgcolor="#EBE9DC" align="right">
+            <img src="/html/comm_img/bu_print04.gif" width="63" height="19" align="absmiddle" border="0" onclick="javascript:print_case();window.event.returnValue=false;"style="cursor:hand">
+            <img src="/html/comm_img/bu_print05.gif" width="63" height="19" align="absmiddle" border="0" onclick="javascript:print_ocr();window.event.returnValue=false;"style="cursor:hand">
+            <img src="/html/comm_img/bu_print.gif" width="39" height="19" align="absmiddle" border="0" onclick="javascript:print();window.event.returnValue=false;"style="cursor:hand">
+
+<%-----------------------------------------------------------------------------------추가발송 삭제 제외(지사에서 처리)
+            <img src="/html/comm_img/bu_del.gif" width="39" height="19" align="absmiddle" border="0" onClick ="javascript:list_delete();window.event.returnValue=false;" style="cursor:hand"></td>
+-------------------------------------------------------------------------------------%>
+
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--리스트 -->
+      <table cellspacing="0" width="830" cellpadding="1" border="0" class="gray" bgcolor="#FFFFFF" id="list_info">
+        <tr align="center">
+
+<%-----------------------------------------------------------------------------------추가발송 삭제 제외로인한 선택 제어(지사에서 처리)
+          <td width="30"  class="gray" bgcolor="#dddddd">
+            <input type="checkbox" name="formcheckbox1">
+          </td>
+-------------------------------------------------------------------------------------%>
+
+          <td width="130" class="gray" bgcolor="#dddddd" >발송지사</td>
+          <td width="170" class="gray" bgcolor="#dddddd" >독자번호</td>
+          <td width="170" class="gray" bgcolor="#dddddd" >성명</td>
+          <td width="120" class="gray" bgcolor="#dddddd" >매체종류</td>
+          <td width="120" class="gray" bgcolor="#dddddd" >약정일</td>
+          <td width="120" class="gray" bgcolor="#dddddd" >약정금액</td>
+        </tr>
+<%
+    for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+        <tr>
+
+<%-----------------------------------------------------------------------------------추가발송 삭제 제외로인한 선택 제어(지사에서 처리)
+          <td width="30"  class="gray" align="center" >
+            <input type="checkbox" name="formcheckbox" disabled>
+          </td>
+-------------------------------------------------------------------------------------%>
+
+          <td width="130" class="gray" align="center">&nbsp;</td>
+          <td width="170" class="gray" align="center">&nbsp;</td>
+          <td width="170" class="gray" align="center">&nbsp;</td>
+          <td width="120" class="gray" align="center">&nbsp;</td>
+          <td width="120" class="gray" align="center">&nbsp;</td>
+          <td width="120" class="gray" align="right" >&nbsp;</td>
+        </tr>
+<%
+    }
+%>
+      </table>
+      <!---button-->
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" id="navi">
+        <tr>
+          <td align="center" height="2">
+            <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td colspan=5 align="center" bgcolor="#E8E8E8">
+            <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+            <jsp:param name = "curr_page_no"      value="0"/>
+            <jsp:param name = "total_records"     value="0"/>
+            <jsp:param name = "js_fn_nm"          value=""/>
+            <jsp:param name = "records_per_page"  value="<%=li_per%>"/>
+            <jsp:param name = "page_set_gubun"    value="0"/>
+            </jsp:include>
+            <!--JSP PAGE END------------------------------------------------------------------------------------>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  </form>
+</table>
+
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="ifrm" width=800 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+</body>
+</html>

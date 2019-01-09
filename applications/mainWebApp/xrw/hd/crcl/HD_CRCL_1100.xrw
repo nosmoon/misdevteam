@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<reqForm>
+						</reqForm>
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<from_dt/>
+							<to_dt/>
+							<clsf>C</clsf>
+							<cmpy_cd/>
+							<emp_no/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+							<emp_no/>
+						</fwdData>
+						<chkFr/>
+						<chkTo/>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<record>
+								<paty_crc_cd/>
+								<emp_no/>
+								<flnm/>
+								<dept_nm/>
+								<dty_nm/>
+								<posi_nm/>
+								<frdt/>
+								<todt/>
+								<bank_cd/>
+								<bank_acct_no/>
+								<cmpy_cd/>
+								<occr_dt/>
+								<seq/>
+							</record>
+						</gridData>
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+						</resForm>
+						<msg/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function getCrclMngList() {
+						model1.send("hd_crcl_1101");
+						model1.makeNode("/root/tempData");
+						model1.copyNode("/root/resData/gridData", "/root/tempData/dataSet/CURLIST");
+						var cmpy_tm = model1.getValue("/root/resData/gridData/record[1]/cmpy_cd");
+						if(cmpy_tm != ""){
+							datagrid1.isReadOnly(1, 1, 1, 10) = false;
+						}
+	
+						var totalcnt = model1.getValue("/root/resData/gridData/totalcnt");	
+						gridrowcnt.value = "[총 "+ (totalcnt) + "건]";						
+						model1.refresh();						
+					}
+
+					function setEmp_no(emp_no){
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model.makeNode("/root/tempData/dataSet");
+						model1.send("hd_crcl_1103");
+
+						var rowIdx = datagrid1.row;
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", model1.getValue("/root/tempData/dataSet/CURLIST/record/emp_no"));
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", model1.getValue("/root/tempData/dataSet/CURLIST/record/nm_korn"));
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", model1.getValue("/root/tempData/dataSet/CURLIST/record/dept_nm"));
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", model1.getValue("/root/tempData/dataSet/CURLIST/record/dty_nm"));
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", model1.getValue("/root/tempData/dataSet/CURLIST/record/posi_nm"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//datagrid1.isReadOnly(1, 1, 1, 10) = true;
+					//maintitle.text = "단체써클관리자등록";
+					datagrid1.addStatus(1, "insert");	
+					//model1.setValue("/root/reqData/searchData/cmpy_cd", "100");
+					model1.send("hd_crcl_1100");
+					model1.copyNode("/root/initData/comboSet", "/root/tempData");
+					
+					var FirstDate = getCurrentDate().substr(0,4) + "0101";
+					var CurrentDate = getCurrentDate().substr(0,8);
+					model1.setValue("/root/reqData/searchData/from_dt",  FirstDate);
+					model1.setValue("/root/reqData/searchData/to_dt",  CurrentDate);
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_crcl_1100" action="/hd/crcl/1100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_crcl_1101" action="/hd/crcl/1101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_crcl_1102" action="/hd/crcl/1102" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/tempData"/>
+			<submission id="hd_crcl_1103" action="/hd/crcl/1103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="2,51;2,70;2,79;2,652;1,936;1,928;1,926;">
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" autoresize="true" caption="단체서클명^부서^사번^성명^직책^직급^시작일자^종료일자^은행^계좌번호^cmpy_cd^occr_dt^seq" colsep="#" colwidth="120, 100, 69, 80, 60, 70, 90, 90, 130, 120, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:135px; width:926px; height:517px; ">
+			<col class="req" autonext="true" ref="paty_crc_cd" type="combo" caption="단체서클명" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/paty_crc_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="dept_nm" caption="부서" style="text-align:left; "/>
+			<col class="req" ref="emp_no" type="inputbutton" maxlength="6">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");					
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");						
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+							var emp_no = datagrid1.valuematrix(datagrid1.row, datagrid1.col);		
+							setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+							if(model1.getValue("/root/tempData/totalcnt") != 1){
+								return;
+							}
+							var rowIdx = datagrid1.row;
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", model1.getValue("/root/tempData/emp_no"));
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", model1.getValue("/root/tempData/nm_korn"));
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", model1.getValue("/root/tempData/dept_nm"));
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", model1.getValue("/root/tempData/dty_nm"));
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", model1.getValue("/root/tempData/posi_nm"));
+							model1.removenode("/root/tempData");
+							model1.refresh();
+					]]>
+				</script>
+			</col>
+			<col class="req" imemode="hangul" ref="flnm" type="input" maxlength="8" caption="성명">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+							var nm_korn = datagrid1.valuematrix(datagrid1.row, datagrid1.col);
+							setInfoSearchInput("", nm_korn, "", "setEmp_no"); // 사번, 성명, 주민번호
+							if(model1.getValue("/root/tempData/totalcnt") != 1){
+								return;
+							} 
+							var rowIdx = datagrid1.row;		
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", model1.getValue("/root/tempData/emp_no"));
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", model1.getValue("/root/tempData/nm_korn"));
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", model1.getValue("/root/tempData/dept_nm"));
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", model1.getValue("/root/tempData/dty_nm"));
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", model1.getValue("/root/tempData/posi_nm"));
+							model1.removenode("/root/tempData");
+							model1.refresh();	
+					]]>
+				</script>
+			</col>
+			<col ref="dty_nm" caption="직책" style="text-align:center; "/>
+			<col ref="posi_nm" caption="직급" style="text-align:center; "/>
+			<col ref="frdt" type="inputdate" format="yyyy-mm-dd">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var from_dt = datagrid1.valuematrix(datagrid1.row, datagrid1.col);
+						model1.setValue("/root/reqData/chkFr", from_dt);
+						model1.refresh();
+					]]>
+				</script>
+			</col>
+			<col ref="todt" type="inputdate" format="yyyy-mm-dd">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var to_dt = datagrid1.valuematrix(datagrid1.row, datagrid1.col);
+						model1.setValue("/root/reqData/chkTo", to_dt);
+						model1.refresh();
+
+						if (!commGhkTerm("/root/reqData/chkFr","/root/reqData/chkTo")){
+							alert("시작일자와 종료일자를 다시 확인하십시오.");
+							datagrid1.valuematrix(datagrid1.row, datagrid1.col) = "";
+							return;
+						}
+					]]>
+				</script>
+			</col>
+			<col autonext="true" ref="bank_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/bank_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col autonext="true" ref="bank_acct_no" type="input" maxlength="20" style="text-align:left; "/>
+			<col ref="cmpy_cd" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					rowStatus(datagrid1);
+				]]>
+			</script>
+			<script type="javascript" ev:event="onmaxlength">
+				<![CDATA[
+//					setEmp_no(model1.getValue("/root/resData/gridData/record[" + datagrid1.selectedRow(0) + "]/emp_no"));				
+//					setEmp_no(model1.getValue("/root/resData/gridData/record[" + datagrid1.row + "]/emp_no"));	
+				]]>
+			</script>
+		</datagrid>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group1" class="gro_btn" style="left:12px; top:51px; width:926px; height:21px; ">
+			<button id="button3" class="btn02" style="left:654px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+				 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:709px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+/*
+					if (!commGhkTerm("/root/reqData/searchData/from_dt","/root/reqData/searchData/to_dt")){
+						alert("시작기간의 시작일자와 종료일자를 정확히 입력하십시오.");
+						model1.setFocus("input1");
+						return;						
+					}else{
+						getCrclMngList();
+
+					}
+*/									
+						var from_dt = model1.getValue("/root/reqData/searchData/from_dt");
+						var to_dt = model1.getValue("/root/reqData/searchData/to_dt");
+						if ((from_dt.length < 8 && to_dt.length == 8) || (from_dt.length == 8 && to_dt.length < 8)) {
+							alert("시작기간의 시작일자와 종료일자를 정확히 입력하십시오.");
+							return;
+						}
+						
+						if (from_dt.length == 8 && to_dt.length == 8) {
+							if (parseInt(to_dt) - parseInt(from_dt) < 0) {
+								alert("조회조건의 종료일자가 시작일자보다 작을 수 없습니다.");
+								model1.setFocus("input1");
+								return;
+							}
+						}
+						getCrclMngList();
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:764px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (datagrid1.rows == 0) {
+							alert("삭제할 자료가 없습니다.");
+							return;
+						}
+						
+						var iud_cnt = 0;
+						for (i = 1; i <= datagrid1.rows; i++) {
+							if (datagrid1.rowStatus(i) == 4) iud_cnt++;
+						}
+
+						if (iud_cnt == 0) {
+							alert("삭제할 대상 자료가 존재하지 않습니다.");
+							return;
+						}
+
+						if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}else{
+							rowDelSubmit(datagrid1);
+							model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+							model1.send("hd_crcl_1102");
+							if(submit_completed()){
+								model1.reset();
+								getCrclMngList();
+							}
+						}					
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (datagrid1.rows == 0) {
+							alert("저장할 자료가 없습니다.");
+							return;
+						}
+						
+						var iud_cnt = 0;
+						for (i = 1; i <= datagrid1.rows; i++) {
+							if (datagrid1.rowStatus(i) == 2 || datagrid1.rowStatus(i) == 3) iud_cnt++;
+						}
+
+						if (iud_cnt == 0) {
+							alert("등록/수정할 대상 자료가 존재하지 않습니다.");
+							return;
+						}
+
+						if(commGridReqCheck("datagrid1")){
+							if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+								return;
+							}else{
+								rowInSubmit(datagrid1);
+								model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+								model1.send("hd_crcl_1102");
+								if(submit_completed()){
+									model1.reset();
+									getCrclMngList();
+								}
+							}
+						}					
+
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_scr" class="gro_sel" style="left:11px; top:79px; width:926px; height:26px; ">
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:85px; text-align:center; ">시작기간</caption>
+			<caption id="caption3" class="list_cap02" style="left:84px; top:0px; width:841px; text-align:center; "/>
+			<input id="input2" ref="/root/reqData/searchData/from_dt" navindex="1" inputtype="date" style="left:89px; top:3px; width:100px; height:18px; text-align:center; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var from_dt = model1.getValue("/root/reqData/searchData/from_dt");
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input1" ref="/root/reqData/searchData/to_dt" navindex="2" inputtype="date" style="left:224px; top:3px; width:100px; height:18px; text-align:center; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var from_dt = parseInt(model1.getValue("/root/reqData/searchData/from_dt"));
+						var to_dt = parseInt(model1.getValue("/root/reqData/searchData/to_dt"));
+						if ((to_dt - from_dt) < 0) {
+							alert("조회기간의 범위를 다시 설정하십시오.");
+							model1.setValue("/root/reqData/searchData/to_dt", input1.oldValue);
+							model1.refresh();
+							return;
+						}
+					]]>
+				</script>
+			</input>
+			<caption id="caption11" style="left:194px; top:6px; width:25px; height:15px; text-align:center; ">~</caption>
+			<select1 id="radio1" ref="/root/reqData/searchData/clsf" navindex="3" appearance="full" cellspacing="10" cols="2" overflow="visible" style="left:440px; top:4px; width:100px; height:17px; border-style:none; ">
+				<choices>
+					<item>
+						<label>현재</label>
+						<value>C</value>
+					</item>
+					<item>
+						<label>전체</label>
+						<value>A</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:350px; top:0px; width:85px; text-align:center; ">구   분</caption>
+		</group>
+		<group id="group_btnG1" class="gro_btn" style="left:10px; top:110px; width:926px; height:17px; ">
+			<button id="button7" class="btn_grid03" style="left:873px; top:0px; width:53px; height:17px; ">
+				<caption>행추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (datagrid1.rows == 2 && datagrid1.rowStatus(1) == 0 ) {
+							var cmpy_tm = model1.getValue("/root/resData/gridData/record[1]/cmpy_cd");
+							if(cmpy_tm != ""){
+								datagrid1.addRow(true, true);
+							}else{
+								datagrid1.addStatus(1, "insert");
+								datagrid1.isReadOnly(1, 1, 1, 10) = false;
+							}
+						} else {
+							datagrid1.addRow(true, true);
+						}
+
+						var nodeList = root.selectNodes("/root/resData/gridData/record");
+						var rowIdx = nodeList.length;
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/cmpy_cd", model1.getValue("/root/reqData/searchData/cmpy_cd"));
+
+						datagrid1.row = rowIdx;
+						datagrid1.col = 1;
+						datagrid1.EditCell();
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="gridrowcnt" style="left:836px; top:665px; width:100px; height:20px; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

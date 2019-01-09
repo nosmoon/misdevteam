@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<defaultData/>
+						<closmm/>
+					</initData>
+					<reqData>
+						<reqform>
+							<search_form>
+								<closmm/>
+								<searchcd/>
+								<jobcd/>
+							</search_form>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<extnGrid>
+								<record>
+									<deptcd/>
+									<deptnm/>
+									<areacd/>
+									<areanm/>
+									<bocd/>
+									<bonm/>
+									<oprenvclsf/>
+									<rdrnm/>
+									<rdr_no/>
+									<qty/>
+									<addrcdnm/>
+									<addrs/>
+									<rdrtel_no1/>
+									<rdrtel_no2/>
+									<rdrtel_no3/>
+									<rdrptph_no1/>
+									<rdrptph_no2/>
+									<rdrptph_no3/>
+									<rdr_extndt/>
+									<incmgdt/>
+									<valmm/>
+									<dscnamt/>
+									<clamtmthd/>
+									<rdr_extntype1/>
+									<rdr_extntype2/>
+									<camptype/>
+									<extnnm/>
+									<stafno/>
+									<aplcpath/>
+									<resitype/>
+									<mvindt/>
+									<mvintodt/>
+									<reconfyn/>
+									<mormembid/>
+									<rdr_extnprvlastsuspdt/>
+									<remk/>
+									<suspdt/>
+									<suspresn/>
+									<bns_itemclsf/>
+									<bns_itemnm/>
+									<svcmm/>
+									<scqty/>
+									<scsubsuprc/>
+									<hkqty/>
+									<hksubsuprc/>
+								</record>
+							</extnGrid>
+							<suspGrid>
+								<record/>
+							</suspGrid>
+							<dstcGrid>
+								<record/>
+							</dstcGrid>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<codeData>
+						<jobrslt/>
+						<jobmsg/>
+					</codeData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID2240init" action="/ss/extn/2240" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData"/>
+			<submission id="PID2245search" action="/ss/extn/2245" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/search_form" resultref="/root/resData/gridData"/>
+			<submission id="PID2245excel" action="/ss/extn/2245" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/search_form" resultref="/root/codeData"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+
+			function init()
+			{
+				commEventHandler(PID2240group_scr);
+				
+				model.send("PID2240init", false);
+				if(!submit_completed())
+					return;
+
+				PID2230radio1.select(0);
+				model.refresh();
+			}
+
+			
+			function search(flag)
+			{		
+				model.setValue("/root/reqData/reqform/search_form/closmm", model.getValue("/root/initData/closmm"));
+				model.setValue("/root/reqData/reqform/search_form/searchcd", PID2230radio1.value);
+				
+				if(flag==0) {
+					//일반조회
+					model.setValue("/root/reqData/reqform/search_form/jobcd", "0");
+					model.send("PID2245search", false);
+					if(!submit_completed())
+						return;
+					
+					model.refresh();
+				} else {
+					//엑셀저장
+					model.setValue("/root/codeData/jobrslt", "");
+					model.setValue("/root/codeData/jobmsg", "");
+					
+					model.setValue("/root/reqData/reqform/search_form/jobcd", "1");
+					model.send("PID2245excel", false);
+					if(!submit_completed()) {
+						model.alert("incomplete");
+						return;
+					}
+					
+					model.refresh();
+
+					if( model.getValue("/root/codeData/jobrslt") == "-1" ) {
+						model.alert( model.getValue("/root/codeData/jobmsg"));
+						//return;
+					} else {
+						model.alert("저장되었습니다");
+						//return;
+					}
+				}
+
+				//model.alert( model.getValue( root.codeData.jobmsg );
+				/*
+				PID2230datagrid1.rebuild();
+				
+			 	if(model.getValue("/root/resData/gridData/totalcnt") == 0) {
+					model.alert("검색결과가 없습니다.");
+			 	}
+			 	*/
+			}
+
+
+			function Excel()
+			{
+				search(1);
+				return;
+				
+				var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+					
+				if(filePath != "") {
+					PID2230datagrid1.saveExcel(filePath);
+					window.exec(filePath);
+				}
+			}			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="1100" idprefix="PID2230" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="PID2240group_scr" class="gro_sel" style="left:10px; top:60px; width:926px; height:30px; ">
+			<caption id="capCommonTeamQB" class="list_cap02" style="left:49px; top:0px; width:110px; height:25px; "/>
+			<caption id="PID2230caption15" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">마감월</caption>
+			<input id="PID2230input1" ref="/root/initData/closmm" inputtype="date" format="yyyy-mm" caption="시작일자" setHandler="true" relid="PID2230input2" style="left:54px; top:3px; width:90px; height:18px; "/>
+			<caption id="PID2230caption74" class="list_cap01" style="left:158px; top:0px; width:60px; height:25px; ">구분</caption>
+			<caption id="PID2230caption1" class="list_cap02" style="left:217px; top:0px; width:708 px; height:25px; "/>
+			<select1 id="PID2230radio1" ref="/root/reqData/reqform/search_form/searchcd" appearance="full" cols="3" overflow="visible" style="left:230px; top:4px; width:360px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>확장독자명단</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>중지독자명단</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>구역별지국마감내역</label>
+						<value>3</value>
+					</item>
+				</choices>
+			</select1>
+			<button id="btnA1" class="btn02" visibility="hidden" style="left:755px; top:2px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search(0);
+					]]>
+				</script>
+			</button>
+			<button id="PID2230button1" class="btn02" style="left:810px; top:2px; width:52px; height:21px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						Excel();
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:863px; top:2px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID2230group_line" class="gro_line" style="left:10px; top:100px; width:926px; height:5px; "/>
+		<datagrid id="PID2230datagrid1" nodeset="/root/resData/gridData/extnGrid/record" visibility="hidden" scroll="auto" caption="부서코드^부서명^지역코드^지역명^지국코드^지국명^대행여부^독자명^독자번호^부수^주소코드명^상세주소^주소^독자전화1^독자전화2^독자전화3^독자핸드폰1^독자핸드폰2^독자핸드폰3^확장일자^입력일자^유가월^할인금액^수금방법^확장유형1^확장유형2^캠페인유형^확장자명^확장자코드^신청경로^주거형태^입주일자^입주종료일자^재확여부^모플회원ID^확장전최종중지일자^비고^중지일자^중지사유^판촉물구분^판촉물명^서비스개월^스포츠부수^스포츠단가^한경부수^한경단가" colsep="^" colwidth="80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:170px; width:926px; height:555px; ">
+			<col ref="deptcd" type="output" style="text-align:center; "/>
+			<col ref="deptnm" type="output" style="text-align:center; "/>
+			<col ref="areacd" type="output" style="text-align:center; "/>
+			<col ref="areanm" type="output" style="text-align:center; "/>
+			<col ref="bocd" type="output" style="text-align:center; "/>
+			<col ref="bonm" type="output" style="text-align:center; "/>
+			<col ref="oprenvclsf" type="output" style="text-align:center; "/>
+			<col ref="rdrnm" type="output" style="text-align:center; "/>
+			<col ref="rdr_no" type="output" style="text-align:center; "/>
+			<col ref="qty" type="output" style="text-align:center; "/>
+			<col ref="addrcdnm" type="output" style="text-align:center; "/>
+			<col ref="addrs" type="output" style="text-align:center; "/>
+			<col ref="rdrtel_no1" type="output" style="text-align:center; "/>
+			<col ref="rdrtel_no2" type="output" style="text-align:center; "/>
+			<col ref="rdrtel_no3" type="output" style="text-align:center; "/>
+			<col ref="rdrptph_no1" type="output" style="text-align:center; "/>
+			<col ref="rdrptph_no2" type="output" style="text-align:center; "/>
+			<col ref="rdrptph_no3" type="output" style="text-align:center; "/>
+			<col ref="rdr_extndt" type="output" style="text-align:center; "/>
+			<col ref="incmgdt" type="output" style="text-align:center; "/>
+			<col ref="valmm" type="output" style="text-align:center; "/>
+			<col ref="dscnamt" type="output" style="text-align:center; "/>
+			<col ref="clamtmthd" type="output" style="text-align:center; "/>
+			<col ref="rdr_extntype1" type="output" style="text-align:center; "/>
+			<col ref="rdr_extntype2" type="output" style="text-align:center; "/>
+			<col ref="camptype" type="output" style="text-align:center; "/>
+			<col ref="extnnm" type="output" style="text-align:center; "/>
+			<col ref="stafno" type="output" style="text-align:center; "/>
+			<col ref="aplcpath" type="output" style="text-align:center; "/>
+			<col ref="resitype" type="output" style="text-align:center; "/>
+			<col ref="mvindt" type="output" style="text-align:center; "/>
+			<col ref="mvintodt" type="output" style="text-align:center; "/>
+			<col ref="reconfyn" type="output" style="text-align:center; "/>
+			<col ref="mormembid" type="output" style="text-align:center; "/>
+			<col ref="rdr_extnprvlastsuspdt" type="output" style="text-align:center; "/>
+			<col ref="remk" type="output" style="text-align:center; "/>
+			<col ref="suspdt" type="output" style="text-align:center; "/>
+			<col ref="suspresn" type="output" style="text-align:center; "/>
+			<col ref="bns_itemclsf" type="output" style="text-align:center; "/>
+			<col ref="bns_itemnm" type="output" style="text-align:center; "/>
+			<col ref="svcmm" type="output" style="text-align:center; "/>
+			<col ref="scqty" type="output" style="text-align:center; "/>
+			<col ref="scsubsuprc" type="output" style="text-align:center; "/>
+			<col ref="hkqty" type="output" style="text-align:center; "/>
+			<col ref="hksubsuprc" type="output" style="text-align:center; "/>
+		</datagrid>
+		<caption id="PID2230caption2" style="left:15px; top:115px; width:315px; height:20px; vertical-align:middle; ">※ CSV 파일로 저장만 가능합니다</caption>
+	</xhtml:body>
+</xhtml:html>

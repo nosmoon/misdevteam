@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>정규직(MIS) - 보조평가자 평가화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_cd>
+								<item/>
+							</evlu_cd>
+							<evlu_stat>
+								<item/>
+							</evlu_stat>
+							<evlu_grad_cd>
+								<item/>
+							</evlu_grad_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<evlu_cd/>
+							<evlu_yy/>
+							<tms_clsf/>
+							<evlu_step_clsf>20</evlu_step_clsf>
+						</searchData>
+						<reqForm>
+							<asst_evlu_proc_stat/>
+							<asst_evlu_pers_emp_no/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<valid_evlu_cd/>
+							<asst_evlu_proc_stat/>
+						</resForm>
+						<gridData>
+							<record>
+								<self_evlu_proc_stat/>
+								<evlu_view/>
+								<evlu_grp_nm/>
+								<dept_nm/>
+								<tgt_evlu_pers_emp_no/>
+								<tgt_evlu_pers_nm_korn/>
+								<evlu_grad_cd/>
+								<evlu_opn/>
+								<db_status/>
+							</record>
+						</gridData>
+						<use_chk/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="hd_evlu_9000_l" action="/servlet/hd/evlu/9000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//model1.setValue("/root/reqData/reqForm/asst_evlu_pers_emp_no","190053");
+					//평가구분 콤보박스 생성
+					model1.send("hd_evlu_9000_l");
+					model1.setValue("/root/resData/resForm/valid_evlu_cd",model1.getValue("/root/dataSet/valid_evlu_cd"));
+					model1.copyNode("/root/initData/comboSet/evlu_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					combo1.select(0);
+					//평가구분값 파싱
+					if(model1.getValue("/root/reqData/searchData/evlu_cd") != ""){
+						model1.setValue("/root/reqData/searchData/evlu_yy", model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+						model1.setValue("/root/reqData/searchData/tms_clsf", model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					}
+					//상태, 평가등급 콤보박스 생성
+					model1.removeNode("/root/tempData");
+					model1.send("hd_evlu_2900_m");
+					model1.copyNode("/root/initData/comboSet/evlu_stat", "/root/dataSet/CURLIST1");
+					model1.copyNode("/root/initData/comboSet/evlu_grad_cd", "/root/dataSet/CURLIST2");
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					//그리드 첫행삭제
+					model1.removeNode("/root/resData/gridData/record[1]");
+					caption1.value = "총 0 명";
+					
+					model1.send("hd_evlu_4001_l");
+					model1.setValue("/root/resData/use_chk",model1.getValue("/root/dataSet/CURLIST/record/use_chk"));
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					
+					var use_chk = model1.getValue("/root/resData/use_chk");
+					
+					if(use_chk == "20") {
+						button5.disabled = true;
+						button6.disabled = true;
+					}
+				]]>
+			</script>
+			<submission id="hd_evlu_2900_m" action="/servlet/hd/evlu/2900" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2901_l" action="/servlet/hd/evlu/2901" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2902_u" action="/servlet/hd/evlu/2902" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_2904_u" action="/servlet/hd/evlu/2904" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_4001_l" action="/servlet/hd/evlu/4001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//보조평가 대상자 목록생성
+				function searchList(){
+					//상태값이 남아있기 때문에 기존의 노드를 모두 초기화
+					model1.removeNode("/root/resData/gridData/record");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_2901_l");	
+					model1.setValue("/root/resData/resForm/asst_evlu_proc_stat",model1.getValue("/root/dataSet/asst_evlu_proc_stat"));
+					model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					caption1.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 명";
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					for(var i=datagrid1.fixedRows; i<=datagrid1.rows; i++){
+						datagrid1.isReadOnly(i,datagrid1.colRef("self_evlu_proc_stat")) = true;
+					}
+					/*
+					//버튼 토글
+					if(model1.getValue("/root/resData/resForm/asst_evlu_proc_stat") == "20"){
+						button3.disabled = true;
+						button4.disabled = true;
+					}else{
+						button3.disabled = false;
+						button4.disabled = false;
+					}
+					button3.refresh();
+					button4.refresh();
+					*/
+				}
+				
+				//datagrid1 비고 입력함수
+				function setRemk(remk){
+					var preRemk = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("evlu_opn"));
+					var nxtRemk = model1.getValue("/root/reqData/fwdData/resRemk");
+					datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("evlu_opn")) = model1.getValue("/root/reqData/fwdData/resRemk");
+					if(datagrid1.rowStatus(datagrid1.row)==0){
+						if(preRemk!=nxtRemk){
+							datagrid1.rowStatus(datagrid1.row) = 2;
+						}
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,69;2,94;2,102;2,107;2,117;2,746;2,694;2,701;" style="font-family:굴림; ">
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_ActionBtn" style="left:10px; top:39px; width:926px; height:21px; ">
+			<button id="button1" class="btn02" style="left:873px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						window.close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:708px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:818px; top:0px; width:52px; height:21px; ">
+				<caption>제출</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						//본인업적기술 평가상태가 진행중인 행이 하나라도 있다면 제출거부
+						//2009.10.12 - 인사부 요청 (최재진과장)
+						//보조평가는 평가와 상관없이 진행되어야 한다. (주석처리)
+						//var chk_flag = true;
+						//for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						//	if(datagrid1.valueMatrix(i,datagrid1.colRef("self_evlu_proc_stat")) == "10"){
+						//		chk_flag = false;
+						//		break;
+						//	}
+						//}
+						
+						//2009.10.12 - 인사부 요청 (최재진과장)
+						//평가등급/평가의견이 반드시 입력되어야만 제출이 가능하도록 함.
+						/*
+						var chk_flag = true;
+						for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+							if(datagrid1.valueMatrix(i,datagrid1.colRef("evlu_grad_cd")) == "" || datagrid1.valueMatrix(i,datagrid1.colRef("evlu_opn")) == ""){
+								chk_flag = false;
+								break;
+							}
+						}
+						
+						if(chk_flag){
+						*/
+							if(!rowInSubmit(datagrid1)){return;}
+							if(!commGridReqCheck("datagrid1")) return;
+							if(window.alert("제출 하시겠습니까?", "확인", 1)!=1) return;
+							//model1.setValue("/root/reqData/reqForm/asst_evlu_pers_emp_no","190053");
+							model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+							model1.send("hd_evlu_2904_u");
+							model1.removenode("/root/dataSet");
+							model1.refresh();
+							if(submit_completed()) searchList();
+						/*
+						}else{
+						//	alert("자기평가가 완료되지 않은 피평가자 정보가 있으면 제출할 수 없습니다.");
+						//	return;
+							alert("평가등급 또는 평가의견이 반영되지 않은 피평가자가 있으면 제출할 수 없습니다.");
+							return;
+						}
+						*/
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:763px; top:0px; width:52px; height:21px; ">
+				<caption>임시저장</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						//본인업적기술 평가상태가 진행중인 행은 제거
+						//2009.10.12 - 인사부 요청
+						//보조평가는 평가와 상관없이 진행되어야 한다. (주석처리)
+						//for(var i=datagrid1.fixedRows; i<=datagrid1.rows; i++){
+						//	if(datagrid1.valueMatrix(i,datagrid1.colRef("self_evlu_proc_stat")) == "10" &&
+						//		datagrid1.rowStatus(i) == 2 ){
+						//		alert("본인 평가진행상태가 진행중인 평가자를 선택하셨습니다.\n본인업적평가가 완료된 평가자만 저장할 수 있습니다.");
+						//		return;
+						//	}
+						//}
+						if(!rowInSubmit(datagrid1)){return;}
+						if(!commGridReqCheck("datagrid1")) return;
+						if(window.alert("임시저장 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/reqForm/asst_evlu_proc_stat","10");
+						//model1.setValue("/root/reqData/reqForm/asst_evlu_pers_emp_no","190053");
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_2902_u");
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+						if(submit_completed()) searchList();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<!-- 검색조건 항목 -->
+		<caption id="captoin1" class="list_cap02" style="left:10px; top:69px; width:926px; height:26px; "/>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:69px; width:100px; height:26px; ">평가구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/evlu_cd" appearance="minimal" style="left:115px; top:73px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					/*
+					//버튼토글
+					if(model1.getValue("/root/reqData/searchData/evlu_cd")==model1.getValue("/root/resData/resForm/valid_evlu_cd")){
+						button3.disabled = false;
+						button4.disabled = false;
+					}else{
+						button3.disabled = true;
+						button4.disabled = true;
+					}
+					*/
+					//평가구분값 파싱
+					if(model1.getValue("/root/reqData/searchData/evlu_cd") != ""){
+						model1.setValue("/root/reqData/searchData/evlu_yy", model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+						model1.setValue("/root/reqData/searchData/tms_clsf", model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					}
+					
+					model1.send("hd_evlu_4001_l");
+					model1.setValue("/root/resData/use_chk",model1.getValue("/root/dataSet/CURLIST/record/use_chk"));
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					
+					var use_chk = model1.getValue("/root/resData/use_chk");
+					
+					if(use_chk == "20") {
+						button5.disabled = true;
+						button6.disabled = true;
+					} else {
+						button5.disabled = false;
+						button6.disabled = false;
+					}
+				]]>
+			</script>
+		</select1>
+		<!-- 평가년도별 차수등록 -->
+		<caption id="caption4" class="tit02" style="left:10px; top:117px; width:926px; height:28px; ">평가대상자 리스트</caption>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" allowselection="false" allowuserresize="false" caption="본인업적기술^본인업적기술^평가그룹^부서^사번^성명^평가등급^평가의견^DB상태|평가상태^보기^평가그룹^부서^사번^성명^평가등급^평가의견^DB상태" colsep="#" colwidth="100, 50, 100, 100, 100, 100, 70, 280, 5" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" tooltip="true" style="left:10px; top:137px; width:926px; height:558px; ">
+			<col ref="self_evlu_proc_stat" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/evlu_stat/item">
+						<label ref="evlu_stat_nm"/>
+						<value ref="evlu_stat_cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="evlu_view" type="inputbutton"/>
+			<col ref="evlu_grp_nm" style="text-align:left; "/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="tgt_evlu_pers_emp_no"/>
+			<col ref="tgt_evlu_pers_nm_korn"/>
+			<col class="req" ref="evlu_grad_cd" type="combo" caption="평가등급" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/evlu_grad_cd/item">
+						<label ref="evlu_grad_nm"/>
+						<value ref="evlu_grad_cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="evlu_opn" type="inputbutton" caption="평가의견" editable="false" style="text-align:left; vertical-align:top; "/>
+			<col ref="db_status" visibility="hidden"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					//본인업적기술 보기 팝업
+					if(datagrid1.col==datagrid1.colRef("evlu_view")){
+						model1.removeNodeset("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/emp_no");
+						model1.setValue("/root/reqData/fwdData/emp_no",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("tgt_evlu_pers_emp_no")));
+						window.load("/xrw/hd/evlu/HD_EVLU_3000.xrw","mdichild", "hd_evlu_3000_s", "align:center; width:950;height:510; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					}
+					//비고팝업
+					if(datagrid1.col == datagrid1.colRef("evlu_opn")){
+						model1.removenode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/maintitle");
+						model1.makeNode("/root/reqData/fwdData/remk");
+						model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+						model1.makeNode("/root/reqData/fwdData/maxlength");
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.setValue("/root/reqData/fwdData/maintitle","보조평가자 평가의견");
+						model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("evlu_opn")));
+						model1.setValue("/root/reqData/fwdData/maxlength", "500");
+						model1.setValue("/root/reqData/fwdData/func_nm","setRemk");
+						window.load("/xrw/hd/evlu/HD_EVLU_1010.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid1.colType(datagrid1.col)==""){
+						rowStatus(datagrid1);
+						return;
+					}
+					if(datagrid1.col == datagrid1.colRef("evlu_opn")){
+						datagrid1.dispatch("onbuttonclick");
+						return;
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" style="left:833px; top:701px; width:100px; height:20px; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,208 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>급여소급업로드관리</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<reqForm>
+						</reqForm>
+						<multiUpdate/>
+						<searchData>
+							<rfl_saly_yy/>
+							<rfl_saly_no/>
+						</searchData>
+						<gridData>
+							<record>
+								<emp_no/>
+								<exst_pay_saly_yy/>
+								<exst_pay_saly_no/>
+								<retr_rgla_saly/>
+							</record>
+						</gridData>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<msg/>
+						<gridData>
+							<record>
+								<dept_cd/>
+								<dept_nm/>
+								<emp_no/>
+								<nm_korn/>
+								<exst_pay_saly_yy/>
+								<exst_pay_saly_no/>
+								<retr_rgla_saly/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="hd_saly_1351" action="/hd/saly/1351" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_saly_1350" action="/hd/saly/1350" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					group3.attribute("visibility")="hidden";
+					group4.attribute("visibility")="visible";
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function srcRetrieve(){
+					
+					if(!commReqCheck(group2)){
+						return;
+					}
+					model1.removenode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					datagrid2.refresh();
+					group3.attribute("visibility")="hidden";
+					group4.attribute("visibility")="visible";
+					model1.send("hd_saly_1351");
+					model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+					datagrid2.refresh();
+					rowCnt.value = "총 "+ (parseInt(datagrid2.rows - datagrid2.fixedRows)) + " 건";
+					model1.removenode("/root/dataSet");
+					
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<group id="group3" style="left:10px; top:115px; width:510px; height:545px; ">
+			<datagrid id="datagrid1" nodeset="/root/reqData/gridData/record" caption="사번^기지급급여년도^기지급급여번호^소급월정급여" colsep="#" colwidth="100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:0px; top:0px; width:445px; height:540px; ">
+				<col ref="emp_no" style="text-align:center; "/>
+				<col ref="exst_pay_saly_yy" format="yyyy" style="text-align:center; "/>
+				<col ref="exst_pay_saly_no" format="mm" style="text-align:center; "/>
+				<col ref="retr_rgla_saly" format="#,###" style="text-align:right; "/>
+			</datagrid>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group1" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="button1" class="btn03" navindex="-1" style="left:505px; top:0px; width:65px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();	
+						group3.attribute("visibility")="hidden";
+						group4.attribute("visibility")="visible";
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" navindex="-1" style="left:573px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						srcRetrieve();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" navindex="-1" style="left:628px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(!commReqCheck(group2)){return;}
+						if(!rowInSubmit(datagrid1)){return;}
+						
+						if (window.alert("저장 하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						
+						model1.setValue("/root/reqData/multiUpdate", datagrid1.getUpdateData());
+						//return;
+						model1.send("hd_saly_1350");
+						model1.removenode("/root/dataSet");
+						
+						if(submit_completed()) {
+							model1.removenode("/root/reqData/gridData");
+							model1.makeNode("/root/reqData/gridData");
+							srcRetrieve();
+						}
+						
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn04" navindex="-1" style="left:774px; top:0px; width:88px; height:21px; ">
+				<caption>엑셀다운로드</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//excel 파일로 저장한다.
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						
+						if(filePath != "") {
+							datagrid2.saveExcel(filePath);
+							window.exec(filePath);
+						}		
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" navindex="-1" style="left:865px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+							viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn04" navindex="-1" style="left:683px; top:0px; width:87px; height:21px; ">
+				<caption>엑셀업로드</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.removenode("/root/reqData/gridData");
+						model1.makeNode("/root/reqData/gridData");
+						datagrid1.refresh();
+						group3.attribute("visibility")="visiable";
+						group4.attribute("visibility")="hidden";
+						var filename = window.fileDialog("open", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+						if(filename!=""){
+							datagrid1.loadExcel(filename,  1,false);
+							datagrid1.deleteRow(1);
+							datagrid1.rebuild();
+						}
+						datagrid1.refresh();
+						for(var i = datagrid1.fixedRows; i<=datagrid1.rows-datagrid1.fixedRows; i++){
+							datagrid1.rowStatus(i) = 3;
+						}
+						rowCnt.value = "총 "+ (parseInt(datagrid1.rows - datagrid1.fixedRows)) + " 건";
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" style="left:10px; top:80px; width:925px; height:28px; ">
+			<caption id="caption1" class="list_cap02" style="left:254px; top:0px; width:81px; height:26px; text-align:center; "/>
+			<caption id="caption37" class="list_cap02" style="left:80px; top:0px; width:95px; height:26px; text-align:center; "/>
+			<caption id="caption28" class="list_cap03" style="left:0px; top:0px; width:81px; height:26px; text-align:center; ">반영급여년도</caption>
+			<input id="input1" ref="/root/reqData/searchData/rfl_saly_yy" class="req" format="yyyy" caption="반영급여년도" style="left:85px; top:5px; width:85px; height:18px; text-align:center; "/>
+			<input id="input2" ref="/root/reqData/searchData/rfl_saly_no" class="req" format="mm" caption="반영급여번호" style="left:259px; top:5px; width:71px; height:18px; text-align:center; "/>
+			<caption id="caption2" class="list_cap03" style="left:174px; top:0px; width:81px; height:26px; text-align:center; ">반영급여번호</caption>
+		</group>
+		<caption id="rowCnt" style="left:800px; top:665px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+		<group id="group4" style="left:10px; top:115px; width:920px; height:545px; ">
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="DEPT_CD^부서^사번^성명^기지급급여년도^기지급급여번호^소급월정급여" colsep="^" colwidth="100, 120, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:0px; top:0px; width:630px; height:540px; ">
+				<col ref="dept_cd" visibility="hidden"/>
+				<col ref="dept_nm" visibility="hidden" style="text-align:left; "/>
+				<col ref="emp_no" style="text-align:center; "/>
+				<col ref="nm_korn" style="text-align:center; "/>
+				<col ref="exst_pay_saly_yy" format="yyyy" style="text-align:center; "/>
+				<col ref="exst_pay_saly_no" format="mm" style="text-align:center; "/>
+				<col ref="retr_rgla_saly" format="#,###" style="text-align:right; "/>
+			</datagrid>
+		</group>
+	</xhtml:body>
+</xhtml:html>

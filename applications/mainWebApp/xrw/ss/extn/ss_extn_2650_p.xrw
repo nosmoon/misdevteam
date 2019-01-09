@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>우편번호검색</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<zipForm>
+								<job_flg>P</job_flg>
+								<search_word/>
+								<addr3/>
+								<zip/>
+								<pageno>1</pageno>
+								<bocd/>
+								<pagesize>10000</pagesize>
+							</zipForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<gridZip>
+								<record>
+									<zip/>
+									<addr/>
+									<bgnn/>
+									<endn/>
+									<bocd/>
+									<bonm/>
+									<telno1/>
+									<telno2/>
+									<telno3/>
+									<zip1/>
+									<zip2/>
+									<addrFull/>
+								</record>
+							</gridZip>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<zipForm/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="subSearchZip" action="/ss/extn/2650" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/zipForm" resultref="/root/resData/gridData/gridZip"/>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			//common.js의 함수.
+			function deleteHyphen(str) {
+			
+			    var temp = '';
+			    if(str == "") return temp;
+			    for (var i = 0; i < str.length; i++) {
+			        if (str.charAt(i) == '-') {
+			            continue;
+			        } else {
+			            temp += str.charAt(i);
+			        }
+			    }
+			    return	temp;
+			}
+			//common.js의 함수.
+			function insertDash(obj, idx){
+			    if(obj == null) return;
+			    obj.value = deleteHyphen(obj.value);
+			
+			    var str = obj.value;
+			    if(str.length <= idx) return;
+			    obj.value = str.substring(0, idx) + "-" + str.substring(idx, str.length);
+			}
+			
+			function init()
+			{
+				if(model.getValue("/root/tempData/zipForm/disp_flag") == "L")
+					datagrid1.colHidden(datagrid1.colRef("bonm")) = true;
+					
+				var zip = model.getValue("/root/tempData/zipForm/zip");
+				if(zip != "")
+				{
+					if(validate_zip(zip)){
+						model.setValue("/root/reqData/reqform/zipForm/zip", deleteHyphen(trim(zip)));
+				       	}else{
+				            	model.setValue("/root/reqData/reqform/zipForm/addr3", zip);
+				       }
+				
+			   		if(model.getValue("/root/tempData/zipForm/job_flag") == "A") // 특정 지국 코드를 입력하지 않으면 전체 우편번호내에서 검색
+			            		model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+			            	else
+			            		modelCopyValue("/root/reqData/reqform/zipForm/bocd", "/root/tempData/zipForm/bocd");
+			
+					input1.value = zip;	//search_word
+					
+					model.send("subSearchZip", false);
+					datagrid1.refresh();
+					
+					if((instance1.selectNodes("/root/resData/gridData/gridZip/record/zip")).length == 0)
+						model.toggle("case2");
+					else
+						model.toggle("case1");
+					
+					//나머지처리
+					model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+					model.setValue("/root/reqData/reqform/zipForm/zip", "");
+					model.setValue("/root/reqData/reqform/zipForm/addr3", "");
+					if(validate_zip(input1.value))
+						insertDash(input1, 3);
+				}
+				
+				if(model.getValue("/root/tempData/zipForm/apt") == "APT")
+				{
+					PID1901caption4.value = "지국 검색";
+				}
+			}
+			
+			function search()
+			{
+				var word = input1.value; 	//search_word
+
+				if(model.getValue("/root/tempData/zipForm/job_flag") == "A") // 특정 지국 코드를 입력하지 않으면 전체 우편번호내에서 검색
+		            		model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+		            	else
+			            	modelCopyValue("/root/reqData/reqform/zipForm/bocd", "/root/tempData/zipForm/bocd");
+		            	
+		            	if(validate_zip(word)){
+					model.setValue("/root/reqData/reqform/zipForm/zip", deleteHyphen(trim(word)));
+					model.setValue("/root/reqData/reqform/zipForm/addr3", "");
+			       	}else{
+			            	model.setValue("/root/reqData/reqform/zipForm/addr3", word);
+			            	model.setValue("/root/reqData/reqform/zipForm/zip", "");
+			       }
+				
+				model.send("subSearchZip", true);
+				
+				if((instance1.selectNodes("/root/resData/gridData/gridZip/record/zip")).length == 0)
+					model.toggle("case2");
+				else
+					model.toggle("case1");
+					
+				//나머지처리
+				model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+				model.setValue("/root/reqData/reqform/zipForm/zip", "");
+				model.setValue("/root/reqData/reqform/zipForm/addr3", "");
+				if(validate_zip(input1.value))
+					insertDash(input1, 3);
+			}
+			
+			function onKeyDown()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("button2");
+					search();
+				}
+			}
+			
+			function onRowChange()
+			{
+				if(event.button == 1)
+				{
+					var resPath = model.property("ZIP_RES_XPATH");
+
+					//window.opener.javaScript.remakeNode(resPath);
+					window.opener.javaScript.makeValueNode(resPath+"/extn_dlvzip", curRowRefColValue(datagrid1, "zip"));
+					window.opener.javaScript.makeValueNode(resPath+"/extn_dlvaddr", curRowRefColValue(datagrid1, "addr"));
+					window.opener.javaScript.makeValueNode(resPath+"/extn_bocd", curRowRefColValue(datagrid1, "bocd"));
+					window.opener.javaScript.makeValueNode(resPath+"/extn_bonm", curRowRefColValue(datagrid1, "bonm"));
+				
+					close();
+				}
+			}
+			
+			function close()
+			{
+				window.close();
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="410" pageheight="440" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:65px; width:380px; height:25px; ">
+			<caption id="caption20" class="list_cap02" style="left:0px; top:0px; width:380px; height:25px; "/>
+			<input id="input1" ref="/root/reqData/reqform/zipForm/search_word" imemode="hangul" style="left:60px; top:4px; width:120px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					onKeyDown();
+					]]>
+				</script>
+			</input>
+			<button id="button2" class="btn_grid02" style="left:183px; top:5px; width:42px; height:17px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					search();		
+					]]>
+				</script>
+			</button>
+			<caption id="caption2" style="left:5px; top:4px; width:50px; height:17px; ">읍/면/동</caption>
+		</group>
+		<caption id="PID1901caption4" class="tit01" style="left:10px; top:15px; width:385px; height:25px; text-align:left; ">우편번호 검색</caption>
+		<group id="group2" style="left:10px; top:365px; width:380px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:380px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:175px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<switch id="switch1" style="left:10px; top:90px; width:385px; height:280px; border-width:0; ">
+			<case id="case1">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/gridZip/record" caption="우편번호^주소^지국명" colsep="^" colwidth="60, 247, 70" mergecellsfixedrows="bycolrec" rowsep="|" style="left:0px; top:0px; width:380px; height:275px; ">
+					<col ref="zip" format="999-999"/>
+					<col ref="addrFull"/>
+					<col ref="bonm"/>
+					<col ref="addr" visibility="hidden"/>
+					<col ref="bgnn" visibility="hidden"/>
+					<col ref="endn" visibility="hidden"/>
+					<col ref="bocd" visibility="hidden"/>
+					<col ref="telno1" visibility="hidden"/>
+					<col ref="telno2" visibility="hidden"/>
+					<col ref="telno3" visibility="hidden"/>
+					<col ref="zip1" visibility="hidden"/>
+					<col ref="zip2" visibility="hidden"/>
+					<script type="javascript" ev:event="onrowchanged">
+						<![CDATA[
+						onRowChange();
+						]]>
+					</script>
+				</datagrid>
+			</case>
+			<case id="case2">
+				<caption id="caption3" style="left:5px; top:35px; width:370px; height:20px; font-weight:bold; text-align:center; background-color:#E7E7E7; ">
+					<![CDATA[입력하신 '우편번호 혹은 읍/면/동 '이 없습니다.]]>
+				</caption>
+				<caption id="caption4" style="left:5px; top:55px; width:370px; height:30px; text-align:center; background-color:#E7E7E7; ">
+					<![CDATA[거주하시는 지역의 '우편번호 혹은 읍/면/동 이름'이 정확하게 입력되었는지 다시 확인해주시기 바랍니다.]]>
+				</caption>
+				<line id="line1" style="x1:5px; y1:35px; x2:620px; y2:35px; border-color:#979596; "/>
+				<line id="line2" style="x1:5px; y1:85px; x2:620px; y2:85px; border-color:#979596; "/>
+			</case>
+			<case id="case3" selected="true"/>
+		</switch>
+		<group id="group3" style="left:10px; top:40px; width:380px; height:25px; ">
+			<caption id="caption5" style="left:0px; top:0px; width:380px; height:25px; ">
+				<![CDATA[ "읍/면/동"을 제외하고 입력 (예) 상현동 -> 상현)후 검색버튼 클릭]]>
+			</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

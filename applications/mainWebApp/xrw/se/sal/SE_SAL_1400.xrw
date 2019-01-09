@@ -1,0 +1,909 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SAL_1400.xrw
+* 기능 : 판매 - 지대관리 - 매출관리 - 지대원장
+* 작성일자 : 2009.04.03
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var yymm				= model.getValue("/root/reqData/searchData/yymm");
+					var bo_cd_seq		= model.getValue("/root/reqData/searchData/bo_cd_seq");
+					
+					if ( yymm == ""  ){
+						commAlert("기준년월이 없습니다");
+						return;
+					}
+					bo_cd_seq = bo_cd_seq.ReplaceWord("-","");
+					var bo_cd			= bo_cd_seq.substring(0, 5);
+					var bo_seq			= bo_cd_seq.substring(5, 8);
+					
+					if ( bo_cd == "" ){
+						commAlert("센터코드가 없습니다");
+						return;
+					}
+					
+					if ( bo_seq == "" ){
+						commAlert("센터순번이 없습니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData/bo_cd"		, bo_cd	);
+					model.setValue("/root/reqData/searchData/bo_seq"	, bo_seq	);
+					model.setValue("/root/reqData/searchData2/yymm"		, yymm	);
+					var action = "se_sal_1410_s";
+					model.send(action);
+					
+					//input12 jd_sell_net_clsf
+					var jd_sell_net_clsf  = model.getValue("/root/resData/bo_info/record/jd_sell_net_clsf");
+										
+					if(jd_sell_net_clsf=="T"){										
+						input12.attribute("editable") = "true";
+						input12.attribute("background-color") = "#FFFFFF";
+						input13.attribute("editable") = "false";
+						input13.attribute("background-color") = "#EAEAEA";
+					
+					}else if(jd_sell_net_clsf=="C"){	
+					
+						input12.attribute("editable") = "false";
+						input12.attribute("background-color") = "#EAEAEA";
+						input13.attribute("editable") = "true";
+						input13.attribute("background-color") = "#FFFFFF";
+					}else{
+
+						input12.attribute("editable") = "false";
+						input13.attribute("editable") = "false";
+						input12.attribute("background-color") = "#EAEAEA";
+						input13.attribute("background-color") = "#EAEAEA";
+						
+					}
+					var bo_nm =  model.getValue("/root/code/gridData/record/bo_nm");
+					bo_nm = "( " + bo_nm + " )";
+					caption109.value = bo_nm;
+					
+					model.refresh();
+					
+					
+					
+					var bo_cd = model.getValue("/root/resData/bo_info/record/bo_cd");
+					if ( bo_cd == "" ){
+						commAlert("처리결과가 없습니다.");
+						model.makeNode("/root/resData/rcpm_info/record/label");
+						model.setValue("/root/resData/rcpm_info/record/label", "센터간선수이월");
+					}
+				}
+				
+				function jsGetBocdSeq(bo_cd,bo_seq,bo_nm,callgb){
+					model.setValue("/root/reqData/searchData/bo_cd_seq", bo_cd + "-"+bo_seq);
+					model.setValue("/root/reqData/searchData/bo_cd"		, bo_cd);
+					model.setValue("/root/reqData/searchData/bo_seq"	, bo_seq);
+					model.setValue("/root/reqData/searchData/bo_nm"		, bo_nm);
+					
+					input2.refresh();
+					input4.refresh();
+				}
+				
+				function calCntr(gubun){
+					var suffix	= "";
+					//조선일보
+					if ( gubun == "110" ){
+						suffix = "_110";
+					//소년조선
+					} else {
+						suffix = "_130";
+					}
+					//유가부수
+					var val_qty			= Number(model.getValue("/root/resData/jidae_info/record/val_qty" + suffix).ReplaceWord(",", ""));
+					//감산부수
+					var icdc_calc_qty		= Number(model.getValue("/root/resData/jidae_info/record/icdc_calc_qty" + suffix).ReplaceWord(",", ""));
+					//특판부수
+					var spsl_qty			= Number(model.getValue("/root/resData/jidae_info/record/spsl_qty" + suffix).ReplaceWord(",", ""));
+					//매출부수
+					var cntr_qty			= val_qty + icdc_calc_qty + spsl_qty;
+					//기준단가 			
+					var basi_uprc		= Number(model.getValue("/root/resData/jidae_info/record/basi_uprc" + suffix).ReplaceWord(",", ""));
+					//지역차단가			
+					var rdff_rdu_uprc		= Number(model.getValue("/root/resData/jidae_info/record/rdff_rdu_uprc" + suffix).ReplaceWord(",", ""));
+					//매출단가		
+					var cntr_uprc		= basi_uprc - rdff_rdu_uprc;
+					//기증부수
+					var dnt_qty			= Number(model.getValue("/root/resData/jidae_info/record/dnt_qty" + suffix).ReplaceWord(",", ""));
+					//구독단가
+					var regu_subs_uprc	= Number(model.getValue("/root/resData/jidae_info/record/regu_subs_uprc" + suffix).ReplaceWord(",", ""));
+					//기증감매출액
+					var dnt_amt			= dnt_qty * regu_subs_uprc * -1;
+					//가판부수
+					var stetsell_qty		= Number(model.getValue("/root/resData/jidae_info/record/stetsell_qty" + suffix).ReplaceWord(",", ""));
+					//가판단가
+					var stetsell_uprc		= Number(model.getValue("/root/resData/jidae_info/record/stetsell_uprc" + suffix).ReplaceWord(",", ""));
+					//가판매출액
+					var stetsell_amt		= stetsell_qty * stetsell_uprc;
+					//사내매출액
+					//var incmp_sale_amt	= Number(model.getValue("/root/resData/jidae_info/record/incmp_sale_amt" + suffix).ReplaceWord(",", ""));
+					var incmp_sale_amt	= Number(model.getValue("/root/resData/jidae_info/record/incmp_sale_amt" + suffix).ReplaceWord(",", ""));
+					
+					//부대매출액
+					var smt_amt			= dnt_amt + stetsell_amt + incmp_sale_amt;
+					
+					//매출액
+					var sale_amt			= (cntr_qty * cntr_uprc) + smt_amt;
+					
+					//매출부수
+					model.setValue("/root/resData/jidae_info/record/cntr_qty" + suffix		, cntr_qty);
+					//매출단가
+					model.setValue("/root/resData/jidae_info/record/cntr_uprc" + suffix		, cntr_uprc);
+					//기증감매출액
+					model.setValue("/root/resData/jidae_info/record/dnt_amt" + suffix		, dnt_amt);
+					//가판매출액
+					model.setValue("/root/resData/jidae_info/record/stetsell_amt" + suffix	, stetsell_amt);
+					//부대매출액
+					model.setValue("/root/resData/jidae_info/record/smt_amt" + suffix		, smt_amt);
+					//매출액
+					model.setValue("/root/resData/jidae_info/record/sale_amt" + suffix		, sale_amt);
+					
+					if ( gubun == "110" ){
+						input18.refresh();
+						input21.refresh();
+						input24.refresh();
+						input27.refresh();
+						input30.refresh();
+						input31.refresh();
+					} else {
+						input32.refresh();
+						input35.refresh();
+						input38.refresh()
+						input41.refresh();
+						input44.refresh();
+						input45.refresh();
+					}
+					calNetSaleAmt();
+				}
+				
+				function calNetSaleAmt(){
+					//전월유가부수 조선일보
+					var prvmm_val_qty_110			= Number(model.getValue("/root/resData/jidae_info/record/prvmm_val_qty_110").ReplaceWord(",", ""));
+					//전월유가부수 소년조선
+					var prvmm_val_qty_130			= Number(model.getValue("/root/resData/jidae_info/record/prvmm_val_qty_130").ReplaceWord(",", ""));
+					//완납공제단가 조선일보
+					var fpymt_encur_amt_110		= Number(model.getValue("/root/resData/jidae_info/record/fpymt_encur_amt_110").ReplaceWord(",", ""));
+					//완납공제단가 소년조선
+					var fpymt_encur_amt_130		= Number(model.getValue("/root/resData/jidae_info/record/fpymt_encur_amt_130").ReplaceWord(",", ""));
+					//매출할인액 조선일보
+					var dscn_amt_110				= prvmm_val_qty_110 * fpymt_encur_amt_110;
+					//매출할인액 소년조선
+					var dscn_amt_130				= prvmm_val_qty_130 * fpymt_encur_amt_130;
+					//매출액 조선일보
+					var sale_amt_110				= Number(model.getValue("/root/resData/jidae_info/record/sale_amt_110").ReplaceWord(",", ""));
+					//매출액 소년조선
+					var sale_amt_130				= Number(model.getValue("/root/resData/jidae_info/record/sale_amt_130").ReplaceWord(",", ""));
+					//순매출액 조선일보
+					var net_sale_amt_110			= sale_amt_110 - dscn_amt_110;
+					//순매출액 소년조선
+					var net_sale_amt_130			= sale_amt_130 - dscn_amt_130;
+					//순매출액합계 
+					var net_sale_amt_all			= net_sale_amt_110 + net_sale_amt_130;
+					
+					model.setValue("/root/resData/jidae_info/record/dscn_amt_110"		, dscn_amt_110);
+					model.setValue("/root/resData/jidae_info/record/dscn_amt_130"		, dscn_amt_130);
+					model.setValue("/root/resData/jidae_info/record/net_sale_amt_110"	, net_sale_amt_110);
+					model.setValue("/root/resData/jidae_info/record/net_sale_amt_130"	, net_sale_amt_130);
+					model.setValue("/root/resData/jidae_info/record/net_sale_amt_all"	, net_sale_amt_all);
+					
+					input48.refresh();
+					input49.refresh();
+					input50.refresh();
+					input53.refresh();
+					input54.refresh();
+				}
+				
+				function goSave(){
+					var val = window.alert("저장 하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var yymm 	= model.getValue("/root/reqData/searchData2/yymm");
+					var bo_cd	= model.getValue("/root/resData/bo_info/record/bo_cd");
+					
+					if ( yymm == "" || bo_cd == "" ){
+						commAlert("조회된 지대원장이 없습니다.");
+						return;
+					}
+					var action = "se_sal_1420_a";
+					model.send(action);
+					goSearch();
+				}
+				
+				function openBocdPopup(gubun){
+					
+					 var root            = "/root/reqData/searchData";
+					 var code     = model.getValue("/root/reqData/searchData/bo_cd_seq");				
+					 var codecnt = 0;
+
+					 for ( var i=0; i<code.length; i++ ) {
+					  ch = code.charAt(i);
+						if (! isNaN(ch)) {
+						  	codecnt++;
+						 }
+					 }	
+									 
+					 if(codecnt !=8){						 	
+						model.setValue("/root/reqData/searchData/bo_nm", code);							
+					 	model.setValue("/root/reqData/searchData/bo_cd", "");
+					 	model.setValue("/root/reqData/searchData/bo_cd_seq", "");
+					 	model.setValue("/root/reqData/searchData/cntr_stat_clsf", "1");
+					 }else{
+					 	code =code.ReplaceWord("-", "");
+					 	model.setValue("/root/reqData/searchData/bo_nm", "");	
+					 	//alert("cd="+code.substr(0,5));						
+					 	//alert("seq="+code.substr(5,3));						
+					 	model.setValue("/root/reqData/searchData/bo_cd", code);
+					 	model.setValue("/root/reqData/searchData/bo_cd_seq", code);
+					 	model.setValue("/root/reqData/searchData/cntr_stat_clsf", "1");
+					 }		 
+
+					model.refresh();										
+
+					if ( gubun == ""){	
+						get_Bocdnm("", "/root/reqData/searchData", "/root/reqData/searchData", "bo_cd_seq", "bo_nm", "");
+					} else {
+						get_Bocdnm("P", "/root/reqData/searchData", "/root/reqData/searchData", "bo_cd_seq", "bo_nm", "");
+					}					
+								
+				}
+
+				/**
+				 * 지국  조회한다.
+				 * gubun = P : 팝업, N : 팝업없이 검색 
+				 * parameter strPath : 
+				*/
+				function get_Bocdnm(gubun, reqRef, rootRef, cdRef, nmRef, grid){
+					var resNode = "/root/code/gridData"; 
+
+					if ( gubun != "P" ){
+						modelSendNoMake("se_comm_1120_l", "/se/comm/1120", reqRef, resNode);
+					}
+					
+					var singleNode		= model.instances(0).selectSingleNode(resNode);
+					var lengthNode;		
+
+					if ( gubun != "P" ){
+						lengthNode	= singleNode.getElementsByTagName("record");		
+					} else {
+						lengthNode	= "POPUP";
+					}
+					
+					if (   gubun == "P" ||  lengthNode.length > 1 ) {
+						var cdVal, nmVal;
+/*
+						if ( gubun == "P" ){
+							cdVal	= "";
+							nmVal	= "";
+						} else {
+							cdVal	= model.getValue(reqRef + "/" + cdRef);			
+							nmVal	= model.getValue(reqRef + "/" + nmRef);
+						}
+*/						
+						cdVal	= model.getValue(reqRef + "/" + cdRef);			
+						nmVal	= model.getValue(reqRef + "/" + nmRef);
+
+						model.property("bo_cd"					)	= cdVal		; //팝업검색값
+						model.property("bo_nm"					)	= nmVal		; //팝업검색값
+						model.property("cntr_stat_clsf"				)	= "1"			; //팝업검색값
+					
+						window.load(
+							"/xrw/se/comm/SE_COMM_1100.xrw", 
+							"modal", 
+							"", 
+							"left:30px; top:100px; width:660px; height:500; align:center; caption:hidden;"
+							,""
+							,""
+						);
+					} else if ( lengthNode.length == 0 ) {
+						model.setValue(rootRef + "/" + cdRef	, "");
+						model.setValue(rootRef + "/" + nmRef	, "");
+					} else if ( lengthNode.length == 1 ) {
+						var val =model.getValue(resNode+"/record/bo_cdseq");
+						model.setValue(rootRef + "/" + cdRef	, val.substr(0, 5)+"-"+val.substr(5, 3) );
+						model.setValue(rootRef + "/" + nmRef, model.getValue(resNode+"/record/bo_nm"));
+					} 
+					model.refresh();
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<bo_cd_seq/>
+							<bo_cd/>
+							<bo_seq/>
+							<bo_nm/>
+							<yymm/>
+							<cntr_stat_clsf/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData2>
+							<yymm/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<MsgData/>
+						<bo_info>
+							<record>
+								<bo_cd/>
+								<bo_seq/>
+								<bo_head_nm/>
+								<dept_nm/>
+								<part_nm/>
+								<area_nm/>
+								<flnm/>
+								<cntr_stat_nm/>
+								<bo_cntr_dt/>
+								<jd_sell_net_nm/>
+								<jd_sell_net_clsf/>
+							</record>
+						</bo_info>
+						<jidae_info>
+							<record>
+								<cmpy_cd/>
+								<bo_cd/>
+								<bo_seq/>
+								<yymm/>
+								<area_cd/>
+								<val_qty_110/>
+								<icdc_calc_qty_110/>
+								<spsl_qty_110/>
+								<cntr_qty_110/>
+								<basi_uprc_110/>
+								<rdff_rdu_uprc_110/>
+								<cntr_uprc_110/>
+								<dnt_qty_110/>
+								<regu_subs_uprc_110/>
+								<dnt_amt_110/>
+								<stetsell_qty_110/>
+								<stetsell_uprc_110/>
+								<stetsell_amt_110/>
+								<incmp_sale_qty_110/>
+								<incmp_sale_amt_110/>
+								<prvmm_val_qty_110/>
+								<fpymt_encur_amt_110/>
+								<smt_amt_110/>
+								<sale_amt_110/>
+								<dscn_amt_110/>
+								<net_sale_amt_110/>
+								<net_sale_amt_all/>
+								<val_qty_130/>
+								<icdc_calc_qty_130/>
+								<spsl_qty_130/>
+								<cntr_qty_130/>
+								<basi_uprc_130/>
+								<rdff_rdu_uprc_130/>
+								<cntr_uprc_130/>
+								<dnt_qty_130/>
+								<regu_subs_uprc_130/>
+								<dnt_amt_130/>
+								<stetsell_qty_130/>
+								<stetsell_uprc_130/>
+								<stetsell_amt_130/>
+								<incmp_sale_qty_130/>
+								<incmp_sale_amt_130/>
+								<prvmm_val_qty_130/>
+								<fpymt_encur_amt_130/>
+								<smt_amt_130/>
+								<sale_amt_130/>
+								<dscn_amt_130/>
+								<net_sale_amt_130/>
+							</record>
+						</jidae_info>
+						<rcpm_info>
+							<record>
+								<fpymt_dt/>
+								<ratio/>
+								<cyov_bal/>
+								<prvmm_net_sale_amt/>
+								<smt_amt/>
+								<rcpm_amt/>
+								<rcpm_bal/>
+								<label>센터간선수이월</label>
+								<bo_cyov/>
+								<adjm_cyov/>
+								<bal/>
+								<net_sale_amt/>
+								<smt_amt2/>
+							</record>
+						</rcpm_info>
+						<qty_info>
+							<record>
+								<qty_110_1/>
+								<qty_110_2/>
+								<qty_110_3/>
+								<qty_130_1/>
+								<qty_130_2/>
+								<qty_130_3/>
+								<qty_130_4/>
+							</record>
+						</qty_info>
+					</resData>
+					<tempData>
+					</tempData>
+					<code/>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action = "se_sal_1400_m";
+					model.send(action);
+					
+					var yymm		= model.getValue("/root/initData/yymm");
+					
+					model.setValue("/root/reqData/searchData/yymm", yymm);
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_sal_1400_m" action="/se/sal/1400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_sal_1410_s" action="/se/sal/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="se_sal_1420_a" action="/se/sal/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/jidae_info" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,62;2,70;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">기준년월</caption>
+			<caption id="caption1" class="list_cap01" style="left:186px; top:0px; width:60px; height:26px; ">센터</caption>
+			<input id="input3" ref="/root/reqData/searchData/yymm" class="req" format="yyyy-mm" caption="기준년월" style="left:87px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.ReplaceWord("-", "");
+						model.setValue("/root/reqData/searchData/yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<input id="input2" ref="/root/reqData/searchData/bo_cd_seq" inputtype="button" caption="센터" style="left:253px; top:4px; width:97px; height:18px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[					
+					
+					if ( event.keyCode == 13 ){	
+						var code = input2.currentText;
+						model.setValue("/root/reqData/searchData/bo_cd_seq", code);					
+						goSearch();
+					}else{
+						model.setValue("/root/reqData/searchData/bo_nm", "");	
+						input4.refresh();
+					}
+				]]>
+				</script>
+				<script type="javascript" ev:event="DOMFocusOut">
+					<![CDATA[
+						if ( event.keyCode == 9 ){
+							var code = input2.currentText;
+							model.setValue("/root/reqData/searchData/bo_cd_seq", code);						
+							if ( code == "" ){
+								return;
+							}					
+							
+							openBocdPopup("");
+							if(submit_completed()){								
+								model.setfocus("input2");
+							}
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var code = input2.currentText;
+						model.setValue("/root/reqData/searchData/bo_cd_seq", code);						
+						openBocdPopup("P");
+						model.setfocus("input2");
+					]]>
+				</script>
+			</input>
+			<input id="input4" ref="/root/reqData/searchData/bo_nm" editable="false" style="left:356px; top:4px; width:90px; height:18px; "/>
+			<output id="output1" style="left:540px; top:4px; width:100px; height:20px; "/>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:739px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<group id="group1" class="gro_tab1" overflow="hidden" style="left:10px; top:115px; width:926px; height:610px; border-color:#aec9e9!important; border-style:solid; ">
+			<caption id="caption3" class="tit02" style="left:10px; top:10px; width:130px; height:20px; ">센터기본정보</caption>
+			<caption id="caption70" class="list_cap02" style="left:10px; top:28px; width:890px; height:26px; "/>
+			<caption id="caption45" class="list_cap03" style="left:10px; top:28px; width:100px; height:26px; text-align:center; ">계약자</caption>
+			<caption id="caption13" class="list_cap03" style="left:232px; top:28px; width:100px; height:26px; text-align:center; ">팀</caption>
+			<caption id="caption20" class="list_cap03" style="left:454px; top:28px; width:100px; height:26px; text-align:center; ">지사/파트</caption>
+			<caption id="caption2" class="list_cap03" style="left:676px; top:28px; width:100px; height:26px; text-align:center; ">지역</caption>
+			<caption id="caption4" class="list_cap02" style="left:10px; top:53px; width:890px; height:26px; "/>
+			<caption id="caption5" class="list_cap03" style="left:10px; top:53px; width:100px; height:26px; text-align:center; ">담당자</caption>
+			<caption id="caption6" class="list_cap03" style="left:232px; top:53px; width:100px; height:26px; text-align:center; ">계약구분</caption>
+			<caption id="caption8" class="list_cap03" style="left:454px; top:53px; width:100px; height:26px; text-align:center; ">계약일자</caption>
+			<caption id="caption9" class="list_cap03" style="left:676px; top:53px; width:100px; height:26px; text-align:center; ">판매망구분</caption>
+			<input id="input1" ref="/root/resData/bo_info/record/bo_head_nm" editable="false" style="left:116px; top:32px; width:100px; height:18px; "/>
+			<input id="input6" ref="/root/resData/bo_info/record/dept_nm" editable="false" style="left:338px; top:32px; width:100px; height:18px; "/>
+			<input id="input5" ref="/root/resData/bo_info/record/part_nm" editable="false" style="left:560px; top:32px; width:100px; height:18px; "/>
+			<input id="input11" ref="/root/resData/bo_info/record/area_nm" editable="false" style="left:782px; top:32px; width:100px; height:18px; "/>
+			<input id="input7" ref="/root/resData/bo_info/record/flnm" editable="false" style="left:116px; top:57px; width:100px; height:18px; "/>
+			<input id="input8" ref="/root/resData/bo_info/record/cntr_stat_nm" editable="false" style="left:338px; top:57px; width:100px; height:18px; "/>
+			<input id="input9" ref="/root/resData/bo_info/record/bo_cntr_dt" editable="false" style="left:560px; top:57px; width:100px; height:18px; "/>
+			<input id="input10" ref="/root/resData/bo_info/record/jd_sell_net_nm" editable="false" style="left:782px; top:57px; width:100px; height:18px; "/>
+			<group id="group2" class="gro_tab1" style="left:0px; top:94px; width:503px; height:505px; ">
+				<caption id="caption37" class="list_cap02" style="left:89px; top:48px; width:80px; height:26px; "/>
+				<caption id="caption10" class="tit02" style="left:10px; top:5px; width:130px; height:20px; ">매출내역</caption>
+				<caption id="caption11" class="list_cap03" style="left:10px; top:23px; width:80px; height:26px; text-align:center; ">구분</caption>
+				<caption id="caption31" class="list_cap03" style="left:89px; top:23px; width:80px; height:26px; text-align:center; ">본지</caption>
+				<caption id="caption32" class="list_cap03" style="left:168px; top:23px; width:80px; height:26px; text-align:center; ">소년조선</caption>
+				<caption id="caption12" class="list_cap03" style="left:10px; top:48px; width:80px; height:26px; text-align:center; ">유가부수</caption>
+				<caption id="caption14" class="list_cap03" style="left:10px; top:73px; width:80px; height:26px; text-align:center; ">감산부수</caption>
+				<caption id="caption15" class="list_cap03" style="left:10px; top:98px; width:80px; height:26px; text-align:center; ">특판부수</caption>
+				<caption id="caption16" class="list_cap03" style="left:10px; top:123px; width:80px; height:26px; color:#ff0000; text-align:center; background-color:#00ffff; ">매출부수</caption>
+				<caption id="caption17" class="list_cap03" style="left:10px; top:153px; width:80px; height:26px; text-align:center; ">기준단가</caption>
+				<caption id="caption18" class="list_cap03" style="left:10px; top:178px; width:80px; height:26px; text-align:center; ">지역차단가</caption>
+				<caption id="caption19" class="list_cap03" style="left:10px; top:203px; width:80px; height:26px; color:#ff0000; text-align:center; background-color:#00ffff; ">매출단가</caption>
+				<caption id="caption21" class="list_cap03" style="left:10px; top:233px; width:80px; height:26px; text-align:center; ">기증부수</caption>
+				<caption id="caption22" class="list_cap03" style="left:10px; top:258px; width:80px; height:26px; text-align:center; ">구독단가</caption>
+				<caption id="caption23" class="list_cap03" style="left:10px; top:283px; width:80px; height:26px; text-align:center; ">기증감매출액</caption>
+				<caption id="caption24" class="list_cap03" style="left:10px; top:313px; width:80px; height:26px; text-align:center; ">가판부수</caption>
+				<caption id="caption25" class="list_cap03" style="left:10px; top:338px; width:80px; height:26px; text-align:center; ">가판단가</caption>
+				<caption id="caption26" class="list_cap03" style="left:10px; top:363px; width:80px; height:26px; text-align:center; ">가판매출액</caption>
+				<caption id="caption27" class="list_cap03" style="left:10px; top:393px; width:80px; height:26px; text-align:center; ">사내매출부수</caption>
+				<caption id="caption28" class="list_cap03" style="left:10px; top:418px; width:80px; height:26px; text-align:center; ">사내매출액</caption>
+				<caption id="caption29" class="list_cap03" style="left:10px; top:443px; width:80px; height:26px; color:#ff0000; text-align:center; background-color:#00ffff; ">부대매출액</caption>
+				<caption id="caption30" class="list_cap03" style="left:10px; top:468px; width:80px; height:26px; font-weight:bold; color:#ff0000; text-align:center; background-color:#33cccc; ">매출액</caption>
+				<caption id="caption34" class="tit02" style="left:258px; top:5px; width:130px; height:20px; ">순매출내역</caption>
+				<caption id="caption33" class="list_cap03" style="left:258px; top:23px; width:80px; height:26px; text-align:center; ">구분</caption>
+				<caption id="caption35" class="list_cap03" style="left:337px; top:23px; width:80px; height:26px; text-align:center; ">본지</caption>
+				<caption id="caption36" class="list_cap03" style="left:416px; top:23px; width:80px; height:26px; text-align:center; ">소년조선</caption>
+				<caption id="caption73" class="list_cap03" style="left:258px; top:48px; width:80px; height:26px; text-align:center; ">전월유가부수</caption>
+				<caption id="caption75" class="list_cap03" style="left:258px; top:73px; width:80px; height:26px; text-align:center; ">완납공제단가</caption>
+				<caption id="caption76" class="list_cap03" style="left:258px; top:98px; width:80px; height:26px; color:#ff0000; text-align:center; background-color:#00ffff; ">매출할인액</caption>
+				<caption id="caption77" class="list_cap03" style="left:258px; top:123px; width:80px; height:26px; font-weight:bold; color:#ff0000; text-align:center; background-color:#33cccc; ">순매출액</caption>
+				<caption id="caption78" class="list_cap03" style="left:258px; top:153px; width:80px; height:26px; font-weight:bold; color:#ffffff; text-align:center; background-color:#3366ff; ">순매출액합</caption>
+				<caption id="caption38" class="list_cap02" style="left:168px; top:48px; width:80px; height:26px; "/>
+				<caption id="caption39" class="list_cap02" style="left:89px; top:73px; width:80px; height:26px; "/>
+				<caption id="caption40" class="list_cap02" style="left:168px; top:73px; width:80px; height:26px; "/>
+				<caption id="caption41" class="list_cap02" style="left:89px; top:98px; width:80px; height:26px; "/>
+				<caption id="caption42" class="list_cap02" style="left:168px; top:98px; width:80px; height:26px; "/>
+				<caption id="caption43" class="list_cap02" format="(-)#,###,###,###" style="left:89px; top:123px; width:80px; height:26px; color:#ff0000; text-align:right; "/>
+				<caption id="caption44" class="list_cap02" style="left:89px; top:153px; width:80px; height:26px; "/>
+				<caption id="caption46" class="list_cap02" style="left:89px; top:178px; width:80px; height:26px; "/>
+				<caption id="caption47" class="list_cap02" style="left:89px; top:203px; width:80px; height:26px; color:#ff0000; "/>
+				<caption id="caption48" class="list_cap02" style="left:89px; top:233px; width:80px; height:26px; "/>
+				<caption id="caption49" class="list_cap02" style="left:89px; top:258px; width:80px; height:26px; "/>
+				<caption id="caption50" class="list_cap02" style="left:89px; top:283px; width:80px; height:26px; "/>
+				<caption id="caption51" class="list_cap02" style="left:89px; top:313px; width:80px; height:26px; "/>
+				<caption id="caption52" class="list_cap02" style="left:89px; top:338px; width:80px; height:26px; "/>
+				<caption id="caption53" class="list_cap02" style="left:89px; top:363px; width:80px; height:26px; "/>
+				<caption id="caption54" class="list_cap02" style="left:89px; top:393px; width:80px; height:26px; "/>
+				<caption id="caption55" class="list_cap02" style="left:89px; top:418px; width:80px; height:26px; "/>
+				<caption id="caption56" class="list_cap02" style="left:89px; top:443px; width:80px; height:26px; color:#ff0000; "/>
+				<caption id="caption57" class="list_cap02" style="left:89px; top:468px; width:80px; height:26px; font-weight:bold; color:#ff0000; "/>
+				<caption id="caption58" class="list_cap02" style="left:168px; top:123px; width:80px; height:26px; color:#ff0000; "/>
+				<caption id="caption59" class="list_cap02" style="left:168px; top:153px; width:80px; height:26px; "/>
+				<caption id="caption60" class="list_cap02" style="left:168px; top:178px; width:80px; height:26px; "/>
+				<caption id="caption61" class="list_cap02" style="left:168px; top:203px; width:80px; height:26px; color:#ff0000; "/>
+				<caption id="caption62" class="list_cap02" style="left:168px; top:233px; width:80px; height:26px; "/>
+				<caption id="caption63" class="list_cap02" style="left:168px; top:258px; width:80px; height:26px; "/>
+				<caption id="caption64" class="list_cap02" style="left:168px; top:283px; width:80px; height:26px; "/>
+				<caption id="caption65" class="list_cap02" style="left:168px; top:313px; width:80px; height:26px; "/>
+				<caption id="caption66" class="list_cap02" style="left:168px; top:338px; width:80px; height:26px; "/>
+				<caption id="caption67" class="list_cap02" style="left:168px; top:363px; width:80px; height:26px; "/>
+				<caption id="caption68" class="list_cap02" style="left:168px; top:393px; width:80px; height:26px; "/>
+				<caption id="caption69" class="list_cap02" style="left:168px; top:418px; width:80px; height:26px; "/>
+				<caption id="caption71" class="list_cap02" style="left:168px; top:443px; width:80px; height:26px; color:#ff0000; "/>
+				<caption id="caption72" class="list_cap02" style="left:168px; top:468px; width:80px; height:26px; font-weight:bold; color:#ff0000; "/>
+				<caption id="caption79" class="list_cap02" style="left:337px; top:48px; width:80px; height:26px; "/>
+				<caption id="caption80" class="list_cap02" style="left:337px; top:73px; width:80px; height:26px; "/>
+				<caption id="caption81" class="list_cap02" style="left:337px; top:98px; width:80px; height:26px; color:#ff0000; "/>
+				<caption id="caption82" class="list_cap02" style="left:337px; top:123px; width:80px; height:26px; font-weight:bold; color:#ff0000; "/>
+				<caption id="caption83" class="list_cap02" style="left:337px; top:153px; width:80px; height:26px; font-weight:bold; color:#ffffff; "/>
+				<caption id="caption84" class="list_cap02" style="left:416px; top:48px; width:80px; height:26px; "/>
+				<caption id="caption85" class="list_cap02" style="left:416px; top:73px; width:80px; height:26px; "/>
+				<caption id="caption86" class="list_cap02" style="left:416px; top:98px; width:80px; height:26px; color:#ff0000; "/>
+				<caption id="caption87" class="list_cap02" style="left:416px; top:123px; width:80px; height:26px; font-weight:bold; color:#ff0000; "/>
+				<input id="input12" ref="/root/resData/jidae_info/record/val_qty_110" editable="false" format="(-)#,###,###,###" style="left:94px; top:52px; width:70px; height:18px; text-align:right; "/>
+				<input id="input14" ref="/root/resData/jidae_info/record/icdc_calc_qty_110" disabled="false" navindex="1" editable="true" format="(-)#,###,###,###" style="left:94px; top:77px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input14.currentText;
+							model.setValue("/root/resData/jidae_info/record/icdc_calc_qty_110", val);	
+							calCntr("110");			
+						]]>
+					</script>
+				</input>
+				<input id="input16" ref="/root/resData/jidae_info/record/spsl_qty_110" disabled="false" navindex="2" editable="true" format="(-)#,###,###,###" style="left:94px; top:102px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input16.currentText;
+							model.setValue("/root/resData/jidae_info/record/spsl_qty_110", val);	
+							calCntr("110");			
+						]]>
+					</script>
+				</input>
+				<input id="input18" ref="/root/resData/jidae_info/record/cntr_qty_110" editable="false" format="#,###,###,###" style="left:94px; top:127px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input19" ref="/root/resData/jidae_info/record/basi_uprc_110" editable="false" format="(-)#,###,###,###" style="left:94px; top:157px; width:70px; height:18px; text-align:right; "/>
+				<input id="input20" ref="/root/resData/jidae_info/record/rdff_rdu_uprc_110" disabled="false" navindex="3" editable="true" format="(-)#,###,###,###" style="left:94px; top:182px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input20.currentText;
+							model.setValue("/root/resData/jidae_info/record/rdff_rdu_uprc_110", val);	
+							calCntr("110");			
+						]]>
+					</script>
+				</input>
+				<input id="input21" ref="/root/resData/jidae_info/record/cntr_uprc_110" editable="false" format="(-)#,###,###,###" style="left:94px; top:207px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input22" ref="/root/resData/jidae_info/record/dnt_qty_110" disabled="false" navindex="4" editable="true" format="(-)#,###,###,###" style="left:94px; top:237px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input22.currentText;
+							model.setValue("/root/resData/jidae_info/record/dnt_qty_110", val);	
+							calCntr("110");		
+						]]>
+					</script>
+				</input>
+				<input id="input23" ref="/root/resData/jidae_info/record/regu_subs_uprc_110" editable="false" format="(-)#,###,###,###" style="left:94px; top:262px; width:70px; height:18px; text-align:right; "/>
+				<input id="input24" ref="/root/resData/jidae_info/record/dnt_amt_110" editable="false" format="(-)#,###,###,###" style="left:94px; top:287px; width:70px; height:18px; text-align:right; "/>
+				<input id="input25" ref="/root/resData/jidae_info/record/stetsell_qty_110" disabled="false" navindex="5" editable="true" format="(-)#,###,###,###" style="left:94px; top:317px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input25.currentText;
+							model.setValue("/root/resData/jidae_info/record/stetsell_qty_110", val);	
+							calCntr("110");	
+						]]>
+					</script>
+				</input>
+				<input id="input26" ref="/root/resData/jidae_info/record/stetsell_uprc_110" disabled="false" navindex="6" editable="true" format="(-)#,###,###,###" style="left:94px; top:342px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input26.currentText;
+							model.setValue("/root/resData/jidae_info/record/stetsell_uprc_110", val);	
+							calCntr("110");					
+						]]>
+					</script>
+				</input>
+				<input id="input27" ref="/root/resData/jidae_info/record/stetsell_amt_110" editable="false" format="(-)#,###,###,###" style="left:94px; top:367px; width:70px; height:18px; text-align:right; "/>
+				<input id="input28" ref="/root/resData/jidae_info/record/incmp_sale_qty_110" disabled="false" navindex="7" editable="true" format="(-)#,###,###,###" style="left:94px; top:397px; width:70px; height:18px; text-align:right; "/>
+				<input id="input29" ref="/root/resData/jidae_info/record/incmp_sale_amt_110" disabled="false" navindex="8" editable="true" format="(-)#,###,###,###" style="left:94px; top:422px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input29.currentText;
+							model.setValue("/root/resData/jidae_info/record/incmp_sale_amt_110", val);	
+							calCntr("110");	
+						]]>
+					</script>
+				</input>
+				<input id="input30" ref="/root/resData/jidae_info/record/smt_amt_110" editable="false" format="(-)#,###,###,###" style="left:94px; top:447px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input31" ref="/root/resData/jidae_info/record/sale_amt_110" editable="false" format="(-)#,###,###,###" style="left:94px; top:472px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input46" ref="/root/resData/jidae_info/record/prvmm_val_qty_110" disabled="false" navindex="9" editable="true" format="(-)#,###,###,###" style="left:342px; top:52px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input46.currentText;
+							model.setValue("/root/resData/jidae_info/record/prvmm_val_qty_110", val);	
+							calNetSaleAmt();				
+						]]>
+					</script>
+				</input>
+				<input id="input47" ref="/root/resData/jidae_info/record/fpymt_encur_amt_110" disabled="false" navindex="10" editable="true" format="(-)#,###,###,###" style="left:342px; top:77px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input47.currentText;
+							model.setValue("/root/resData/jidae_info/record/fpymt_encur_amt_110", val);	
+							calNetSaleAmt();		
+						]]>
+					</script>
+				</input>
+				<input id="input48" ref="/root/resData/jidae_info/record/dscn_amt_110" editable="false" format="(-)#,###,###,###" style="left:342px; top:102px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input49" ref="/root/resData/jidae_info/record/net_sale_amt_110" editable="false" format="(-)#,###,###,###" style="left:342px; top:127px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input13" ref="/root/resData/jidae_info/record/val_qty_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:52px; width:70px; height:18px; text-align:right; "/>
+				<input id="input15" ref="/root/resData/jidae_info/record/icdc_calc_qty_130" disabled="false" navindex="11" editable="true" format="(-)#,###,###,###" style="left:173px; top:77px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input15.currentText;
+							model.setValue("/root/resData/jidae_info/record/icdc_calc_qty_130", val);	
+							calCntr("130");							
+						]]>
+					</script>
+				</input>
+				<input id="input17" ref="/root/resData/jidae_info/record/spsl_qty_130" disabled="false" navindex="12" editable="true" format="(-)#,###,###,###" style="left:173px; top:102px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input17.currentText;
+							model.setValue("/root/resData/jidae_info/record/spsl_qty_130", val);	
+							calCntr("130");					
+						]]>
+					</script>
+				</input>
+				<input id="input32" ref="/root/resData/jidae_info/record/cntr_qty_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:127px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input33" ref="/root/resData/jidae_info/record/basi_uprc_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:157px; width:70px; height:18px; text-align:right; "/>
+				<input id="input34" ref="/root/resData/jidae_info/record/rdff_rdu_uprc_130" disabled="false" navindex="13" editable="true" format="(-)#,###,###,###" style="left:173px; top:182px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input34.currentText;
+							model.setValue("/root/resData/jidae_info/record/rdff_rdu_uprc_130", val);	
+							calCntr("130");						
+						]]>
+					</script>
+				</input>
+				<input id="input35" ref="/root/resData/jidae_info/record/cntr_uprc_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:207px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input36" ref="/root/resData/jidae_info/record/dnt_qty_130" disabled="false" navindex="14" editable="true" format="(-)#,###,###,###" style="left:173px; top:237px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input36.currentText;
+							model.setValue("/root/resData/jidae_info/record/dnt_qty_130", val);	
+							calCntr("130");							
+						]]>
+					</script>
+				</input>
+				<input id="input37" ref="/root/resData/jidae_info/record/regu_subs_uprc_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:262px; width:70px; height:18px; text-align:right; "/>
+				<input id="input38" ref="/root/resData/jidae_info/record/dnt_amt_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:287px; width:70px; height:18px; text-align:right; "/>
+				<input id="input39" ref="/root/resData/jidae_info/record/stetsell_qty_130" disabled="false" navindex="15" editable="true" format="(-)#,###,###,###" style="left:173px; top:317px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input39.currentText;
+							model.setValue("/root/resData/jidae_info/record/stetsell_qty_130", val);	
+							calCntr("130");					
+						]]>
+					</script>
+				</input>
+				<input id="input40" ref="/root/resData/jidae_info/record/stetsell_uprc_130" disabled="false" navindex="16" editable="true" format="(-)#,###,###,###" style="left:173px; top:342px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input40.currentText;
+							model.setValue("/root/resData/jidae_info/record/stetsell_uprc_130", val);	
+							calCntr("130");					
+						]]>
+					</script>
+				</input>
+				<input id="input41" ref="/root/resData/jidae_info/record/stetsell_amt_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:367px; width:70px; height:18px; text-align:right; "/>
+				<input id="input42" ref="/root/resData/jidae_info/record/incmp_sale_qty_130" disabled="false" navindex="17" editable="true" format="(-)#,###,###,###" style="left:173px; top:397px; width:70px; height:18px; text-align:right; "/>
+				<input id="input43" ref="/root/resData/jidae_info/record/incmp_sale_amt_130" disabled="false" navindex="18" editable="true" format="(-)#,###,###,###" style="left:173px; top:422px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input43.currentText;
+							model.setValue("/root/resData/jidae_info/record/incmp_sale_amt_130", val);	
+							calCntr("130");					
+						]]>
+					</script>
+				</input>
+				<input id="input44" ref="/root/resData/jidae_info/record/smt_amt_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:447px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input45" ref="/root/resData/jidae_info/record/sale_amt_130" editable="false" format="(-)#,###,###,###" style="left:173px; top:472px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input51" ref="/root/resData/jidae_info/record/prvmm_val_qty_130" disabled="false" navindex="19" editable="true" format="(-)#,###,###,###" style="left:421px; top:52px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input51.currentText;
+							model.setValue("/root/resData/jidae_info/record/prvmm_val_qty_130", val);	
+							calNetSaleAmt();					
+						]]>
+					</script>
+				</input>
+				<input id="input52" ref="/root/resData/jidae_info/record/fpymt_encur_amt_130" disabled="false" navindex="20" editable="true" format="(-)#,###,###,###" style="left:421px; top:77px; width:70px; height:18px; text-align:right; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var val	= input52.currentText;
+							model.setValue("/root/resData/jidae_info/record/fpymt_encur_amt_130", val);	
+							calNetSaleAmt();	
+						]]>
+					</script>
+				</input>
+				<input id="input53" ref="/root/resData/jidae_info/record/dscn_amt_130" editable="false" format="(-)#,###,###,###" style="left:421px; top:102px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input54" ref="/root/resData/jidae_info/record/net_sale_amt_130" editable="false" format="(-)#,###,###,###" style="left:421px; top:127px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+				<input id="input50" ref="/root/resData/jidae_info/record/net_sale_amt_all" editable="false" format="(-)#,###,###,###" style="left:342px; top:157px; width:70px; height:18px; color:#ff0000; text-align:right; "/>
+			</group>
+			<group id="group3" class="gro_tab1" style="left:506px; top:94px; width:248px; height:505px; ">
+				<caption id="caption89" class="list_cap02" style="left:89px; top:23px; width:149px; height:26px; "/>
+				<caption id="caption90" class="tit02" style="left:0px; top:5px; width:130px; height:20px; ">입금내역</caption>
+				<caption id="caption92" class="list_cap03" style="left:0px; top:23px; width:90px; height:26px; text-align:center; ">완납일자</caption>
+				<caption id="caption93" class="list_cap03" style="left:0px; top:48px; width:90px; height:26px; text-align:center; ">전월이월</caption>
+				<caption id="caption94" class="list_cap03" style="left:0px; top:73px; width:90px; height:26px; text-align:center; ">전월순매출</caption>
+				<caption id="caption95" class="list_cap03" style="left:0px; top:98px; width:90px; height:26px; text-align:center; ">계</caption>
+				<caption id="caption96" class="list_cap03" style="left:0px; top:123px; width:90px; height:26px; text-align:center; ">입금액</caption>
+				<caption id="caption97" class="list_cap03" style="left:0px; top:153px; width:90px; height:26px; text-align:center; ">입금후잔액</caption>
+				<caption id="caption98" ref="/root/resData/rcpm_info/record/label" class="list_cap03" style="left:0px; top:178px; width:90px; height:26px; text-align:center; ">센터간선수이월</caption>
+				<caption id="caption99" class="list_cap03" style="left:0px; top:203px; width:90px; height:26px; text-align:center; ">정리구좌이월</caption>
+				<caption id="caption101" class="list_cap03" style="left:0px; top:228px; width:90px; height:26px; text-align:center; ">마감후잔액</caption>
+				<caption id="caption102" class="list_cap03" style="left:0px; top:263px; width:90px; height:26px; text-align:center; ">금월순매출</caption>
+				<caption id="caption103" class="list_cap03" style="left:0px; top:288px; width:90px; height:26px; text-align:center; ">계</caption>
+				<caption id="caption91" style="left:217px; top:28px; width:15px; height:20px; ">%</caption>
+				<caption id="caption116" class="list_cap02" style="left:89px; top:48px; width:80px; height:26px; "/>
+				<caption id="caption118" class="list_cap02" style="left:89px; top:73px; width:80px; height:26px; "/>
+				<caption id="caption120" class="list_cap02" style="left:89px; top:98px; width:80px; height:26px; "/>
+				<caption id="caption121" class="list_cap02" style="left:89px; top:123px; width:80px; height:26px; "/>
+				<caption id="caption122" class="list_cap02" style="left:89px; top:153px; width:80px; height:26px; "/>
+				<caption id="caption123" class="list_cap02" style="left:89px; top:178px; width:80px; height:26px; "/>
+				<caption id="caption124" class="list_cap02" style="left:89px; top:203px; width:80px; height:26px; "/>
+				<caption id="caption125" class="list_cap02" style="left:89px; top:228px; width:80px; height:26px; "/>
+				<caption id="caption127" class="list_cap02" style="left:89px; top:263px; width:80px; height:26px; "/>
+				<caption id="caption128" class="list_cap02" style="left:89px; top:288px; width:80px; height:26px; "/>
+				<input id="input56" ref="/root/resData/rcpm_info/record/fpymt_dt" editable="false" format="yyyy-mm-dd" style="left:94px; top:27px; width:70px; height:22px; text-align:center; "/>
+				<input id="input57" ref="/root/resData/rcpm_info/record/ratio" editable="false" format="(-)#,###,###,###" style="left:167px; top:27px; width:48px; height:18px; text-align:right; "/>
+				<input id="input58" ref="/root/resData/rcpm_info/record/cyov_bal" editable="false" format="(-)#,###,###,###" style="left:94px; top:52px; width:70px; height:22px; text-align:right; "/>
+				<input id="input60" ref="/root/resData/rcpm_info/record/prvmm_net_sale_amt" editable="false" format="(-)#,###,###,###" style="left:94px; top:77px; width:70px; height:22px; text-align:right; "/>
+				<input id="input62" ref="/root/resData/rcpm_info/record/smt_amt" editable="false" format="#,###,###,###" style="left:94px; top:102px; width:70px; height:22px; text-align:right; "/>
+				<input id="input63" ref="/root/resData/rcpm_info/record/rcpm_amt" editable="false" format="(-)#,###,###,###" style="left:94px; top:127px; width:70px; height:22px; text-align:right; "/>
+				<input id="input64" ref="/root/resData/rcpm_info/record/rcpm_bal" editable="false" format="(-)#,###,###,###" style="left:94px; top:157px; width:70px; height:22px; text-align:right; "/>
+				<input id="input65" ref="/root/resData/rcpm_info/record/bo_cyov" editable="false" format="(-)#,###,###,###" style="left:94px; top:182px; width:70px; height:22px; text-align:right; "/>
+				<input id="input66" ref="/root/resData/rcpm_info/record/adjm_cyov" editable="false" format="(-)#,###,###,###" style="left:94px; top:207px; width:70px; height:22px; text-align:right; "/>
+				<input id="input68" ref="/root/resData/rcpm_info/record/bal" editable="false" format="(-)#,###,###,###" style="left:94px; top:232px; width:70px; height:22px; text-align:right; "/>
+				<input id="input69" ref="/root/resData/rcpm_info/record/net_sale_amt" editable="false" format="(-)#,###,###,###" style="left:94px; top:267px; width:70px; height:22px; text-align:right; "/>
+				<input id="input70" ref="/root/resData/rcpm_info/record/smt_amt2" editable="false" format="(-)#,###,###,###" style="left:94px; top:292px; width:70px; height:22px; text-align:right; "/>
+			</group>
+			<group id="group4" class="gro_tab1" style="left:755px; top:94px; width:170px; height:505px; ">
+				<caption id="caption111" class="list_cap02" style="left:79px; top:23px; width:80px; height:26px; "/>
+				<caption id="caption112" class="tit02" style="left:0px; top:5px; width:130px; height:20px; ">일계표내역</caption>
+				<caption id="caption114" class="list_cap03" style="left:0px; top:23px; width:80px; height:26px; text-align:center; ">본지증감</caption>
+				<caption id="caption148" class="list_cap03" style="left:0px; top:48px; width:80px; height:26px; text-align:center; ">본지편입</caption>
+				<caption id="caption100" class="list_cap03" style="left:0px; top:73px; width:80px; height:26px; text-align:center; ">본지발송</caption>
+				<caption id="caption149" class="list_cap03" style="left:0px; top:98px; width:80px; height:26px; text-align:center; ">소년1차</caption>
+				<caption id="caption150" class="list_cap03" style="left:0px; top:123px; width:80px; height:26px; text-align:center; ">소년2차</caption>
+				<caption id="caption104" class="list_cap03" style="left:0px; top:148px; width:80px; height:26px; text-align:center; ">소년3차</caption>
+				<caption id="caption108" class="list_cap03" style="left:0px; top:173px; width:80px; height:26px; text-align:center; ">소년발송</caption>
+				<caption id="caption167" class="list_cap02" style="left:79px; top:48px; width:80px; height:26px; "/>
+				<caption id="caption169" class="list_cap02" style="left:79px; top:98px; width:80px; height:26px; "/>
+				<caption id="caption171" class="list_cap02" format="(-)#,###,###,###" style="left:79px; top:123px; width:80px; height:26px; text-align:right; "/>
+				<caption id="caption105" class="list_cap02" format="(-)#,###,###,###" style="left:79px; top:148px; width:80px; height:26px; text-align:right; "/>
+				<caption id="caption106" class="list_cap02" format="(-)#,###,###,###" style="left:79px; top:73px; width:80px; height:26px; text-align:right; "/>
+				<caption id="caption107" class="list_cap02" format="(-)#,###,###,###" style="left:79px; top:173px; width:80px; height:26px; text-align:right; "/>
+				<input id="input90" ref="/root/resData/qty_info/record/qty_110_1" editable="false" format="(-)#,###,###,###" style="left:84px; top:27px; width:70px; height:22px; text-align:right; "/>
+				<input id="input92" ref="/root/resData/qty_info/record/qty_110_2" editable="false" format="(-)#,###,###,###" style="left:84px; top:52px; width:70px; height:22px; text-align:right; "/>
+				<input id="input55" ref="/root/resData/qty_info/record/qty_110_3" editable="false" format="(-)#,###,###,###" style="left:84px; top:77px; width:70px; height:18px; text-align:right; "/>
+				<input id="input94" ref="/root/resData/qty_info/record/qty_130_1" editable="false" format="(-)#,###,###,###" style="left:84px; top:102px; width:70px; height:18px; text-align:right; "/>
+				<input id="input96" ref="/root/resData/qty_info/record/qty_130_2" editable="false" format="(-)#,###,###,###" style="left:84px; top:127px; width:70px; height:18px; text-align:right; "/>
+				<input id="input71" ref="/root/resData/qty_info/record/qty_130_3" editable="false" format="(-)#,###,###,###" style="left:84px; top:152px; width:70px; height:18px; text-align:right; "/>
+				<input id="input59" ref="/root/resData/qty_info/record/qty_130_4" editable="false" format="(-)#,###,###,###" style="left:84px; top:177px; width:70px; height:18px; text-align:right; "/>
+			</group>
+			<caption id="caption109" style="left:114px; top:11px; width:130px; height:20px; "/>
+		</group>
+		<button id="button1" class="btn03" crud="C" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSave();
+				]]>
+			</script>
+		</button>
+		<caption id="caption88" style="left:266px; top:675px; width:489px; height:30px; vertical-align:middle; ">
+			<![CDATA[* 해외우송,특판은 익월 1日~매출마감일 사이에 당월매출확정(저장)을 하십시오.
+* 해외우송,특판 말일자 입금액은 회계마감 여부를 반드시 확인하십시오.
+			]]>
+		</caption>
+	</xhtml:body>
+</xhtml:html>

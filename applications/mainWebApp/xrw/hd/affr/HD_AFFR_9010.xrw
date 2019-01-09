@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<xx_combo_010/>
+							<xx_combo_020/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<searchData>
+							<usag_clsf_cd>10</usag_clsf_cd>
+							<journal_cd/>
+							<basi_dt/>
+							<use_yn/>
+						</searchData>
+						<reqForm>
+							<dept_nm/>
+							<dept_cd/>
+						</reqForm>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resForm>
+							<certi_clsf_name/>
+							<usag/>
+							<aplc_dt/>
+							<emp_no/>
+						</resForm>
+						<msg/>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<basi_yy/>
+								<basi_no/>
+								<dept_cd/>
+								<dept_nm/>
+								<journal_cd/>
+								<journal_nm/>
+								<usag_clsf_cd/>
+								<prvmm_qty/>
+								<icdc_qty/>
+								<qty/>
+								<cd_nm/>
+								<seq/>
+								<remk/>
+								<new_occr_yn/>
+							</record>
+							<sub/>
+							<datail/>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					
+					function loadData(basi_dt, use_yn){
+						model1.setValue("/root/reqData/searchData/basi_dt", basi_dt ) ;
+						model1.setValue("/root/reqData/searchData/use_yn", use_yn ) ;
+			
+						if(use_yn == "Y")
+					    {
+							button1.disabled = false;
+							button2.disabled = false;
+						}
+						else
+						{
+							button1.disabled = true;
+							button2.disabled = true;
+						}
+						model1.refresh();
+					}
+					
+					function resetData(){
+						model1.reset();
+						rowCnt.value = "총 "+ (parseInt(datagrid2.rows)- 1) + " 건";
+
+					}
+						
+					function setDept_cd(iv_dept_cd, iv_dept_nm){
+						model1.setValue("/root/reqData/reqForm/dept_cd", iv_dept_cd);
+						//var dept_temp = iv_dept_cd + " " + iv_dept_nm;
+						var row = datagrid2.row;
+						
+						model1.setValue("/root/resData/gridData/record[" + (row) + "]/dept_cd", iv_dept_cd);
+						model1.setValue("/root/resData/gridData/record[" + (row) + "]/dept_nm", iv_dept_nm);
+						model1.refresh();
+					}
+		
+					function searchList(){
+						parent.window.javaScript.setDate();
+						model1.removenode("/root/dataSet");
+					
+						model1.send("hd_affr_9011");
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.makeNode("/root/dataSet");
+					
+						datagrid2.clearStatus();
+						datagrid2.refresh();
+						
+						
+						for(var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+							if(datagrid2.valueMatrix(i,datagrid2.colRef("new_occr_yn")) == "Y"){
+								datagrid2.rowstyle(i, "data", "background-color") = "#FFFF48";
+							}
+						}
+						rowCnt.value = "총 "+ (parseInt(datagrid2.rows)- 1) + " 건";
+						
+						getSum();
+						
+					}
+					
+					function getSum(){
+						 datagrid2.subtotalposition = "below";
+						datagrid2.subtotal("clear", -1, datagrid2.colRef("prvmm_qty"));
+						datagrid2.subtotal("clear", -1, datagrid2.colRef("icdc_qty"));
+						datagrid2.subtotal("clear", -1, datagrid2.colRef("qty"));
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("prvmm_qty"), "#,###.#", "font-weight:bolder;background-color:#C4DEFF", 1, "합계",false);
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("icdc_qty"), "#,###.#", "font-weight:bolder;background-color:#C4DEFF", 1, "합계",false);
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("qty"), "#,###.#", "font-weight:bolder;background-color:#C4DEFF", 1, "합계",false);
+					
+						datagrid2.unmergebyfree(datagrid2.rows-1,datagrid2.colRef("dept_cd"));
+						datagrid2.unmergebyfree(datagrid2.rows-1,datagrid2.colRef("cd_nm"));
+						datagrid2.unmergebyfree(datagrid2.rows-1,datagrid2.colRef("dept_nm"));
+						datagrid2.unmergebyfree(datagrid2.rows-1,datagrid2.colRef("journal_cd"));
+						
+							
+						datagrid2.mergeByFree(datagrid2.rows-1,datagrid2.colRef("dept_cd"),datagrid2.rows-1,datagrid2.colRef("journal_cd")) ;
+						model1.refresh();
+						
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				//	model.setValue("/root/reqData/searchData/usag_clsf_cd","1");
+					model.send("hd_affr_9010_m");
+					parent.window.javaScript.setDate("1");
+					
+					model1.copyNode("/root/initData/comboSet/xx_combo_010", "/root/dataSet/XX_COMBO_010");
+					model1.copyNode("/root/initData/comboSet/xx_combo_020", "/root/dataSet/XX_COMBO_020");
+					
+					model1.removenode("/root/dataSet");
+					
+					model1.refresh();
+					combo3.select(0);
+					model1.refresh();
+					
+					searchList();
+
+				]]>
+			</script>
+			<submission id="hd_affr_9010_m" action="/hd/affr/9010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_affr_9011" action="/hd/affr/9011" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_9012" action="/hd/affr/9012" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_affr_9013" action="/hd/affr/9013" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="925" pageheight="600" guideline="2,550;1,18;1,197;">
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" visibility="visible" scroll="auto" caption="부서코드^국실명^부서명^사내지명^전월^증감^계^비고^새로생성부서^년도^월^seq" colsep="#" colwidth="80, 130, 130, 130, 75, 75, 75, 200, 100, 101, 110, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:69px; width:900px; height:465px; ">
+			<col class="req" ref="dept_cd" type="inputbutton" maxlength="6">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/func_nm");
+					model.setValue("/root/reqData/fwdData/func_nm", "setDept_cd");
+					window.load("/xrw/hd/com/HD_COM_1100.xrw","mdichild", "hd_com_1100", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");	
+					]]>
+				</script>
+			</col>
+			<col ref="cd_nm" style="text-align:left; "/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col class="req" ref="journal_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/xx_combo_020/item">
+						<label ref="cd_nm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="prvmm_qty" format="#,###" style="text-align:right; "/>
+			<col ref="icdc_qty" class="req" type="input" format="(-)#,###" style="text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var row = datagrid2.row;
+						var sum = 0 ; 
+						var  prvmm_qty = model1.getValue("/root/resData/gridData/record[" + (row) + "]/prvmm_qty");
+						var  icdc_qty = model1.getValue("/root/resData/gridData/record[" + (row) + "]/icdc_qty");
+						
+						if(prvmm_qty ==  null || prvmm_qty == "")
+						{
+							prvmm_qty = 0;
+						}
+						
+						if(icdc_qty ==  null || icdc_qty == "")
+						{
+							icdc_qty = 0;
+						}
+						
+						sum = Number(prvmm_qty) + Number(icdc_qty) ;  //  계  =  전월 + 증감  
+						
+						if(Number(sum) < 0 )
+						{
+							alert("계가 0보다 작을 수 없습니다. 다시 입력 바랍니다.");
+							icdc_qty = 0;
+							model1.setValue("/root/resData/gridData/record[" + (row) + "]/icdc_qty", icdc_qty) ;
+							sum = Number(prvmm_qty) + Number(icdc_qty) ;  //  계  =  전월 + 증감   
+						}
+						
+						model1.setValue("/root/resData/gridData/record[" + (row) + "]/qty", Number(sum)) ; //  계 
+					    getSum();
+					]]>
+				</script>
+			</col>
+			<col ref="qty" format="#,###" style="text-align:right; "/>
+			<col ref="remk" type="input" style="text-align:left; "/>
+			<col ref="new_occr_yn" visibility="hidden"/>
+			<col ref="basi_yy" visibility="hidden" format="yyyy-mm-dd"/>
+			<col ref="basi_no" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						if(datagrid2.row == 0) return;		
+						rowStatus(datagrid2);
+						var selectValue = "";
+						var selectedIdx = datagrid2.row;
+						model1.copyNode("/root/reqData/reqForm" ,"/root/resData/gridData/record["+ selectedIdx +"]");
+						model1.refresh();
+							
+					]]>
+			</script>
+		</datagrid>
+		<object id="object1" style="left:-130px; top:325px; width:45px; height:10px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:9px; width:900px; height:28px; ">
+			<caption id="caption4" class="list_cap02" style="left:60px; top:0px; width:840px; height:26px; text-align:center; "/>
+			<caption id="caption18" class="list_cap01" style="left:0px; top:0px; width:120px; height:26px; text-align:center; ">사내지명(본지)</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/journal_cd" class="req" navindex="2" appearance="minimal" caption="레벨" style="left:14.00%; top:4px; width:18.56%; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/xx_combo_010/item">
+						<label ref="cd_nm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var getComboLabel = combo3.label;
+				//	model1.setValue("/root/reqData/searchData/relationtype_nm", getComboLabel);
+				]]>
+				</script>
+			</select1>
+			<button id="button1" class="btn02" disabled="true" visibility="visible" style="left:731px; top:3px; width:51px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					
+						if (!rowInSubmit(datagrid2))
+						return;
+					
+						if (window.alert("저장하시겠습니까?", "저장", 1) != 1)
+						return;
+						
+						model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+
+						model1.send("hd_affr_9012");
+						//model1.copyNode("/root/resData/gridData","/root/tempData");
+						
+						if(submit_completed()) {
+							searchList()
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" disabled="true" style="left:787px; top:3px; width:51px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					
+					    if (!rowDelSubmit(datagrid2))
+							return;
+						
+						if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}					
+						
+						model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+
+						model1.send("hd_affr_9013");
+						
+						if(submit_completed()) {
+							searchList()
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:674px; top:3px; width:51px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:843px; top:3px; width:51px; height:21px; ">
+				<caption>엑셀</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+								
+						if(filePath != "") {
+							datagrid2.saveExcel(filePath);
+							window.exec(filePath);
+						}
+				]]>
+				</script>
+			</button>
+		</group>
+		<caption id="rowCnt" style="left:784px; top:550px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+		<button id="button5" class="btn_grid03" visibility="visible" style="left:852px; top:45px; width:52px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var cmpy_cd = parent.model.getValue("/root/resData/resForm/cmpy_cd"); // 회사코드
+					var basi_dt = parent.model.getValue("/root/resData/resForm/basi_dt"); // 기준월
+					var journal_cd = model1.getValue("/root/reqData/searchData/journal_cd") // 사내지명 
+					var basi_yy = model1.getValue("/root/resData/gridData/record[1]/basi_yy");
+
+					var nodeList = root.selectNodes("/root/resData/gridData/record");
+					var rowIdx = nodeList.length;
+					var row = rowIdx +1 ;
+						
+					 datagrid2.deleteRow(row);  //하단의 합계를 삭제 
+					
+					 datagrid2.mergeCellsFixedRows= "byrestricrow";  //바로위에 행에 맞게 합계에서 수행했던 머지를 품 
+					
+					datagrid2.clearStatus();
+					
+					if (datagrid2.rows == 2 && datagrid2.rowStatus(1) == 0 ) {
+						if(basi_yy == ""){
+							//alert("사내지명을 선택후 수정 바랍니다. ");
+							//return ;
+							datagrid2.addStatus(1, "insert");
+						}else{
+							datagrid2.addRow(true, true);
+						}
+					}else{
+						datagrid2.addRow(true, true);
+					}
+					
+					model1.refresh();
+					getSum();
+					
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

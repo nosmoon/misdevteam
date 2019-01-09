@@ -1,0 +1,336 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+
+<%---------------------------------------------------------------------------------------------------
+* 파일명   : ps_rdr_1606_l.jsp
+* 기능     : 모닝+ 현금영수증 검색
+* 작성일자 : 2004-04-23
+* 작성자   : 김상옥
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자   :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+
+<%
+    //dataset 인스턴스 선언부분
+    CO_L_RDRCRTS_GRAD_APLCDataSet ds = (CO_L_RDRCRTS_GRAD_APLCDataSet)request.getAttribute("ds");
+
+	// 검색 리스트 카운트
+	int recCount  =  ds.rdr_gradaplccur.size();
+
+	// 한페이지에 보여줄 레코드 수
+	int pagesize = Integer.parseInt(request.getParameter("pagesize"));
+
+	//임의의 변수
+	int k  =  0;
+%>
+
+<!--list start -->
+<table width="830" border="0" align="center" cellpadding="1" cellspacing="0" bgcolor="#ffffff" class="gray" id="list_zone">
+  <form name="grad_form" method="post" action="" onsubmit="sear_button(1);">
+  <input type="hidden" name="listcnt" value="<%=pagesize%>">
+  <tr bgcolor="#dddddd" align="center">
+    <td class="gray" width="20"  rowspan="2"><input type="checkbox" name="grad_check" onClick="checkAll();"></td>
+    <td class="gray" width="65" >신청일자</td>
+    <td class="gray" width="50" >신청자</td>
+    <td class="gray" width="55" >구독자</td>
+    <td class="gray" width="90" >회원아이디</td>
+    <td class="gray" width="70" >지사</td>
+    <td class="gray" width="60" >매체</td>
+    <td class="gray" width="70" >독자번호</td>
+<!--    <td class="gray" width="80"  >회원종류</td> -->
+    <td class="gray" width="75" >모플회원</td>
+    <td class="gray" width="80" >오류사유</td>
+    <td class="gray" width="65" >처리일자</td>
+    <td class="gray" width="60" >현금영수증</td>
+  </tr>
+  <tr bgcolor="#dddddd" align="center">
+    <td class="gray" colspan="3" width="170">전화/휴대폰</td>
+    <td class="gray" width="90" >주민번호</td>
+    <td class="gray" colspan="2" width="130">이메일</td>
+    <td class="gray" colspan="5" width="350">주소</td>
+  </tr>
+
+<%--화면에 보여줄 기본 레코드수에 따라 포멧에 맞게 Display--%>
+<%
+	int i = 0;
+	for(i=0; i<ds.rdr_gradaplccur.size(); i++){
+		CO_L_RDRCRTS_GRAD_APLCRDR_GRADAPLCCURRecord rdr_gradaplccurRec = (CO_L_RDRCRTS_GRAD_APLCRDR_GRADAPLCCURRecord)ds.rdr_gradaplccur.get(i);
+%>
+  <!--<tr onmouseover="change_row_color_in(this);" onmouseout="change_row_color_out(this);" onclick="change_row_color_click(this);" > -->
+	<tr onclick="change_row_color_click(this);" >
+    <td class="gray" width="20"  rowspan="2">
+      <input type="hidden"   name="onlmembseq<%=i%>"  value="<%= rdr_gradaplccurRec.entr_no%>">
+      <input type="hidden"   name="aplcdt<%=i%>"  value="<%= rdr_gradaplccurRec.regdt%>">
+      <input type="hidden"   name="aplcno<%=i%>"  value="<%= rdr_gradaplccurRec.regno%>">
+      <input type="hidden"   name="chkseq<%=i%>" value="<%=i%>">
+      <input type="checkbox" name="grad_check<%=i%>" value="SEL" >
+    </td>
+    <td class="gray" align="center" ><%= Util.convertS(rdr_gradaplccurRec.regdt)%></td>
+    <td class="gray" align="left"   onclick="javascript:select_membnm('<%= rdr_gradaplccurRec.memb_nm_korn%>','<%=rdr_gradaplccurRec.medicd%>',<%=i%>);"  style="cursor:hand"><font color=blue><%= Util.convertNull(rdr_gradaplccurRec.memb_nm_korn,"&nbsp;")%></font></td>
+    <td class="gray" align="left"   onclick="javascript:select_membnm('<%= rdr_gradaplccurRec.rdrnm%>','<%=rdr_gradaplccurRec.medicd%>',<%=i%>);"  style="cursor:hand"><font color=blue><%=Util.convertNull(rdr_gradaplccurRec.rdrnm,"&nbsp;")%></font></td>
+    <td class="gray" align="left"   ><%= rdr_gradaplccurRec.id%></td>
+    <td class="gray" align="center" >
+      <select name="bocd<%=i%>" size="1" class="sel_all" style="width:70;">
+        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>
+<%--지사 콤보박스 구성--%>
+<%
+        for(int j=0; j<ds.pusbocdcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCPUSBOCDCURRecord pusbocdcurRec = (CO_L_RDRCRTS_GRAD_APLCPUSBOCDCURRecord)ds.pusbocdcur.get(j);
+%>
+        <option value="<%= pusbocdcurRec.bocd%>"
+<%
+        	if ((rdr_gradaplccurRec.bocd).equals(pusbocdcurRec.bocd)) {
+            	out.print("selected");
+        	}
+%>
+        ><%= pusbocdcurRec.bonm%></option>
+<%
+        }
+%>
+      </select>
+    </td>
+    <td class="gray"  align="center" >&nbsp;
+      <input type="hidden" name="medicd<%=i%>"   size="9" maxlength="9" class="text_box" value="<%= rdr_gradaplccurRec.medicd%>">
+      <%= rdr_gradaplccurRec.medinm%>
+    </td>
+<% if(rdr_gradaplccurRec.rdr_no.equals("")) { %>
+    <td class="gray"  align="center">
+<% } else { %>
+    <td class="gray"  align="center" onclick="javascript:select_mplist('<%=rdr_gradaplccurRec.bocd%>','<%= rdr_gradaplccurRec.rdr_no%>','<%=rdr_gradaplccurRec.medicd%>')">
+<% } %>
+      <input type="text" name="rdr_no<%=i%>" size="9" maxlength="9" class="text_box" value="<%= rdr_gradaplccurRec.rdr_no%>">
+    </td>
+<%--
+    <td class="gray"  align="center" >
+      <select name="rdrgrad<%=i%>" size="1" class="sel_all" style="width:70;">
+        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>
+<!--등급 콤보박스 구성-->
+<%
+         for(int j=0; j<ds.gradcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCGRADCURRecord gradcurRec = (CO_L_RDRCRTS_GRAD_APLCGRADCURRecord)ds.gradcur.get(j);
+%>
+        <option value="<%= gradcurRec.cicodeval%>"
+<%
+        	if ((rdr_gradaplccurRec.memb_kind_cd).equals(gradcurRec.cicodeval)) {
+            	out.print("selected");
+        	}
+%>
+        ><%= gradcurRec.cicdnm%></option>
+<%
+    }
+%>
+      </select>
+    </td>
+-----------------------%>
+    <td class="gray" align="center" >
+      <select name="dtlsprocstat<%=i%>" size="1" class="sel_all" style="width:70;"  onchange="jsDisEnabled_1(<%=i%>);">
+<%--        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option> --%>
+<%--모플회원 콤보박스 구성--%>
+<%
+         for(int j=0; j<ds.dtlsprocstatcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCDTLSPROCSTATCURRecord dtlsprocstatcurRec = (CO_L_RDRCRTS_GRAD_APLCDTLSPROCSTATCURRecord)ds.dtlsprocstatcur.get(j);
+%>
+        <option value="<%= dtlsprocstatcurRec.cicodeval%>"
+<%
+        	if ((rdr_gradaplccurRec.dtlsprocstat).equals(dtlsprocstatcurRec.cicodeval)) {
+            	out.print("selected");
+        	}
+%>
+        ><%= dtlsprocstatcurRec.cicdnm%></option>
+<%
+    }
+%>
+      </select>
+    </td>
+    <td class="gray" align="center" >
+<%    if((rdr_gradaplccurRec.dtlsprocstat).equals("30") ){ %>
+      <select name="errresncd<%=i%>" size="1" class="sel_all" style="width:70;" onclick="javascript:select_errresncd(<%=i%>);">
+<%    } else { %>
+      <select name="errresncd<%=i%>" size="1" class="sel_all" style="width:70;" disabled onclick="javascript:select_errresncd(<%=i%>);">
+<% 	  }  %>
+
+        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>
+<!--오류사유 콤보박스 구성-->
+<%
+         for(int j=0; j<ds.errresncdcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCERRRESNCDCURRecord errresncdcurRec = (CO_L_RDRCRTS_GRAD_APLCERRRESNCDCURRecord)ds.errresncdcur.get(j);
+%>
+        <option value="<%= errresncdcurRec.cicodeval%>"
+<%
+        	if ((rdr_gradaplccurRec.errresncd).equals(errresncdcurRec.cicodeval)) {
+            	out.print("selected");
+        	}
+%>
+        ><%= errresncdcurRec.cicdnm%></option>
+<%
+    }
+%>
+      </select>
+    </td>
+    <td class="gray" align="center" ><%if(!"".equals(rdr_gradaplccurRec.procdt)) {out.print(Util.convertS(rdr_gradaplccurRec.procdt));} else {out.print("&nbsp;");}%></td>
+    <td class="gray" align="center" >
+<%--if(rdr_gradaplccurRec.recdt != null) {out.print("Y");} else {out.print("N");}--%>
+            <select name="cashrcptstat<%=i%>" size="1" class="sel_all" style="width:60;"
+             <% if ("".equals(rdr_gradaplccurRec.recstat)) {
+              		out.print("disabled");
+                  }
+             %>>
+
+			<%--현금영수증 처리상태 콤보박스 구성--%>
+			<%
+            if (!"".equals(rdr_gradaplccurRec.recstat)) {
+				for(int j=0; j<ds.cashrcptstatcur.size(); j++){
+					CO_L_RDRCRTS_GRAD_APLCCASHRCPTSTATCURRecord cashrcptstatcurRec = (CO_L_RDRCRTS_GRAD_APLCCASHRCPTSTATCURRecord)ds.cashrcptstatcur.get(j);
+			%>
+              <option value="<%= cashrcptstatcurRec.cicodeval%>"
+                <%
+                if ((rdr_gradaplccurRec.recstat).equals(cashrcptstatcurRec.cicodeval)) {
+		           	out.print("selected");
+                    }
+                %>><%= cashrcptstatcurRec.cicdnm%>
+              </option>
+			<%
+    		}}else{
+            %>
+            <option value="" selected >&nbsp;</option>
+			<%
+            }
+			%>
+            </select>
+
+	</td>
+  </tr>
+<!--  <tr onmouseover="change_row_color_in(this);" onmouseout="change_row_color_out(this);" onclick="javascript:change_row_color_click(this);"> -->
+  <tr onclick="javascript:change_row_color_click(this);">
+    <td class="gray" colspan="3" align="left"   >
+      <%= rdr_gradaplccurRec.home_tel_no%>/<%= rdr_gradaplccurRec.ceph_no_1%>-<%= rdr_gradaplccurRec.ceph_no_2%>
+    </td>
+    <td class="gray" align="center" ><%if(!"".equals(rdr_gradaplccurRec.prn)) {out.print(Util.FormatJumin(rdr_gradaplccurRec.prn));} else {out.print("&nbsp;");}%></td>
+    <td class="gray" colspan="2" align="left"   ><%= rdr_gradaplccurRec.email%></td>
+    <td class="gray" colspan="5" align="left"   ><%= rdr_gradaplccurRec.addr%>&nbsp;<%= rdr_gradaplccurRec.dtlsaddr%></td>
+  </tr>
+<%-- 검색된 배정지사 내역이 Display될 기본 레코드 수에 미치지 못할경우 공란 Display --%>
+<%
+		++k;
+	}
+
+	for(int ii=i; ii < (pagesize-recCount)+i ; ii++) {
+%>
+  <tr>
+    <td class="gray" rowspan="2"><input type="checkbox" name="grad_check<%=ii%>" disabled ></td>
+    <td class="gray" align="center" >&nbsp;</td>
+    <td class="gray" align="left"   >&nbsp;</td>
+    <td class="gray" align="left"   >&nbsp;</td>
+    <td class="gray" align="left"   >&nbsp;</td>
+    <td class="gray" align="center" >
+      <select name="bocd<%=ii%>" size="1" class="sel_all" style="width:60;" disabled>
+        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>
+<%--지사 콤보박스 구성--%>
+<%
+        for(int j=0; j<ds.pusbocdcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCPUSBOCDCURRecord pusbocdcurRec = (CO_L_RDRCRTS_GRAD_APLCPUSBOCDCURRecord)ds.pusbocdcur.get(j);
+%>
+        <option value="<%= pusbocdcurRec.bocd%>"><%= pusbocdcurRec.bonm%></option>
+<%
+        }
+%>
+      </select>
+    </td>
+    <td class="gray" align="center" >&nbsp;</td>
+    <td class="gray" align="center" >
+      <input type="text" name="rdr_no<%=ii%>"      size="9" maxlength="9" class="text_box" value="">
+    </td>
+<%--    <td class="gray" align="center" >
+      <select name="rdrgrad<%=ii%>" size="1" class="sel_all" style="width:70;">
+        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>
+<!--등급 콤보박스 구성-->
+<%
+         for(int j=0; j<ds.gradcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCGRADCURRecord gradcurRec = (CO_L_RDRCRTS_GRAD_APLCGRADCURRecord)ds.gradcur.get(j);
+%>
+        <option value="<%= gradcurRec.cicodeval%>"><%= gradcurRec.cicdnm%></option>
+<%
+    }
+%>
+      </select>
+    </td>
+--%>
+    <td class="gray" align="center" >
+      <select name="dtlsprocstat<%=ii%>" size="1" class="sel_all" style="width:70;" disabled>
+<%--        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option> --%>
+<%--모플회원 콤보박스 구성--%>
+<%
+         for(int j=0; j<ds.dtlsprocstatcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCDTLSPROCSTATCURRecord dtlsprocstatcurRec = (CO_L_RDRCRTS_GRAD_APLCDTLSPROCSTATCURRecord)ds.dtlsprocstatcur.get(j);
+%>
+        <option value="<%= dtlsprocstatcurRec.cicodeval%>"><%= dtlsprocstatcurRec.cicdnm%></option>
+<%
+    }
+%>
+      </select>
+    </td>
+    <td class="gray" align="center" >
+      <select name="errresncd<%=i%>" size="1" class="sel_all" style="width:70;" disabled>
+        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>
+<!--오류사유 콤보박스 구성-->
+<%
+         for(int j=0; j<ds.errresncdcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCERRRESNCDCURRecord errresncdcurRec = (CO_L_RDRCRTS_GRAD_APLCERRRESNCDCURRecord)ds.errresncdcur.get(j);
+%>
+        <option value="<%= errresncdcurRec.cicodeval%>"><%= errresncdcurRec.cicdnm%></option><%
+    }
+%>
+      </select>
+    </td>
+    <td class="gray" align="center" >&nbsp;</td>
+    <td class="gray" align="center" >&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="gray" colspan="3" align="left"   >&nbsp;</td>
+    <td class="gray" align="center" >&nbsp;</td>
+    <td class="gray" colspan="2" align="left"   >&nbsp;</td>
+    <td class="gray" colspan="5" align="left"   >&nbsp;</td>
+  </tr>
+<%
+	}
+%>
+  </form>
+</table>
+
+<table  width="830" cellpadding="0" border="0" cellspacing="0" class="title2" align="center" id="page_zone">
+  <tr>
+    <td height="20" bgcolor="#E8E8E8">
+      <div align="center">
+        <!--JSP PAGE START---------------------------------------------------------------------------------->
+    <%
+        String pageno  = request.getParameter("pageno");
+        String total_records = String.valueOf(ds.getTotalcnt());
+        String js_fn_nm      = request.getParameter("js_fn_nm");
+    %>
+        <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+        <jsp:param name  ="curr_page_no"        value="<%=pageno%>"/>
+        <jsp:param name  ="total_records"       value="<%=total_records%>"/>
+        <jsp:param name  ="js_fn_nm"            value="<%=js_fn_nm%>"/>
+        <jsp:param name  ="records_per_page"    value="<%=pagesize%>"/>
+        <jsp:param name  ="page_set_gubun"      value="0"/>
+        </jsp:include>
+        <!--JSP PAGE END------------------------------------------------------------------------------------>
+      </div>
+    </td>
+  </tr>
+</table>
+
+	<script>
+		var lo_form1  =  parent.document.search_form;
+		lo_form1.sh_cashrcptstat.disabled          = false;
+	    lo_form1.sh_dtlsprocstat.disabled 		   = false;
+
+		lo_form1.pageno.value                      = "<%=pageno%>";
+		parent.document.all.list_zone.outerHTML    = list_zone.outerHTML;
+		parent.document.all.page_zone.outerHTML    = page_zone.outerHTML;
+		parent.jsInit();
+	</script>

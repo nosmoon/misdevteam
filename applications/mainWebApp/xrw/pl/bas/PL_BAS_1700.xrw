@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_BAS_1600.xrw
+* 기능 : 기초관리-매출매입기준관리
+* 작성일자 : 2009-06-12
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>매출매입기준관리(PL_BAS_1700)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_cd>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</medi_cd>
+							<dlco_clsf1>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</dlco_clsf1>
+							<dlco_clsf2>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</dlco_clsf2>
+							<sale_aply_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</sale_aply_clsf>
+							<purc_aply_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</purc_aply_clsf>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<medi_cd/>
+								<dlco_clsf/>
+							</searchTop>
+						</searchData>
+						<reqForm>
+							<acc_flag/>
+							<medi_cd_old/>
+							<medi_cd/>
+							<dlco_clsf/>
+							<aply_bgn_yymm/>
+							<aply_end_yymm/>
+							<sale_aply_clsf/>
+							<sale_rate/>
+							<purc_aply_clsf/>
+							<purc_rate/>
+							<cntr_amt/>
+							<dcrate_basi/>
+							<dcrate_basi_rate/>
+						</reqForm>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<PTCRLIST>
+								<record>
+									<dlco_clsf_nm/>
+									<aply_bgn_yymm/>
+									<aply_end_yymm/>
+									<sale_aply_clsf_nm/>
+									<sale_rate/>
+									<purc_aply_clsf_nm/>
+									<purc_rate/>
+									<cntr_amt/>
+									<dcrate_basi/>
+									<dcrate_basi_rate/>
+									<medi_cd/>
+									<dlco_clsf/>
+									<sale_aply_clsf/>
+									<purc_aply_clsf/>
+								</record>
+							</PTCRLIST>
+						</gridData>
+						<MsgData/>
+						<resultData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<btState/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="pl_bas_1700_m" action="/pl/bas/1700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/comboSet"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+			<submission id="pl_bas_1710_l" action="/pl/bas/1710" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData"/>
+			<submission id="pl_bas_1720_a" action="/pl/bas/1720" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/resData/resultData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					model.send("pl_bas_1700_m");						//Submission
+
+					model.copyNode("/root/initData/comboSet/medi_cd","/root/resData/comboSet/medi_cd");			//매체코드
+					model.copyNode("/root/initData/comboSet/dlco_clsf1","/root/resData/comboSet/dlco_clsf");			//거래처구분
+					model.copyNode("/root/initData/comboSet/dlco_clsf2","/root/resData/comboSet/dlco_clsf");			//거래처구분(전체)
+					model.copyNode("/root/initData/comboSet/sale_aply_clsf","/root/resData/comboSet/sale_aply_clsf");	//매출적용구분
+					model.copyNode("/root/initData/comboSet/purc_aply_clsf","/root/resData/comboSet/purc_aply_clsf");	//매입적용구분
+
+					//콤보 초기구분값 세팅(전체(A), 선택(S), 공백("") -> value는 "")
+					makeComboGubun("A", "/root/initData/comboSet/dlco_clsf2", "item", "cdnm", "cd");
+
+					model.setValue("/root/tempData/btState","RE");			//버튼제어상태 (RE:초기화)
+
+					model.setFocus("combo2");
+					model.refresh();
+				}
+
+				//조회
+				function srcRetrieve(){
+					model.send("pl_bas_1710_l");						//Submission
+
+					//필수체크
+					if(!commReqCheck(group1)) {
+						return;
+					}
+
+					dtlReset();
+
+					//매체코드,거래처구분 활성화
+					combo10.disabled = false;
+					combo3.disabled = false;
+
+					model.setValue("/root/tempData/btState","RT");			//버튼제어상태 (RT:조회)
+					
+					model.setFocus("combo2");
+					model.refresh();
+				}
+
+				//상세검색 Set
+				function serchDtl(){
+					var rownum = datagrid1.row;
+					
+					if(rownum > 0){
+						var rownumstr = "["+rownum+"]/";
+						var medi_cd = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"medi_cd");
+						var dlco_clsf = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"dlco_clsf");
+						var aply_bgn_yymm = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"aply_bgn_yymm");
+						var aply_end_yymm = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"aply_end_yymm");
+						var sale_aply_clsf = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"sale_aply_clsf");
+						var sale_rate = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"sale_rate");
+						var purc_aply_clsf = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"purc_aply_clsf");
+						var purc_rate = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"purc_rate");
+						var cntr_amt = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"cntr_amt");
+						var dcrate_basi = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"dcrate_basi");
+						var dcrate_basi_rate = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"dcrate_basi_rate");
+
+						model.setValue("/root/reqData/reqForm/medi_cd_old",medi_cd);				//매체코드(구)
+						model.setValue("/root/reqData/reqForm/medi_cd",medi_cd);					//매체코드
+						model.setValue("/root/reqData/reqForm/dlco_clsf",dlco_clsf);					//거래처구분
+						model.setValue("/root/reqData/reqForm/aply_bgn_yymm",aply_bgn_yymm);		//적용시작년월
+						model.setValue("/root/reqData/reqForm/aply_end_yymm",aply_end_yymm);		//적용종료년월
+						model.setValue("/root/reqData/reqForm/sale_aply_clsf",sale_aply_clsf);			//매출적용구분
+						model.setValue("/root/reqData/reqForm/sale_rate",sale_rate);					//매출요율
+						model.setValue("/root/reqData/reqForm/purc_aply_clsf",purc_aply_clsf);			//매입적용구분
+						model.setValue("/root/reqData/reqForm/purc_rate",purc_rate);					//매입요율
+						model.setValue("/root/reqData/reqForm/cntr_amt",cntr_amt);					//계약금액
+						model.setValue("/root/reqData/reqForm/dcrate_basi",dcrate_basi);				//할제기준
+						model.setValue("/root/reqData/reqForm/dcrate_basi_rate",dcrate_basi_rate);		//할제기준요율
+					}
+					
+					model.setValue("/root/tempData/btState","DT");		//버튼제어상태 (SA:저장)
+
+					//매체코드,거래처구분 비활성화
+					combo10.disabled = true;
+					combo3.disabled = true;
+
+					model.setFocus("input3");
+					group2.refresh();
+				}
+
+				//저장처리
+				function saveProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 get
+					
+					//Confirm체크
+					if(!commConfirmBox("저장 하시겠습니까?", "저장")){
+						return;
+					}
+
+					//필수체크
+					if(!commReqCheck(group2)) {
+						return;
+					}
+					
+					model.setValue("/root/reqData/reqForm/acc_flag","S");	//처리구분 Set(S:저장)
+
+					model.send("pl_bas_1720_a");
+
+					//에러체크
+					if(submit_completed()){
+						model.send("pl_bas_1710_l")
+						dtlReset();
+						combo10.disabled  = false;
+						combo3.disabled  = false;
+						model.setValue("/root/tempData/btState","SA");		//버튼제어상태 (SA:저장)
+					}
+					model.setFocus("combo2");
+				}
+
+				//삭제처리
+				function deleteProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 get
+					
+					//Confirm체크
+					if(!commConfirmBox("삭제 하시겠습니까?", "삭제")){
+						return;
+					}
+
+					//필수체크
+					if(!commReqCheck(group2)) {
+						return;
+					}
+					
+					//버튼체크
+					if(btnctl != "DT"){
+						commAlert("상세조회 후 삭제할 수 있습니다.");
+						return;
+					}
+
+					model.setValue("/root/reqData/reqForm/acc_flag","D");					//처리구분 Set(D:삭제)
+
+					model.send("pl_bas_1720_a");
+
+					//에러체크
+					if(submit_completed()){
+						model.send("pl_bas_1710_l")
+						dtlReset();
+						combo10.disabled  = false;
+						combo3.disabled  = false;
+						model.setValue("/root/tempData/btState","DE");		//버튼제어상태 (DE:삭제)
+					}
+					model.setFocus("combo2");
+				}
+
+				//상세내역 초기화 처리
+				function dtlReset(){
+					model.setValue("/root/reqData/reqForm/medi_cd_old","");			//매체코드(구)
+					model.setValue("/root/reqData/reqForm/medi_cd","");			//매체코드
+					model.setValue("/root/reqData/reqForm/dlco_clsf","");			//거래처구분
+					model.setValue("/root/reqData/reqForm/aply_bgn_yymm","");		//적용시작년월
+					model.setValue("/root/reqData/reqForm/aply_end_yymm","");		//적용종료년월
+					model.setValue("/root/reqData/reqForm/sale_aply_clsf","");		//매출적용구분
+					model.setValue("/root/reqData/reqForm/sale_rate","");			//매출요율
+					model.setValue("/root/reqData/reqForm/purc_aply_clsf","");		//매입적용구분
+					model.setValue("/root/reqData/reqForm/purc_rate","");			//매입요율
+					model.setValue("/root/reqData/reqForm/cntr_amt","");			//계약금액
+					model.setValue("/root/reqData/reqForm/dcrate_basi","");			//할제기준
+					model.setValue("/root/reqData/reqForm/dcrate_basi_rate","");		//할제기준요율
+					
+					group2.refresh();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;2,64;2,71;1,936;2,725;" style="font-family:굴림; vertical-align:top; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnReset" class="btn03" style="left:584px; top:45px; width:63px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+					
+					model.setFocus("combo2");
+					combo10.disabled  = false;
+					combo3.disabled  = false;
+				]]>
+			</script>
+		</button>
+		<button id="btnRetrive" class="btn03" crud="R" style="left:653px; top:45px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					srcRetrieve();
+				]]>
+			</script>
+		</button>
+		<button id="btnInsert" class="btn03" crud="C" style="left:722px; top:45px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					saveProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnDelete" class="btn03" crud="D" style="left:791px; top:45px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					deleteProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:860px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group1" style="left:10px; top:71px; width:926px; height:30px; ">
+			<caption id="caption4" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption5" class="list_cap03" style="left:0px; top:0px; width:100px; height:26px; ">매체코드</caption>
+			<caption id="caption3" class="list_cap03" style="left:410px; top:0px; width:100px; height:26px; ">거래처구분</caption>
+			<select1 id="combo2" ref="/root/reqData/searchData/searchTop/medi_cd" class="req" appearance="minimal" caption="매체코드" style="left:103px; top:4px; width:200px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_cd/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo1" ref="/root/reqData/searchData/searchTop/dlco_clsf" appearance="minimal" style="left:513px; top:4px; width:120px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dlco_clsf2/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/PTCRLIST/record" caption="거래처구분^적용시작년월^적용종료년월^매출기준^매출요율^매입기준^매입요율^계약금액^기준할제^기준외&#xA;매입요율^매체코드^거래처구분코드^매출적용구분^매입적용구분" colsep="^" colwidth="124, 100, 100, 80, 80, 80, 80, 100, 80, 80, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowheight="35" rowsep="|" selectionmode="byrow" style="left:10px; top:112px; width:926px; height:238px; ">
+			<col ref="dlco_clsf_nm" style="text-align:center; "/>
+			<col ref="aply_bgn_yymm" format="yyyy-mm" style="text-align:center; "/>
+			<col ref="aply_end_yymm" format="yyyy-mm" style="text-align:center; "/>
+			<col ref="sale_aply_clsf_nm" style="text-align:center; "/>
+			<col ref="sale_rate" format="0.#####" style="text-align:right; "/>
+			<col ref="purc_aply_clsf_nm" style="text-align:center; "/>
+			<col ref="purc_rate" format="0.#####" style="text-align:right; "/>
+			<col ref="cntr_amt" format="###,###,###" style="text-align:right; "/>
+			<col ref="dcrate_basi" format="###.##" style="text-align:right; "/>
+			<col ref="dcrate_basi_rate" format="0.#####" style="text-align:right; "/>
+			<col ref="medi_cd" visibility="hidden"/>
+			<col ref="dlco_clsf" visibility="hidden"/>
+			<col ref="sale_aply_clsf" visibility="hidden"/>
+			<col ref="purc_aply_clsf" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					serchDtl();
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:10px; top:366px; width:125px; height:20px; ">기준 상세 내역</caption>
+		<caption id="caption17" style="left:205px; top:366px; width:731px; height:20px; text-align:right; ">*발행사와 계약된 매출,매입에 대한 기초정보를 관리한다.</caption>
+		<group id="group2" style="left:10px; top:390px; width:926px; height:335px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap03" style="left:0px; top:0px; width:150px; height:26px; ">매체코드</caption>
+			<caption id="caption6" class="list_cap03" style="left:410px; top:0px; width:150px; height:26px; ">거래처구분</caption>
+			<caption id="caption8" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption10" class="list_cap03" style="left:0px; top:25px; width:150px; height:26px; ">적용시작년월</caption>
+			<caption id="caption9" class="list_cap03" style="left:410px; top:25px; width:150px; height:26px; ">적용종료년월</caption>
+			<caption id="caption12" class="list_cap02" style="left:0px; top:140px; width:926px; height:26px; "/>
+			<caption id="caption11" class="list_cap03" style="left:0px; top:140px; width:150px; height:26px; ">매출적용구분</caption>
+			<caption id="caption25" class="list_cap02" style="left:0px; top:165px; width:926px; height:26px; "/>
+			<caption id="caption13" class="list_cap03" style="left:0px; top:165px; width:150px; height:26px; ">매출요율</caption>
+			<caption id="caption15" class="list_cap02" style="left:0px; top:205px; width:926px; height:26px; "/>
+			<caption id="caption14" class="list_cap03" style="left:0px; top:205px; width:150px; height:26px; ">매입적용구분</caption>
+			<caption id="caption23" class="list_cap02" style="left:0px; top:230px; width:926px; height:26px; "/>
+			<caption id="caption16" class="list_cap03" style="left:0px; top:230px; width:150px; height:26px; ">매입요율</caption>
+			<caption id="caption19" class="list_cap02" style="left:0px; top:255px; width:926px; height:26px; "/>
+			<caption id="caption18" class="list_cap03" style="left:0px; top:255px; width:150px; height:26px; ">매입적용계약금액</caption>
+			<caption id="caption21" class="list_cap02" style="left:0px; top:280px; width:926px; height:26px; "/>
+			<caption id="caption20" class="list_cap03" style="left:0px; top:280px; width:150px; height:26px; ">기준할제</caption>
+			<caption id="caption22" class="list_cap02" style="left:0px; top:305px; width:926px; height:26px; "/>
+			<caption id="caption24" class="list_cap03" style="left:0px; top:305px; width:150px; height:26px; ">기준할제외매입요율</caption>
+			<caption id="caption26" style="left:280px; top:143px; width:635px; height:20px; color:#0000ff; ">-발행사 마감보고서에 적용할 매출기준을 설정한다.</caption>
+			<caption id="caption27" style="left:280px; top:168px; width:635px; height:20px; color:#0000ff; ">-매출적용구분에서 "판매부수" 선택할 경우 매출액 계산에 적용할 요율임.</caption>
+			<caption id="caption28" style="left:280px; top:208px; width:635px; height:20px; color:#0000ff; ">-발행사 마감보고서에 적용할 매입기준을 설정한다.</caption>
+			<caption id="caption29" style="left:280px; top:233px; width:635px; height:20px; color:#0000ff; ">-매입적용구분에서 "판매부수","매출금액" 선택할 경우 매입액 계산에 적용할 요율임.</caption>
+			<caption id="caption30" style="left:280px; top:258px; width:635px; height:20px; color:#0000ff; ">-매입적용구분에서 "계약금액" 선택할 경우 매출액에서 제외할 금액.(매출금액에서 감소시킬 고정금액)</caption>
+			<caption id="caption31" style="left:280px; top:283px; width:635px; height:20px; color:#0000ff; ">-매입적용구분에서 "매출금액" 선택 후 거래할제가 기준할제외 매입계산이 필요한 경우 적용할 표준할제임.</caption>
+			<caption id="caption32" style="left:280px; top:308px; width:635px; height:20px; color:#0000ff; ">-표준할제기준이 적용된 경우 표준할제기준 이외에 거래할제가 다른경우 매입계산에 적용할 요율임.</caption>
+			<caption id="caption33" style="left:153px; top:70px; width:132px; height:20px; font-family:굴림체; color:#ff0000; ">*매출,매입적용구분</caption>
+			<caption id="caption34" style="left:296px; top:90px; width:569px; height:20px; font-family:굴림체; color:#ff0000; ">"판매금액" = 실매출금액X요율</caption>
+			<caption id="caption35" style="left:296px; top:110px; width:569px; height:20px; font-family:굴림체; color:#ff0000; ">"계약금액" = 실매출금액에서 감소시킬 금액(=매입금액)</caption>
+			<caption id="caption36" style="left:296px; top:70px; width:569px; height:20px; font-family:굴림체; color:#ff0000; ">"판매부수" = 실판매부수X거래단가X요율</caption>
+			<output id="output1" ref="/root/reqData/reqForm/medi_cd_old" visibility="hidden" style="left:330px; top:4px; width:60px; height:18px; "/>
+			<select1 id="combo10" ref="/root/reqData/reqForm/medi_cd" class="req" appearance="minimal" caption="매체코드" style="left:153px; top:4px; width:150px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_cd/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo3" ref="/root/reqData/reqForm/dlco_clsf" class="req" appearance="minimal" caption="거래처구분" style="left:563px; top:4px; width:120px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dlco_clsf1/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input3" ref="/root/reqData/reqForm/aply_bgn_yymm" class="req" inputtype="date" format="yyyy-mm" caption="적용시작년월" style="left:153px; top:29px; width:120px; height:18px; text-align:left; "/>
+			<input id="input1" ref="/root/reqData/reqForm/aply_end_yymm" disabled="true" format="yyyy-mm" style="left:563px; top:29px; width:120px; height:18px; "/>
+			<select1 id="combo5" ref="/root/reqData/reqForm/sale_aply_clsf" class="req" appearance="minimal" caption="매출적용구분" style="left:153px; top:144px; width:100px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/sale_aply_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input5" ref="/root/reqData/reqForm/sale_rate" class="req" format="0.#####" caption="매출요율" style="left:153px; top:169px; width:100px; height:18px; text-align:right; "/>
+			<select1 id="combo7" ref="/root/reqData/reqForm/purc_aply_clsf" class="req" appearance="minimal" caption="매입적용구분" style="left:153px; top:209px; width:100px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/purc_aply_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input2" ref="/root/reqData/reqForm/purc_rate" format="0.#####" style="left:153px; top:234px; width:100px; height:18px; text-align:right; "/>
+			<input id="input4" ref="/root/reqData/reqForm/cntr_amt" format="###,###,###,###" style="left:153px; top:259px; width:100px; height:18px; text-align:right; "/>
+			<input id="input6" ref="/root/reqData/reqForm/dcrate_basi" format="###.##" style="left:153px; top:284px; width:100px; height:18px; text-align:right; "/>
+			<input id="input7" ref="/root/reqData/reqForm/dcrate_basi_rate" format="0.#####" style="left:153px; top:309px; width:100px; height:18px; text-align:right; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

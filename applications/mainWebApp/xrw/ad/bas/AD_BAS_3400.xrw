@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<trgt_yymm/>
+							<trgt_clsf/>
+							<medi_cd/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData>
+							<multiUpDate/>
+							<trgt_yymm/>
+							<trgt_clsf/>
+						</multiUpdateData>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData1>
+							<record>
+								<cmpy_cd/>
+								<trgt_clsf/>
+								<trgt_obj/>
+								<trgt_yymm/>
+								<medi_nm/>
+								<trgt_amt_pre/>
+								<pubc_tot_amt_pre/>
+								<achi_rate_pre/>
+								<trgt_amt/>
+								<pubc_tot_amt/>
+								<achi_rate/>
+								<trgt_amt_sum/>
+								<pubc_tot_amt_sum/>
+								<achi_rate_sum/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record>
+								<cmpy_cd/>
+								<trgt_clsf/>
+								<trgt_obj/>
+								<trgt_yymm/>
+								<slcrg_pers_nm/>
+								<trgt_amt_pre/>
+								<pubc_tot_amt_pre/>
+								<achi_rate_pre/>
+								<trgt_amt/>
+								<pubc_tot_amt/>
+								<achi_rate/>
+								<trgt_amt_sum/>
+								<pubc_tot_amt_sum/>
+								<achi_rate_sum/>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="ad_bas_3400_m" action="/ad/bas/3400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="ad_bas_3410_l" action="/ad/bas/3410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1"/>
+			<submission id="ad_bas_3420_l" action="/ad/bas/3420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData2"/>
+			<submission id="ad_bas_3430_a" action="/ad/bas/3430" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpdateData" resultref="/root/msgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.setValue("/root/reqData/searchData/trgt_yymm",getCurrentMonth());
+
+					var yymm = model.getValue("/root/reqData/searchData/trgt_yymm");
+
+					cDatagridCaption(yymm, "5");	//매체벌
+					cDatagridCaption(yymm, "6");	//담당별
+					
+					model.setValue("/root/reqData/searchData/trgt_clsf","5");
+					model.send("ad_bas_3400_m");			
+							
+					model.copyNode("/root/initData/comboSet/medi_cd", "/root/tempData/medi_cd");
+					makeComboGubun("A", "/root/initData/comboSet/medi_cd", "item", "label", "value");
+					
+					model.send("ad_bas_3410_l");		
+					
+					model.refresh();		
+					//browser1.navigate("http://localhost:7001/jsp/ad/bas/fc_acct_2034_t.jsp");
+
+					switch1.selectedIndex = 0;
+					
+					//showChart();					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//해당 datagrid의 caption 설정
+				function cDatagridCaption(yymm, n) {
+					var yymm_pre = dateAdd("m",-1,yymm + "01").substr(0, 6);	//전월 : yyyymm => yyyymmdd로 만들어서 계산 후 일자 제외
+					var yy1 =  yymm.substr(0, 4);	//현재월(년)
+					var mm1 =  yymm.substr(4, 2);	//현재월(월)
+					var yy2 =  yymm_pre.substr(0, 4);	//전월(년)
+					var mm2 =  yymm_pre.substr(4, 2);	//전월(월)
+					yymm = yy1+"년"+mm1+"월";
+					yymm_pre = yy2+"년"+mm2+"월";
+					
+					var caption1="회사코드^목표구분^목표대상^목표년월^매체^" + yymm_pre + "^" + yymm_pre + "^" + yymm_pre + "^" + yymm + "^" + yymm + "^" + yymm + "^년간누적^년간누적^년간누적|회사코드^목표구분^목표대상^목표년월^매체^목표액^게재액^성취율^목표액^게재액^성취율^목표액^게재액^성취율";
+					var caption2="회사코드^목표구분^목표대상^목표년월^담당자^" + yymm_pre + "^" + yymm_pre + "^" + yymm_pre + "^" + yymm + "^" + yymm + "^" + yymm + "^년간누적^년간누적^년간누적|회사코드^목표구분^목표대상^목표년월^담당자^목표액^게재액^성취율^목표액^게재액^성취율^목표액^게재액^성취율";
+
+					if(n==5){		//매체별
+						datagrid1.caption = caption1;
+					}else if(n==6){	//담당별
+						datagrid2.caption = caption2;
+					}
+				}	
+				
+				function showChart(){					
+					var trgt_clsf   		= model.getValue("/root/reqData/searchData/trgt_clsf");
+					var trgt_obj		= model.getValue("/root/reqData/searchData/trgt_obj");
+					var trgt_yymm  		= model.getValue("/root/reqData/searchData/trgt_yymm");
+					
+					if(trgt_clsf == "5"){	//매체별 
+						browser1.navigate(getDocumentRoot() + "/jsp/ad/bas/ad_bas_3430_t.jsp?trgt_clsf="+trgt_clsf+"&trgt_obj="+trgt_obj+"&trgt_yymm="+trgt_yymm);
+					}else{
+						browser2.navigate(getDocumentRoot() + "/jsp/ad/bas/ad_bas_3440_t.jsp?trgt_clsf="+trgt_clsf+"&trgt_obj="+trgt_obj+"&trgt_yymm="+trgt_yymm);
+					}					
+				}		
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,9;1,936;2,60;2,69;2,97;2,147;" style="font-family:굴림; ">
+		<switch id="switch1" class="gro_sel" style="left:10px; top:93px; width:927px; height:663px; ">
+			<case id="case1" selected="true">
+				<caption id="caption15" class="list_cap02" style="left:5px; top:13px; width:915px; height:28px; "/>
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="회사코드^목표구분^목표대상^목표년월^매체^^^^^^^년간누적^년간누적^년간누적|회사코드^목표구분^목표대상^목표년월^매체^목표액^게재액^성취율^목표액^게재액^성취율^목표액^게재액^성취율" colsep="#" colwidth="50, 50, 50, 50, 120, 90, 90, 70, 90, 90, 70, 90, 90, 70" explorerbar="sort" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="update" rowsep="|" style="left:5px; top:50px; width:915px; height:237px; ">
+					<col ref="cmpy_cd" visibility="hidden"/>
+					<col ref="trgt_clsf" visibility="hidden"/>
+					<col ref="trgt_obj" visibility="hidden"/>
+					<col ref="trgt_yymm" visibility="hidden"/>
+					<col ref="medi_nm"/>
+					<col ref="trgt_amt_pre" format="#,###" style="text-align:right; "/>
+					<col ref="pubc_tot_amt_pre" format="#,###" style="text-align:right; "/>
+					<col ref="achi_rate_pre" style="text-align:right; "/>
+					<col ref="trgt_amt" type="input" format="#,###" style="text-align:right; "/>
+					<col ref="pubc_tot_amt" format="#,###" style="text-align:right; "/>
+					<col ref="achi_rate" style="text-align:right; "/>
+					<col ref="trgt_amt_sum" format="#,###" style="text-align:right; "/>
+					<col ref="pubc_tot_amt_sum" format="#,###" style="text-align:right; "/>
+					<col ref="achi_rate_sum" style="text-align:right; "/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+						if(!isDataRegion(datagrid1)) return;
+							
+						var trgt_obj	= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("trgt_obj"));
+						makeNodeValue("/root/reqData/searchData/trgt_obj", trgt_obj);
+						
+						showChart();
+						]]>
+					</script>
+				</datagrid>
+				<input id="input2" ref="/root/reqData/searchData/trgt_yymm" class="req" format="yyyy-mm" caption="목표년월" style="left:119px; top:18px; width:80px; height:18px; text-align:center; "/>
+				<caption id="caption1" class="list_cap01" style="left:5px; top:13px; width:110px; height:28px; ">목표년월</caption>
+				<browser id="browser1" AddressBar="false" MenuBar="false" StatusBar="false" style="left:5px; top:295px; width:915px; height:360px; "/>
+			</case>
+			<case id="case2">
+				<caption id="caption5" class="list_cap02" style="left:5px; top:13px; width:915px; height:28px; "/>
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="회사코드^목표구분^목표대상^목표년월^당담자^^^^^^^년간누적^년간누적^년간누적|회사코드^목표구분^목표대상^목표년월^당담자^목표액^게재액^성취율^목표액^게재액^성취율^목표액^게재액^성취율" colsep="#" colwidth="50, 50, 50, 50, 120, 90, 90, 70, 90, 90, 70, 90, 90, 70" explorerbar="sort" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="update" rowsep="|" style="left:5px; top:50px; width:915px; height:237px; ">
+					<col ref="cmpy_cd" visibility="hidden"/>
+					<col ref="trgt_clsf" visibility="hidden"/>
+					<col ref="trgt_obj" visibility="hidden"/>
+					<col ref="trgt_yymm" visibility="hidden"/>
+					<col ref="slcrg_pers_nm"/>
+					<col ref="trgt_amt_pre" format="#,###" style="text-align:right; "/>
+					<col ref="pubc_tot_amt_pre" format="#,###" style="text-align:right; "/>
+					<col ref="achi_rate_pre" style="text-align:right; "/>
+					<col ref="trgt_amt" type="input" format="#,###" style="text-align:right; "/>
+					<col ref="pubc_tot_amt" format="#,###" style="text-align:right; "/>
+					<col ref="achi_rate" style="text-align:right; "/>
+					<col ref="trgt_amt_sum" format="#,###" style="text-align:right; "/>
+					<col ref="pubc_tot_amt_sum" format="#,###" style="text-align:right; "/>
+					<col ref="achi_rate_sum" style="text-align:right; "/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+						if(!isDataRegion(datagrid2)) return;
+							
+						var trgt_obj	= datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("trgt_obj"));
+						makeNodeValue("/root/reqData/searchData/trgt_obj", trgt_obj);
+						
+						showChart();
+						]]>
+					</script>
+				</datagrid>
+				<caption id="caption3" class="list_cap01" style="left:5px; top:13px; width:110px; height:28px; ">목표년월</caption>
+				<input id="input1" ref="/root/reqData/searchData/trgt_yymm" class="req" format="yyyy-mm" caption="목표년월" style="left:119px; top:18px; width:80px; height:18px; text-align:center; "/>
+				<browser id="browser2" AddressBar="false" MenuBar="false" StatusBar="false" style="left:5px; top:295px; width:915px; height:360px; "/>
+			</case>
+		</switch>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button7" class="tab06" group="tab" selected="true" style="left:10px; top:71px; width:105px; height:23px; ">
+			<caption>매체별</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.setValue("/root/reqData/searchData/trgt_clsf","5");
+				model.toggle("case1");
+				model.send("ad_bas_3410_l");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="tab06" group="tab" style="left:115px; top:71px; width:105px; height:23px; ">
+			<caption>담당별</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.setValue("/root/reqData/searchData/trgt_clsf","6");				
+				model.toggle("case2");
+				model.send("ad_bas_3420_l");
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn02" style="left:885px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn02" crud="C" style="left:773px; top:40px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(model.getValue("/root/reqData/searchData/trgt_clsf") == "5"){			//매체별
+						model.setValue("/root/reqData/multiUpdateData/multiUpDate", datagrid1.getUpdateData());
+						model.setValue("/root/reqData/multiUpdateData/trgt_yymm", model.getValue("/root/reqData/searchData/trgt_yymm"));
+						model.setValue("/root/reqData/multiUpdateData/trgt_clsf", model.getValue("/root/reqData/searchData/trgt_clsf"));						
+						model.send("ad_bas_3430_a");
+						model.send("ad_bas_3410_l");					
+					}else if(model.getValue("/root/reqData/searchData/trgt_clsf") == "6"){	//담당별
+						model.setValue("/root/reqData/multiUpdateData/multiUpDate", datagrid2.getUpdateData());						
+						model.setValue("/root/reqData/multiUpdateData/trgt_yymm", model.getValue("/root/reqData/searchData/trgt_yymm"));
+						model.setValue("/root/reqData/multiUpdateData/trgt_clsf", model.getValue("/root/reqData/searchData/trgt_clsf"));												
+						model.send("ad_bas_3430_a");
+						model.send("ad_bas_3420_l");
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn02" crud="R" style="left:829px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.load("./AD_BAS_3400.xrw", "replace","","","","");
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="btn02" crud="R" style="left:716px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+					datagrid1.colAttribute (datagrid1.colRef("trgt_amt"), "format" ) = "";
+					datagrid2.colAttribute (datagrid2.colRef("trgt_amt"), "format" ) = "";
+									
+					var yymm = input2.value;		//현재월
+					
+					if(model.getValue("/root/reqData/searchData/trgt_clsf") == "5"){			//매체별
+						if(commReqCheck("case1")){
+							cDatagridCaption(yymm, "5");
+							model.send("ad_bas_3410_l");
+							
+							//showChart();
+						}
+					}else if(model.getValue("/root/reqData/searchData/trgt_clsf") == "6"){	//담당별
+						if(commReqCheck("case2")){
+							cDatagridCaption(yymm, "6");
+							model.send("ad_bas_3420_l");
+							
+							//showChart();
+						}
+					}
+
+					datagrid1.colAttribute (datagrid1.colRef("trgt_amt"), "format" ) = "#,###";
+					datagrid2.colAttribute (datagrid2.colRef("trgt_amt"), "format" ) = "#,###";
+										
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,698 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</fac_clsf>
+							<dd>
+							</dd>
+							<mm>
+							</mm>
+							<tax_seq/>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<fac_clsf/>
+							<yyyy/>
+							<mm/>
+							<dd_fr/>
+							<dd_to/>
+							<eps_no/>
+							<matr_cd/>
+							<stmt_dt/>
+							<stmt_seq/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm/>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_name/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<sum_ewh_amt/>
+							<sum_vat_amt/>
+							<sum_amt/>
+							<sum_mi_ewh_amt/>
+							<sum_mi_vat_amt/>
+							<matr_nm/>
+							<dlco_cd/>
+							<dlco_nm/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<ewh_dt/>
+								<fac_clsf/>
+								<ewh_roll/>
+								<ewh_amt/>
+								<ewh_vat/>
+								<sum_amt/>
+								<ewh_wgt/>
+								<matr_cd/>
+								<matr_nm/>
+								<usag/>
+								<ewh_uprc/>
+								<wisgno/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setDD()
+					{
+						model1.destroy("/root/initData/comboSet/dd");
+						model1.makeNode("/root/reqData/searchData/yyyymm");
+						model1.setValue("/root/reqData/searchData/yyyymm" , model1.getValue("/root/reqData/searchData/yyyy") + model1.getValue("/root/reqData/searchData/mm"));
+						model1.send("mt_papinout_6102");   
+						var last_day = model1.getValue("/root/tempData/last_day");
+						model1.destroy("/root/reqData/searchData/yyyymm");
+						
+						for (var i = 1; i < Number(last_day) + 1  ; i++){
+							  model1.makeNode("/root/initData/comboSet/dd/item[" +  i  + "]");
+							  model1.makeNode("/root/initData/comboSet/dd/item[" +  i  + "]/value");
+							  model1.makeNode("/root/initData/comboSet/dd/item[" +  i  + "]/label");
+							  
+							  model1.setValue("/root/initData/comboSet/dd/item[" +  i  + "]/value",  (( i +1 < 10 ) ? "0" + (i) : (i)) );
+							  model1.setValue("/root/initData/comboSet/dd/item[" +  i  + "]/label",   (( i +1 < 10 ) ? "0" + (i) : (i)) );
+						}
+					}
+					function setMM()
+					{
+						for (var i = 1; i < 13 ; i++){
+								  model1.makeNode("/root/initData/comboSet/mm/item[" +  i  + "]");
+								  model1.makeNode("/root/initData/comboSet/mm/item[" +  i  + "]/value");
+								  model1.makeNode("/root/initData/comboSet/mm/item[" +  i  + "]/label");
+								  
+								  model1.setValue("/root/initData/comboSet/mm/item[" +  i  + "]/value",  (( i   < 10 ) ? "0" + (i ) : (i )) );
+								  model1.setValue("/root/initData/comboSet/mm/item[" +  i  + "]/label",   (( i   < 10 ) ? "0" + (i ) : (i )) );
+						}
+					}
+					function InitPage()
+					{
+						var d = new Date();
+						var rec = "";
+	//					  	if( d.getMonth() + 1 < 10 )  rec = rec + "0" + (d.getMonth() + 1 );
+	//					       else if ( d.getMonth() + 1 >= 10 )  rec = rec  + (d.getMonth() + 1);
+						if( d.getMonth() < 10 )  rec = rec + "0" + (d.getMonth() ); //전월설정
+						   else if ( d.getMonth() >= 10 )  rec = rec  + (d.getMonth());
+						
+						model1.setValue("/root/reqData/searchData/yyyy" , d.getYear());
+						model1.setValue("/root/reqData/searchData/mm", rec);
+						
+						model1.copyNode("/root/initData/pageInfo",parent.root.initData.pageInfo);
+						
+						setMM();
+						setDD();
+						   model1.send("mt_papinout_6101");
+						model1.copyNode("/root/initData/comboSet/fac_clsf", "/root/tempData/fac_clsf");
+						model1.setValue("/root/reqData/searchData/dd_fr", "01");
+						//model1.setValue("/root/reqData/searchData/dd_to", ( (d.getDate() < 10 )? "0"+d.getDate() : d.getDate()));
+						model1.setValue("/root/reqData/searchData/dd_to", commLastDay(d.getYear()+rec)); //말일설정
+						
+						
+						model1.setValue("/root/reqData/searchData/fac_clsf" , "00");
+						model1.setValue("/root/reqData/searchData/eps_no" , "220-85-05760");
+						group2.refresh();
+						funSearch();
+					}
+					function setMatrCd(matr_cd, matr_nm)
+					{
+						model1.setValue("/root/reqData/searchData/matr_cd", matr_cd);
+						model1.setValue("/root/resData/resForm/matr_nm",     matr_nm);
+						input6.refresh();
+						output1.refresh();
+					}
+					function setErn(dlco_no ,  dlco_nm , ern,  persi_nm )
+					{
+						model.setValue("/root/resData/resForm/dlco_cd", dlco_no);
+						model.setValue("/root/resData/resForm/dlco_nm", dlco_nm);
+						model.setValue("/root/reqData/searchData/eps_no", ern);
+						
+						input4.refresh();
+						output5.refresh();
+						output9.refresh();
+							
+					}
+					function funSearch()
+					{
+						if(  commReqCheck(group2) == false ) return;
+						model1.makeNode("/root/reqData/searchData/yyyymm");
+						model1.setValue("/root/reqData/searchData/yyyymm", model1.getValue("/root/reqData/searchData/yyyy") + model1.getValue("/root/reqData/searchData/mm"));
+						
+						model1.send("mt_papinout_6103");
+						
+						model1.copyNode("/root/resData/gridData" , "/root/tempData/gridData");
+						datagrid1.refresh();
+						
+						var sum_ewh_amt = 0;          //용지대 합계 
+						var sum_vat_amt = 0;            //부가세 합계 
+						var sum_amt = 0;                  // 총 합계 
+						var sum_mi_ewh_amt = 0;     //미입수 용지대 합계
+						var sum_mi_vat_amt = 0;        //미입수 부가세 합계
+						for (var i = 1 ; i < datagrid1.rows; i++){
+							var sum_ewh_amt = sum_ewh_amt +  Number(datagrid1.valueMatrix(i, 7));
+							var sum_vat_amt   = sum_vat_amt   +  Number(datagrid1.valueMatrix(i, 8));
+							var sum_amt         = sum_amt        +  Number(datagrid1.valueMatrix(i, 9));
+							
+							if( datagrid1.valueMatrix(i, 10) == ''){
+									sum_mi_ewh_amt = sum_mi_ewh_amt +  Number(datagrid1.valueMatrix(i, 7));
+									sum_mi_vat_amt   = sum_mi_vat_amt   +  Number(datagrid1.valueMatrix(i, 8));
+							}
+						}
+						
+						
+						model1.setValue("/root/resData/resForm/sum_ewh_amt", sum_ewh_amt);
+						model1.setValue("/root/resData/resForm/sum_vat_amt", sum_vat_amt);
+						model1.setValue("/root/resData/resForm/sum_amt", sum_amt);
+						model1.setValue("/root/resData/resForm/sum_mi_ewh_amt", sum_mi_ewh_amt);
+						model1.setValue("/root/resData/resForm/sum_mi_vat_amt", sum_mi_vat_amt);
+						
+						group1.refresh();
+						model1.destroy("/root/reqData/searchData/yyyymm");
+					}
+
+				]]>
+			</script>
+			<submission id="mt_common_0002" action="/mt/common/0002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_common_0003" action="/mt/common/0003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papinout_6101" action="/mt/papinout/6101" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_papinout_6102" action="/mt/papinout/6102" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papinout_6103" action="/mt/papinout/6103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papinout_6104" action="/mt/papinout/6104" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papinout_6105" action="/mt/papinout/6105" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papinout_6106" action="/mt/papinout/6106" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<!-- <submission id="mt_papinout_6202" action="/mt/papinout/6202" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			-->
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<submission id="mt_papinout_6107" action="/mt/papinout/6107" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body pagewidth="890" pageheight="575">
+		<group id="group2" class="gro_sel" style="left:20px; top:36px; width:845px; height:70px; ">
+			<caption id="caption1" class="list_cap01" style="left:0px; top:23px; width:105px; height:24px; text-align:center; ">공장</caption>
+			<caption id="caption5" class="list_cap02" style="left:99px; top:0px; width:265px; height:24px; text-align:center; "/>
+			<caption id="caption32" class="list_cap02" style="left:377px; top:23px; width:213px; height:24px; text-align:center; "/>
+			<caption id="caption34" class="list_cap02" style="left:377px; top:0px; width:468px; height:24px; text-align:center; "/>
+			<caption id="caption35" class="list_cap01" style="left:0px; top:0px; width:100px; height:24px; text-align:center; ">일자</caption>
+			<caption id="caption36" class="list_cap02" style="left:99px; top:23px; width:265px; height:24px; text-align:center; "/>
+			<caption id="caption45" class="list_cap02" style="left:660px; top:23px; width:185px; height:24px; text-align:center; "/>
+			<caption id="caption3" class="list_cap02" style="left:455px; top:46px; width:390px; height:24px; text-align:center; "/>
+			<caption id="caption6" class="list_cap01" style="left:353px; top:23px; width:105px; height:24px; text-align:center; ">자재코드</caption>
+			<caption id="caption7" class="list_cap02" style="left:0px; top:46px; width:354px; height:24px; text-align:center; "/>
+			<select1 id="combo2" ref="/root/reqData/searchData/fac_clsf" appearance="minimal" style="left:105px; top:25px; width:105px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<value ref="value"/>
+						<label ref="label"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input6" ref="/root/reqData/searchData/matr_cd" inputtype="button" maxlength="7" style="left:461px; top:26px; width:110px; height:18px; ">
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+								model.setValue("/root/reqData/searchData/matr_cd", input6.currentText);
+								model.send("mt_common_0003");
+								
+								model.setValue("/root/reqData/searchData/matr_cd", model.getValue("/root/tempData/matr_cd"));
+								model.setValue("/root/resData/resForm/matr_nm",model.getValue("/root/tempData/matr_nm"));
+								model.setValue("/root/resData/resForm/dlco_nm",model.getValue("/root/tempData/dlco_nm"));
+								model.setValue("/root/resData/resForm/dlco_cd",model.getValue("/root/tempData/dlco_no"));
+								model.setValue("/root/reqData/searchData/eps_no",model.getValue("/root/tempData/ern"));
+								
+								input4.refresh();
+								output5.refresh();
+								output9.refresh();
+								
+								input6.refresh();
+								output1.refresh();
+					]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+							var funcName = "setMatrCd";
+						
+					    		model.setValue("/root/reqData/fwdData/func_name", funcName );
+					    
+					    		window.load("../common/MT_COMMON_MATR_0002.xrw"
+							 	     		 , "modal"
+							 		         , ""
+					 			   		 , "left:100; top:100; width:450; height:400; sysmenu:visible; min:visible; max:true; resize:true; caption:visible;"
+					 			 		 , "/root/reqData/fwdData/func_name", "/root/reqData/fwdData/func_nm");
+					     ]]>
+				</script>
+			</input>
+			<output id="output1" ref="/root/resData/resForm/matr_nm" style="left:578px; top:26px; width:260px; height:18px; "/>
+			<input id="input7" ref="/root/reqData/searchData/stmt_dt" inputtype="date" style="left:461px; top:49px; width:110px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+							model1.send("mt_papinout_6106");
+							model1.copyNode("/root/initData/comboSet/tax_seq","/root/tempData/tax_seq");
+							combo1.refresh();
+					]]>
+				</script>
+			</input>
+			<caption id="caption33" class="list_cap01" style="left:353px; top:0px; width:105px; height:24px; text-align:center; ">사업자번호</caption>
+			<input id="input4" ref="/root/reqData/searchData/eps_no" class="req" inputtype="button" caption="사업자 번호" style="left:462px; top:3px; width:110px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						var keyCode = event.keycode;
+						
+						if ( keyCode == 9 || keyCode == 13 )
+						{
+								model1.makeNode("/root/reqData/searchData/ern");
+								
+							       model1.setValue("/root/reqData/searchData/ern", input4.currentText);
+							       
+								model1.send("mt_common_0002");
+								model1.destroy("/root/reqData/searchData/ern");
+								
+								model1.setValue("/root/reqData/searchData/eps_no",model1.getValue("/root/tempData/ern"));
+								model1.setValue("/root/resData/resForm/dlco_cd",model1.getValue("/root/tempData/dlco_no"));
+								model1.setValue("/root/resData/resForm/dlco_nm",model1.getValue("/root/tempData/dlco_nm"));
+								
+								input4.refresh();
+								output5.refresh();
+								output9.refresh();
+							
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+							var funcName = "setErn";
+						
+					    		model.setValue("/root/reqData/fwdData/func_name", funcName );
+					    
+					    		window.load("../../co/dlco/CO_DLCO_1100.xrw"
+					 	     		, "modal"
+					 		        , ""
+					 			    , "left:100; top:100; width:650; height:520; sysmenu:visible; min:visible; max:true; resize:true; caption:visible;"
+					 			  , "/root/reqData/fwdData/func_name", "/root/reqData/fwdData/func_nm");
+					]]>
+				</script>
+			</input>
+			<output id="output5" ref="/root/resData/resForm/dlco_cd" style="left:578px; top:3px; width:70px; height:18px; "/>
+			<output id="output9" ref="/root/resData/resForm/dlco_nm" style="left:651px; top:3px; width:189px; height:18px; "/>
+			<caption id="caption2" class="list_cap01" style="left:353px; top:46px; width:105px; height:24px; text-align:center; ">계산서번호</caption>
+			<input id="input1" ref="/root/reqData/searchData/yyyy" class="req" caption="년" style="left:105px; top:3px; width:60px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						setDD();		
+						combo4.refresh();
+						combo5.refresh();
+					]]>
+				</script>
+			</input>
+			<select1 id="combo3" ref="/root/reqData/searchData/mm" class="req" appearance="minimal" caption="월" style="left:169px; top:3px; width:50px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mm/item">
+						<value ref="value"/>
+						<label ref="label"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-select">
+					<![CDATA[
+						setDD();
+						combo4.refresh();
+						combo5.refresh();
+					]]>
+				</script>
+			</select1>
+			<select1 id="combo4" ref="/root/reqData/searchData/dd_fr" class="req" appearance="minimal" caption="시작일자" style="left:230px; top:3px; width:45px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dd/item">
+						<value ref="value"/>
+						<label ref="label"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo5" ref="/root/reqData/searchData/dd_to" class="req" appearance="minimal" caption="종료일자" style="left:295px; top:3px; width:40px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dd/item">
+						<value ref="value"/>
+						<label ref="label"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo1" ref="/root/reqData/searchData/stmt_seq" appearance="minimal" style="left:580px; top:49px; width:120px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/tax_seq/item">
+						<value ref="value"/>
+						<label ref="label"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="입고일자^공장^자재코드^자재코드명^규격^ROLL^용지중량^용지대^부가세^합계^계산서번호" colsep="^" colwidth="90, 82, 70, 74, 71, 81, 74, 105, 98, 100, 100" mergecellsfixedrows="bycolrec" rowsep="|" style="left:20px; top:111px; width:845px; height:395px; ">
+			<col ref="ewh_dt" format="yyyy-mm-dd"/>
+			<col ref="fac_clsf"/>
+			<col ref="matr_cd" visibility="hidden"/>
+			<col ref="matr_nm" visibility="hidden"/>
+			<col ref="usag"/>
+			<col ref="ewh_roll" format="#,###" style="text-align:right; "/>
+			<col ref="ewh_wgt" format="#,###" style="text-align:right; "/>
+			<col ref="ewh_amt" format="#,###" style="text-align:right; "/>
+			<col ref="ewh_vat" format="#,###" style="text-align:right; "/>
+			<!--   <col ref="ewh_uprc"/> -->
+			<col ref="sum_amt" format="#,###" style="text-align:right; "/>
+			<col ref="wisgno"/>
+		</datagrid>
+		<group id="group1" class="gro_sel" style="left:20px; top:521px; width:855px; height:24px; ">
+			<caption id="caption9" class="list_cap01" style="left:0px; top:0px; width:60px; height:24px; text-align:center; ">용지대</caption>
+			<caption id="caption10" class="list_cap02" style="left:59px; top:0px; width:126px; height:24px; text-align:center; "/>
+			<caption id="caption11" class="list_cap01" style="left:184px; top:0px; width:60px; height:24px; text-align:center; ">부가세</caption>
+			<caption id="caption12" class="list_cap01" style="left:368px; top:0px; width:60px; height:24px; text-align:center; ">합계</caption>
+			<caption id="caption13" class="list_cap01" style="left:552px; top:0px; width:60px; height:24px; text-align:center; ">미입수</caption>
+			<caption id="caption14" class="list_cap02" style="left:243px; top:0px; width:126px; height:24px; text-align:center; "/>
+			<caption id="caption15" class="list_cap02" style="left:427px; top:0px; width:126px; height:24px; text-align:center; "/>
+			<caption id="caption16" class="list_cap02" style="left:611px; top:0px; width:233px; height:24px; text-align:center; "/>
+			<output id="output2" ref="/root/resData/resForm/sum_ewh_amt" format="#,###" style="left:64px; top:3px; width:100px; height:18px; text-align:right; "/>
+			<output id="output3" ref="/root/resData/resForm/sum_vat_amt" format="#,###" style="left:247px; top:3px; width:100px; height:18px; text-align:right; "/>
+			<output id="output4" ref="/root/resData/resForm/sum_amt" format="#,###" style="left:431px; top:3px; width:100px; height:18px; text-align:right; "/>
+			<output id="output6" ref="/root/resData/resForm/sum_mi_ewh_amt" format="#,###" style="left:616px; top:3px; width:100px; height:18px; text-align:right; "/>
+			<output id="output7" ref="/root/resData/resForm/sum_mi_vat_amt" format="#,###" style="left:720px; top:3px; width:100px; height:18px; text-align:right; "/>
+		</group>
+		<group id="group3" style="left:20px; top:11px; width:845px; height:21px; ">
+			<button id="button2" class="btn02" style="left:630px; top:0px; width:50px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							var tax_dt = model1.getValue("/root/reqData/searchData/stmt_dt");
+							var tax_seq = model1.getValue("/root/reqData/searchData/stmt_seq");
+							
+							if(  commReqCheck(group2) == false ) return;
+						       model1.makeNode("/root/reqData/searchData/yyyymm");
+						       model1.setValue("/root/reqData/searchData/yyyymm", model1.getValue("/root/reqData/searchData/yyyy") + model1.getValue("/root/reqData/searchData/mm"));
+							
+							if( tax_dt == '') {
+								alert("계산서 번호를 확인 하세요");
+								return;
+							}
+							if( tax_seq == ''){
+								alert("계산서 번호를 확인 하세요");
+								return;
+							}
+							
+							model1.send("mt_papinout_6105");
+							model1.destroy("/root/reqData/searchData/yyyymm");
+							
+							button7.dispatch("onclick");
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:465px; top:0px; width:50px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					InitPage();
+				
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:795px; top:0px; width:50px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn02" style="left:520px; top:0px; width:50px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSearch();
+					//함수로변경
+//						if(  commReqCheck(group2) == false ) return;
+//						model1.makeNode("/root/reqData/searchData/yyyymm");
+//						model1.setValue("/root/reqData/searchData/yyyymm", model1.getValue("/root/reqData/searchData/yyyy") + model1.getValue("/root/reqData/searchData/mm"));
+//						
+//						model1.send("mt_papinout_6103");
+//						
+//						model1.copyNode("/root/resData/gridData" , "/root/tempData/gridData");
+//						datagrid1.refresh();
+//						
+//						var sum_ewh_amt = 0;          //용지대 합계 
+//						var sum_vat_amt = 0;            //부가세 합계 
+//						var sum_amt = 0;                  // 총 합계 
+//						var sum_mi_ewh_amt = 0;     //미입수 용지대 합계
+//						var sum_mi_vat_amt = 0;        //미입수 부가세 합계
+//					  	for (var i = 1 ; i < datagrid1.rows; i++){
+//					  		var sum_ewh_amt = sum_ewh_amt +  Number(datagrid1.valueMatrix(i, 7));
+//					  		var sum_vat_amt   = sum_vat_amt   +  Number(datagrid1.valueMatrix(i, 8));
+//					  		var sum_amt         = sum_amt        +  Number(datagrid1.valueMatrix(i, 9));
+//					  		
+//					  		if( datagrid1.valueMatrix(i, 10) == ''){
+//					  				sum_mi_ewh_amt = sum_mi_ewh_amt +  Number(datagrid1.valueMatrix(i, 7));
+//					  				sum_mi_vat_amt   = sum_mi_vat_amt   +  Number(datagrid1.valueMatrix(i, 8));
+//					  		}
+//					  	}
+//						
+//						
+//						model1.setValue("/root/resData/resForm/sum_ewh_amt", sum_ewh_amt);
+//						model1.setValue("/root/resData/resForm/sum_vat_amt", sum_vat_amt);
+//						model1.setValue("/root/resData/resForm/sum_amt", sum_amt);
+//						model1.setValue("/root/resData/resForm/sum_mi_ewh_amt", sum_mi_ewh_amt);
+//						model1.setValue("/root/resData/resForm/sum_mi_vat_amt", sum_mi_vat_amt);
+//						
+//						group1.refresh();
+//						model1.destroy("/root/reqData/searchData/yyyymm");
+
+					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn02" style="left:575px; top:0px; width:50px; height:21px; ">
+				<caption>입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+							var matr_cd = model1.getValue("/root/reqData/searchData/matr_cd");
+							var sum_mi_ewh_amt = 0;
+							var sum_mi_vat_amt   = 0;
+							
+							if( fac_clsf == '' ) {
+								alert("공장을 선태해주세요");
+								return ;
+							}
+							//입력 할 세금 계산서 금액 계산 
+							if( matr_cd != ''){
+								for( var i = 1; i < datagrid1.rows; i++){
+									if( ( matr_cd == datagrid1.valueMatrix(i, 2) ) && ( fac_clsf == datagrid1.valueMatrix(i, 1).substr(0,2)  ) ){
+										if ( datagrid1.valueMatrix(i, 10) == '' ){
+											sum_mi_ewh_amt = sum_mi_ewh_amt + Number(datagrid1.valueMatrix(i, 7)) ;
+											sum_mi_vat_amt   = sum_mi_vat_amt   + Number(datagrid1.valueMatrix(i, 8)) ;
+										}
+									}
+								}
+							}else {
+								for( var i = 1; i < datagrid1.rows; i++){
+									if( fac_clsf == datagrid1.valueMatrix(i, 1).substr(0,2) ) {
+										if ( datagrid1.valueMatrix(i, 10) == '' ){
+												sum_mi_ewh_amt = sum_mi_ewh_amt + Number(datagrid1.valueMatrix(i, 7)) ;
+												sum_mi_vat_amt   = sum_mi_vat_amt   + Number(datagrid1.valueMatrix(i, 8)) ;
+										}
+									}
+								}
+							}
+							
+							if ( sum_mi_ewh_amt == 0 ){
+								alert("입고 금액이 없습니다. 세금계산서 입수 불가");
+								return;
+							}
+							
+							if( window.alert("공장 : " + fac_clsf + " 공장      자재코드 : " +  matr_cd + "\n\n미입수 금액    : "  + sum_mi_ewh_amt + "\n미입수 부가세 : " + sum_mi_vat_amt + "\n입니다. 세금계산서를 입력 하시겠습니까?"  , "조선일보 MIS", 1) != 1){
+								return ;
+							}
+							
+							model1.makeNode("/root/reqData/searchData/yyyymm");
+							model1.makeNode("/root/reqData/searchData/suply_amt");
+							model1.makeNode("/root/reqData/searchData/vat_amt");
+							
+							model1.setValue("/root/reqData/searchData/yyyymm"   , model1.getValue("/root/reqData/searchData/yyyy") + model1.getValue("/root/reqData/searchData/mm") );
+							model1.setValue("/root/reqData/searchData/suply_amt" , sum_mi_ewh_amt);
+							model1.setValue("/root/reqData/searchData/vat_amt"    , sum_mi_vat_amt);
+							model1.send("mt_papinout_6104");
+							model1.destroy("/root/reqData/searchData/yyyymm");
+							model1.destroy("/root/reqData/searchData/suply_amt");
+							model1.destroy("/root/reqData/searchData/vat_amt");
+							
+							button7.dispatch("onclick");
+							
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:685px; top:0px; width:50px; height:21px; ">
+				<caption>일괄입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+							var matr_cd = model1.getValue("/root/reqData/searchData/matr_cd");
+							var sum_mi_ewh_amt = 0;
+							var sum_mi_vat_amt   = 0;
+							
+							if(  commReqCheck(group2) == false ) return;
+							/*
+							if( fac_clsf == '' ) {
+								alert("공장을 선태해주세요");
+								return ;
+							}*/
+							//입력 할 세금 계산서 금액 계산 
+							/*
+							if( matr_cd != ''){
+								for( var i = 1; i < datagrid1.rows; i++){
+									if( ( matr_cd == datagrid1.valueMatrix(i, 2) ) && ( fac_clsf == datagrid1.valueMatrix(i, 1).substr(0,2)  ) ){
+										if ( datagrid1.valueMatrix(i, 10) == '' ){
+											sum_mi_ewh_amt = sum_mi_ewh_amt + Number(datagrid1.valueMatrix(i, 7)) ;
+											sum_mi_vat_amt   = sum_mi_vat_amt   + Number(datagrid1.valueMatrix(i, 8)) ;
+										}
+									}
+								}
+							}else {
+								for( var i = 1; i < datagrid1.rows; i++){
+									if( fac_clsf == datagrid1.valueMatrix(i, 1).substr(0,2) ) {
+										if ( datagrid1.valueMatrix(i, 10) == '' ){
+												sum_mi_ewh_amt = sum_mi_ewh_amt + Number(datagrid1.valueMatrix(i, 7)) ;
+												sum_mi_vat_amt   = sum_mi_vat_amt   + Number(datagrid1.valueMatrix(i, 8)) ;
+										}
+									}
+								}
+							}
+							*/
+							/*
+							if ( sum_mi_ewh_amt == 0 ){
+								alert("입고 금액이 없습니다. 세금계산서 입수 불가");
+								return;
+							}
+							
+							if( window.alert("공장 : " + fac_clsf + " 공장      자재코드 : " +  matr_cd + "\n\n미입수 금액    : "  + sum_mi_ewh_amt + "\n미입수 부가세 : " + sum_mi_vat_amt + "\n입니다. 세금계산서를 입력 하시겠습니까?"  , "조선일보 MIS", 1) != 1){
+								return ;
+							}
+							*/
+							
+							model1.makeNode("/root/reqData/searchData/yyyymm");
+							model1.makeNode("/root/reqData/searchData/gubun");
+							//model1.makeNode("/root/reqData/searchData/suply_amt");
+							//model1.makeNode("/root/reqData/searchData/vat_amt");
+							
+							model1.setValue("/root/reqData/searchData/yyyymm"   , model1.getValue("/root/reqData/searchData/yyyy") + model1.getValue("/root/reqData/searchData/mm") );
+							model1.setValue("/root/reqData/searchData/gubun"   ,  "I" );
+							//model1.setValue("/root/reqData/searchData/suply_amt" , sum_mi_ewh_amt);
+							//model1.setValue("/root/reqData/searchData/vat_amt"    , sum_mi_vat_amt);
+							model1.send("mt_papinout_6107");
+							model1.destroy("/root/reqData/searchData/yyyymm");
+							model1.destroy("/root/reqData/searchData/suply_amt");
+							model1.destroy("/root/reqData/searchData/vat_amt");
+							
+							button7.dispatch("onclick");
+							
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:740px; top:0px; width:50px; height:21px; ">
+				<caption>일괄삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+							var matr_cd = model1.getValue("/root/reqData/searchData/matr_cd");
+							var sum_mi_ewh_amt = 0;
+							var sum_mi_vat_amt   = 0;
+							
+							if(  commReqCheck(group2) == false ) return;
+							/*
+							if( fac_clsf == '' ) {
+								alert("공장을 선태해주세요");
+								return ;
+							}*/
+							//입력 할 세금 계산서 금액 계산 
+							/*
+							if( matr_cd != ''){
+								for( var i = 1; i < datagrid1.rows; i++){
+									if( ( matr_cd == datagrid1.valueMatrix(i, 2) ) && ( fac_clsf == datagrid1.valueMatrix(i, 1).substr(0,2)  ) ){
+										if ( datagrid1.valueMatrix(i, 10) == '' ){
+											sum_mi_ewh_amt = sum_mi_ewh_amt + Number(datagrid1.valueMatrix(i, 7)) ;
+											sum_mi_vat_amt   = sum_mi_vat_amt   + Number(datagrid1.valueMatrix(i, 8)) ;
+										}
+									}
+								}
+							}else {
+								for( var i = 1; i < datagrid1.rows; i++){
+									if( fac_clsf == datagrid1.valueMatrix(i, 1).substr(0,2) ) {
+										if ( datagrid1.valueMatrix(i, 10) == '' ){
+												sum_mi_ewh_amt = sum_mi_ewh_amt + Number(datagrid1.valueMatrix(i, 7)) ;
+												sum_mi_vat_amt   = sum_mi_vat_amt   + Number(datagrid1.valueMatrix(i, 8)) ;
+										}
+									}
+								}
+							}
+							*/
+							/*
+							if ( sum_mi_ewh_amt == 0 ){
+								alert("입고 금액이 없습니다. 세금계산서 입수 불가");
+								return;
+							}
+							
+							if( window.alert("공장 : " + fac_clsf + " 공장      자재코드 : " +  matr_cd + "\n\n미입수 금액    : "  + sum_mi_ewh_amt + "\n미입수 부가세 : " + sum_mi_vat_amt + "\n입니다. 세금계산서를 입력 하시겠습니까?"  , "조선일보 MIS", 1) != 1){
+								return ;
+							}
+							*/
+							
+							model1.makeNode("/root/reqData/searchData/yyyymm");
+							model1.makeNode("/root/reqData/searchData/gubun");
+							//model1.makeNode("/root/reqData/searchData/suply_amt");
+							//model1.makeNode("/root/reqData/searchData/vat_amt");
+							
+							model1.setValue("/root/reqData/searchData/yyyymm"   , model1.getValue("/root/reqData/searchData/yyyy") + model1.getValue("/root/reqData/searchData/mm") );
+							model1.setValue("/root/reqData/searchData/gubun"   ,  "D" );
+							//model1.setValue("/root/reqData/searchData/suply_amt" , sum_mi_ewh_amt);
+							//model1.setValue("/root/reqData/searchData/vat_amt"    , sum_mi_vat_amt);
+							model1.send("mt_papinout_6107");
+							model1.destroy("/root/reqData/searchData/yyyymm");
+							model1.destroy("/root/reqData/searchData/suply_amt");
+							model1.destroy("/root/reqData/searchData/vat_amt");
+							
+							button7.dispatch("onclick");
+							
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="caption17" style="left:297px; top:40px; width:15px; height:17px; text-align:center; ">~</caption>
+	</xhtml:body>
+</xhtml:html>

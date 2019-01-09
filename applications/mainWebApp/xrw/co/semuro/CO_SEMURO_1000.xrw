@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>세무로 수신 내역 조회</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<occr_dt_fr/>
+							<occr_dt_to/>
+							<stat_clsf/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<occr_dt/>
+								<seq/>
+								<semuro_no/>
+								<tax_stmt_clsf/>
+								<rmsg_pers_semuro_id/>
+								<send_pers_id/>
+								<send_pers_eps_no/>
+								<send_pers_presi_flnm/>
+								<send_pers_firmnm/>
+								<send_pers_addr/>
+								<send_pers_bizcond/>
+								<send_pers_indt/>
+								<send_pers_email/>
+								<issu_dt/>
+								<tot_suply_amt/>
+								<tot_amt/>
+								<tot_tax_amt/>
+								<cash/>
+								<note/>
+								<chqe/>
+								<trust_unrcp_amt/>
+								<rcpt_clam_yn/>
+								<stat_clsf/>
+								<get_yn/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="co_semuro_1400" action="/co/semuro/1400" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<script type="javascript">
+				<![CDATA[
+					function TrimData(data){
+						var strTrimData = "";
+						
+						if (strTrimData.indexOf(' ') > -1){
+								strTrimData = data.substring(0, data.indexOf(' '));
+						} else {
+								strTrimData = data;
+						}
+						
+						return strTrimData;
+					}
+				
+				function date(gubun)
+					 {
+					     	    var d = new Date();
+					     	    var rec = "";
+					     	    var dd = "";
+					     	    
+					     	    rec = "" + d.getYear();
+					     	 
+					  	    if(d.getDate() < 10 ) dd = "0" + d.getDate();
+						    else                       dd = d.getDate();
+					     	    
+					     	    if( d.getMonth() + 1 < 10 )  rec = rec + "0"   + (d.getMonth() + 1 )  + ((gubun=='FROM') ? '01' : dd);
+					     	    else if ( d.getMonth() + 1 > 10 )  rec = rec  + (d.getMonth() + 1)   + ((gubun=='FROM') ? '01' : dd);
+					     	    
+					     	    return (rec);
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+						model1.setValue("/root/reqData/searchData/occr_dt_fr", date('FROM'));
+						model1.setValue("/root/reqData/searchData/occr_dt_to", date('TO'));
+						
+						group_scr.refresh();
+				]]>
+			</script>
+		</model>
+	</xhtml:head>
+	<xhtml:body pagewidth="640" pageheight="480" style="font-family:굴림; ">
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:350px; height:27px; ">세무로 수신 내역 조회</caption>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:45px; width:620px; height:60px; ">
+			<caption id="caption26" class="list_cap02_300" style="left:80px; top:24px; width:300px; height:25px; "/>
+			<caption id="caption25" class="list_cap01_110" style="left:0px; top:24px; width:110px; height:25px; ">발생일자</caption>
+			<button id="button8" class="btn02" style="left:455px; top:0px; width:51px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model.send("co_semuro_1400");
+						model.copyNode("/root/resData/gridData","/root/tempData/gridData");
+						datagrid1.refresh();
+						for (var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+							if (datagrid1.valueMatrix(i, datagrid1.colRef("get_yn")) == "Y"){
+								datagrid1.rowStyle(i, "data", "background-color") = "#FF0000";
+							} else {
+								datagrid1.rowStyle(i, "data", "background-color") = "#FFFFFF";
+							}
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:510px; top:0px; width:51px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var cell = datagrid1.selectedCells;
+						var codeVal;
+						if(cell.length < 1)
+						{
+							alert("select a Cell");
+							return;
+						}
+					
+						var row = cell.item(0).row;
+						//--- 상태 구분이 승인인 상태만 가능 
+						
+						var selectValue = TrimData(datagrid1.valueMatrix(row, 6));
+						if(  datagrid1.valueMatrix(1, 1) == '' ){
+							alert("조회된 데이터가 없습니다.");
+							return;
+						}
+						if (selectValue != '2'){
+							alert("승인 된 문서만 선택 가능 합니다.");
+							return;
+						}
+						if (datagrid1.valueMatrix(row, datagrid1.colRef("get_yn")) == "Y"){
+							alert("이미 부재료 입고가 처리된 세금계산서입니다.");
+							return;
+						}
+						var  cmpy_cd                   = datagrid1.valueMatrix(row, 1 );
+						var  occr_dt                   = datagrid1.valueMatrix(row, 2 );
+						var  seq                       = datagrid1.valueMatrix(row, 3 );
+						var  issu_dt                   = datagrid1.valueMatrix(row, 4 );
+						var  semuro_no                 = datagrid1.valueMatrix(row, 5 );
+						var  stat_clsf                 = datagrid1.valueMatrix(row, 6 );
+						var  tax_stmt_clsf             = datagrid1.valueMatrix(row, 7 ).substr( 0 , 1 );
+						var  rmsg_pers_semuro_id       = datagrid1.valueMatrix(row, 8 );
+						var  send_pers_id              = datagrid1.valueMatrix(row, 9 );
+						var  send_pers_eps_no          = datagrid1.valueMatrix(row, 10);
+						var  send_pers_presi_flnm      = datagrid1.valueMatrix(row, 11);
+						var  send_pers_firmnm          = datagrid1.valueMatrix(row, 12);
+						var  send_pers_addr            = datagrid1.valueMatrix(row, 13);
+						var  send_pers_bizcond         = datagrid1.valueMatrix(row, 14);
+						var  send_pers_indt            = datagrid1.valueMatrix(row, 15);
+						var  send_pers_email           = datagrid1.valueMatrix(row, 16);
+						var  tot_amt                   = datagrid1.valueMatrix(row, 17);
+						var  tot_tax_amt               = datagrid1.valueMatrix(row, 18);
+						var  tot_suply_amt             = datagrid1.valueMatrix(row, 19);
+						var  cash                      = datagrid1.valueMatrix(row, 20);
+						var  note                      = datagrid1.valueMatrix(row, 21);
+						var  chqe                      = datagrid1.valueMatrix(row, 22);
+						var  trust_unrcp_amt           = datagrid1.valueMatrix(row, 23);
+						var  rcpt_clam_yn              = datagrid1.valueMatrix(row, 24);
+						
+						
+						var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+						//var argStr = "('" + cmpy_cd  + "','" + occr_dt + "','" + seq + "','" + semuro_no + "','" + tax_stmt_clsf + "','" + rmsg_pers_semuro_id + "','" + send_pers_id + "','" + send_pers_eps_no + "','" + send_pers_presi_flnm + "','" + send_pers_firmnm + "','" + send_pers_addr + "','" + send_pers_bizcond + "','" + send_pers_indt + "','" + send_pers_email + "','" + issu_dt + "','" + tot_suply_amt + "','" + tot_amt + "','" + tot_tax_amt + "','" + cash + "','" + note + "','" + chqe  + "','" + trust_unrcp_amt + "','" + rcpt_clam_yn  + "','" + stat_clsf + "')";
+						
+						eval("window.opener.javascript." + retFunc + "('" + cmpy_cd  + "','" + occr_dt + "','" + seq + "','" + semuro_no + "','" + tax_stmt_clsf + "','" + rmsg_pers_semuro_id + "','" + send_pers_id + "','" + send_pers_eps_no + "','" + send_pers_presi_flnm + "','" + send_pers_firmnm + "','" + send_pers_addr + "','" + send_pers_bizcond + "','" + send_pers_indt + "','" + send_pers_email + "','" + issu_dt + "','" + tot_suply_amt + "','" + tot_amt + "','" + tot_tax_amt + "','" + cash + "','" + note + "','" + chqe  + "','" + trust_unrcp_amt + "','" + rcpt_clam_yn  + "','" + stat_clsf + "')");
+						//window.close();
+						
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:565px; top:0px; width:51px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					        
+						window.close();
+					]]>
+				</script>
+			</button>
+			<input id="input3" ref="/root/reqData/searchData/occr_dt_fr" class="req" inputtype="date" caption="발생일자 FROM" style="left:115px; top:28px; width:105px; height:18px; "/>
+			<input id="input1" ref="/root/reqData/searchData/occr_dt_to" class="req" inputtype="date" caption="발생일자 TO" style="left:247px; top:29px; width:110px; height:18px; "/>
+			<caption id="caption1" style="left:225px; top:30px; width:15px; height:15px; ">~</caption>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:120px; width:620px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="회사코드^발생일자^SEQ^발행일자^세무로번호^상태구분^입고여부^세금계산서구분^수신자세무로ID^발송자ID^발송자사업자번호^발송자대표자^발송자상호^발송자주소^발송자업태^발송자업종^발송자EMAIL^공급가액^세액^합계^현금^어음^수표^외상미수금^영수청구 구분^최초송신일자" colsep="^" colwidth="7, 6, 5, 90, 160, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 90, 90, 90, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:135px; width:620px; height:320px; ">
+			<col ref="cmpy_cd" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="issu_dt" format="yyyy-mm-dd"/>
+			<col ref="semuro_no"/>
+			<col ref="stat_clsf" visibility="hidden"/>
+			<col ref="get_yn"/>
+			<col ref="tax_stmt_clsf"/>
+			<col ref="rmsg_pers_semuro_id" visibility="hidden"/>
+			<col ref="send_pers_id" visibility="hidden" style="left:588px; top:20px; width:100px; height:20px; "/>
+			<col ref="send_pers_eps_no"/>
+			<col ref="send_pers_presi_flnm"/>
+			<col ref="send_pers_firmnm" visibility="hidden"/>
+			<col ref="send_pers_addr" visibility="hidden"/>
+			<col ref="send_pers_bizcond" visibility="hidden"/>
+			<col ref="send_pers_indt" visibility="hidden"/>
+			<col ref="send_pers_email" visibility="hidden"/>
+			<col ref="tot_amt" format="#,###" style="text-align:right; "/>
+			<col ref="tot_tax_amt" format="#,###" style="text-align:right; "/>
+			<col ref="tot_suply_amt" format="#,###" style="text-align:right; "/>
+			<col ref="cash" visibility="hidden"/>
+			<col ref="note" visibility="hidden"/>
+			<col ref="chqe" visibility="hidden"/>
+			<col ref="trust_unrcp_amt" visibility="hidden"/>
+			<col ref="rcpt_clam_yn" visibility="hidden"/>
+			<col ref="stat_clsf_dt_tm" format="yyyy-mm-dd"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				                 var row    = datagrid1.row;
+				                 
+				                 if( row < 1 ) return;
+				                 
+				                 var  semuro_no                  =  datagrid1.valueMatrix(row, datagrid1.colRef("semuro_no") );
+				                 var  section                       = "recv";   // 수신 
+				                 var  doc_aprf                     = "1"; //1. 순발행 2.역발행
+				                 
+				                 var strurl = "http://semuro.bizmeka.com/taxapps/unionweb/docsend/checkView.jsp?msg_id=" + semuro_no + "&section=" + section + "&doc_aprf=" + doc_aprf;
+				                 window.load(strurl,"html","pop1");
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

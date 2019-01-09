@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+							<valaplybasiclsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</valaplybasiclsf>
+							<rownum/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<fr_yymm/>
+							<to_yymm/>
+							<medi_cd/>
+							<callgb/>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+							<rownum/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<record>
+								<yymm/>
+								<medi_cd/>
+								<tms/>
+								<cyov_dt/>
+								<send_basi_dt/>
+								<val_meda_yn/>
+							</record>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_qty_1000_m" action="/se/qty/1000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_qty_1010_l" action="/se/qty/1010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/record"/>
+			<submission id="se_qty_1020_a" action="/se/qty/1020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[	
+				
+					model.attribute("showProgressbar") = "false";
+					model.send("se_qty_1000_m");
+					
+					var strmm1 = dateAdd('m', -3, getCurrentDate());
+					strmm1 = strmm1.substring(0,6);
+					model.setValue("/root/reqData/searchData/fr_yymm", strmm1);
+					model.setValue("/root/reqData/searchData/to_yymm", getCurrentMonth());
+					
+					model.setValue("/root/reqData/searchData/callgb", "1");		//초기화면에서 호출
+					combo2.select(0);
+											
+					datagrid1.rows = datagrid1.fixedRows;
+					var len = 7 + (parseInt(model.getValue("/root/initData/comboSet/rownum"))*3);      // 실제 컬럼수
+					var colLen = datagrid1.cols;                                                   	       // 현재 선언된 컬럼수 
+					var colRefNum = colLen - 6;
+					if ( colLen > len ){
+						datagrid1.addRow();
+						for ( var i = 0 ; i < colLen - len ; i++ ){
+							datagrid1.removeColumn();
+						}
+						datagrid1.removeRow();
+					} else if ( colLen < len ) {
+						datagrid1.addRow();
+						for ( var i = 0 ; i < len - colLen ; i++ ){
+							 //datagrid1.addColumn("ref:col" + (Math.floor(i/3)+1) + "_"+((i%3)+1)+";"); 
+							 if(i%3 == 1) datagrid1.addColumn("ref:col" + (Math.floor(i/3)+1) + "_"+((i%3)+1)+";type:combo;"); 
+							 else if(i%3 == 2) datagrid1.addColumn("ref:col" + (Math.floor(i/3)+1) + "_"+((i%3)+1)+";type:input;"); 
+							 else datagrid1.addColumn("ref:col" + (Math.floor(i/3)+1) + "_"+((i%3)+1)); 
+						
+						}
+						datagrid1.removeRow();
+					}					
+					datagrid1.refresh();
+					model.attribute("showProgressbar") = "true";
+					model.send("se_qty_1010_l");
+
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function go_search(){
+				
+				se_cleargrid("datagrid1");	//라이트 그리드 조회시 지우고 새로조회해야됨
+				model.setValue("/root/reqData/searchData/callgb", "2");		//조회화면에서 호출
+			
+				var strdt1 = model.getValue("/root/reqData/searchData/fr_yymm")+"01";
+				var strdt2 = model.getValue("/root/reqData/searchData/to_yymm")+"30";
+				if(!se_chkOverDate(strdt1,strdt2)) return;
+					
+			/*				
+				var len = 7 + (parseInt(model.getValue("/root/initData/comboSet/rownum"))*3);      // 실제 컬럼수
+				var colLen = datagrid1.cols;                                                	       // 현재 선언된 컬럼수 
+				var colRefNum = colLen - 6;
+
+				if ( colLen > len ){
+					datagrid1.addRow();
+					for ( var i = 0 ; i < colLen - len ; i++ ){
+						datagrid1.removeColumn();
+					}
+				} else if ( colLen < len ) {
+					datagrid1.addRow();
+					for ( var i = 0 ; i < len - colLen ; i++ ){
+						 datagrid1.addColumn("ref:col" + (Math.floor(i/3)+1) + "_"+((i%3)+1)); 
+				
+						//datagrid1.addColumn("ref:col" + colRefNum + ";id:col" + colRefNum);
+						colRefNum++;
+					}
+				}	
+		*/			
+				model.send("se_qty_1010_l");
+				se_chkGridCnt("datagrid1");
+							
+				var rowCnt = datagrid1.rows;
+				datagrid1.cellAttribute("disabled",1,1,rowCnt-1,3) = "true";
+			
+				/*
+				var caption_arr  = datagrid1.caption.split("|");
+				//var caption 		= caption_arr[caption_arr.length - 1].split("^");
+				var caption 		= caption_arr[1].split("^");
+				var col, colName, choices, itemset;
+				for ( var i = 0 ; i < caption.length ; i++ ){
+						alert("i=="+caption[i]+"   colid:"+ datagrid1.colAttribute(i+1, "id"));
+					if ( caption[i] == "적용기준" ){
+						//alert("i=="+i+"   colid:"+ datagrid1.colAttribute(i, "id"));
+						col = "col" + (i - 5);
+						colName = eval(col);
+						//alert(colName.isChild( "choices" ) );
+						choices = colName.createChild("xforms:choices" , "");
+						itemset = choices.createChild("xforms:itemset", "nodeset:/root/initData/comboSet/valaplybasiclsf/item");
+						itemset.createChild("xforms:label", "ref:label");
+						itemset.createChild("xforms:value", "ref:value");		
+					}
+				}
+				datagrid1.removeRow();
+
+				model.send("se_qty_1010_l");
+				
+				datagrid1.refresh();
+				
+				//datagrid1.cellComboNodeset(1, 11) = "/root/initData/comboSet/valaplybasiclsf/item";
+				
+			alert(datagrid1.cols); 
+		
+				var colName = se_eval("col7");
+				var choices = colName.createChild("xforms:choices" , "");
+			
+				var itemset = choices.createChild("xforms:itemset", "nodeset:/root/initData/comboSet/valaplybasiclsf/item");
+				itemset.createChild("xforms:label", "ref:label");
+				itemset.createChild("xforms:value", "ref:value");
+				
+				var col = datagrid1.cols-1;
+				for(var i=1;i<datagrid1.rows-1;i++)
+				{
+					var caption = datagrid1.attribute("caption").split("^");
+					datagrid1.cellComboNodeset(i,col) = "/root/initData/comboSet/valaplybasiclsf/item[label='"+ref+"' or label='"+caption[i]+"']";
+					datagrid1.cellComboNodeset(col, i) = "/root/initData/comboSet/valaplybasiclsf/item[label='"+ref+"' or label='"+caption[i]+"']";
+				}
+				datagrid1.cellComboNodeset(datagrid1.rows-1, col) = "/root/initData/comboSet/valaplybasiclsf/item/none";
+				*/
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<caption id="caption74" class="list_cap02" style="left:10px; top:70px; width:926px; height:26px; "/>
+		<button id="button7" class="btn03" crud="R" style="left:601px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_search();
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" crud="C" style="left:669px; top:44px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				datagrid1.addRow();	
+				
+				var caption_arr  = datagrid1.caption.split("|");
+				var caption = caption_arr[1].split("^");
+				var rCnt = datagrid1.row;
+				
+				datagrid1.valueMatrix(rCnt ,1) = getCurrentMonth();
+				datagrid1.valueMatrix(rCnt ,4) = getCurrentDate();
+						
+				model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/yymm");
+				model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/medi_cd");
+				model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/tms");
+				model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/cyov_dt");	
+				model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/send_basi_dt");	
+				model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/val_meda_yn");	
+				var inx = 0;
+				var refnm = "";
+				for ( var i = 0 ; i < caption.length ; i++ ){
+					//alert(caption[i]);
+					if(i>5){
+						inx = i - 6;
+						if((i-6)%3==0){
+							datagrid1.valueMatrix(rCnt, i+1) = caption[i];
+							refnm = "col" + (Math.floor(inx/3)+1) + "_"+((inx%3)+1);
+							model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/"+refnm);	
+						}
+						if((i-6)%3==1){
+							datagrid1.valueMatrix(rCnt, i+1) = "10";
+							refnm = "col" + (Math.floor(inx/3)+1) + "_"+((inx%3)+1);
+							model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/"+refnm);	
+						}
+						if((i-6)%3==2){
+							datagrid1.valueMatrix(rCnt, i+1) = "0.84";
+							refnm = "col" + (Math.floor(inx/3)+1) + "_"+((inx%3)+1);
+							model.makeNode("/root/resData/gridData/record[" + (rCnt-1) + "]/"+refnm);	
+						}
+						
+					}
+				}
+				//datagrid1.refresh();
+				//alert(datagrid1.getUpdateData());
+				//alert(datagrid1.colRef('col1_1'));
+				//alert(datagrid1.colRef('col1_2'));
+				//alert(datagrid1.colRef('col2_1'));
+				/*
+				var colid = datagrid1.colAttribute(datagrid1.colRef('col1_1'), "id");
+				alert(colid);
+				var colid2 = datagrid1.colAttribute(datagrid1.colRef('col1_2'), "id");
+				alert(colid2);
+				var colid3 = datagrid1.colAttribute(datagrid1.colRef('col1_3'), "id");
+				alert(colid3);
+				*/
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn03" crud="U" style="left:737px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(!commConfirmBox("이월처리 하시겠습니까?")) return;				
+				if(!commGridReqCheck("datagrid1")) return;
+				
+				if(!checkChg("datagrid1")){
+					commAlert("변경된 내역이 없습니다.");
+					return;
+				}
+								
+				var rownum = (datagrid1.cols-7)/3;
+				
+				model.setValue("/root/reqData/reqform/rownum", rownum);	//구분코드 갯수
+		        	model.setValue("/root/reqData/reqform/multiUpDate", datagrid1.getUpdateData());
+			        	
+				model.send("se_qty_1020_a");
+				
+				if(submit_completed()){
+					go_search();
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn03" crud="D" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				se_grid_delete("datagrid1");
+				]]>
+			</script>
+		</button>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:70px; width:50px; height:26px; ">년월</caption>
+		<select1 id="combo2" ref="/root/reqData/searchData/medi_cd" appearance="minimal" style="left:306px; top:74px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/medi_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption9" class="list_cap01" style="left:252px; top:70px; width:50px; height:26px; ">매체</caption>
+		<caption id="caption23" style="left:144px; top:76px; width:15px; height:17px; text-align:center; ">~</caption>
+		<input id="input1" ref="/root/reqData/searchData/to_yymm" format="yyyy-mm" style="left:158px; top:74px; width:80px; height:18px; "/>
+		<input id="input2" ref="/root/reqData/searchData/fr_yymm" format="yyyy-mm" style="left:64px; top:74px; width:80px; height:18px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="년월^매체^회차^이월일자^발송기준일자^조정여부^일반^일반^일반^교판^교판^교판|년월^매체^회차^이월일자^발송기준일자^조정여부^구분코드^적용기준^유가율^구분코드^적용기준^유가율" colsep="#" colwidth="85, 100, 50, 90, 90, 60, 60, 80, 70, 60, 80, 70" datatype="delimeter" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" arrowkey="N" style="left:10px; top:120px; width:926px; height:605px; ">
+			<col class="req" ref="yymm" type="input" format="yyyy-mm" caption="년월"/>
+			<col class="req" ref="medi_cd" type="combo" caption="매체">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="tms" type="input" caption="회차"/>
+			<col class="req" ref="cyov_dt" type="inputdate" caption="이월일자"/>
+			<col ref="send_basi_dt" type="inputdate"/>
+			<col ref="val_meda_yn" type="checkbox"/>
+			<!--
+			<col ref="col1" visibility="hidden" id="col1"/>
+			<col ref="col2" id="col2"/>
+			<col ref="col3" type="input"  id="col3"/>
+			<col ref="col4" visibility="hidden"  id="col4"/>
+			<col ref="col5" id="col5"/>
+			<col ref="col6" type="input" id="col6"/>
+			-->
+		</datagrid>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

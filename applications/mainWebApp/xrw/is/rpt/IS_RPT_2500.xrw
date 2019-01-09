@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet_ad.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>조선일보,기타지국배포내역</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<scat_dt_fr/>
+							<scat_dt_to/>
+							<dept_cd/>
+							<sub_dept_cd/>
+							<chrg_pers/>
+							<chrg_pers_nm/>
+							<sale_clsf/>
+							<sale_clsf_nm/>
+							<spc_sale_clsf/>
+							<spc_sale_clsf_nm/>
+							<spc_sale_clsf_n/>
+							<purc_dlco_no/>
+							<purc_dlco_nm/>
+							<purc_dlco_clsf/>
+							<sido/>
+							<sido_nm/>
+							<gu/>
+							<gu_nm/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+								<scat_dt/>
+								<dlco_nm/>
+								<advcs_cd_nm/>
+								<indt_cd_nm/>
+								<advt_nm/>
+								<sale_clsf_nm/>
+								<spc_sale_clsf_nm/>
+								<dept_cd_nm/>
+								<sub_dept_cd_nm/>
+								<chrg_pers/>
+								<std_cd_nm/>
+								<uprc/>
+								<qunt/>
+								<suply_amt/>
+								<purc_qunt/>
+								<purc_amt/>
+							</record>
+						</gridData1>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="is_rpt_2500_m" action="/is/rpt/2500" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/is_rpt_2500_m/dataSet"/>
+			<submission id="is_rpt_2510_l" action="/is/rpt/2510" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1/record"/>
+			<submission id="is_com_1200_s" action="/is/com/1200" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<submission id="hd_com_1002" action="/hd/com/1002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.setValue("/root/reqData/searchData/scat_dt_fr", getCurrentDate());
+				model.setValue("/root/reqData/searchData/scat_dt_to", getCurrentDate());
+								
+				makeTeamSearch(
+							   "is_rpt_2500_m"
+							  , "/is/rpt/2500"
+							  , "/root/reqData"  
+	                           			  , "/root/initData/comboSet"
+							  , "team_combo"
+							  , "part_combo"
+							  );
+				
+				
+				model.refresh();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			/** 콤보박스 환경설정한다. **/
+			function makeTeamSearch(submitId, action, ref, resultref, teamCombo, partCombo){
+
+				modelSendNoMake(submitId, action, ref, resultref);
+				if(!submit_completed()) return;
+				
+				var teamEvent = 'selectTeam("' + resultref + '", "' + teamCombo + '", "' + partCombo + '");';
+				//var partEvent = 'selectPart("' + resultref + '", "' + teamCombo + '", "' + partCombo + '", "' + areaCombo + '");';
+				//teamEvent = teamEvent + partEvent;
+			
+				eval(teamCombo + ".attribute('xforms-select') = '" + teamEvent + "'");
+				//eval(partCombo + ".attribute('xforms-select') = '" + partEvent + "'");
+				
+				makeComboGubun("A", resultref + "/teamlist", "record", "dept_nm", "dept_cd");
+				makeComboGubun("A", resultref + "/partlist", "record", "dept_nm", "dept_cd");
+						
+				selectTeam(resultref, teamCombo, partCombo);
+				//selectPart(resultref, teamCombo, partCombo, areaCombo); 보류
+				model.refresh();
+			    //eval(teamCombo + ".select(0)");
+			}
+			
+			/** 팀이 선택되면 파트의 값을 변경한다. **/
+			function selectTeam(resultref, teamCombo, partCombo){
+				var key        = eval(teamCombo + ".value");
+				var arr        = instance1.selectSingleNode(resultref + "/partlist_temp/record"); 
+
+				if(arr == null){
+					var len = null;
+				}else{
+					var len = arr.length;
+				}
+			
+				var val, record, dept_cd, dept_nm, node2, node3;
+				var node = resultref + "/partlist";
+				var nodeTemp = resultref + "/partlist_temp";
+				var index = 1;
+				model.removeNodeset(node);
+			
+			//alert('part='+len);	
+			//alert('dept_cd='+model.getValue(nodeTemp + "/record/dept_cd"));
+			//alert('dept_nm='+model.getValue(nodeTemp + "/record/dept_nm"));
+			
+				if(len==0){
+					val          = model.getValue(nodeTemp + "/record/supr_dept_cd");
+					if ( key == val || key == "" ){
+							model.makeNode(node + "/record[" + 1 + "]");
+							model.makeNode(node + "/record[" + 1 + "]/dept_cd");
+							model.makeNode(node + "/record[" + 1 + "]/dept_nm");
+							
+							model.setValue(node + "/record[" + 1 + "]/dept_cd", model.getValue(nodeTemp + "/record/dept_cd"));
+							model.setValue(node + "/record[" + 1 + "]/dept_nm", model.getValue(nodeTemp + "/record/dept_nm"));
+					}
+				}else if(len > 1){
+					for ( var i = 1 ; i <= len ; i++ ){
+						val          = model.getValue(nodeTemp + "/record[" + i + "]/supr_dept_cd");
+						if ( key == val || key == "" ){
+								model.makeNode(node + "/record[" + index + "]");
+								model.makeNode(node + "/record[" + index + "]/dept_cd");
+								model.makeNode(node + "/record[" + index + "]/dept_nm");
+								
+								model.setValue(node + "/record[" + index + "]/dept_cd", model.getValue(nodeTemp + "/record[" + i + "]/dept_cd"));
+								model.setValue(node + "/record[" + index + "]/dept_nm", model.getValue(nodeTemp + "/record[" + i + "]/dept_nm"));
+								
+								index++;
+				
+						}
+					}
+				}
+				
+				model.refresh();
+				makeComboGubun("A", resultref + "/partlist", "record", "dept_nm", "dept_cd");
+				
+				eval(partCombo + ".select(0)");
+			}
+			/**지국 코드, 명 셋팅_검색조건**/
+			function setDlcoInfo(menu_id, menu_nm){		
+				model.setValue("/root/reqData/searchData/purc_dlco_no", menu_id);
+				model.setValue("/root/reqData/searchData/purc_dlco_nm", menu_nm);
+											
+				//menu_id.refresh();
+				//menu_nm.refresh();
+				model.refresh();	
+			}
+			function setMenu_srch(menu_id, menu_nm){		
+				model.setValue("/root/reqData/searchData/chrg_pers", menu_id);
+				model.setValue("/root/reqData/searchData/chrg_pers_nm", menu_nm);
+											
+				//menu_id.refresh();
+				//menu_nm.refresh();
+				model.refresh();	
+			}			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,935;2,61;2,71;2,699;" style="font-family:굴림; ">
+		<caption id="caption3" class="list_cap02" style="left:10px; top:98px; width:926px; height:28px; "/>
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption2" class="list_cap02" style="left:10px; top:125px; width:926px; height:28px; "/>
+		<caption id="caption1" class="list_cap02" style="left:10px; top:152px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:9px; top:184px; width:926px; height:5px; "/>
+		<button id="button4" class="btn02" crud="R" style="left:720px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[		
+				model.send("is_rpt_2510_l");
+				
+				if(datagrid1.rows > datagrid1.fixedRows){ 
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("uprc"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("suply_amt"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("purc_amt"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+				}				
+				]]>
+			</script>
+		</button>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">배포일자</caption>
+		<button id="button1" class="btn02" crud="R" style="left:828px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="btn02" crud="C" style="left:774px; top:40px; width:50px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+				if( filename!="" ){
+					datagrid1.saveExcel(filename, "sheetname:조선일보기타지국배포내역;");
+				}							
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" class="nobg" caption="배포일자^거래처^광고주^업종^광고명^매출항목^특집매출항목^팀^파트^담당자^규격^수주수량^수주단가^수주금액^배포단가^배포금액" colsep="^" colwidth="80, 120, 100, 60, 120, 80, 80, 100, 100, 60, 80, 80, 80, 100, 80, 80" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" subtotalposition="below" style="left:10px; top:195px; width:925px; height:486px; ">
+			<col ref="scat_dt" format="yyyy-mm-dd"/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="advcs_cd_nm" style="text-align:left; "/>
+			<col ref="indt_cd_nm" style="text-align:left; "/>
+			<col ref="advt_nm" style="text-align:left; "/>
+			<col ref="sale_clsf_nm" style="text-align:left; "/>
+			<col ref="spc_sale_clsf_nm" style="text-align:left; "/>
+			<col ref="dept_cd_nm" style="text-align:left; "/>
+			<col ref="sub_dept_cd_nm" style="text-align:left; "/>
+			<col ref="chrg_pers"/>
+			<col ref="std_cd_nm"/>
+			<col ref="qunt" format="#,###" style="text-align:right; "/>
+			<col ref="uprc" format="#,###.99" style="text-align:right; "/>
+			<col ref="suply_amt" format="#,###" style="text-align:right; "/>
+			<col ref="purc_qunt" format="#,###.99" style="text-align:right; "/>
+			<col ref="purc_amt" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:882px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));								
+				]]>
+			</script>
+		</button>
+		<caption id="caption4" class="list_cap01" style="left:326px; top:98px; width:85px; height:28px; ">행정구역</caption>
+		<select1 id="radio1" ref="/root/reqData/searchData/purc_dlco_clsf" appearance="full" cols="3" overflow="visible" style="left:99px; top:158px; width:256px; height:16px; text-align:left; border-style:none; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value/>
+				</item>
+				<item>
+					<label>조선일보지국</label>
+					<value>B</value>
+				</item>
+				<item>
+					<label>조선일보지국이외</label>
+					<value>G</value>
+				</item>
+			</choices>
+		</select1>
+		<caption id="caption8" class="list_cap01" style="left:10px; top:152px; width:85px; height:28px; ">구분</caption>
+		<caption id="caption5" class="list_cap01" style="left:624px; top:98px; width:85px; height:28px; ">구역</caption>
+		<caption id="caption11" class="list_cap01" style="left:326px; top:71px; width:85px; height:28px; ">매출항목</caption>
+		<caption id="caption13" class="list_cap01" style="left:624px; top:71px; width:85px; height:28px; ">특집매출항목</caption>
+		<select id="checkbox1" ref="/root/reqData/searchData/spc_sale_clsf_n" overflow="visible" appearance="full" style="left:375px; top:159px; width:125px; height:15px; border-style:none; ">
+			<choices>
+				<item>
+					<label>특집매출항목제외</label>
+					<value>1</value>
+				</item>
+			</choices>
+		</select>
+		<caption id="caption14" style="left:188px; top:77px; width:15px; height:17px; ">~</caption>
+		<input id="input2" ref="/root/reqData/searchData/scat_dt_to" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:204px; top:76px; width:85px; height:18px; "/>
+		<input id="input4" ref="/root/reqData/searchData/scat_dt_fr" navindex="1" inputtype="date" format="yyyy-mm-dd" style="left:99px; top:76px; width:85px; height:18px; "/>
+		<caption id="caption44" class="list_cap01" style="left:624px; top:125px; width:85px; height:28px; ">담당자</caption>
+		<caption id="caption46" class="list_cap01" style="left:10px; top:125px; width:85px; height:28px; ">팀</caption>
+		<caption id="caption16" class="list_cap01" style="left:326px; top:125px; width:85px; height:28px; ">파트</caption>
+		<select1 id="team_combo" ref="/root/reqData/searchData/dept_cd" appearance="minimal" style="left:99px; top:129px; width:120px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/teamlist/record">
+					<label ref="dept_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<select1 id="part_combo" ref="/root/reqData/searchData/sub_dept_cd" appearance="minimal" style="left:416px; top:129px; width:120px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/partlist/record">
+					<label ref="dept_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption9" class="list_cap01" style="left:10px; top:98px; width:85px; height:28px; ">지국</caption>
+		<input id="inp_sale_clsf" ref="/root/reqData/searchData/sale_clsf" visibility="hidden" style="left:410px; top:71px; width:120px; height:18px; "/>
+		<input id="input3" ref="/root/reqData/searchData/sale_clsf_nm" inputtype="button" style="left:415px; top:75px; width:120px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				/**매출구분팝업**/
+				var cd   =  "";
+				var cdnm =  "";
+									
+				var resultRef1 = "/root/reqData/searchData/sale_clsf";
+				var resultRef2 = "/root/reqData/searchData/sale_clsf_nm";
+				
+				showCommonCodePopup3("13", "54", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+				
+				model.refresh();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var sale_clsf_nm = model.getValue("/root/reqData/searchData/sale_clsf_nm");
+				
+				if(sale_clsf_nm != ""){
+					alert("다중선택 팝업을 사용하세요.");
+					model.setValue("/root/reqData/searchData/sale_clsf","");
+					model.refresh();
+					return;
+				}
+				
+				if(sale_clsf_nm == ""){
+					model.setValue("/root/reqData/searchData/sale_clsf","");
+					model.refresh();
+					return;
+				}
+				]]>
+			</script>
+		</input>
+		<input id="input5" ref="/root/reqData/searchData/spc_sale_clsf" visibility="hidden" style="left:708px; top:71px; width:120px; height:18px; "/>
+		<input id="input1" ref="/root/reqData/searchData/spc_sale_clsf_nm" inputtype="button" style="left:713px; top:75px; width:120px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				/**ㅡ특수매출구분팝업**/
+				var cd   =  "";
+				var cdnm =  "";
+									
+				var resultRef1 = "/root/reqData/searchData/spc_sale_clsf";
+				var resultRef2 = "/root/reqData/searchData/spc_sale_clsf_nm";
+				
+				showCommonCodePopup3("13", "56", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+				
+				model.refresh();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var spc_sale_clsf_nm = model.getValue("/root/reqData/searchData/spc_sale_clsf_nm");
+				
+				if(spc_sale_clsf_nm != ""){
+					alert("다중선택 팝업을 사용하세요.");
+					model.setValue("/root/reqData/searchData/spc_sale_clsf","");
+					model.refresh();
+					return;
+				}
+				
+				if(spc_sale_clsf_nm == ""){
+					model.setValue("/root/reqData/searchData/spc_sale_clsf","");
+					model.refresh();
+					return;
+				}
+				]]>
+			</script>
+		</input>
+		<input id="inp_dlco_no" ref="/root/reqData/searchData/purc_dlco_nm" imemode="hangul" style="left:187px; top:102px; width:129px; height:18px; "/>
+		<input id="inp_dlco_clsf_cd_seq" ref="/root/reqData/searchData/purc_dlco_no" imemode="alpha" inputtype="button" maxlength="9" style="left:98px; top:102px; width:85px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[				
+				model.makeNode("/root/reqData/fwdData/func_nm");
+				model.makeNode("/root/reqData/fwdData/dlco_clsf");
+				model.setValue("/root/reqData/fwdData/func_nm", "setDlcoInfo");//팝업에서 함수호출명 
+							
+				window.load("/xrw/is/com/IS_COM_1100.xrw"
+							,"mdichild"
+							, "is_com_1100"
+							, "align:center; caption:hidden;width:645px; height:480px;"
+							, "/root/reqData/fwdData"
+							, "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if (inp_dlco_clsf_cd_seq.value.length == 9) {
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/dlco_clsf_cd_seq");
+					model.setValue("/root/reqData/fwdData/dlco_clsf_cd_seq", inp_dlco_clsf_cd_seq.value);
+					model.send("is_com_1200_s");
+							
+					if (model.getValue("/root/tempData/record/dlco_clsf_cd_seq") != "") {
+						inp_dlco_no.value = model.getValue("/root/tempData/record/dlco_nm");
+					}else {
+						inp_dlco_no.value = "";
+						inp_dlco_clsf_cd_seq.value = "";
+					}
+				}else {
+					inp_dlco_no.value = "";
+					inp_dlco_clsf_cd_seq.value = "";
+				}				
+				]]>
+			</script>
+		</input>
+		<input id="inp_gu" ref="/root/reqData/searchData/sido" visibility="hidden" style="left:410px; top:100px; width:120px; height:18px; "/>
+		<input id="input6" ref="/root/reqData/searchData/gu" visibility="hidden" style="left:708px; top:99px; width:120px; height:18px; "/>
+		<input id="inp_gu_nm" ref="/root/reqData/searchData/sido_nm" inputtype="button" style="left:414px; top:105px; width:120px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				/**행정구역팝업**/
+				var cd   =  "";
+				var cdnm =  "";
+									
+				var resultRef1 = "/root/reqData/searchData/sido";
+				var resultRef2 = "/root/reqData/searchData/sido_nm";
+				
+				showCommonCodePopup3("13", "01", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+				
+				model.refresh();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var sido_nm = model.getValue("/root/reqData/searchData/sido_nm");
+				
+				if(sido_nm != ""){
+					alert("다중선택 팝업을 사용하세요.");
+					model.setValue("/root/reqData/searchData/sido","");
+					model.refresh();
+					return;
+				}
+				
+				if(sido_nm == ""){
+					model.setValue("/root/reqData/searchData/sido","");
+					model.refresh();
+					return;
+				}
+				]]>
+			</script>
+		</input>
+		<input id="input7" ref="/root/reqData/searchData/gu_nm" inputtype="button" style="left:712px; top:104px; width:120px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				/**행정구역팝업**/
+				var cd   =  "";
+				var cdnm =  "";
+									
+				var resultRef1 = "/root/reqData/searchData/gu";
+				var resultRef2 = "/root/reqData/searchData/gu_nm";
+				
+				showCommonCodePopup3("13", "02", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+				
+				model.refresh();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var gu_nm = model.getValue("/root/reqData/searchData/gu_nm");
+				
+				if(gu_nm != ""){
+					alert("다중선택 팝업을 사용하세요.");
+					model.setValue("/root/reqData/searchData/gu","");
+					model.refresh();
+					return;
+				}
+				
+				if(gu_nm == ""){
+					model.setValue("/root/reqData/searchData/gu","");
+					model.refresh();
+					return;
+				}
+				]]>
+			</script>
+		</input>
+		<input id="inp_chrg_pers_nm" ref="/root/reqData/searchData/chrg_pers_nm" autonext="false" style="left:785px; top:130px; width:70px; height:18px; text-align:left; "/>
+		<input id="inp_chrg_pers" ref="/root/reqData/searchData/chrg_pers" inputtype="button" format="999999" caption="담당자" style="left:713px; top:130px; width:67px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				model.makeNode("/root/reqData/fwdData/func_nm");
+				model.setValue("/root/reqData/fwdData/func_nm", "setMenu_srch");//팝업에서 함수호출명 
+				
+				
+				window.load("/xrw/hd/com/HD_COM_1000.xrw"
+							,"mdichild"
+							, "hd_com_1000"
+							, "align:center; caption:hidden;width:460px; height:400px;"
+							, "/root/reqData/fwdData"
+							, "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if (inp_chrg_pers.value.length == 6) {
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/emp_no");
+					model.setValue("/root/reqData/fwdData/emp_no", inp_chrg_pers.value);
+					model.send("hd_com_1002");
+					
+					if (model.getValue("/root/tempData/record/emp_no") != "") {
+						inp_chrg_pers_nm.value = model.getValue("/root/tempData/record/nm_korn");
+					}else {
+						inp_chrg_pers.value = "";
+						inp_chrg_pers_nm.value = "";
+					}
+				}else {
+					inp_chrg_pers.value = "";
+					inp_chrg_pers_nm.value = "";
+				}				
+				]]>
+			</script>
+		</input>
+	</xhtml:body>
+</xhtml:html>

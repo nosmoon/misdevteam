@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<gubunCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</gubunCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<cdv_search_form>
+								<applySession/>
+								<js_fn_nm/>
+								<txtbns_itemnm/>
+								<txtbns_itemcd/>
+								<pageno/>
+								<pagesize/>
+							</cdv_search_form>
+							<cdv_list_form>
+								<bns_itemcd/>
+							</cdv_list_form>
+							<cdv_detail_form>
+								<mnftwon/>
+								<uprc/>
+								<useyn/>
+								<useclsf/>
+								<spec/>
+								<bns_itemnm/>
+								<bns_itemcd/>
+								<remk/>
+								<accflag/>
+							</cdv_detail_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<bns_itemcd/>
+									<bns_itemnm/>
+									<uprc/>
+									<mnftwon/>
+									<spec/>
+									<remk/>
+									<useclsf/>
+									<useyn/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1050subInit" action="/ss/admin/1050" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1050search" ref="/root/reqData/reqform/cdv_search_form" action="/ss/admin/1055" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1050detailSearch" ref="/root/reqData/reqform/cdv_list_form" action="/ss/admin/1060" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1050insert" ref="/root/reqData/reqform/cdv_detail_form" action="/ss/admin/1065" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1050update" ref="/root/reqData/reqform/cdv_detail_form" action="/ss/admin/1070" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1050delete" ref="/root/reqData/reqform/cdv_detail_form" action="/ss/admin/1075" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				model.setValue("/root/reqData/reqform/cdv_search_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/cdv_search_form/pageno", 	"1");
+				//model.setValue("/root/reqData/reqform/extn_search_form/pagesize", "10");
+				model.setValue("/root/reqData/reqform/cdv_search_form/pagesize", "5000");
+				model.setValue("/root/reqData/reqform/cdv_search_form/applySession", true);
+				
+				model.send("PID1050subInit", false);
+				
+				model.setValue("/root/reqData/reqform/cdv_detail_form/accflag", "I");	
+				
+				model.refresh();
+			}
+			
+			function search()
+			{
+				remakeNode("/root/tempData/resTemp");
+				
+				model.send("PID1050search", false);
+				
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+
+				//PID1050caption22.value= "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + " 건";
+							 	
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/bns_itemcd").length == 0)
+					model.alert("검색결과가 없습니다.");
+									
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1050datagrid1.rebuild();
+				
+				add1();
+			}
+			
+			function gridClick()
+			{
+				if(PID1050datagrid1.textMatrix(PID1050datagrid1.row, PID1050datagrid1.colRef("bns_itemcd")) == "")
+					return;
+					
+				remakeNode("/root/tempData/resTemp");
+				
+				model.setValue("/root/reqData/reqform/cdv_list_form/bns_itemcd", PID1050datagrid1.textMatrix(PID1050datagrid1.row, PID1050datagrid1.colRef("bns_itemcd")));
+								
+				model.send("PID1050detailSearch", false);
+				
+				if(!submit_completed())
+					return;
+				
+				model.setValue("/root/reqData/reqform/cdv_detail_form/accflag", "U");
+				childValueCopy("/root/reqData/reqform/cdv_detail_form","/root/tempData/resTemp/detailData");				
+				model.copyNode("/root/initData/comboSet/gubunCombo","/root/tempData/resTemp/gubunCombo");
+				
+				model.removenode("/root/tempData/resTemp");
+				model.refresh();
+			}
+			
+			function add1()
+			{
+				PID1050input1.disabled = false;
+				
+				clearChildNodes("/root/reqData/reqform/cdv_detail_form", true);
+				model.setValue("/root/reqData/reqform/cdv_detail_form/accflag", "I");								
+			}
+			
+			function save1()
+			{
+				if(!commValidate("PID1050group5"))
+					return;							// 폼 유효성 체크
+
+				if(model.getValue("/root/reqData/reqform/cdv_detail_form/accflag") == 'I') {	        	
+
+					model.send("PID1050insert", false);
+
+					if(!submit_completed())
+						return;
+					
+					add1();
+					search();
+					
+				} else if(model.getValue("/root/reqData/reqform/cdv_detail_form/accflag") == 'U') {						// 수정저장일 때
+				
+					model.send("PID1050update", false);
+					
+					if(!submit_completed())
+						return;
+						
+					add1();
+					search();
+											
+				} else {
+				  return;
+				}				
+			}
+			
+			function delete1()
+			{
+				// 업무구분코드, 코드구분, 코드값의  존재여부를 확인한다.
+				if(model.getValue("/root/reqData/reqform/cdv_detail_form/bns_itemcd") == '') {
+					alert("해당목록을 클릭 후 삭제하세요.");
+					return;
+				}
+
+				if(model.alert("삭제하시겠습니까?", "", 4) == "6") {
+
+					if(!commValidate("PID1050group5"))
+						return;	
+						
+					model.setValue("/root/reqData/reqform/cdv_detail_form/accflag", "D");								// 작업구분을 삭제('D')로 세팅
+					
+					model.send("PID1050delete", false);
+					
+					if(!submit_completed())
+						return;
+						
+					add1();
+					search();
+
+				}				
+			}
+			
+			function cancel1()
+			{
+				if(model.getValue("/root/reqData/reqform/cdv_detail_form/accflag") == "I")
+				{
+					add1();
+				}else{
+					gridClick();
+				}
+			}			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1050" style="font-family:굴림; ">
+		<import id="PID1050iv_TitleBar" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<!--<group id="PID1050group2" style="left:55px; top:375px; width:460px; height:25px; ">
+			<iviewer id="PID1050iviewer1" src="../common/iv_common_paging_half.xrw" style="left:0px; top:0px; width:460px; height:25px; "/>
+		</group>-->
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1050group3" class="gro_tab1" style="left:10px; top:75px; width:535px; height:25px; text-align:left; ">
+			<caption id="PID1050caption20" class="list_cap01" style="left:0px; top:0px; width:535px; height:25px; "/>
+			<caption id="PID1050caption2" style="left:5px; top:0px; width:30px; height:25px; ">코드</caption>
+			<input id="PID1050input4" ref="/root/reqData/reqform/cdv_search_form/txtbns_itemcd" style="left:40px; top:4px; width:65px; height:18px; "/>
+			<caption id="PID1050caption6" style="left:115px; top:0px; width:38px; height:25px; ">계정명</caption>
+			<input id="PID1050input7" ref="/root/reqData/reqform/cdv_search_form/txtbns_itemnm" style="left:155px; top:4px; width:150px; height:18px; "/>
+		</group>
+		<group id="PID1050group4" class="gro_tab1" style="left:550px; top:75px; width:385px; height:25px; text-align:left; ">
+			<caption id="PID1050caption1" class="list_cap01" style="left:0px; top:0px; width:385px; height:25px; text-align:left; ">배달용품코드 상세정보</caption>
+		</group>
+		<datagrid id="PID1050datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="코드^배달용품명^단가" colwidth="100, 313, 100" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" selectionmode="free" rowsep="|" colsep="^" tooltip="true" style="left:10px; top:105px; width:535px; height:325px; ">
+			<col ref="bns_itemcd"/>
+			<col ref="bns_itemnm" style="text-align:left; "/>
+			<col ref="uprc" format="#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID1050datagrid1.mouseCol>PID1050datagrid1.fixedCols-1 && PID1050datagrid1.mouseRow>PID1050datagrid1.fixedRows-1)
+				       {
+						gridClick();
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+		<group id="PID1050group5" style="left:550px; top:106px; width:385px; height:300px; ">
+			<caption id="PID1050caption11" class="list_cap02" style="left:99px; top:72px; width:286px; height:25px; "/>
+			<caption id="PID1050caption15" class="list_cap02" style="left:99px; top:120px; width:286px; height:25px; "/>
+			<caption id="PID1050caption13" class="list_cap02" style="left:99px; top:96px; width:286px; height:25px; "/>
+			<caption id="PID1050caption17" class="list_cap02" style="left:99px; top:168px; width:286px; height:132px; "/>
+			<caption id="PID1050caption10" class="list_cap02" style="left:99px; top:48px; width:286px; height:25px; "/>
+			<caption id="PID1050caption4" class="list_cap03" style="left:0px; top:0px; width:100px; height:25px; text-align:left; ">코드</caption>
+			<caption id="PID1050caption5" class="list_cap02" style="left:99px; top:0px; width:286px; height:25px; "/>
+			<caption id="PID1050caption7" class="list_cap03" style="left:0px; top:24px; width:100px; height:25px; text-align:left; ">배달용품명</caption>
+			<caption id="PID1050caption9" class="list_cap02" style="left:99px; top:24px; width:286px; height:25px; "/>
+			<input id="PID1050input1" ref="/root/reqData/reqform/cdv_detail_form/bns_itemcd" class="req" maxlength="6" caption="배달용품코드" len="6" style="left:103px; top:4px; width:80px; height:18px; "/>
+			<input id="PID1050input2" ref="/root/reqData/reqform/cdv_detail_form/bns_itemnm" class="req" imemode="hangul" caption="배달용품명" style="left:103px; top:28px; width:180px; height:18px; "/>
+			<input id="PID1050input3" ref="/root/reqData/reqform/cdv_detail_form/uprc" class="req" format="#,###" caption="단가" style="left:103px; top:52px; width:80px; height:18px; text-align:right; "/>
+			<input id="PID1050input5" ref="/root/reqData/reqform/cdv_detail_form/mnftwon" style="left:103px; top:76px; width:142px; height:18px; "/>
+			<input id="PID1050input6" ref="/root/reqData/reqform/cdv_detail_form/spec" style="left:103px; top:100px; width:142px; height:18px; "/>
+			<caption id="PID1050caption3" class="list_cap03" style="left:0px; top:48px; width:100px; height:25px; text-align:left; ">단가</caption>
+			<caption id="PID1050caption12" class="list_cap03" style="left:0px; top:72px; width:100px; height:25px; text-align:left; ">제조원</caption>
+			<caption id="PID1050caption14" class="list_cap03" style="left:0px; top:96px; width:100px; height:25px; text-align:left; ">사양</caption>
+			<caption id="PID1050caption19" class="list_cap03" style="left:0px; top:168px; width:100px; height:132px; text-align:left; ">비고</caption>
+			<caption id="PID1050caption8" class="list_cap03" style="left:0px; top:120px; width:100px; height:25px; text-align:left; ">사용처구분</caption>
+			<caption id="PID1050caption16" class="list_cap02" style="left:99px; top:144px; width:286px; height:25px; "/>
+			<caption id="PID1050caption21" class="list_cap03" style="left:0px; top:144px; width:100px; height:25px; text-align:left; ">사용여부</caption>
+			<select1 id="PID1050combo1" ref="/root/reqData/reqform/cdv_detail_form/useclsf" appearance="minimal" style="left:103px; top:124px; width:80px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/gubunCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="PID1050input9" ref="/root/reqData/reqform/cdv_detail_form/useyn" style="left:103px; top:148px; width:80px; height:18px; "/>
+			<textarea id="PID1050textarea1" ref="/root/reqData/reqform/cdv_detail_form/remk" style="left:104px; top:172px; width:276px; height:123px; vertical-align:top; "/>
+		</group>
+		<group id="PID1050group6" style="left:550px; top:405px; width:385px; height:26px; ">
+			<caption id="PID1050caption18" class="list_cap01" style="left:0px; top:0px; width:385px; height:25px; "/>
+			<button id="PID1050button2" class="btn_grid02" style="left:244px; top:4px; width:42px; height:17px; ">
+				<caption>취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						cancel1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1050button3" class="btn_grid02" style="left:109px; top:4px; width:42px; height:17px; ">
+				<caption>추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						add1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1050button4" class="btn_grid02" style="left:154px; top:4px; width:42px; height:17px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						save1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1050button5" class="btn_grid02" style="left:199px; top:4px; width:42px; height:17px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						delete1();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

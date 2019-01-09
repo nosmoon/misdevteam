@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_BAS_1400.xrw
+* 기능 : 노선조회 팝업
+* 작성일자 : 2009.01.15
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				/*
+					부모창에서 설정할 값
+					model.property("route_cd") 			= "001";										//부모창의 조회코드값
+					model.property("route_cd_path") 	= "/root/formData/route_cd";		//부모창에 조회코드 저장 위치
+					model.property("route_nm_path") 	= "/root/formData/route_nm";		//부모창에 조회코드명 저장위치
+					model.property("route_rank_path") 	= "/root/formData/route_rank";    //부모창에 조회순위 저장위치
+				*/
+			
+				//action명을 받아서 model.send한 후 에러 메세지를 처리
+				function modelSend(action){
+					model.send(action);
+					
+					if(model.getValue("/root/errData/errcode") != ""){
+						showErrorMsgBox(model.getValue("/root/errData/errcode"), model.getValue("/root/errData/errmsg"));
+					}
+				}
+				
+				function goSearch(){
+					var cd 		= model.getValue("/root/formData/route_cd");
+					var cdnm		= model.getValue("/root/formData/route_nm");
+					var clsf		= model.getValue("/root/formData/route_clsf");
+					
+					model.setValue("/root/reqData/route_cd"		, cd);
+					model.setValue("/root/reqData/route_nm"	, cdnm);
+					model.setValue("/root/reqData/route_clsf"	, clsf);
+					
+					var action = "se_comm_1210_l";
+					modelSend(action);
+				}
+				
+				function setValue(){
+					var rownum = datagrid1.selectedRow(0);
+					
+					if ( rownum < 0 ) {
+							return;
+					}
+					
+					if ( datagrid1.valueMatrix(rownum, 1) == "" ){
+						return;
+					}
+					
+					var route_cd_path 	= model.property("route_cd_path");
+					var route_nm_path 	= model.property("route_nm_path");
+					var route_rank_path 	= model.property("route_rank_path");
+					
+					var route_cd				= datagrid1.valueMatrix(rownum, 0);
+					var route_nm			= datagrid1.valueMatrix(rownum, 1);
+					var route_rank			= datagrid1.valueMatrix(rownum, 2);
+					
+					window.opener.model.setValue(route_cd_path		, route_cd);
+					window.opener.model.setValue(route_nm_path	, route_nm);
+					
+					if ( route_rank_path != "" ){
+							window.opener.model.setValue(route_rank_path	, route_rank);
+					}
+					window.opener.model.refresh();
+					window.close();
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageTitle/>
+							<pageID/>
+							<pageUrl/>
+							<statusMsg/>
+						</pageInfo>
+					</initData>
+					<bodyData/>
+					<gridData/>
+					<reqData>
+						<route_cd/>
+						<route_nm/>
+						<route_clsf/>
+					</reqData>
+					<resData/>
+					<formData>
+						<route_cd/>
+						<route_nm/>
+						<route_clsf/>
+					</formData>
+					<gridData>
+						<record>
+							<route_cd/>
+							<route_nm/>
+							<route_rank/>
+						</record>
+					</gridData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var route_nm 	= model.property("route_nm");
+					var route_cd 	= model.property("route_cd");
+					var route_clsf	= model.property("route_clsf");
+					model.setValue("/root/formData/route_cd"	, route_cd);
+					model.setValue("/root/formData/route_nm"	, route_nm);
+					model.setValue("/root/formData/route_clsf"	, route_clsf);
+					
+					goSearch();
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_comm_1210_l" action="/se/comm/1210" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="pop400" pagewidth="640" pageheight="480" style="font-family:굴림; ">
+		<caption id="caption74" class="list_cap02" style="left:10px; top:65px; width:380px; height:28px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:103px; width:380px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/gridData/record" caption="노선코드^노선명^순위" colsep="^" colwidth="100, 180, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="byrow" style="left:10px; top:116px; width:380px; height:160px; ">
+			<col ref="route_cd"/>
+			<col ref="route_nm"/>
+			<col ref="route_rank"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					setValue();
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="list_cap01" style="left:194px; top:65px; width:70px; height:28px; ">노선명</caption>
+		<button id="button7" class="btn03" style="left:193px; top:40px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<input id="input1" ref="/root/formData/route_cd" style="left:74px; top:70px; width:105px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					if ( event.keyCode == 13 ){
+						var cd		= input1.currentText;
+						var cdnm	= input2.currentText;
+						
+						model.setValue("/root/formData/route_cd"		, cd);
+						model.setValue("/root/formData/route_nm"	, cdnm);
+						
+						goSearch();
+					}
+				]]>
+			</script>
+		</input>
+		<input id="input2" ref="/root/formData/route_nm" style="left:268px; top:70px; width:105px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					if ( event.keyCode == 13 ){
+						var cd		= input1.currentText;
+						var cdnm	= input2.currentText;
+						
+						model.setValue("/root/formData/route_cd"	, cd);
+						model.setValue("/root/formData/route_nm"	, cdnm);
+						
+						goSearch();
+					}
+				]]>
+			</script>
+		</input>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:65px; width:60px; height:28px; ">노선코드</caption>
+		<caption id="caption2" class="tit01" style="left:15px; top:10px; width:380px; height:27px; ">노선조회</caption>
+		<button id="button1" class="btn03" style="left:260px; top:40px; width:63px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					setValue();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" style="left:327px; top:40px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>정규직(MIS) - 평가부문 관리화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_cd>
+								<item>
+								</item>
+							</evlu_cd>
+							<evlu_part_cd>
+								<item>
+								</item>
+							</evlu_part_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<evlu_cd/>
+						</searchData>
+						<reqForm>
+							<evlu_yy/>
+							<tms_clsf/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<valid_evlu_cd/>
+						</resForm>
+						<gridData>
+							<record>
+								<evlu_part_cd/>
+								<db_status/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="hd_evlu_1300_m" action="/servlet/hd/evlu/1300" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_1301_l" action="/servlet/hd/evlu/1301" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_1302_a" action="/servlet/hd/evlu/1302" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//평가구분 콤보박스 생성
+					model1.send("hd_evlu_9000_l");
+					model1.setValue("/root/resData/resForm/valid_evlu_cd",model1.getValue("/root/dataSet/valid_evlu_cd"));
+					model1.copyNode("/root/initData/comboSet/evlu_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					//평가구분 코드 설정
+					var op_evlu_cd = window.opener.model1.getValue("/root/resData/resForm/evlu_cd");
+					model1.setValue("/root/reqData/searchData/evlu_cd",op_evlu_cd);
+					combo1.refresh();
+					combo1.disabled = true;
+					//현재 선택한 평가구분에 대한 정보설정
+					model1.setValue("/root/reqData/reqForm/evlu_yy",model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+					model1.setValue("/root/reqData/reqForm/tms_clsf",model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					//평가부문 콤보박스 생성
+					model1.send("hd_evlu_1300_m");
+					model1.copyNode("/root/initData/comboSet/evlu_part_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					model1.refresh();					
+					//평가그룹조회
+					searchList();
+				]]>
+			</script>
+			<submission id="hd_evlu_9000_l" action="/servlet/hd/evlu/9000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//평가 대분류 그룹별 평가그룹 목록생성
+				function searchList(){
+					//기존의 노드를 모두 초기화
+					model1.removeNode("/root/dataSet");
+					model1.removeNode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_1301_l");	
+					model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					caption1.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						datagrid1.isReadOnly(i,datagrid1.colRef("evlu_part_cd")) = true;
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;2,30;2,39;2,64;2,72;2,77;2,87;2,746;1,437;2,352;2,358;" style="font-family:굴림; ">
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<group id="group_ActionBtn" style="left:10px; top:9px; width:427px; height:21px; ">
+			<button id="button1" class="btn02" style="left:375px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						window.close();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:320px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!rowInSubmit(datagrid1)){return;}
+						if(!commGridReqCheck("datagrid1")) return;
+						if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_1302_a");
+						if(submit_completed()) searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:265px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(!rowDelSubmit(datagrid1)){return;}
+						if(window.alert("삭제 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_1302_a");
+						if(submit_completed()) searchList();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:72px; width:423px; height:5px; "/>
+		<!-- 검색조건 항목 -->
+		<caption id="captoin1" class="list_cap02" style="left:10px; top:39px; width:427px; height:26px; "/>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:39px; width:100px; height:26px; ">평가구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/evlu_cd" appearance="minimal" style="left:113px; top:43px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					/*****
+						1. 평가년도와 차수구분 값을 searchData/evlu_cd에서 추출해 필요항목에 설정
+					*****/
+
+					//1. 평가년도와 차수구분 값을 searchData/evlu_cd에서 추출해 필요항목에 설정
+					if(model1.getValue("/root/reqData/searchData/evlu_cd") != ""){
+						model1.setValue("/root/reqData/searchData/evlu_yy", model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+						model1.setValue("/root/reqData/searchData/tms_clsf", model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+						model1.setValue("/root/tempData/evlu_yy", model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+						model1.setValue("/root/tempData/tms_clsf", model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					}
+				]]>
+			</script>
+		</select1>
+		<!-- 평가년도별 차수등록 -->
+		<caption id="caption4" class="tit02" style="left:10px; top:87px; width:427px; height:20px; ">평가부문등록</caption>
+		<button id="button5" class="btn_grid03" style="left:381px; top:87px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					datagrid1.addItem();
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" allowselection="false" allowuserresize="false" caption="평가부문^DB상태값" colsep="#" colwidth="406, 5" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" tooltip="true" style="left:10px; top:107px; width:428px; height:246px; ">
+			<col class="req" ref="evlu_part_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/evlu_part_cd/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="db_status"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid1.colType(datagrid1.col)==""){
+						rowStatus(datagrid1);
+						return;
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(datagrid1.col == datagrid1.colRef("evlu_part_cd")){
+						for(var i=1; i<=(datagrid1.rows-datagrid1.fixedRows); i++){
+							if(datagrid1.row==i) continue;
+							if(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("evlu_part_cd")) == datagrid1.valueMatrix(i,datagrid1.colRef("evlu_part_cd"))){
+								alert("중복된 평가부분 선택값이 존재합니다.");
+								datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("evlu_part_cd")) = "";
+								datagrid1.rowStatus(datagrid1.row) = "1";	//상태값을 "1"로 바꿔줘야 행저장, 삭제시 사라짐.
+								return;
+							}
+						}
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" style="left:337px; top:358px; width:100px; height:20px; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

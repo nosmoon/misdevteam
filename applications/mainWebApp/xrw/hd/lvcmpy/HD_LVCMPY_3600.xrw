@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>퇴직추계정산조회</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<cost_obj_clsf>
+								<item/>
+							</cost_obj_clsf>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<dept_cd/>
+							<dept_nm/>
+							<emp_no/>
+							<nm_korn/>
+							<estm_work_dt/>
+							<priv_lvc_yn/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+							<emp_no/>
+						</fwdData>
+						<multiUpData/>
+						<reqForm>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<dept_cd/>
+								<dept_nm/>
+								<emp_no/>
+								<nm_korn/>
+								<lvcmpy_saly_estm_amt/>
+								<priv_lvcmpy_saly_estm_amt/>
+								<last_month_sum/>
+								<this_month_in_amt/>
+								<this_month_out_amt/>
+								<this_year_sum/>
+								<total_year_sum/>
+								<set_amt/>
+								<diff_amt/>
+							</record>
+						</gridData>
+						<resForm>
+						</resForm>
+						<msg/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setDept_cd(iv_dept_cd, iv_dept_nm){
+						model1.setValue("/root/reqData/searchData/dept_cd", iv_dept_cd);
+						model1.setValue("/root/reqData/searchData/dept_nm", iv_dept_nm);
+						model1.refresh();
+					}
+					function setDeptInfo( get_det_cd, get_dept_nm){
+						model1.setValue("/root/reqData/searchData/dept_cd",get_det_cd);
+						model1.setValue("/root/reqData/searchData/dept_nm",get_dept_nm);
+						group_scr.refresh();
+					}
+					function setEmp_no(emp_no, nm_korn){
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", nm_korn);
+						model1.refresh();
+					}
+					
+					function setReady(){
+						model1.removenode("/root/resData/gridData");
+						//MAX 추계작업일
+						model1.send("hd_lvcmpy_3601_l");
+						model1.setValue("/root/reqData/searchData/estm_work_dt", model1.getValue("/root/dataSet/CURLIST/record/estm_work_dt"));
+						model1.removenode("/root/dataSet");
+						
+						model1.refresh();
+					}
+					
+					function getSum(){
+						
+						datagrid1.subtotal("clear", -1, datagrid1.colRef("priv_lvcmpy_saly_estm_amt"));
+						datagrid1.subtotal("clear", -1, datagrid1.colRef("this_month_out_amt"));
+						datagrid1.subtotal("clear", -1, datagrid1.colRef("lvcmpy_saly_estm_amt"));
+						datagrid1.subtotal("clear", -1, datagrid1.colRef("set_amt"));
+						datagrid1.subtotal("clear", -1, datagrid1.colRef("last_month_sum"));
+						datagrid1.subtotal("clear", -1, datagrid1.colRef("diff_amt"));
+						datagrid1.subtotal("clear", -1, datagrid1.colRef("this_month_in_amt"));
+						
+						
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("priv_lvcmpy_saly_estm_amt"), "#,###.#", "background-color:#99ff99", 1, "합계",false);
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("this_month_out_amt"), "#,###.#", "background-color:#99ff99", 1, "합계",false);
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("lvcmpy_saly_estm_amt"), "#,###.#", "background-color:#99ff99", 1, "합계",false);
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("set_amt"), "#,###.#", "background-color:#99ff99", 1, "합계",false);
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("last_month_sum"), "#,###.#", "background-color:#99ff99", 1, "합계",false);
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("diff_amt"), "#,###.#", "background-color:#99ff99", 1, "합계",false);
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("this_month_in_amt"), "#,###.#", "background-color:#99ff99", 1, "합계",false);
+					
+						datagrid1.mergeByFree(datagrid1.rows-1,datagrid1.colRef("dept_cd"),datagrid1.rows-1,datagrid1.colRef("nm_korn")) ;
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[	
+					setReady();
+				]]>
+			</script>
+			<submission id="hd_lvcmpy_3600_l" action="/hd/lvcmpy/3600" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_lvcmpy_3601_l" action="/hd/lvcmpy/3601" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/HD_Common.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,935;1,10;2,970;1,934;" style="font-family:굴림; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="부서코드^부서^사번^성명^전기말충당금잔액^당기중퇴직금지급액^당기말추계액^설정가능액^기설정액^차액^당월전입액" colsep="^" colwidth="60, 125, 75, 75, 105, 110, 105, 105, 105, 105, 105" ellipsis="false" explorerbar="sortshowmove" frozenbottomrows="1" mergecellsfixedrows="bycolrec" multitotal="true" rowheader="seq" rowsep="|" subtotalposition="below" tooltip="true" style="left:10px; top:138px; width:924px; height:522px; ">
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="dept_nm"/>
+			<col ref="emp_no"/>
+			<col ref="nm_korn"/>
+			<col ref="priv_lvcmpy_saly_estm_amt" format="(-)#,###"/>
+			<col ref="this_month_out_amt" format="(-)#,###"/>
+			<col ref="lvcmpy_saly_estm_amt" format="(-)#,###"/>
+			<col ref="set_amt" format="(-)#,###"/>
+			<col ref="last_month_sum" format="(-)#,###"/>
+			<col ref="diff_amt" format="(-)#,###"/>
+			<col ref="this_month_in_amt" format="(-)#,###"/>
+		</datagrid>
+		<caption id="caption8" class="tit02" style="left:10px; top:115px; width:392px; height:20px; font-weight:bold; ">퇴직급여 충당금 개인별 조회</caption>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:76px; width:926px; height:26px; ">
+			<caption id="caption10" class="list_cap02" style="left:104px; top:0px; width:820px; height:25px; text-align:center; "/>
+			<caption id="caption16" class="list_cap01" style="left:635px; top:0px; width:105px; height:25px; text-align:center; ">부      서</caption>
+			<caption id="caption18" class="list_cap01" style="left:215px; top:0px; width:105px; height:25px; text-align:center; ">사번/성명</caption>
+			<input id="input_dept_cd" ref="/root/reqData/searchData/dept_cd" navindex="3" inputtype="button" maxlength="6" style="left:743px; top:4px; width:85px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setDept_cd");
+						window.load("/xrw/hd/com/HD_COM_1100.xrw","mdichild", "hd_com_1100", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						model1.setValue("/root/reqData/searchData/dept_cd", input_dept_cd.currentText);
+						model1.send("hd_com_1103");
+						if(model1.getValue("/root/dataSet/CURLIST/record/cnt") != "1"){
+							alert("없는 부서이거나 사용중이 아닌 부서 입니다.");
+							model1.setValue("/root/reqData/searchData/dept_cd", "");
+							model1.setValue("/root/reqData/searchData/dept_nm", "");
+							model1.removenode("/root/dataSet");
+							model1.refresh();
+							return;
+						}
+						model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/dataSet/CURLIST/record/dept_cd"));
+						model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/dataSet/CURLIST/record/abrv_nm"));
+						model1.removenode("/root/dataSet");
+						model1.refresh();		
+					]]>
+				</script>
+			</input>
+			<input id="input_dept_nm" ref="/root/reqData/searchData/dept_nm" appearance="input" style="left:830px; top:4px; width:91px; height:18px; ">
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+						if (event.keyCode ==13){
+							src_dept_nm( input_dept_nm.currentText , "/root/reqData/searchData/dept_nm", "/root/reqData/searchData/dept_cd", "setDeptInfo");
+						}
+					]]>
+				</script>
+			</input>
+			<input id="input_emp_no" ref="/root/reqData/searchData/emp_no" navindex="4" inputtype="button" maxlength="6" style="left:323px; top:4px; width:75px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+					if (event.keyCode ==13){
+						var emp_no = input_emp_no.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", "");
+						
+						setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					}
+					]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						var emp_no = input_emp_no.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", "");
+						
+						setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input_nm_korn" ref="/root/reqData/searchData/nm_korn" navindex="5" style="left:400px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+					if (event.keyCode ==13){
+						var nm_korn = input_nm_korn.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", "");
+						model1.setValue("/root/reqData/searchData/nm_korn", nm_korn);
+						
+						setInfoSearchInput("", nm_korn, "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					}
+					]]>
+				</script>
+			</input>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:105px; height:25px; text-align:center; ">추계작업일</caption>
+			<input id="input1" ref="/root/reqData/searchData/estm_work_dt" class="req" inputtype="date" format="yyyy-mm-dd" caption="추계작업일" style="left:110px; top:3px; width:100px; height:18px; text-align:center; "/>
+			<select id="checkbox1" ref="/root/reqData/searchData/priv_lvc_yn" overflow="visible" appearance="full" style="left:504px; top:4px; width:116px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>전년추계퇴직제외</label>
+						<value>Y</value>
+					</item>
+				</choices>
+			</select>
+		</group>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:43px; width:926px; height:21px; ">
+			<button id="button1" class="btn02" style="left:725px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if( !commReqCheck(group_scr) ){
+							return;
+						}
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						datagrid1.refresh();
+						
+						model1.send("hd_lvcmpy_3600_l");
+						model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						
+						
+						model1.refresh();
+						
+						getSum();
+						
+						rowCnt.value = "총 "+ (parseInt(datagrid1.rows - datagrid1.fixedRows)) + " 건";
+					]]>
+				</script>
+			</button>
+			<button id="btnA2" class="btn02" style="left:669px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						rowCnt.value = "";
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn04" style="left:780px; top:0px; width:88px; height:21px; ">
+				<caption>엑셀다운로드</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//excel 파일로 저장한다.
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						
+						if(filePath != "") {
+							datagrid1.saveExcel(filePath);
+							window.exec(filePath);
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="rowCnt" style="left:800px; top:665px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

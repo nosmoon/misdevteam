@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title/>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<mc_budg_5098_m>
+								<dataSet>
+									<CURLIST>
+										<record>
+											<exec_no/>
+											<clos_yn/>
+											<fix_yn/>
+											<to_char_date/>
+										</record>
+									</CURLIST>
+								</dataSet>
+							</mc_budg_5098_m>
+						</comboSet>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<from_issu_dt/>
+							<to_issu_dt/>
+							<from_issu_dt1/>
+							<to_issu_dt1/>
+							<from_issu_dt2/>
+							<to_issu_dt2/>
+							<in_tms/>
+							<yyyy/>
+							<from_mm/>
+							<to_mm/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+							<mc_budg_2061_l>
+								<dataSet>
+									<CURLIST>
+										<record>
+											<max_sub_cd/>
+										</record>
+									</CURLIST>
+								</dataSet>
+							</mc_budg_2061_l>
+						</resForm>
+						<gridData>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				]]>
+			</script>
+			<submission id="mc_budg_2061_l" action="/mc/budg2000/2061" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/resForm/mc_budg_2061_l/dataSet"/>
+			<submission id="mc_budg_5098_m" action="/mc/budg5000/5098" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/yyyy" resultref="/root/initData/comboSet/mc_budg_5098_m/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/fcmc_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				
+				function send_mc_budg_5100_p(){
+					if(!checkref(yyyy)) {
+						return false;
+					}
+
+					resetOznode();
+					
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)
+					if(in_tms.value == "" || in_tms.value == "00"){
+						makeNodeValue("/root/oz_data/ozrName","fcmc/SP_MC_BUDG_5100_P");
+					}else{
+						makeNodeValue("/root/oz_data/ozrName","fcmc/SP_MC_BUDG_5101_P");
+					}
+					
+					var yyyy_var;
+					if(from_mm.value == "" &&  to_mm.value == ""){
+						model.send("mc_budg_2061_l");
+						yyyy_var = get_refvalue("/root/resData/resForm/mc_budg_2061_l/dataSet/CURLIST/record/max_sub_cd");
+						if(yyyy_var != ""){
+							if(yyyy_var.substring(0,4) == yyyy.value){
+								set_refvalue("/root/reqData/searchData/from_issu_dt", yyyy.value + "01");
+								set_refvalue("/root/reqData/searchData/to_issu_dt", yyyy.value + yyyy_var.substring(4,6));
+								if(yyyy_var.substring(4,6) == "12"){
+									set_refvalue("/root/reqData/searchData/from_issu_dt1", "0");
+									set_refvalue("/root/reqData/searchData/to_issu_dt1","0");
+								}else{
+									var ex_var = Number(yyyy_var.substring(4,6)) + 1;
+									if(ex_var < 10){
+										ex_var = "0" + ex_var;
+									}
+									set_refvalue("/root/reqData/searchData/from_issu_dt1", yyyy.value + ex_var);
+									set_refvalue("/root/reqData/searchData/to_issu_dt1",yyyy.value + "12");
+								}
+							}else if(yyyy_var.substring(0,4) > yyyy.value){
+								set_refvalue("/root/reqData/searchData/from_issu_dt", yyyy.value + "01");
+								set_refvalue("/root/reqData/searchData/to_issu_dt", yyyy.value + "12");
+								set_refvalue("/root/reqData/searchData/from_issu_dt1", "0");
+								set_refvalue("/root/reqData/searchData/to_issu_dt1","0");
+							}else{
+								set_refvalue("/root/reqData/searchData/from_issu_dt", "0");
+								set_refvalue("/root/reqData/searchData/to_issu_dt","0");
+								set_refvalue("/root/reqData/searchData/from_issu_dt1", yyyy.value + "01");
+								set_refvalue("/root/reqData/searchData/to_issu_dt1",yyyy.value + "12");
+							}
+							set_refvalue("/root/reqData/searchData/from_issu_dt2", get_refvalue("/root/reqData/searchData/from_issu_dt1"));
+							set_refvalue("/root/reqData/searchData/to_issu_dt2", get_refvalue("/root/reqData/searchData/to_issu_dt1"));
+						}
+					}else{
+						set_refvalue("/root/reqData/searchData/from_issu_dt", yyyy.value + from_mm.value);
+						set_refvalue("/root/reqData/searchData/to_issu_dt", yyyy.value + to_mm.value);
+						if(from_mm.value == "01" && to_mm.value == "12"){
+							set_refvalue("/root/reqData/searchData/from_issu_dt", "0");
+							set_refvalue("/root/reqData/searchData/to_issu_dt","0");
+							set_refvalue("/root/reqData/searchData/from_issu_dt1", "0");
+							set_refvalue("/root/reqData/searchData/to_issu_dt1", "0");
+						}else if(from_mm.value == "01" && to_mm.value != "12"){
+							var ex_var = Number(to_mm.value) + 1;
+							if(ex_var < 10){
+								ex_var = "0" + ex_var;
+							}
+							set_refvalue("/root/reqData/searchData/from_issu_dt1", yyyy.value + ex_var);
+							set_refvalue("/root/reqData/searchData/to_issu_dt1",yyyy.value + "12");
+							set_refvalue("/root/reqData/searchData/from_issu_dt2", get_refvalue("/root/reqData/searchData/from_issu_dt1"));
+							set_refvalue("/root/reqData/searchData/to_issu_dt2", get_refvalue("/root/reqData/searchData/to_issu_dt1"));
+						}else if(from_mm.value > "01" && to_mm.value == "12"){
+							var ex_var = Number(from_mm.value) - 1;
+							if(ex_var < 10){
+								ex_var = "0" + ex_var;
+							}
+							set_refvalue("/root/reqData/searchData/from_issu_dt1", yyyy.value + "01");
+							set_refvalue("/root/reqData/searchData/to_issu_dt1",yyyy.value + ex_var);
+							set_refvalue("/root/reqData/searchData/from_issu_dt2", get_refvalue("/root/reqData/searchData/from_issu_dt1"));
+							set_refvalue("/root/reqData/searchData/to_issu_dt2", get_refvalue("/root/reqData/searchData/to_issu_dt1"));
+						}else if(from_mm.value > "01" && to_mm.value != "12"){
+							set_refvalue("/root/reqData/searchData/from_issu_dt1", yyyy.value + "01");
+							var ex_var = Number(from_mm.value) - 1;
+							if(ex_var < 10){
+								ex_var = "0" + ex_var;
+							}
+							set_refvalue("/root/reqData/searchData/to_issu_dt1",yyyy.value + ex_var);
+							var ex_var = Number(to_mm.value) + 1;
+							if(ex_var < 10){
+								ex_var = "0" + ex_var;
+							}
+							set_refvalue("/root/reqData/searchData/from_issu_dt2", yyyy.value + ex_var);
+							set_refvalue("/root/reqData/searchData/to_issu_dt2", yyyy.value + "12");
+						}
+					}
+					
+					// odi 파라미터 설정.
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", getProperty("ss_cmpycd"));
+					makeNodeValue("/root/oz_data/odiParam/iv_from_issu_dt", get_refvalue("/root/reqData/searchData/from_issu_dt"));
+					makeNodeValue("/root/oz_data/odiParam/iv_to_issu_dt", get_refvalue("/root/reqData/searchData/to_issu_dt"));
+					makeNodeValue("/root/oz_data/odiParam/iv_from_issu_dt1", get_refvalue("/root/reqData/searchData/from_issu_dt1"));
+					makeNodeValue("/root/oz_data/odiParam/iv_to_issu_dt1", get_refvalue("/root/reqData/searchData/to_issu_dt1"));
+					makeNodeValue("/root/oz_data/odiParam/iv_from_issu_dt2", get_refvalue("/root/reqData/searchData/from_issu_dt2"));
+					makeNodeValue("/root/oz_data/odiParam/iv_to_issu_dt2", get_refvalue("/root/reqData/searchData/to_issu_dt2"));
+					makeNodeValue("/root/oz_data/odiParam/iv_in_tms", in_tms.value);
+					
+					// 레포트뷰어 호출.
+					openOzwin("/root/oz_data");					
+				}
+				
+			
+			function in_yymm_ch(){
+				model.send("mc_budg_5098_m");
+				makeComboGubun("","/root/initData/comboSet/mc_budg_5098_m/dataSet/CURLIST","record","exec_no", "exec_no");
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="640" pageheight="480" guideline="1,10;1,936;2,64;2,70;2,76;1,480;" style="font-family:굴림; ">
+		<caption id="caption10" class="list_cap02" style="left:100px; top:100px; width:460px; height:255px; text-align:center; "/>
+		<group id="group9" style="left:110px; top:110px; width:440px; height:235px; ">
+			<group id="group_scr" style="left:30px; top:45px; width:375px; height:100px; ">
+				<caption id="caption4" class="list_cap02" style="left:0px; top:25px; width:375px; height:26px; "/>
+				<caption id="caption29" class="list_cap02" style="left:0px; top:0px; width:375px; height:26px; "/>
+				<caption id="caption30" class="list_cap03" style="left:0px; top:0px; width:125px; height:26px; ">예산년도</caption>
+				<input id="yyyy" ref="/root/reqData/searchData/yyyy" class="req" navindex="1" maxlength="4" format="yyyy" caption="년도" style="left:130px; top:4px; width:65px; height:18px; ">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						in_yymm_ch();
+						]]>
+					</script>
+				</input>
+				<caption id="caption1" class="list_cap02" style="left:0px; top:50px; width:375px; height:26px; "/>
+				<caption id="caption2" class="list_cap03" style="left:0px; top:50px; width:125px; height:26px; ">회차</caption>
+				<caption id="caption3" class="list_cap03" style="left:0px; top:25px; width:125px; height:26px; ">집행월액</caption>
+				<caption id="caption5" style="left:38px; top:75px; width:302px; height:25px; ">집행액월 미입력시 월마감에 의해 집행액을 보여줍니다.</caption>
+				<input id="from_mm" ref="/root/reqData/searchData/from_mm" navindex="2" maxlength="2" format="mm" caption="집행월액" style="left:131px; top:29px; width:35px; height:18px; "/>
+				<input id="to_mm" ref="/root/reqData/searchData/to_mm" navindex="3" maxlength="2" format="mm" caption="집행월액" style="left:191px; top:29px; width:35px; height:18px; "/>
+				<caption id="caption7" style="left:173px; top:30px; width:15px; height:18px; ">~</caption>
+				<select1 id="in_tms" ref="/root/reqData/searchData/in_tms" navindex="4" appearance="minimal" editmode="inputsearch" style="left:131px; top:54px; width:167px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/mc_budg_5098_m/dataSet/CURLIST/record">
+							<label ref="exec_no"/>
+							<value ref="exec_no"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							if(combo_data_contains(in_tms, in_tms.value) == -1){
+								show_message("정확한 값을 선택해 주세요.");
+								set_refvalue(in_tms,"");
+								return;
+							}				
+						]]>
+					</script>
+				</select1>
+			</group>
+		</group>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<group id="group1" style="left:15px; top:45px; width:615px; height:25px; ">
+			<button id="button1" class="btn02" crud="P" style="left:505px; top:0px; width:52px; height:21px; ">
+				<caption>출 력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						send_mc_budg_5100_p();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:560px; top:0px; width:52px; height:21px; ">
+				<caption>종 료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						formClose();
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar_Pop640.xrw" style="left:10px; top:5px; width:620px; height:29px; "/>
+	</xhtml:body>
+</xhtml:html>

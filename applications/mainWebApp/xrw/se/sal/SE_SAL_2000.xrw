@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SAL_2000.xrw
+* 기능 : 판매 - 지대관리 - 매출관리 - 지국매체단가변동현황
+* 작성일자 : 2009.04.08
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var bgn_yymm		= model.getValue("/root/reqData/searchData/bgn_yymm");
+					var end_yymm		= model.getValue("/root/reqData/searchData/end_yymm");
+					var bo_cd_seq	= model.getValue("/root/reqData/searchData/bo_cd_seq");
+					
+					if ( bgn_yymm == ""  ){
+						commAlert("기준시작년월이 없습니다");
+						return;
+					}
+					
+					if ( end_yymm == ""  ){
+						model.setValue("/root/reqData/searchData/end_yymm", end_yymm);
+					}
+					
+					if ( bgn_yymm > end_yymm){
+						commAlert("기준시작년월이 기준종료년월보다 클 수 없습니다");
+						return;
+					}
+					
+					bo_cd_seq = bo_cd_seq.replace("-","");
+					var bo_cd			= bo_cd_seq.substring(0, 5);
+					var bo_seq			= bo_cd_seq.substring(5, 8);
+					
+					if ( bo_cd == "" ){
+						commAlert("센터코드가 없습니다");
+						return;
+					}
+					
+					if ( bo_seq == "" ){
+						commAlert("센터순번이 없습니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData/bo_cd"		, bo_cd	);
+					model.setValue("/root/reqData/searchData/bo_seq"	, bo_seq	);
+					
+					
+					var action = "se_sal_2010_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					model.refresh();
+				}
+				
+				function jsGetBocdSeq(bo_cd,bo_seq,bo_nm,callgb){
+					model.setValue("/root/reqData/searchData/bo_cd_seq", bo_cd +"-"+ bo_seq);
+					model.setValue("/root/reqData/searchData/bo_cd"		, bo_cd);
+					model.setValue("/root/reqData/searchData/bo_seq"	, bo_seq);
+					model.setValue("/root/reqData/searchData/bo_nm"		, bo_nm);
+					
+					input2.refresh();
+					input4.refresh();
+				}
+				
+				function openBocdPopup(gubun){
+					
+					var root            = "/root/reqData/searchData";
+									
+					if ( gubun == ""){	
+						var code     = model.getValue("/root/reqData/searchData/bo_cd_seq");				
+						 var codecnt = 0;
+						 for ( var i=0; i<code.length; i++ ) {
+						  ch = code.charAt(i);
+							if (! isNaN(ch)) {
+							  	codecnt++;
+							 }
+						 }	
+										 
+						 if(codecnt !=8){						 	
+							model.setValue("/root/reqData/searchData/bo_nm", code);							
+						 	model.setValue("/root/reqData/searchData/bo_cd_seq", "");
+						 	model.setValue("/root/reqData/searchData/bo_cd", "");
+						 						 		
+						 }else{
+						 	code =code.replace("-", "");
+						 	model.setValue("/root/reqData/searchData/bo_nm", "");							
+						 	model.setValue("/root/reqData/searchData/bo_cd_seq", code);
+						 	model.setValue("/root/reqData/searchData/bo_cd", code);
+						 }		 
+					
+						model.refresh();										
+						se_getBocdnm01("", "/root/reqData/searchData", "/root/reqData/searchData", "bo_cd_seq", "bo_nm", "");
+					} else {
+						
+						se_getBocdnm01("P", "/root/reqData/searchData", "/root/reqData/searchData", "bo_cd_seq", "bo_nm", "");
+					}	
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<closInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<bgn_yymm/>
+							<end_yymm/>
+							<bo_cd_seq/>
+							<bo_nm/>
+							<bo_cd/>
+							<bo_seq/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<yymm/>
+									<net_sale_amt/>
+									<val_qty/>
+									<icdc_calc_qty/>
+									<spsl_qty/>
+									<stetsell_qty/>
+									<basi_uprc/>
+									<rdff_rdu_uprc/>
+									<cntr_uprc/>
+									<fpymt_encur_amt/>
+									<sale_amt/>
+									<sply_amt/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+					<code/>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action = "se_sal_2000_m";
+					model.send(action);
+					
+					var bgn_yymm		= model.getValue("/root/initData/bgn_yymm");			  
+					var end_yymm		= model.getValue("/root/initData/end_yymm");			  
+					model.setValue("/root/reqData/searchData/bgn_yymm", bgn_yymm);
+					model.setValue("/root/reqData/searchData/end_yymm", end_yymm);
+					
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_sal_2000_m" action="/se/sal/2000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_sal_2010_l" action="/se/sal/2010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="기준년월^순매출액^유가부수^증감부수^특판부수^가판부수^기준단가^지역차단가^매출단가^완납단가^매출액^지원금액" colsep="^" colwidth="80, 90, 70, 70, 70, 70, 70, 70, 70, 70, 100, 70" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:120px; width:926px; height:605px; ">
+			<col ref="yymm" format="yyyy-mm" style="text-align:center; "/>
+			<col ref="net_sale_amt" format="#,###" style="text-align:right; "/>
+			<col ref="val_qty" format="#,###" style="text-align:right; "/>
+			<col ref="icdc_calc_qty" format="#,###" style="text-align:right; "/>
+			<col ref="spsl_qty" format="#,###" style="text-align:right; "/>
+			<col ref="stetsell_qty" format="#,###" style="text-align:right; "/>
+			<col ref="basi_uprc" format="#,###" style="text-align:right; "/>
+			<col ref="rdff_rdu_uprc" format="#,###" style="text-align:right; "/>
+			<col ref="cntr_uprc" format="#,###" style="text-align:right; "/>
+			<col ref="fpymt_encur_amt" format="#,###" style="text-align:right; "/>
+			<col ref="sale_amt" format="#,###" style="text-align:right; "/>
+			<col ref="sply_amt" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">기준년월</caption>
+			<input id="input1" ref="/root/reqData/searchData/end_yymm" navindex="1" format="yyyy-mm" caption="지급시작일자" style="left:192px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input1.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/end_yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<input id="input3" ref="/root/reqData/searchData/bgn_yymm" class="req" navindex="1" format="yyyy-mm" caption="지급시작일자" style="left:87px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/bgn_yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<caption id="caption91" style="left:178px; top:3px; width:15px; height:20px; ">~</caption>
+			<caption id="caption1" class="list_cap01" style="left:292px; top:0px; width:60px; height:26px; ">센터</caption>
+			<input id="input2" ref="/root/reqData/searchData/bo_cd_seq" class="req" navindex="6" inputtype="button" caption="센터" style="left:359px; top:4px; width:101px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[					
+					
+					if ( event.keyCode == 13 ){	
+						var code = input2.currentText;
+						model.setValue("/root/reqData/searchData/bo_cd_seq", code);					
+						goSearch();
+					}else{
+						model.setValue("/root/reqData/searchData/bo_nm", "");	
+						input4.refresh();
+					}
+				]]>
+				</script>
+				<script type="javascript" ev:event="DOMFocusOut">
+					<![CDATA[
+						if ( event.keyCode == 9 ){
+							var code = input2.currentText;
+							model.setValue("/root/reqData/searchData/bo_cd_seq", code);						
+							if ( code == "" ){
+								return;
+							}					
+							
+							openBocdPopup("");
+							if(submit_completed()){								
+								model.setfocus("input2");
+							}
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						openBocdPopup("P");
+						model.setfocus("input2");
+					]]>
+				</script>
+			</input>
+			<output id="input4" ref="/root/reqData/searchData/bo_nm" class="output" disabled="true" appearance="output" style="left:464px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="DOMFocusOut">
+					<![CDATA[
+					var code = input4.currentText;
+
+					model.setValue("/root/reqData/searchData/send_plac_cd_seq", "");	
+					input2.refresh();
+					model.setValue("/root/reqData/searchData/send_plac_nm", code);	
+					if ( code == "" ){
+						return;
+					}
+					
+					openSendPlacPopup("N");
+				]]>
+				</script>
+			</output>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

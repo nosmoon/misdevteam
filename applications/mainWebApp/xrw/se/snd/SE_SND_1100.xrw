@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_1100.xrw
+* 기능 : 판매 - 발송관리 - 노선등록
+* 작성일자 : 2009.02.03
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				//action명을 받아서 model.send한 후 에러 메세지를 처리
+				function modelSend(action){
+					model.send(action);
+					
+					if(model.getValue("/root/errData/errcode") != ""){
+						showErrorMsgBox(model.getValue("/root/errData/errcode"), model.getValue("/root/errData/errmsg"));
+					} 
+				}
+				
+				function goCodeSearch(){					
+					modelSendNoMake("se_comm_1220_l", "/se/comm/1220", "/root/formData", "/root/resData/code");					
+					var route_nm 	= model.getValue("/root/resData/code/record/route_nm");
+					var route_rank 	= model.getValue("/root/resData/code/record/route_rank");					
+					model.setValue("/root/formData/route_nm"	, route_nm);
+					model.setValue("/root/formData/route_rank", route_rank);					
+					model.refresh();
+				}
+				
+				function goSearch(){
+					//조회 조건을 node에 담는다.
+					var reqRoot				= "/root/reqData";
+					var route_cd				= model.getValue("/root/formData/route_cd");
+					var route_clsf 			= model.getValue("/root/formData/route_clsf");
+					var inwsp_send_yn	= model.getValue("/root/formData/inwsp_send_yn");
+	
+					if ( route_cd == "" ){
+						commAlert("코드값을 입력하십시오.");
+						model.setFocus("input1");
+						return;
+					}
+	
+					model.setValue(reqRoot + "/route_cd"				, route_cd);
+					model.setValue(reqRoot + "/route_clsf"			, route_clsf);
+					model.setValue(reqRoot + "/inwsp_send_yn"	, inwsp_send_yn);
+					
+					//일괄변경시 강제로 상태값을 변경하였기 때문에 상태값을 클리어 하여야한다.
+					datagrid1.clearStatus();
+					datagrid2.rows = datagrid2.fixedRows;
+
+					var action = "se_snd_1110_l";
+					model.send(action, false);
+					
+					se_chkGridCnt("datagrid1");					
+					
+					/* 라이트 그리드는 인스터스와 매핑을 하지는 않지만
+					   실제 컬럼 수만큼 컬럼의 인스턴스는 생성되어져 있어야한다.
+					   기본 70개를 선언하여 놓고 많으면 삭제하고 모자라면 인스턴스를 추가한다.   
+					*/   
+					var len = parseInt(model.getValue("/root/gridData/rownum")) + 11;      //datagrid2의 실제 컬럼수
+					var colLen = datagrid2.cols;                                                   	       //datagrid2의 현재 선언된 컬럼수 
+
+					if ( colLen > len ){
+						datagrid2.addRow();
+						for ( var i = 0 ; i < colLen - len ; i++ ){
+							datagrid2.removeColumn();
+						}
+						datagrid2.removeRow();
+					} else if ( colLen < len ) {
+						datagrid2.addRow();
+						for ( var i = 0 ; i < len - colLen ; i++ ){
+							datagrid2.addColumn("ref:c" + colLen + i + ";");
+						
+						}
+						datagrid2.removeRow();
+					}
+					var action = "se_snd_1120_l";
+					modelSend(action);
+					
+					se_chkGridCnt("datagrid2");
+					
+					var inwsp_send_yn = model.getValue("/root/gridData/list/main/record[1]/inwsp_send_yn");
+					model.setValue("/root/formData/inwsp_send_yn", inwsp_send_yn);
+					
+					
+					//input2.disabled = true;
+					//input3.disabled = true;
+					
+					if ( datagrid1.rows > 1 ){
+						inputTf(false);
+					} else {
+						inputTf(true);
+					}
+					
+					var rows 	= datagrid2.rows;
+					var value 	= "";
+					for ( var i = 1 ; i <= rows ; i++ ){
+						value 	= datagrid2.valueMatrix(i, 1);
+						if ( value != "" ){
+							datagrid2.isReadOnly(i, 1, i, 1) = true;
+						}
+							
+					}
+					
+				      
+					model.refresh();
+				}
+				
+				function inputTf(tf){
+					var grid1Rows = datagrid1.rows - 1;
+					var grid2Rows = datagrid2.rows - 1;
+					var grid1Cols = datagrid1.cols - 1;
+					var grid2Cols = datagrid2.cols - 1;
+					
+					datagrid1.isReadOnly(1, 0, grid1Rows , grid1Cols) = tf;
+					datagrid2.isReadOnly(1, 1, grid2Rows, grid2Cols) = tf;
+				
+					button2.disabled = tf;
+					button3.disabled = tf;
+					button5.disabled = tf;
+				
+					button4.disabled = tf;
+					button6.disabled = tf;
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo>
+							<pageTitle/>
+							<pageID/>
+							<pageUrl/>
+							<statusMsg/>
+						</pageInfo>
+					</initData>
+					<formData>
+						<route_cd/>
+						<route_nm/>
+						<route_rank/>
+						<route_clsf/>
+						<inwsp_send_yn/>
+						<mang_cd_1/>
+					</formData>
+					<codeData>
+						<routelist>
+							<record>
+								<cd/>
+								<cdnm/>
+							</record>
+						</routelist>
+						<ledtlist>
+							<record>
+								<cd/>
+								<cdnm/>
+							</record>
+						</ledtlist>
+						<prtlist>
+							<record>
+								<cd/>
+								<cdnm/>
+							</record>
+						</prtlist>
+						<ecntlist>
+							<record>
+								<cd/>
+								<cdnm/>
+							</record>
+						</ecntlist>
+					</codeData>
+					<resData/>
+					<reqData>
+						<route_cd/>
+						<route_clsf/>
+						<inwsp_send_yn/>
+						<bo_cd/>
+						<send_plac_nm/>
+						<send_plac_seq/>
+						<area_cd/>
+						<area_nm/>
+						<bo_seq/>
+					</reqData>
+					<fwdData/>
+					<rcvData/>
+					<tempData/>
+					<gridData>
+						<list>
+							<main>
+								<record>
+									<cmpy_cd/>
+									<chrg_pers/>
+									<flnm/>
+									<clsf/>
+									<dept_cd/>
+									<use_yn/>
+								</record>
+							</main>
+							<sub>
+								<record>
+									<send_plac_nm/>
+									<area_nm/>
+									<send_rank/>
+									<cnsg_seqo/>
+									<send_mthd/>
+									<bo_cd/>
+									<send_plac_cd/>
+									<area_cd/>
+									<route_clsf/>
+									<route_cd/>
+									<c6/>
+									<c7/>
+									<c8/>
+									<c9/>
+									<c10/>
+									<c11/>
+									<c12/>
+									<c13/>
+									<c14/>
+									<c15/>
+									<c16/>
+									<c17/>
+									<c18/>
+									<c19/>
+									<c20/>
+									<c21/>
+									<c22/>
+									<c23/>
+									<c24/>
+									<c25/>
+									<c26/>
+									<c27/>
+									<c28/>
+									<c29/>
+									<c30/>
+								</record>
+							</sub>
+						</list>
+						<header>
+							<title/>
+							<ref/>
+						</header>
+						<rownum/>
+					</gridData>
+					<multi>
+						<multiUpdateData1/>
+						<multiUpdateData2/>
+						<title/>
+						<inwsp_send_yn/>
+						<route_clsf/>
+						<route_cd/>
+						<route_nm/>
+						<route_rank/>
+					</multi>
+					<lightgrid/>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//input2.disabled = true;
+					//input3.disabled = true;
+				
+					var action = "se_snd_1100_m";
+					modelSend(action);
+					
+					combo2.select(0);
+					
+					inputTf(true);
+					
+					makeComboGubun("", "/root/codeData/prtlist", "record", "cdnm", "cd");
+					makeComboGubun("", "/root/codeData/ledtlist", "record", "cdnm", "cd");
+					makeComboGubun("", "/root/codeData/ecntlist", "record", "cdnm", "cd");
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_snd_1100_m" action="/se/snd/1100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/initData" resultref="/root/codeData"/>
+			<submission id="se_snd_1110_l" action="/se/snd/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/gridData"/>
+			<submission id="se_snd_1120_l" action="/se/snd/1120" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/gridData/list/sub/record"/>
+			<submission id="se_snd_1130_a" action="/se/snd/1130" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/multi" resultref="/root/resData"/>
+			<submission id="se_snd_1140_l" action="/se/snd/1140" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/multi" resultref="/root/resData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,935;2,60;2,70;2,725;" style="font-family:돋움; font-size:12px; background-image:/html/images/bg_946.gif; ">
+		<caption id="caption74" class="list_cap02" style="left:10px; top:70px; width:926px; height:28px; "/>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:104px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/gridData/list/main/record" disabled="false" visibility="visible" caption="매체^인쇄처^판수^지방판" colsep="#" colwidth="162, 137, 137, 132" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:139px; width:608px; height:300px; unloadmark:visible; ">
+			<col ref="medi_nm" style="text-align:left; "/>
+			<col ref="prt_plac_cd" type="combo">
+				<choices>
+					<itemset nodeset="/root/codeData/prtlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="ecnt_cd" type="combo">
+				<choices>
+					<itemset nodeset="/root/codeData/ecntlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="ledt_cd" type="combo">
+				<choices>
+					<itemset nodeset="/root/codeData/ledtlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="medi_cd" visibility="hidden"/>
+			<col ref="route_cd" visibility="hidden"/>
+			<col ref="route_clsf" visibility="hidden"/>
+		</datagrid>
+		<button id="button7" class="btn03" crud="R" style="left:669px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn03" crud="C" style="left:805px; top:44px; width:63px; height:20px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				    var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					val				= datagrid1.valueMatrix(1, 1);
+					if ( val == "" ){
+						commAlert("조회 후 이용할 수 있습니다.");
+						return;
+					}
+					
+					var rownum 		= datagrid2.rows;
+					for ( var i = 1 ; i < rownum ; i++ ){
+						val				= datagrid2.valueMatrix(i, 6);
+						if ( val == "" ){
+							commAlert(i + "행의 지국코드가 없습니다.");
+							return;
+						}
+						val				= datagrid2.valueMatrix(i, 7);
+						if ( val == "" ){
+							commAlert(i + "행의 발송처순번이 없습니다.");
+							return;
+						}
+						
+						val				= datagrid2.valueMatrix(i, 8);
+						if ( val == "" ){
+							commAlert(i + "행의 지역코드가 없습니다.");
+							return;
+						}
+					}
+					
+					var route_clsf 		 = "";
+					var route_cd			 = "";
+					var route_nm		 = "";
+					var route_rank 		 = "";
+					var inwsp_send_yn = model.getValue("/root/formData/inwsp_send_yn");
+					
+					if ( input2.disabled ){
+						route_clsf 		 	= model.getValue("/root/gridData/list/main/record[1]/route_clsf");
+						route_cd			= model.getValue("/root/gridData/list/main/record[1]/route_cd");
+						route_nm		    = model.getValue("/root/gridData/list/main/record[1]/route_nm");
+					    route_rank 		= model.getValue("/root/gridData/list/main/record[1]/route_rank");
+						
+						if ( route_clsf == "" ){
+							commAlert("노선구분이 없습니다.");
+							return;
+						}
+						
+						if ( route_cd == "" ){
+							commAlert("코드가 없습니다.");
+							return;
+						}
+					} else {
+						route_clsf 		 	= model.getValue("/root/formData/route_clsf");
+						route_cd			= model.getValue("/root/formData/route_cd");
+						route_nm	 		= model.getValue("/root/formData/route_nm");
+					    route_rank 		= model.getValue("/root/formData/route_rank");
+						
+					}
+					
+					datagrid1.addStatus(1, "update");
+					model.setValue("/root/multi/multiUpdateData1"	, datagrid1.getUpdateData());
+					model.setValue("/root/multi/multiUpdateData2"	, datagrid2.getUpdateData());
+					model.setValue("/root/multi/title"						, datagrid2.caption);
+					model.setValue("/root/multi/route_clsf"			, route_clsf);
+					model.setValue("/root/multi/route_cd"				, route_cd);
+					model.setValue("/root/multi/route_nm"				, route_nm);
+					model.setValue("/root/multi/route_rank"			, route_rank);
+					model.setValue("/root/multi/inwsp_send_yn"	, inwsp_send_yn);
+					
+					var action = "se_snd_1130_a";
+					model.send(action);
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" style="left:243px; top:74px; width:30px; height:20px; ">순위</caption>
+		<select1 id="combo2" ref="/root/formData/route_clsf" class="req" navindex="1" appearance="minimal" caption="노선구분" style="left:406px; top:74px; width:90px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/routelist/record">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					var comboValue 	= combo2.value;
+					var node   = "/root/codeData/routelist/record";					
+					var ins 		= instance1.selectSingleNode(node);
+					var len 		= ins.length;
+					var index  = 0;
+					var value  = "";
+					for ( var i = 1 ; i <= len ; i++ ){
+						value 	= model.getValue(node + "[" + i + "]/cd");
+						if ( comboValue == value ){
+							index = i;
+							break;
+						}
+					}
+					model.setValue("/root/formData/mang_cd_1", model.getValue(node + "[" + index + "]/mang_cd_1"));
+					model.refresh();
+				]]>
+			</script>
+		</select1>
+		<caption id="caption12" class="list_cap01" style="left:10px; top:70px; width:60px; height:28px; ">코드</caption>
+		<caption id="caption4" class="list_cap01" style="left:505px; top:70px; width:100px; height:28px; ">속지발송여부</caption>
+		<input id="input1" ref="/root/formData/route_cd" class="req" navindex="1" format="9999-99-99" caption="코드" style="left:77px; top:74px; width:40px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+				//	if ( event.keyCode == 13 ){
+					
+						var code = input1.currentText;
+						if(code.length==3){
+							
+							model.setValue("/root/formData/route_cd", "");
+							model.setValue("/root/formData/route_nm", "");
+							model.setValue("/root/formData/route_rank", "");
+							
+							model.setValue("/root/formData/route_cd", code);
+							goCodeSearch();
+							goSearch();
+						}
+						
+				//}
+				]]>
+			</script>
+		</input>
+		<caption id="caption7" class="list_cap01" style="left:331px; top:70px; width:70px; height:28px; ">노선구분</caption>
+		<input id="input2" ref="/root/formData/route_nm" style="left:143px; top:74px; width:90px; height:18px; "/>
+		<button id="button1" navindex="2" crud="R" style="left:120px; top:74px; width:20px; height:18px; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+			<caption>...</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var route_cd 	= model.getValue("/root/formData/route_cd");
+					var route_clsf	= model.getValue("/root/formData/route_clsf");
+					
+					var route_nm		= model.getValue("/root/formData/route_nm");
+					
+					if ( route_cd != "" && route_nm != "" ){
+						route_cd	= "";
+						route_nm	= "";	
+					}
+					/* 팝업을 위한 전역 변수를 사용하여 가져갈 코드값과 결과 값을 받을 경로를 지정한다. */
+					model.property("route_cd") 			= route_cd;
+					model.property("route_clsf") 			= route_clsf;
+					model.property("route_nm") 			= route_nm;
+					model.property("route_cd_path") 	= "/root/formData/route_cd";
+					model.property("route_nm_path") 	= "/root/formData/route_nm";
+					model.property("route_rank_path") 	= "/root/formData/route_rank";
+					
+					window.load(
+							"/xrw/se/comm/SE_COMM_1200.xrw", 
+							"modal", 
+							"", 
+							"left:30px; top:200px; width:420px; height:420; align:center; caption:hidden;"
+							,""
+							,""
+						);
+				]]>
+			</script>
+		</button>
+		<input id="input3" ref="/root/formData/route_rank" navindex="4" format="9999-99-99" style="left:277px; top:74px; width:40px; height:18px; "/>
+		<bool id="bool1" disabled="false" checkvalue="1,2" ref="/root/formData/inwsp_send_yn" style="left:607px; top:77px; width:20px; height:15px; background-image:#uncheck; "/>
+		<output id="output1" ref="/root/formData/mang_cd_1" style="left:639px; top:139px; width:296px; height:235px; vertical-align:top; "/>
+		<button id="button5" class="btn_grid04" style="left:267px; top:119px; width:64px; height:17px; ">
+			<caption>일괄변경</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					setLumpChg("datagrid1", 2);
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn_grid04" style="left:403px; top:119px; width:64px; height:17px; ">
+			<caption>일괄변경</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					setLumpChg("datagrid1", 3);
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn_grid04" style="left:554px; top:119px; width:64px; height:17px; ">
+			<caption>일괄변경</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					setLumpChg("datagrid1", 4); 
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn_grid03" style="left:882px; top:453px; width:53px; height:17px; background-image:/images/btn_s_3.gif; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var rownum = datagrid2.row;
+					datagrid2.deleteRow(rownum);
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn_grid03" style="left:824px; top:453px; width:53px; height:17px; background-image:/images/btn_s_3.gif; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var rows	= datagrid2.rows;
+					var status;
+
+					if ( rows == datagrid2.fixedRows + 1 ){
+						status = datagrid2.rowStatus(rows - 1);
+						if ( status == 0  && datagrid2.valueMatrix(1, 1) == ""){
+							datagrid2.rows = datagrid2.fixedRows;
+						}
+					}
+					datagrid2.addRow();
+					
+					//model.setFocus("datagrid2");
+
+					datagrid2.row = datagrid2.rows;
+					datagrid2.col  = 2;
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/gridData/list/sub/record" caption="발송처^지역^발송순서^탁송순위^합포여부^" colsep="#" colwidth="180, 180, 180, 180, 180, 100, 100, 100, 100, 100" datatype="delimeter" mergecellsfixedrows="bycolrec" rowheader="update" rowheight="35" rows="2" rowsep="|" selectionmode="free" style="left:9px; top:472px; width:926px; height:253px; ">
+			<col ref="send_plac_nm" type="inputbutton"/>
+			<col ref="area_nm" style="text-align:left; "/>
+			<col ref="send_rank" type="input"/>
+			<col ref="cnsg_seqo" type="input"/>
+			<col ref="send_mthd" type="checkbox"/>
+			<col ref="bo_cd"/>
+			<col ref="send_plac_seq" visibility="hidden"/>
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="route_clsf" visibility="hidden"/>
+			<col ref="route_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					var rownum 											= datagrid2.row;
+					/* 팝업을 위한 전역 변수를 사용하여 가져갈 코드값과 결과 값을 받을 경로를 지정한다. */
+					var bo_cd_path						= "/root/reqData/bo_cd";					//지국코드경로
+					var send_plac_seq_path				= "/root/reqData/send_plac_seq";	//발송처순번경로
+					var send_plac_nm_path					= "/root/reqData/send_plac_nm";		//발송처명경로
+					var area_cd_path						= "/root/reqData/area_cd";				//지역코드경로
+					var area_nm_path						= "/root/reqData/area_nm";				//지역명경로
+					var bo_seq_path						= "/root/reqData/bo_seq";				//지역명경로
+					
+					model.property("bo_cd_path") 			= bo_cd_path;								
+					model.property("bo_seq_path") 		= bo_seq_path;								
+					model.property("send_plac_seq_path") 	= send_plac_seq_path;
+					model.property("send_plac_nm_path") 	= send_plac_nm_path;
+					model.property("area_cd_path") 		= area_cd_path;
+					model.property("area_nm_path") 		= area_nm_path;
+					
+					window.load(
+							"/xrw/se/comm/SE_COMM_2000.xrw", 
+							"modal", 
+							"", 
+							"left:30px; top:200px; width:655px; height:520; align:center; caption:hidden;"
+							,""
+							,""
+						);
+					//컬럼의 위치는 se_snd_1120_l의 rt.addColValue의 j값 + 1한 값이 위치임.
+					datagrid2.valueMatrix(rownum, 6) = model.getValue(bo_cd_path);							//그리드 지국코드 위치
+					datagrid2.valueMatrix(rownum, 7) = model.getValue(send_plac_seq_path);				//그리드 발송순번 위치
+					datagrid2.valueMatrix(rownum, 1) = model.getValue(send_plac_nm_path);				//그리드 발송처명 위치
+					datagrid2.valueMatrix(rownum, 8) = model.getValue(area_cd_path);						//그리드 지역코드 위치
+					datagrid2.valueMatrix(rownum, 2) = model.getValue(area_nm_path);						//그리드 지역명 위치
+					
+					datagrid2.valueMatrix(rownum, 9) = model.getValue("/root/formData/route_clsf");	//그리드 노선구분 위치
+					datagrid2.valueMatrix(rownum, 10) = model.getValue("/root/formData/route_cd");		//그리드 노선코드 위치
+					
+					model.refresh();
+				]]>
+			</script>
+		</datagrid>
+		<button id="button8" class="btn03" crud="C" style="left:737px; top:44px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.removeNodeset("/root/gridData/list/main");
+					datagrid2.rows = datagrid2.fixedRows;
+					
+					var action = "se_snd_1140_l";
+					model.send(action);
+				
+					input2.disabled = false;
+					input3.disabled = false;
+					
+					model.setValue("/root/formData/route_nm", "");
+					model.setValue("/root/formData/route_rank", "");
+					model.setValue("/root/formData/inwsp_send_yn", "");
+					
+					inputTf(false);
+					
+					model.refresh();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:872px; top:44px; width:63px; height:20px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

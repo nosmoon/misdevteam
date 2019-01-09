@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>CIIS</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<codeData>
+					</codeData>
+					<reqData>
+						<multiUpdateData/>
+						<flag/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<grp_cmpy_cd/>
+								<grp_cmpy_nm/>
+								<dlco_no/>
+								<dlco_nm/>
+								<old_dlco_no/>
+								<old_grp_cmpy_cd/>
+							</record>
+						</gridData>
+					</resData>
+					<initData>
+					</initData>
+					<formData>
+					</formData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.send("ad_co_1400_l");					
+				]]>
+			</script>
+			<submission id="ad_co_1400_l" action="/ad/common/1400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/gridData"/>
+			<submission id="ad_co_1410_a" action="/ad/common/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function setDlcoInfo(dlco_no, dlco_nm){
+				datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dlco_no")) = dlco_no;
+				datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dlco_nm")) = dlco_nm;
+			}		
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="640" pageheight="480" guideline="1,10;1,630;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" style="left:445px; top:10px; width:65px; height:21px; ">
+			<caption>엑셀반출</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[	
+				var filename = window.fileDialog("save", ",", false, "그룹사관리", "xls", "Excel File(*.xls)|*.xls");
+			
+				if(filename!=""){
+					datagrid1.saveExcel(filename, "sheetname: 구룹사관리");
+				}					
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="그룹사코드^그룹사^광고주번호^광고주명^OLD_DLCO_NO^OLD_GRP_CMPY_CD" colsep="#" colwidth="120, 120, 120, 180, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:61px; width:620px; height:409px; ">
+			<col ref="grp_cmpy_cd" type="input"/>
+			<col ref="grp_cmpy_nm" type="input" style="text-align:left; "/>
+			<col ref="dlco_no" type="input"/>
+			<col ref="dlco_nm" type="inputbutton" style="text-align:left; "/>
+			<col ref="old_dlco_no" visibility="hidden"/>
+			<col ref="old_grp_cmpy_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				var row = getSelectedRecordIndex(datagrid1);	
+
+				if(datagrid1.col == datagrid1.colRef("dlco_nm")){					
+					datagrid1.valueMatrix(row, datagrid1.colRef("dlco_no")) = "";
+					var dlco_nm	   = model.getValue("/root/resData/gridData/record["+row+"]/dlco_nm");						
+					showAdvcsSearchPopup("Y", "Y", "", "", "", dlco_nm); 	
+				}						
+				datagrid1.refresh();	
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if(datagrid1.col == datagrid1.colRef("dlco_no")){
+					var dataIndex 	= getSelectedRecordIndex(datagrid1);
+					var dlco_no   	= model.getValue("/root/resData/gridData/record["+dataIndex+"]/dlco_no");
+						
+					commonSubmissionWithXRef("9004", lpad(dlco_no, 8, "0"),  "/root/resData/gridData/record["+dataIndex+"]/dlco_no", "/root/resData/gridData/record["+dataIndex+"]/dlco_nm");
+						
+					datagrid1.refresh();
+				}else if(datagrid1.col == datagrid1.colRef("dlco_nm")){
+					var row = getSelectedRecordIndex(datagrid1);	
+					datagrid1.valueMatrix(row, datagrid1.colRef("dlco_no")) = "";
+					var dlco_nm	= model.getValue("/root/resData/gridData/record["+row+"]/dlco_nm");						
+					findDlcoNoByNameWithRef("1", dlco_nm, "/root/resData/gridData/record["+row+"]/dlco_no", "/root/resData/gridData/record["+row+"]/dlco_nm");
+										
+					datagrid1.refresh();						
+				}								
+				]]>
+			</script>
+		</datagrid>
+		<caption id="subtitle" class="tit02" style="left:10px; top:39px; width:75px; height:20px; ">그룹사</caption>
+		<button id="button1" class="btn03" style="left:372px; top:10px; width:65px; height:21px; ">
+			<caption>엑셀반입</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[			
+				var filename = window.fileDialog("open", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+				if(filename!=""){
+					var grid = datagrid1;							
+
+					grid = datagrid1;
+					model.removeNodeset("/root/resData/gridData");
+					
+					grid.loadExcel(filename); 
+					for(var i=grid.fixedRows;i<grid.rows; i++){
+						grid.addStatus(i, "insert");
+					}
+					model.setValue("/root/reqData/flag","E");
+				}	
+				]]>
+			</script>
+		</button>
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:120px; height:27px; ">그룹사관리</caption>
+		<button id="button2" class="btn02" style="left:578px; top:10px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();				
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn02" style="left:518px; top:10px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var grid = null;
+				
+				grid = datagrid1;
+				
+				if(!isDataGridUpdated(grid)){
+					alert("저장할 내역이 없습니다.");
+					return;
+				}
+				
+				if(commGridReqCheck(grid)){
+					if(window.alert("저장하시겠습니까?", "확인", 1) == 1){
+						model.setValue("/root/reqData/multiUpdateData", grid.getUpdateData());
+						model.send("ad_co_1410_a");
+						if(submit_completed()){
+							model.send("ad_co_1400_l");
+						}
+					}
+				}								
+				]]>
+			</script>
+		</button>
+		<button id="btnG2" class="btn_grid03" crud="R" style="left:468px; top:42px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				addRow(datagrid1);					
+				]]>
+			</script>
+		</button>
+		<button id="button13" class="btn_grid03" crud="R" style="left:526px; top:42px; width:53px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				deleteRow(datagrid1);
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn_grid02" crud="R" style="left:584px; top:42px; width:43px; height:17px; ">
+			<caption>취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				cancelRow(datagrid1);
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

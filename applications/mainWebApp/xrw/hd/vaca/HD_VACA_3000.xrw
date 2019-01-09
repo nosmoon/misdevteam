@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>근태달력관리</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<hody_clsf>
+								<item/>
+							</hody_clsf>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<clndr_dt/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<aply_yymm/>
+								<week/>
+								<hody_clsf/>
+								<remk/>
+								<clndr_tm/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+						<temp/>
+						<totcnt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function loadData(clndr_dt){
+						model1.setValue("/root/resData/temp", "1");
+						model1.setValue("/root/reqData/searchData/clndr_dt", clndr_dt);
+						model1.send("hd_duty_1002");
+						model1.copyNode("/root/resData/gridData", "/root/tempData");
+						model1.removenode("root/tempData");
+//						var clndr_grid = model1.getValue("/root/resData/gridData/record[1]/clndr_dt");
+//						if(clndr_grid != ""){
+//							datagrid1.isReadOnly(1, 1, 1, 4) = false;
+//						}
+						datagrid1.refresh();
+						var totcnt = datagrid1.rows;
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "휴일예고제 기준표등록";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					
+				//	model1.send("hd_duty_1004");
+				//	model1.copyNode("/root/initData/comboSet", "/root/tempData");
+				//	model1.removenode("/root/tempData");
+					//datagrid1.isReadOnly(1, 1, 1, 4) = true;
+					
+					var now_date = new Date();
+					var year = now_date.getYear();
+					model1.setValue("/root/reqData/searchData/clndr_dt", year);
+					
+					//model1.setValue("/root/resData/temp", "0");
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_vaca_3000" action="/hd/vaca/3000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1001" action="/hd/duty/1001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/clndr_dt" resultref="/root/tempData"/>
+			<submission id="hd_duty_1004" action="/hd/duty/1004" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_vaca_3002" action="/hd/vaca/3002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/clndr_dt" resultref="/root/tempData"/>
+			<submission id="hd_vaca_3003" action="/hd/vaca/3003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="2,52;2,70;2,80;2,80;2,680;1,936;1,927;1,926;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA2" class="btn02" style="left:195px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					datagrid1.clearStatus();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:429px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn03" crud="C" style="left:306px; top:0px; width:65px; height:21px; ">
+				<caption>기준표생성</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (model1.getValue("/root/reqData/searchData/clndr_dt") == "" || model1.getValue("/root/reqData/searchData/clndr_dt").length != 4){
+						alert("생성하실 년도를 확인해 주세요.");
+						return;
+					}
+					if (window.alert("기준표를 생성을 하시겠습니까?", "확인", 1) != 1) {
+						return;
+					};
+					var clndr_dt = model1.getValue("/root/reqData/searchData/clndr_dt");
+					/*
+					model1.send("hd_duty_1001");
+					var cnt = model1.getValue("/root/dataSet/tm_cnt");
+					if(cnt == "1"){
+						alert("이미등록 되어있는 근태년도 입니다.");
+						model1.removenode("/root/dataSet");
+						return;
+					}
+					*/
+					model1.send("hd_vaca_3000");
+					if(submit_completed()) {
+						//model1.reset();
+						loadData(clndr_dt);
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" crud="R" style="left:250px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						datagrid1.clearStatus();
+						model1.setValue("/root/resData/temp", "1");
+						var clndr_dt = model1.getValue("/root/reqData/searchData/clndr_dt");
+						var clndr_grid = model1.getValue("/root/resData/gridData/record[1]/clndr_dt");
+						
+						if(clndr_dt == ""){
+							alert("년도를 입력 후 조회를 해주세요.");
+							return;
+						}
+						model1.send("hd_vaca_3002");
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet/CURLIST");
+//						var clndr_grid = model1.getValue("/root/resData/gridData/record[1]/clndr_dt");
+//						if(clndr_grid != ""){
+//							datagrid1.isReadOnly(1, 1, 1, 4) = false;
+//						}
+						datagrid1.refresh();
+						var totcnt = datagrid1.rows;
+						
+//						for(var i = 1; i < totcnt; i++){
+//							if(model1.getValue("/root/resData/gridData/record["+i+"]/clndr_wkdy") == "토요일" || model1.getValue("/root/resData/gridData/record["+i+"]/clndr_wkdy") == "일요일"){
+//								datagrid1.isReadOnly(i, 1, i, 3) = true;
+//							}
+//						}
+						
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn02" visibility="hidden" crud="C" style="left:81px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					if (!rowDelSubmit(datagrid1)) {
+						return;
+					}
+					model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					model1.send("hd_duty_1003");
+					var clndr_dt = model1.getValue("/root/reqData/searchData/clndr_dt");
+					if(submit_completed()) {
+						model1.reset();
+						loadData(clndr_dt);
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" crud="C" style="left:374px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var clndr_dt = model1.getValue("/root/reqData/searchData/clndr_dt");
+					
+					if(clndr_dt == ""){
+						alert("근태년도를 입력 후 저장을 해주세요.");
+						return;
+					}
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					if (!rowInSubmit(datagrid1)) {
+						return;
+					}
+						
+					
+				     for( var i=datagrid1.fixedRows; i<datagrid1.rows-1;i++){
+							if( (datagrid1.rowStatus(i)==0) || (datagrid1.rowStatus(i)==2) ){ //select,update일시 inert로 변경
+								datagrid1.rowStatus(i)=3;
+							}
+					}
+					datagrid1.refresh(); 
+						 
+					model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					model1.send("hd_vaca_3003");
+					var clndr_dt = model1.getValue("/root/reqData/searchData/clndr_dt");
+					if(submit_completed()) {
+						model1.reset();
+						loadData(clndr_dt);
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" style="left:10px; top:80px; width:926px; height:30px; ">
+			<caption id="caption10" class="list_cap02" style="left:86px; top:0px; width:395px; height:26px; text-align:center; "/>
+			<input id="input1" ref="/root/reqData/searchData/clndr_dt" class="req" inputtype="date" maxlength="4" format="yyyy" style="left:95px; top:4px; width:85px; height:18px; "/>
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:90px; height:26px; text-align:center; ">근태년도</caption>
+		</group>
+		<group id="group2" style="left:10px; top:120px; width:926px; height:595px; ">
+			<caption id="caption9" class="tit02" style="left:0px; top:0px; width:205px; height:20px; font-weight:bold; ">휴일 리스트</caption>
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="년월^주^시작일(월)^종료일(일)^비고" colsep="#" colwidth="115, 95, 115, 115, 272" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:0px; top:20px; width:480px; height:555px; ">
+				<col ref="aply_yymm" type="inputdate" format="yyyy-mm"/>
+				<col ref="week" type="input"/>
+				<col ref="frdt" type="output" format="yyyy-mm-dd"/>
+				<col ref="todt" type="output" format="yyyy-mm-dd"/>
+				<col ref="remk" type="input" visibility="hidden" style="text-align:left; "/>
+			</datagrid>
+			<button id="button5" class="btn_grid03" visibility="hidden" style="left:330px; top:0px; width:53px; height:17px; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					deleteRows(datagrid1);
+					/*var i = 0;
+					for(i; i < datagrid1.rows; i++){
+						if(datagrid1.rowStatus(i) == "4" || datagrid1.rowStatus(i) == "6"){
+							datagrid1.deleteRow(i);
+							i = 0;
+						}
+					}*/
+					var totcnt = datagrid1.rows;
+					model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+					model1.refresh();
+					/*
+					var clndr_dt = model1.getValue("/root/reqData/searchData/clndr_dt");
+					
+					if(clndr_dt == ""){
+						alert("근태년도를 입력 후 조회를 해주세요.");
+						return;
+					}
+					if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					model1.send("hd_duty_1003");
+					var clndr_dt = model1.getValue("/root/reqData/searchData/clndr_dt");
+					if(submit_completed()) {
+						model1.reset();
+						loadData(clndr_dt);
+					}*/
+					/*var temp = model1.getValue("/root/resData/temp");
+					if(temp == "0"){
+						alert("근태년도로 조회 후 행추가를 해주세요.");
+						return;
+					}
+					var row = datagrid1.row;
+					var dt = model1.getValue("/root/resData/gridData/record[" + (row) + "]/clndr_dt");
+					
+					var clndr_tm = dt.substring(0,6);
+					model1.setValue("/root/resData/gridData/record[" + (row) + "]/clndr_tm", clndr_tm);
+					datagrid1.addStatus(datagrid1.row, "delete");	*/
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn_grid03" visibility="hidden" style="left:425px; top:0px; width:53px; height:17px; ">
+				<caption>행추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var clndr_dt = model1.getValue("/root/reqData/searchData/clndr_dt");
+					
+					if(clndr_dt == ""){
+						alert("근태년도를 입력 후 행추가를 해주세요.");
+						return;
+					}else{
+						var temp = model1.getValue("/root/resData/temp");
+						if(temp == "0"){
+							alert("근태년도로 조회 후 행추가를 해주세요.");
+							return;
+						}
+						if (datagrid1.rows == 2 && datagrid1.rowStatus(1) == 0 ) {
+							datagrid1.addStatus(1, "insert");
+							datagrid1.isReadOnly(1, 1, 1, 4) = false;
+						} else {
+							datagrid1.addRow(true, true);
+						}
+					}
+					
+					var totcnt = datagrid1.rows;
+					datagrid1.bottomRow = totcnt;
+					model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+					model1.refresh();
+					]]>
+				</script>
+			</button>
+			<caption id="caption14" ref="/root/resData/totcnt" style="left:399px; top:574px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+			<button id="button7" class="btn_grid03" visibility="hidden" style="left:265px; top:0px; width:53px; height:17px; ">
+				<caption>행취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					//cancelRow(datagrid2);
+					var firstRow = datagrid1.selectedRow(0);
+					var lastRow  = datagrid1.selectedRow(datagrid1.selectedRows-1);				
+					
+					for(var i=firstRow;i<=lastRow;i++){
+						if(datagrid1.rowStatus(i) == "1" || datagrid1.rowStatus(i) == "3"){
+							datagrid1.removeRow(i);
+							i--;
+						}else if(datagrid1.rowStatus(i) == "4"){
+							datagrid1.rowStatus(i) = "0";
+						}else{
+							datagrid1.rowStatus(i) = "0";
+						}
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

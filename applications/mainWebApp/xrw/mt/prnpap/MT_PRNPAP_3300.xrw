@@ -1,0 +1,671 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<papcmpy_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</papcmpy_cd>
+							<rot_mach_no>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</rot_mach_no>
+						</comboSet>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<multiUpData/>
+						<searchData>
+							<issu_dt/>
+							<fac_clsf/>
+							<clos/>
+						</searchData>
+						<searchWgt>
+							<rem_length/>
+						</searchWgt>
+						<clos/>
+					</reqData>
+					<resData>
+						<resForm>
+							<temp/>
+							<temp2/>
+						</resForm>
+						<gridData>
+							<record>
+								<papcmpy_cd/>
+								<rot_mach_no/>
+								<sett_no/>
+								<sett_seq/>
+								<a_cmcnt_val/>
+								<a_wgt/>
+								<a_un_use_yn/>
+								<b_cmcnt_val/>
+								<b_wgt/>
+								<b_un_use_yn/>
+								<c_cmcnt_val/>
+								<c_wgt/>
+								<c_un_use_yn/>
+								<total_wgt/>
+								<occr_dt/>
+								<seq/>
+								<sub_seq/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				function setInitData( issu_dt , fac_clsf , magam_yn){
+					model1.setValue("/root/reqData/searchData/issu_dt",  issu_dt);
+					model1.setValue("/root/reqData/searchData/fac_clsf",  fac_clsf);
+					model1.setValue("/root/reqData/searchData/clos",      magam_yn);
+				        		
+					var node = instance1.selectNodes("/root/resData/gridData");
+					node.reset();
+					datagrid1.clearStatus();
+					datagrid1.refresh();
+					
+					model1.copyNode("/root/resData/gridData" , "/root/resData/resForm/temp");
+					datagrid1.refresh();
+					pageSet();
+				}
+				function pageSet(){
+					
+					var magam = model1.getValue("/root/reqData/searchData/clos");
+ 					var rot_no = ""; 
+ 					var rot_cnt = 0;
+					if( magam == '00' ){  // 마감 안된 데이터 
+	 					datagrid1.isReadOnly(3, 1, datagrid1.rows-1 , datagrid1.cols-1) = false;
+	 					
+	 					for( var i = 3 ; i < datagrid1.rows; i++){
+	 						if (rot_no != datagrid1.valueMatrix(i, 2)){
+	 							rot_cnt ++;
+	 						}
+	 						
+	 						if (rot_cnt % 2 == 0){
+	 							datagrid1.rowStyle(i, "data", "background-color") = "#FFFAAA";
+	 						} else {
+	 							datagrid1.rowStyle(i, "data", "background-color") = "#CCCFFF";
+	 						}
+	 						//alert(rot_no + "\n" + rot_cnt);
+							rowDisableChk( i, datagrid1.valueMatrix(i, 1));
+							funTotalWgt(i);
+							rot_no = datagrid1.valueMatrix(i, 2);
+							button1.disabled = false;
+						}
+					} else { // 01 공장 마감  02 자재 마감 처리 
+	 					datagrid1.isReadOnly(3, 1, datagrid1.rows-1 , datagrid1.cols-1) = true;
+	 					for( var i = 3 ; i < datagrid1.rows; i++){
+	 						if (rot_no != datagrid1.valueMatrix(i, 2)){
+	 							rot_cnt ++;
+	 						}
+	 						
+	 						if (rot_cnt % 2 == 0){
+	 							datagrid1.rowStyle(i, "data", "background-color") = "#FFFAAA";
+	 						} else {
+	 							datagrid1.rowStyle(i, "data", "background-color") = "#CCCFFF";
+	 						}
+	 						rot_no = datagrid1.valueMatrix(i, 2);
+						}
+						button1.disabled = true;
+					}
+					subTotal();
+					
+					datagrid1.colDisabled(2) = true;
+				}
+				        
+				// 컨트롤에 값 세팅-
+				function load(){
+					datagrid1.isReadOnly(3,1,datagrid1.rows- 1,datagrid1.cols-1) = true;
+					model1.send("mt_prnpap_3303_M");
+					model1.copyNode("/root/initData/comboSet/papcmpy_cd", "/root/tempData/papcmpy_cd");  // 제지사
+					model1.copyNode("/root/initData/comboSet/rot_mach_no", "/root/tempData/rot_mach_no");  // 용지일일재고윤전기 호기 콤보 조회 
+					model1.refresh();
+					
+					for( var i = 0; i < datagrid1.cols; i++){
+							if( datagrid1.valueMatrix( 1 , i ) == 'A'){
+								 //datagrid1.cellstyle("background-color", 1, i, 2, i) = "#ffff99";
+							}
+							if( datagrid1.valueMatrix( 1 , i ) == 'B'){
+								 //datagrid1.cellstyle("background-color", 1, i, 2, i) = "#ffff99";
+							}
+							if( datagrid1.valueMatrix( 1 , i ) == 'C'){
+								datagrid1.cellstyle("background-color", 1, i, 2, i) =   "#ffff99";
+							}
+						}
+						
+				}
+					
+				function addRow() {
+					var rowCnt      = 0;
+					var selectedIdx = datagrid1.rows-1 ; 
+
+					if(datagrid1.isReadOnly(3,1) == true && datagrid1.valueMatrix(3,1) =="") {
+
+						datagrid1.isReadOnly(3,1,3, datagrid1.cols -1 )  = false;
+						datagrid1.addStatus(selectedIdx, "insert");	
+					} else {
+							
+						datagrid1.addRow(true, true);
+					}
+					datagrid1.refresh();
+				}
+					
+				function rowDisableChk( row , sValue){
+						
+						//model1.makeNode("/root/reqData/searchData/paper_cmpy");
+ 						//model1.setValue("/root/reqData/searchData/paper_cmpy" , sValue);
+ 						//model1.send("mt_prnpap_3203");
+ 						
+ 						//datagrid1.cellstyle("background-color", row, 5, row, 12) = "#DDDDDD";
+ 						datagrid1.isReadOnly( row, 4) = true;
+ 						//datagrid1.isReadOnly( row, 6) = true;
+ 						//datagrid1.valueMatrix( row, 6) = 'Y';
+ 						datagrid1.isReadOnly( row, 7) = true;
+ 						//datagrid1.isReadOnly( row, 9) = true;
+ 						//datagrid1.valueMatrix( row, 9) = 'Y';
+ 						datagrid1.isReadOnly( row, 10) = true;
+ 						//datagrid1.isReadOnly( row, 12) = true;
+ 						//datagrid1.valueMatrix( row, 12) = 'Y';
+ 						//alert(datagrid1.valueMatrix(row, 6));
+ 						var node = instance1.selectNodes("/root/resData/resForm/temp2/record");
+ 						
+ 						for( var i = 0 ; i < node.length; i++){
+ 							var gubunValue = node.item(i).paper_clsf_cd.value;
+ 							
+ 							if (gubunValue == 'A') {
+ 								datagrid1.isReadOnly( row, 4) = false;
+		 						datagrid1.isReadOnly( row, 6) = false;
+		 						//datagrid1.valueMatrix( row, 6) = 'N';
+		 						//datagrid1.cellstyle("background-color", row, 4, row, 6) = "#FFFFFF";
+ 							}
+ 							if (gubunValue == 'C') {
+ 								datagrid1.isReadOnly( row, 7) = false;
+		 						datagrid1.isReadOnly( row, 9) = false;
+		 						//datagrid1.cellstyle("background-color", row, 7, row, 9) = "#DDDDDD";
+		 						//datagrid1.valueMatrix( row, 9) = 'N';
+		 						//datagrid1.cellstyle("background-color", row, 7, row, 9) = "#FFFFFF";
+ 							}
+ 							if (gubunValue == 'B') {
+ 								datagrid1.isReadOnly( row, 10) = false;
+		 						datagrid1.isReadOnly( row, 12) = false;
+		 						//datagrid1.valueMatrix( row, 12) = 'N';
+		 						//datagrid1.cellstyle("background-color", row, 10, row, 12) = "#FFFFFF";
+ 							}
+ 						}
+ 						datagrid1.refresh();
+ 						 model1.destroy("/root/reqData/searchData/paper_cmpy");
+					}
+					/*
+					function funDisable(iSelectedRow, iSelectedCol){
+						var nodeList = instance1.selectNodes("/root/resData/resForm/temp2/record");
+						var rollWgt = 0;
+						var rem_wgt	= 0;
+						
+						for (var i=0; i<nodeList.length; i++){
+							if (iSelectedCol == 7){
+								if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'A'){
+									rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+									break;
+								}
+							} else if (iSelectedCol == 10){
+								if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'C'){
+									rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+									break;
+								}
+							} else if (iSelectedCol == 13){
+								if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'B'){
+									rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+									break;
+								}
+							}
+						}
+						
+						// 체크 박스 값이  Y == 체크되었다, N == 체크안됨.
+						if (datagrid1.valueMatrix(iSelectedRow, iSelectedCol)=='Y'){
+							
+							datagrid1.valueMatrix(iSelectedRow, iSelectedCol -2) = "";
+							datagrid1.valueMatrix(iSelectedRow, iSelectedCol -1) = rollWgt;
+							
+							datagrid1.isReadOnly(iSelectedRow,(iSelectedCol-2))= true;
+							
+						}else if (datagrid1.valueMatrix(iSelectedRow, iSelectedCol)=='N'){
+							datagrid1.valueMatrix(iSelectedRow, iSelectedCol -1) = 0;
+							datagrid1.isReadOnly(iSelectedRow,(iSelectedCol-2))= false;
+						}
+					
+					}
+					*/
+					
+					function rowStateChk(iRow, iCol){
+						var papcmpy = datagrid1.valueMatrix( iRow, 1) ;
+					       var a_roll  =   datagrid1.valueMatrix(iRow, 4) ;
+					       var a_useYn  = ((datagrid1.valueMatrix(iRow, 6) == '' )?'N':datagrid1.valueMatrix(iRow, 6));
+					       
+					       var c_roll = datagrid1.valueMatrix(iRow, 7 );
+					       var c_useYn  =  ((datagrid1.valueMatrix(iRow, 9) == '' )?'N':datagrid1.valueMatrix(iRow, 9));
+					       
+					       var b_roll = datagrid1.valueMatrix(iRow, 10 );
+					       var b_useYn  =  ((datagrid1.valueMatrix(iRow, 12) == '' )?'N':datagrid1.valueMatrix(iRow, 12));
+					       
+					       // alert("$$"+ papcmpy + "##" + a_roll + " ##" +a_useYn + "##" + b_roll + " ##" +b_useYn + "##" + c_roll + " ##" +c_useYn);
+					        if(  	(papcmpy == '' ) && (Number(a_roll) == 0 && Number(b_roll) == 0  && Number(c_roll) == 0) && (a_useYn == 'N' && b_useYn == 'N' && c_useYn == 'N')){
+					        		datagrid1.rowStatus(iRow) = 0;
+					        }
+						
+					}
+					
+					function subTotal(){
+						datagrid1.subtotal("clear", -1 , 4);
+						datagrid1.subtotal("clear", -1 , 5);
+						datagrid1.subtotal("clear", -1 , 7);
+						datagrid1.subtotal("clear", -1 , 8);
+						datagrid1.subtotal("clear", -1 , 10);
+						datagrid1.subtotal("clear", -1 , 11);
+						datagrid1.subtotalPosition = "below";
+						datagrid1.subtotal("sum", -1, 4, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 5, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						
+						datagrid1.subtotal("sum", -1, 7, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 8, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						
+						datagrid1.subtotal("sum", -1, 10, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 11, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						 
+					}
+					
+					function funcRollWgt(iRow, iCol){
+						var nodeList = instance1.selectNodes("/root/resData/resForm/temp2/record");
+						var rollWgt = 0;
+						var rem_wgt	= 0;
+						
+						/*	윤전기에는 A,B,C 중에서 하나만 입력되어야 한다.
+						*/
+						if (iCol == 6){
+							if (!(eval(datagrid1.valueMatrix(iRow, 8)) == 0 && eval(datagrid1.valueMatrix(iRow, 11)) == 0)){
+								alert("해당 윤전기UNIT에 이미 다른 용지규격의 정보가 있습니다.");
+								datagrid1.valueMatrix(iRow, iCol) = "N";
+								return;
+							}
+						} else if (iCol == 9){
+							if (!(eval(datagrid1.valueMatrix(iRow, 5)) == 0 && eval(datagrid1.valueMatrix(iRow, 11)) == 0)){
+								alert("해당 윤전기UNIT에 이미 다른 용지규격의 정보가 있습니다.");
+								datagrid1.valueMatrix(iRow, iCol) = "N";
+								return;
+							}
+						} else if (iCol == 12){
+							if (!(eval(datagrid1.valueMatrix(iRow, 5)) == 0 && eval(datagrid1.valueMatrix(iRow, 8)) == 0)){
+								alert("해당 윤전기UNIT에 이미 다른 용지규격의 정보가 있습니다.");
+								datagrid1.valueMatrix(iRow, iCol) = "N";
+								return;
+							}
+						}
+						
+						for (var i=0; i<nodeList.length; i++){
+							if (iCol == 6){
+								if (datagrid1.valueMatrix(iRow, iCol) == "Y"){
+									if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'A'){
+										rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+										break;
+									}
+								} else {
+									rollWgt = 0;
+									break;
+								}
+							} else if (iCol == 9){
+								if (datagrid1.valueMatrix(iRow, iCol) == "Y"){
+									if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'C'){
+										rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+										break;
+									}
+								} else {
+									rollWgt = 0;
+									break;
+								}
+							} else if (iCol == 12){
+								if (datagrid1.valueMatrix(iRow, iCol) == "Y"){
+									if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'B'){
+										rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+										break;
+									}
+								} else {
+									rollWgt = 0;
+									break;
+								}
+							}
+						}
+						
+						if (datagrid1.valueMatrix(Number(iRow) , Number(iCol) - 2) == ""){
+							datagrid1.valueMatrix(iRow, iCol - 1) = eval(datagrid1.valueMatrix(iRow, iCol)) * rollWgt;
+						} else {
+							var rem_length = datagrid1.valueMatrix(iRow, eval(iCol)-2);
+							model1.setValue("/root/reqData/searchWgt/rem_length",rem_length);
+							model1.send("mt_prnpap_3202_M");
+							rem_wgt = eval(model1.getValue("/root/tempData/wgt"));
+
+							if (iCol == 6){
+								datagrid1.valueMatrix(iRow, iCol - 1) = (rollWgt) + rem_wgt;
+							} else if (iCol == 9){
+								datagrid1.valueMatrix(iRow, iCol - 1) = (rollWgt) + Math.round(rem_wgt * 0.5);
+							} else if (iCol == 12){
+								datagrid1.valueMatrix(iRow, iCol - 1) = (rollWgt) + Math.round(rem_wgt * 0.75);
+							}
+							
+						}
+					
+					}
+					
+					function funWgt(iSelectedRow, iSelectedCol){ // 잔경구하기
+						var rem_wgt = 0;
+						var rem_length = datagrid1.valueMatrix(iSelectedRow, iSelectedCol);
+						var rollWgt = 0;
+						var nodeList = instance1.selectNodes("/root/resData/resForm/temp2/record");
+						
+						/*	윤전기에는 A,B,C 중에서 하나만 입력되어야 한다.
+						*/
+						if (iSelectedCol == 4){
+							if (!(eval(datagrid1.valueMatrix(iSelectedRow, 8)) == 0 && eval(datagrid1.valueMatrix(iSelectedRow, 11)) == 0)){
+								alert("해당 윤전기UNIT에 이미 다른 용지규격의 정보가 있습니다.");
+								datagrid1.valueMatrix(iSelectedRow, iSelectedCol) = "0";
+								return;
+							}
+						} else if (iSelectedCol == 7){
+							if (!(eval(datagrid1.valueMatrix(iSelectedRow, 5)) == 0 && eval(datagrid1.valueMatrix(iSelectedRow, 11)) == 0)){
+								alert("해당 윤전기UNIT에 이미 다른 용지규격의 정보가 있습니다.");
+								datagrid1.valueMatrix(iSelectedRow, iSelectedCol) = "0";
+								return;
+							}
+						} else if (iSelectedCol == 10){
+							if (!(eval(datagrid1.valueMatrix(iSelectedRow, 5)) == 0 && eval(datagrid1.valueMatrix(iSelectedRow, 8)) == 0)){
+								alert("해당 윤전기UNIT에 이미 다른 용지규격의 정보가 있습니다.");
+								datagrid1.valueMatrix(iSelectedRow, iSelectedCol) = "0";
+								return;
+							}
+						}
+						model1.setValue("/root/reqData/searchWgt/rem_length",rem_length);
+						model1.send("mt_prnpap_3202_M");
+						rem_wgt = eval(model1.getValue("/root/tempData/wgt"));
+						
+						for (var i=0; i<nodeList.length; i++){
+							if (iSelectedCol == 4){
+								if (datagrid1.valueMatrix(iSelectedRow, iSelectedCol + 2) == "Y"){
+									if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'A'){
+										rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+										break;
+									}
+								} else {
+									rollWgt = 0;
+									break;
+								}
+							} else if (iSelectedCol == 7){
+								if (datagrid1.valueMatrix(iSelectedRow, iSelectedCol + 2) == "Y"){
+									if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'C'){
+										rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+										break;
+									}
+								} else {
+									rollWgt = 0;
+									break;
+								}
+							} else if (iSelectedCol == 10){
+								if (datagrid1.valueMatrix(iSelectedRow, iSelectedCol + 2) == "Y"){
+									if (nodeList.item(i).getElementsByTagName("paper_clsf_cd").item(0).value  == 'B'){
+										rollWgt = eval(nodeList.item(i).getElementsByTagName("roll_wgt").item(0).value);
+										break;
+									}
+								} else {
+									rollWgt = 0;
+									break;
+								}
+							}
+						}
+						
+						
+						
+						if (iSelectedCol == 4){
+							datagrid1.valueMatrix(eval(iSelectedRow) , eval(iSelectedCol) + 1) = rem_wgt + rollWgt;
+						} else if (iSelectedCol == 7){
+							datagrid1.valueMatrix(eval(iSelectedRow) , eval(iSelectedCol) + 1) = Math.round(rem_wgt * 0.5) + rollWgt;
+						} else if (iSelectedCol == 10){
+							datagrid1.valueMatrix(eval(iSelectedRow) , eval(iSelectedCol) + 1) = Math.round(rem_wgt * 0.75) + rollWgt;
+						}
+                              
+						// model1.setValue("/root/resData/gridData/record["+(iSelectedRow-2)+"]/"+abc+"_wgt", model1.getValue("/root/tempData/wgt"));
+					}
+					
+					function funTotalWgt(row){ //  total 중량구하기
+					 
+						var a_wgt = datagrid1.valueMatrix(row, 5);
+						var c_wgt = datagrid1.valueMatrix(row, 8);
+						var b_wgt = datagrid1.valueMatrix(row, 11);
+						
+						datagrid1.valueMatrix(row, 13) = Number(a_wgt) + Number(b_wgt) + Number(c_wgt);
+					}
+					// 초기화
+					function funReset() {
+						model1.reset();
+						datagrid1.clearStatus();
+						load();
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<submission id="mt_prnpap_1001_L" action="/mt/prnpap/1001" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3301_A" action="/mt/prnpap/3301" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3202_M" action="/mt/prnpap/3202" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchWgt" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3203" action="/mt/prnpap/3203" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3304" action="/mt/prnpap/3304" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3300" action="/mt/prnpap/3300" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3303_M" action="/mt/prnpap/3303" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body pagewidth="925" pageheight="400" guideline="1,9;2,391;2,39;1,908;">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:165px; width:0px; height:0px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="제지사^호기^일련번호^용지규격^용지규격^용지규격^용지규격^용지규격^용지규격^용지규격^용지규격^용지규격^중량(KG)^occr_dt^seq^sub_seq|제지사^호기^일련번호^A^A^A^C^C^C^B^B^B^중량(KG)^occr_dt^seq^sub_seq|제지사^호기^일련번호^잔경^중량(KG)^미사용 롤^잔경^중량(KG)^미사용 롤^잔경^중량(KG)^미사용 롤^중량(KG)^occr_dt^seq^sub_seq" colsep="#" colwidth="84, 70, 10, 52, 70, 68, 50, 71, 68, 50, 70, 68, 50, 80, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:9px; top:42px; width:899px; height:349px; ">
+			<col class="req" ref="papcmpy_cd" type="combo" caption="제지사" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/papcmpy_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="rot_mach_no" type="combo" caption="호기">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/rot_mach_no/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="sett_seq" type="input" visibility="hidden"/>
+			<col ref="a_cmcnt_val" type="input" format="#,###.9" maxlength="5"/>
+			<col ref="a_wgt" format="#,###"/>
+			<col checkvalue="Y,N" ref="a_un_use_yn" type="checkbox" style="border-right-color:#800000; border-right-width:1px; border-right-style:solid; "/>
+			<col ref="c_cmcnt_val" type="input" format="#,###.9"/>
+			<col ref="c_wgt" format="#,###"/>
+			<col checkvalue="Y,N" ref="c_un_use_yn" type="checkbox" style="border-right-color:#800000; border-right-width:1px; border-right-style:solid; "/>
+			<col ref="b_cmcnt_val" type="input" format="#,###.9"/>
+			<col ref="b_wgt" format="#,###"/>
+			<col checkvalue="Y,N" ref="b_un_use_yn" type="checkbox" style="border-right-color:#800000; border-right-width:1px; border-right-style:solid; "/>
+			<col ref="total_wgt" format="#,###"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="sub_seq" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+			
+					var iSelectedCol = datagrid1.col;
+					var iSelectedRow = datagrid1.row;
+
+					if( iSelectedCol == 1  ) {
+						rowDisableChk(iSelectedRow, datagrid1.valueMatrix(iSelectedRow, 1));
+					}
+					
+					// a_잔량구하기
+					if(iSelectedCol == 4){
+						
+						funWgt(iSelectedRow, iSelectedCol);	
+					}
+					// a_미사용
+					if(iSelectedCol == 6){
+						funcRollWgt(iSelectedRow, iSelectedCol);
+					}
+					// c_잔량구하기
+					if(iSelectedCol == 7){
+						funWgt(iSelectedRow, iSelectedCol);	
+					}
+					// c_미사용
+					if(iSelectedCol == 9){
+						funcRollWgt(iSelectedRow, iSelectedCol);
+					}
+					// b_잔량구하기
+					if(iSelectedCol == 10){
+						funWgt(iSelectedRow, iSelectedCol);	
+					}
+					// b_미사용
+					if(iSelectedCol == 12){
+						funcRollWgt(iSelectedRow, iSelectedCol);
+					}
+				
+					funTotalWgt(iSelectedRow );
+					
+					rowStateChk(iSelectedRow, iSelectedCol);
+					subTotal();
+					
+				]]>
+			</script>
+		</datagrid>
+		<button id="button9" class="btn_grid03" visibility="hidden" style="left:802px; top:23px; width:52px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( model1.getValue("/root/reqData/searchData/fac_clsf") == ''  || model1.getValue("/root/reqData/searchData/issu_dt") == '' ){
+				       		alert("조회 후 입력 해주세요");
+				       		return;
+				       }
+				       
+					if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+						alert(" 마감된 데이터입니다. \n 행추가할 수 없습니다.");
+						return;
+					}
+					addRow();
+					 
+ 				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn_grid03" visibility="visible" style="left:857px; top:23px; width:52px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					       var row = datagrid1.row;
+						if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+							alert(" 마감된 데이터입니다. \n 행삭제할 수 없습니다.");
+							return;
+						}
+						
+						if( row < 3)
+						{
+							alert("삭제할 데이터를 선택해 주세요");
+							return;
+						}
+						
+						var rowValue = datagrid1.valuematrix(datagrid1.row, 15);						
+						
+						if(rowValue != ""){ // 번호가 있으면 빨간색 표시
+							 
+							datagrid1.addStatus(datagrid1.row, "delete");
+							
+						}else{ // 번호가 없으면 행삭제
+							datagrid1.valueMatrix(datagrid1.row, 1 ) = '';
+							datagrid1.valueMatrix(datagrid1.row, 4 ) = '0';
+							datagrid1.valueMatrix(datagrid1.row, 5 ) = '0';
+							datagrid1.valueMatrix(datagrid1.row, 6 ) = 'N';
+							datagrid1.valueMatrix(datagrid1.row, 7 ) = '0';
+							datagrid1.valueMatrix(datagrid1.row, 8 ) = '0';
+							datagrid1.valueMatrix(datagrid1.row, 9 ) = 'N';
+							datagrid1.valueMatrix(datagrid1.row, 10 ) = '0';
+							datagrid1.valueMatrix(datagrid1.row, 11 ) = '0';
+							datagrid1.valueMatrix(datagrid1.row, 12 ) = 'N';
+							datagrid1.valueMatrix(datagrid1.row, 13 ) = '0';
+							datagrid1.rowStatus(datagrid1.row) = 0;
+						}
+						datagrid1.refresh();
+					]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" style="left:860px; top:0px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[	
+					if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+						alert(" 마감된 데이터입니다. \n 행삭제할 수 없습니다.");
+						return;
+					}
+					var cnt = 0 ;
+					for(var i = 3 ; i < datagrid1.rows; i++){
+						var rowState = datagrid1.rowStatus(i);
+						
+						if( rowState != 0 ) { cnt = cnt + 1; }
+					}
+					
+					if( cnt == 0 ) { 
+					         alert("저장할 데이터가 없습니다.");	
+					         return;
+					}
+					
+				 	//  그리드  필수 체크,
+					if(!commGridReqCheck("datagrid1")) return;
+					
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					for( var i = 3; i < datagrid1.rows; i++){
+						if ( datagrid1.valueMatrix(i, 4) == '' ) datagrid1.valueMatrix(i, 4) = '0';
+						if ( datagrid1.valueMatrix(i, 7) == '' ) datagrid1.valueMatrix(i, 7) = '0';
+						if ( datagrid1.valueMatrix(i, 11) == '' ) datagrid1.valueMatrix(i,11) = '0';
+					}
+					
+					model1.makeNode("/root/reqData/searchData/multiUpData");
+					model1.setValue("/root/reqData/searchData/multiUpData", datagrid1.getUpdateData());
+					
+					model1.send("mt_prnpap_3301_A");						
+					
+					if(submit_completed()) {							
+						model1.destroy("/root/reqData/searchData/multiUpData" );
+						//parent.window.javascript.funbtnSearch(2);
+						model1.send("mt_prnpap_3304");
+						
+						model1.copyNode("/root/resData/gridData", "/root/tempData/thisPage" );
+						model1.copyNode(parent.root.resData.gridData , " /root/tempData/mainPage");
+					        datagrid1.clearStatus();
+					        datagrid1.refresh();
+					        pageSet();
+					        
+					        parent.datagrid1.refresh();
+					        parent.window.javascript.subTotal();
+					}
+					model1.destroy("/root/reqData/searchData/multiUpData" );	
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

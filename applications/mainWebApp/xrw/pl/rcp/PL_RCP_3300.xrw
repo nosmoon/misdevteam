@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_RCP_3300.xrw
+* 기능 : 입금관리-담보설정현황
+* 작성일자 :2009-04-20
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>담보설정현황(PL_RCP_3300)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<colt_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</colt_clsf>
+							<setup_stat>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</setup_stat>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<colt_clsf/>
+								<setup_stat/>
+								<gurt_end_dd/>
+								<dlco_cd/>
+								<dlco_seq/>
+								<dlco_nm/>
+							</searchTop>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdate>
+						</multiUpdate>
+					</reqData>
+					<resData>
+						<comboSet/>
+						<resform>
+						</resform>
+						<gridData>
+							<PTCRLIST>
+								<record>
+									<colt_clsf_nm/>
+									<setup_stat_nm/>
+									<dlco_nm/>
+									<colt_obj_nm/>
+									<prty_rank/>
+									<acqr_dt/>
+									<colt_setup_amt/>
+									<plcw/>
+									<gurt_strt_dd/>
+									<gurt_end_dd/>
+									<insr_stock_no/>
+									<remk/>
+									<dlco_cd/>
+									<dlco_seq/>
+									<dlco_abrv_nm/>
+								</record>
+							</PTCRLIST>
+						</gridData>
+						<resultData/>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<btState/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="pl_rcp_3300_m" action="/pl/rcp/3300" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/comboSet"/>
+			<submission id="pl_rcp_3310_l" action="/pl/rcp/3310" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					model.send("pl_rcp_3300_m",true);
+
+					model.copyNode("/root/initData/comboSet/colt_clsf","/root/resData/comboSet/colt_clsf");				//담보구분 copy
+					model.copyNode("/root/initData/comboSet/setup_stat","/root/resData/comboSet/setup_stat");				//설정상태 copy
+
+					//콤보 초기구분값 세팅(전체(A), 선택(S), 공백("") -> value는 "")
+					makeComboGubun("A", "/root/initData/comboSet/colt_clsf", "item", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/setup_stat", "item", "cdnm", "cd");
+
+					model.setValue("/root/tempData/btState","RE");			//버튼제어상태 (RE:초기화)
+
+					model.refresh();
+				}
+
+				//조회
+				function srcRetrieve(){
+					//필수체크
+					if(!commReqCheck(group1)) {
+						return;
+					}
+					
+					model.send("pl_rcp_3310_l");						//Submission
+
+					var rowcnt = datagrid1.rows - datagrid1.fixedRows;
+
+					//셀병합처리					
+/*
+					if(rowcnt > 0){
+						//일자별 소계
+						datagrid1.subtotalposition = "below";
+						datagrid1.subtotal("sum", 0, 6, "format:#,###; roundmode:round; roundpostion:2", "background-color:#ffff00; color:#0000ff; font-weight:bold; ", 0, "일 소계", true); 
+						datagrid1.attribute("frozenbottomrows") = 1
+
+						grid_Merge_hight("datagrid1","0#1#2#3","#");			//셀병합
+					}
+*/
+					model.setValue("/root/tempData/btState","RT");			//버튼제어상태 (RT:조회)
+				}
+
+				//출력
+				function printProcess(){
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					//오즈데이타 설정 set
+					makeNodeValue("/root/oz_data/preview","");
+					makeNodeValue("/root/oz_data/printsize","");
+
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "pl/SP_PL_RCP_3320_P");
+					makeNodeValue("/root/oz_data/conParam/sv_url","");
+					makeNodeValue("/root/oz_data/conParam/sv_uid");	
+					makeNodeValue("/root/oz_data/conParam/sv_bonm");
+					makeNodeValue("/root/oz_data/conParam/uv_line");
+					makeNodeValue("/root/oz_data/conParam/uv_summary");
+
+					var root			= "/root/reqData/searchData/searchTop";
+					var iv_colt_clsf		= model.getValue(root + "/colt_clsf");
+					var iv_setup_stat	= model.getValue(root + "/setup_stat");
+					var iv_gurt_end_dd	= model.getValue(root + "/gurt_end_dd");
+					var iv_dlco_cd		= model.getValue(root + "/dlco_cd");
+					var iv_dlco_seq		= model.getValue(root + "/dlco_seq");
+													
+					//필수체크
+					if(!commReqCheck(group1)) {
+						return;
+					}
+					
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));
+					makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers",model.property("ss_emp_no"));
+					makeNodeValue("/root/oz_data/odiParam/iv_colt_clsf",iv_colt_clsf);
+					makeNodeValue("/root/oz_data/odiParam/iv_setup_stat",iv_setup_stat);
+					makeNodeValue("/root/oz_data/odiParam/iv_gurt_end_dd",iv_gurt_end_dd);
+					makeNodeValue("/root/oz_data/odiParam/iv_dlco_cd",iv_dlco_cd);
+					makeNodeValue("/root/oz_data/odiParam/iv_dlco_seq",iv_dlco_seq);
+				
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;2,64;2,70;1,936;2,725;" style="font-family:굴림; vertical-align:top; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnReset" class="btn03" style="left:653px; top:45px; width:63px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnRetrieve" class="btn03" crud="R" style="left:722px; top:45px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					srcRetrieve();
+				]]>
+			</script>
+		</button>
+		<button id="btnPrint" class="btn03" crud="R" style="left:791px; top:45px; width:63px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					printProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnColse" class="btn03" style="left:860px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group1" style="left:10px; top:70px; width:926px; height:30px; ">
+			<caption id="caption3" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption4" class="list_cap03" style="left:0px; top:0px; width:70px; height:26px; ">담보구분</caption>
+			<caption id="caption1" class="list_cap03" style="left:195px; top:0px; width:70px; height:26px; ">설정상태</caption>
+			<caption id="caption2" class="list_cap03" style="left:390px; top:0px; width:70px; height:26px; ">만료기준일</caption>
+			<caption id="caption13" class="list_cap03" style="left:605px; top:0px; width:70px; height:26px; ">거래처</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/searchTop/colt_clsf" appearance="minimal" style="left:73px; top:4px; width:80px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/colt_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo2" ref="/root/reqData/searchData/searchTop/setup_stat" appearance="minimal" style="left:268px; top:4px; width:77px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/setup_stat/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input1" ref="/root/reqData/searchData/searchTop/gurt_end_dd" inputtype="date" format="yyyy-mm-dd" style="left:463px; top:4px; width:100px; height:18px; text-align:left; "/>
+			<input id="dlco_cd_s" ref="/root/reqData/searchData/searchTop/dlco_cd" disabled="true" style="left:678px; top:4px; width:60px; height:18px; text-align:center; "/>
+			<output id="output1" ref="/root/reqData/searchData/searchTop/dlco_seq" visibility="hidden" style="left:915px; top:4px; width:5px; height:18px; "/>
+			<input id="dlco_nm_s" ref="/root/reqData/searchData/searchTop/dlco_nm" inputtype="button" style="left:740px; top:4px; width:150px; height:18px; text-align:left; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var dlco_nm = dlco_nm_s.currentText;	
+
+						//거래처명 체크
+						if(dlco_nm == ""){
+							model.setValue("/root/reqData/searchData/searchTop/dlco_cd","");		//거래처코드 초기화
+							model.setValue("/root/reqData/searchData/searchTop/dlco_seq","");	//거래처순번 초기화
+						}
+
+						//거래처검색 Call
+						pl_getDlcoInfo_p("B",
+									"N",
+									"/root/reqData/searchData/searchTop",
+									"",
+									"dlco_cd",
+									"dlco_seq",
+									"dlco_nm",
+									"",
+									"",
+									"")
+						 /*
+						 * - btnChk(버튼체크) : B-버튼클릭, P-버튼클릭외(INPUT BOX OR ENTER)
+						 * - flag(형태구분)   : N-일반 컴포넌트, G-그리드 컴퍼넌트
+						 * - rootPath         : 상위노드 xpath  
+						 * - grid             : grid 호출일경우 grid id명(String)
+						 * - dlco_cdReq       : 거래처코드 Element명
+						 * - dlco_seqReq      : 거래처순번 Element명
+						 * - dlco_nmReq       : 거래처명 Element명
+						 * - dlco_clsfReq     : 거래처구분 Element명
+						 * - areaReq          : 지역 Element명
+						 * - prv_curr_clsfReq : 전현임구분 Element명
+						*/
+
+						//refresh
+						group1.refresh();
+					]]>
+				</script>
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						//엔터키 체크
+						if(event.keyCode == 13) {
+							var dlco_nm = dlco_nm_s.currentText;										//거래처명
+							if(dlco_nm == ""){
+								model.setValue("/root/reqData/searchData/searchTop/dlco_cd","");				//거래처코드 초기화
+								model.setValue("/root/reqData/searchData/searchTop/dlco_seq","");			//거래처순번 초기화
+								group1.refresh();
+								return;
+							}else{
+								model.setValue("/root/reqData/searchData/searchTop/dlco_nm",dlco_nm);		//거래처명 초기화
+							}
+							
+							//거래처검색 Call
+							pl_getDlcoInfo_p("P",
+										"N",
+										"/root/reqData/searchData/searchTop",
+										"",
+										"dlco_cd",
+										"dlco_seq",
+										"dlco_nm",
+										"",
+										"",
+										"")
+							
+							//refresh
+							group1.refresh();
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var dlco_nm = model.getValue("/root/reqData/searchData/searchTop/dlco_nm");	//거래처명
+					
+						//거래처명 null인 경우 코드 초기화
+						if(dlco_nm == ""){
+							model.setValue("/root/reqData/searchData/searchTop/dlco_cd","");			//거래처명 초기화
+							model.setValue("/root/reqData/searchData/searchTop/dlco_seq","");		//거래처순번 초기화
+							group1.refresh();
+							return;
+						}
+
+						//refresh
+						group1.refresh();
+					]]>
+				</script>
+			</input>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:101px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/PTCRLIST/record" caption="담보구분^설정상태^거래처^담보물명^순위^취득일자^설정액^소재지^보증개시일^보증종료일^보험증권번호^비고^거래처코드^거래처순번^거래처약칭" colsep="^" colwidth="100, 60, 170, 100, 50, 80, 90, 80, 80, 80, 100, 200, 100, 100, 100" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:111px; width:926px; height:614px; text-align:center; ">
+			<col ref="colt_clsf_nm" style="text-align:center; "/>
+			<col ref="setup_stat_nm" style="text-align:center; "/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="colt_obj_nm" style="text-align:center; "/>
+			<col ref="prty_rank" style="text-align:center; "/>
+			<col ref="acqr_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="colt_setup_amt" format="(-)###,###,###,###" style="text-align:right; "/>
+			<col ref="plcw" style="text-align:center; "/>
+			<col ref="gurt_strt_dd" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="gurt_end_dd" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="insr_stock_no" style="text-align:left; "/>
+			<col ref="remk" style="text-align:left; "/>
+			<col ref="dlco_cd" visibility="hidden"/>
+			<col ref="dlco_seq" visibility="hidden"/>
+			<col ref="dlco_abrv_nm" visibility="hidden"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

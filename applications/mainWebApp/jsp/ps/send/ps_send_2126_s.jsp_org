@@ -1,0 +1,106 @@
+<%@ page contentType="text/html; charset=KSC5601" %>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_send_2126_s.jsp
+* 기능 : 보너스북 반송내역 조회 상세화면
+* 작성일자 : 2003-12-08
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+
+<%
+	String retnseq = request.getParameter("retnseq");
+    // dataset 인스턴스 선언부분
+    PS_S_SEND_RETN_DTLDataSet ds = (PS_S_SEND_RETN_DTLDataSet)request.getAttribute("ds");
+%>
+      <!--리스트 -->
+      <table  cellspacing="0" width="830" cellpadding="2" border="0" bgcolor="#FFFFFF" class="gray" id="code_detail">
+      <input type="hidden" name="retnseq" size="10" value="<%=retnseq%>" tabIndex="1">
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray" > 반송일자<font color="red">*</font></td>
+          <td class="gray" width="110" >
+            <input type="text" name="retndt" size="10" value="<%=ds.retndt%>" class="text_box" dataType="date" notEmpty caption="발송일자" tabIndex="2">
+          </td>
+          <td class="gray" bgcolor="#dddddd" width="100" >반송종류<font color="red">*</font></td>
+          <td class="gray" width="110" >
+            <select name="retnclsf" size="1" class="sel_all" tabIndex="3" notEmpty caption="반송종류" onchange="jsDisEnabled();">
+              <option value="" >선택</option>
+              <%=ds.retnclsfcurOptHtml(ds.retnclsf)%>
+            </select>
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray" > 독자번호<font color="red">*</font></td>
+          <td class="gray" >
+            <input type="text" maxlength="9" name="rdr_no" size="9" class="readonly_box" value="<%=ds.rdr_no%>"  tabIndex="4" notEmpty caption="독자번호" readonly len="9" notEmpty onkeyup="passFocus(this, this.form.medicd,9)">
+            -
+            <input type="text" maxlength="3" name="medicd" size="3" maxlength="3" class="readonly_box" value="<%=ds.medicd%>" tabIndex="5" notEmpty readonly onkeyup="passFocus(this, this.form.termsubsno,3)">
+            -
+            <input type="text" name="termsubsno" size="4" maxlength="4" class="readonly_box" value="<%=ds.termsubsno%>" tabIndex="6" notEmpty readonly  len="4" onkeyup='search_rdr();window.event.returnValue=false;'>
+            <input type="text" name="rdrnm" size="5" value="<%= ds.getRdrnm()%>" class="readonly_box" readonly >
+            <input type="text" name="medinm" size="10" value="<%= ds.getMedinm()%>" class="readonly_box" readonly >
+          </td>
+        </tr>
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray">반송사유<font color="red">*</font></td>
+          <td class="gray" width="110">
+            <select name="retnresncd" size="1" class="sel_all" tabIndex="7" notEmpty caption="반송사유" >
+          <option value="">선택</option>
+          <%=ds.retnresncdcurOptHtml(ds.retnresncd)%>
+        </select></td>
+          <td class="gray" bgcolor="#dddddd" width="100">반송호수<font color="blue">*</font></td>
+          <td class="gray" width="110">
+            <input type="text" name="retn_nmno" size="6" value="<%= ds.getRetn_nmno()%>" class="text_box" tabIndex="8">
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray"> 반송보너스북<font color="blue">*</font></td>
+          <td class="gray">
+            <select name="bns_bookcd" size="1" class="sel_all" tabIndex="9" id="bns_bookcd_id">
+              <option value="">선택</option>
+              <%=ds.bns_bookcdcurOptHtml(ds.getBns_bookcd())%>
+        </select>
+          </td>
+        </tr>
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray">약정일자<font color="blue">*</font></td>
+          <td class="gray" width="110">
+            <input type="text" name="agrmntdt" dataType="date" size="10" value="<%= ds.getAgrmntdt()%>" class="text_box" tabIndex="10">
+          </td>
+          <td class="gray" bgcolor="#dddddd" width="100">약정금액<font color="blue">*</font></td>
+          <td class="gray" width="110">
+            <input type="text" name="agrmntamt" size="10" style='text-align:right;' value="<%= ds.getAgrmntamt()%>" comma dataType="number" class="text_box" tabIndex="11">
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray">반송메모</td>
+          <td class="gray">
+            <input type="text" name="memo" size="40" value="<%= ds.getMemo()%>" class="text_box" tabIndex="12">
+          </td>
+        </tr>
+        <tr>
+          <td class="gray" bgcolor="#dddddd" width="100">처리결과<font color="red">*</font></td>
+          <td class="gray" width="110">
+            <select name="boprocyn" size="1" class="sel_all" tabIndex="13" notEmpty caption="처리결과" onchange="select_prococom();">
+              <option value="">선택</option>
+              <option value="N" <%=ds.boprocyn.equals("N") ? "SELECTED" : "" %> >미결</option>
+              <option value="Y" <%=ds.boprocyn.equals("Y") ? "SELECTED" : "" %> >완결</option>
+            </select>
+          </td>
+
+          <td width="100" bgcolor="#dddddd" class="gray">처리일자<font color="blue">*</font></td>
+          <td class="gray" width="110">
+            <input type="text" name="boprocdt" value="<%= ds.getBoprocdt()%>" size="10" dataType="date" class="text_box" tabIndex="14" caption="처리일자">
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray">처리메모</td>
+          <td class="gray">
+            <input type="text" name="boprocmemo" value="<%= ds.getBoprocmemo()%>" size="40" class="text_box" tabIndex="15">
+          </td>
+        </tr>
+      </table>
+
+<script>
+    parent.document.all.code_detail.outerHTML = code_detail.outerHTML;
+    parent.init();
+    parent.jsDisEnabled();
+</script>

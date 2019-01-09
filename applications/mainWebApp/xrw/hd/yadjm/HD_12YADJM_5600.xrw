@@ -1,0 +1,593 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>기부금</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_yadjm_115600_m>
+							<dataSet>
+								<xx_emp_no/>
+								<xx_dona_plac_clsf/>
+							</dataSet>
+						</hd_yadjm_115600_m>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<faml_flnm>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</faml_flnm>
+							<rshp>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</rshp>
+							<dona_plac_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</dona_plac_clsf>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<searchData>
+							<adjm_rvrs_yy/>
+							<emp_no/>
+							<obj_pers_flnm/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+							<emp_no/>
+							<select_case/>
+						</fwdData>
+						<reqForm>
+							<multiUpData/>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<num_type/>
+								<ern/>
+								<firmnm/>
+								<dona_plac_clsf/>
+								<dona_yymm/>
+								<dona_ptcr_noit/>
+								<dona_ptcr_amt/>
+								<rmks/>
+								<rshp/>
+								<obj_pers_flnm/>
+								<prn/>
+								<corr_txn_prd_dduc_amt/>
+								<cyov_amt/>
+								<seq/>
+								<lastyear_cyov_amt/>
+							</record>
+						</gridData>
+						<resForm/>
+						<tot_cnt/>
+						<tot_amt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function CheckBusiness_Number(businessNo){
+						if (businessNo.length == 10) {
+						
+							a  	= businessNo.charAt(0);
+							b  	= businessNo.charAt(1);
+							c  	= businessNo.charAt(2);
+							d  	= businessNo.charAt(3);
+							e  	= businessNo.charAt(4);
+							f  	= businessNo.charAt(5);
+							g  	= businessNo.charAt(6);
+							h  	= businessNo.charAt(7);
+							i  	= businessNo.charAt(8);
+							Osub 	= businessNo.charAt(9);
+							
+							suma = a*1 + b*3 + c*7 + d*1 + e*3 + f*7 + g*1 + h*3;
+							sumb = (i*5) %10;
+							sumc = parseInt((i*5) / 10,10);
+							sumd = sumb + sumc;	
+							sume = suma + sumd;
+							sumf = a + b + c + d + e + f + g + h + i
+							k = sume % 10;
+							Modvalue = 10 - k;
+							LastVal = Modvalue % 10;
+							
+							if (sumf == 0) {
+								return false;
+							}
+							
+						} else {
+							return false;
+						}	
+					  	if ( Osub == LastVal ) {
+							return true;
+						} else {
+							return false;
+						}
+					}
+					
+					function setErnFormat(num_val){
+						alert(num_val);
+						//주민번호, 사업자번호 구분
+						alert(num_val.length);
+					}
+					
+					function setEmp_no_i(emp_no, nm_korn){
+						
+						var get_year = parent.parent.window.javaScript.searchYear();
+						var emp_no = parent.parent.window.javaScript.searchEmp_no();
+						model1.setValue("/root/reqData/searchData/adjm_rvrs_yy",get_year);
+						model1.setValue("/root/reqData/searchData/emp_no",emp_no);
+						
+						model1.send("hd_yadjm_2012_1214");
+						makeComboSet("N", "/root/dataSet/CURLIST1/record", "/root/initData/comboSet/dona_plac_clsf", "cdabrvnm_cd", "cd");
+     				   	makeComboSet("N", "/root/dataSet/CURLIST2/record", "/root/initData/comboSet/rshp", "cdabrvnm_cd", "cd");
+						makeComboSet("N", "/root/dataSet/CURLIST3/record", "/root/initData/comboSet/faml_flnm", "faml_flnm", "faml_flnm");
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.refresh();
+						
+									
+						//var totcnt = datagrid2.rows;
+						//model1.setValue("/root/resData/tot_cnt", "총 " + Number(totcnt - 2) + " 건");
+						for(i=0;i<10;i++){
+							btnG1.dispatch("onclick");
+						}
+						getTotalAmt();
+						model1.refresh();
+						
+					}
+					
+					function makeComboSet(gubun, source_ref, target_ref, ref_label, ref_value){
+					    var desNode = target_ref + "/item";
+					    var label, value;
+					    
+					    if ( gubun == "A" ) {
+					        label = "전체";
+					        value = "";
+					    } else if ( gubun == "S" ){
+					        label = "선택";
+					        value = "";
+					    } else if ( gubun == "N" ){
+					    } else {
+					        label = " ";
+					        value = "";
+					    }
+					    
+					    //원 노드를 삭제하고 전체, 선택, ""을 셋팅한다.
+					    if (gubun != "N") {
+							    model.removeNodeset(target_ref);
+							    model.makeNode(target_ref); 
+							    model.makeNode(desNode);
+							    
+							    model.makeNode(desNode + "/label");
+							    model.makeNode(desNode + "/value");
+							    
+							    model.setValue(desNode + "/label", label);
+							    model.setValue(desNode + "/value", value) ;
+					    } else {
+					        model.removeNodeset(target_ref);
+					    }    
+					    //전체, 선택 다음 노드에 원자료를 셋팅한다.
+					    if ( instance1.selectSingleNode(source_ref) != null ) {
+					        var arr = instance1.selectSingleNode(source_ref); 
+					        var len = arr.length;
+					
+					        if ( len > 0 ) {
+					            for ( var i = 1 ; i <= len ; i++ ) {
+					                model.makeNode(desNode + "[" + (i+1) + "]");
+					                model.makeNode(desNode + "[" + (i+1) + "]/label");
+					                model.makeNode(desNode + "[" + (i+1) + "]/value");
+					                model.setValue(desNode + "[" + (i+1) + "]/label", model.getValue(source_ref + "[" + i + "]/" + ref_label));
+					                model.setValue(desNode + "[" + (i+1) + "]/value", model.getValue(source_ref + "[" + i + "]/" + ref_value));
+					            }
+					        } else {
+					            model.makeNode(desNode + "[" + 2 + "]");
+					            model.makeNode(desNode + "[" + 2 + "]/label");
+					            model.makeNode(desNode + "[" + 2 + "]/value");
+					            model.setValue(desNode + "[" + 2 + "]/label", model.getValue(source_ref + "/" + ref_label));
+					            model.setValue(desNode + "[" + 2 + "]/value", model.getValue(source_ref + "/" + ref_value));
+					        }
+					    } 
+					    model.refresh();
+					}
+					
+					function getTotalAmt() {
+						var tot_amt = 0;
+						for(var i = 1; i < datagrid2.rows; i++){
+							tot_amt += Number(model1.getValue("/root/resData/gridData/record["+ i +"]/corr_txn_prd_dduc_amt")); 
+						}
+						model1.setValue("/root/resData/tot_amt",tot_amt);
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[	
+					model1.send("hd_yadjm_115600_m");
+					model1.refresh();
+
+					//alert(model.getValue("/root/initData/hd_yadjm_115600_m/dataSet/xx_emp_no"));
+					//alert(model.getValue("/root/initData/hd_yadjm_115600_m/dataSet/xx_dona_plac_clsf"));
+									
+					var get_year = parent.parent.window.javaScript.searchYear();
+					var emp_no = parent.parent.window.javaScript.searchEmp_no();
+					var nm_korn = parent.parent.window.javaScript.searchFlnm();
+					
+					setEmp_no_i(emp_no,nm_korn);
+				
+				
+			    	var obj = htmldocument.SessionInfo;
+					var emp_no = obj.emp_no.value;
+				    var lastyear_cyov_amt = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("lastyear_cyov_amt"));
+					var rows = datagrid2.rows;
+					var cols = datagrid2.cols;
+					                 
+					datagrid2.isReadOnly(1,12, rows-1 , 12) = true;
+					
+				
+					
+				    //if (emp_no == "211011")  120215
+				    if (emp_no == model.getValue("/root/initData/hd_yadjm_115600_m/dataSet/xx_emp_no")) 
+					 { 
+						datagrid2.isReadOnly(1,12, rows-1 , 12) =  false;
+					 }
+				   
+					model1.refresh();
+					button3.dispatch("onclick");
+
+				]]>
+			</script>
+			<submission id="hd_yadjm_3000" action="/hd/yadjm/3000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_yadjm_1900" action="/hd/yadjm/1900" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_yadjm_1810" action="/hd/yadjm/1810" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_yadjm_1820" action="/hd/yadjm/1820" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_yadjm_1930" action="/hd/yadjm/1930" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_yadjm_115600_m" action="/hd/yadjm/115600" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/hd_yadjm_115600_m/dataSet"/>
+			<submission id="hd_yadjm_2012_1213" action="/hd/yadjm/20121213" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_yadjm_2012_1214" action="/hd/yadjm/20121214" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,913;2,126;" style="font-family:굴림; ">
+		<caption id="caption20" class="list_cap02" style="left:109px; top:20px; width:134px; height:26px; text-align:center; "/>
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<!--import id="import1" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<button id="button1" class="btn02" disabled="true" style="left:782px; top:15px; width:53px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+	     			if (model1.getValue("/root/reqData/searchData/adjm_rvrs_yy") == ""){
+	     				alert("연말정산년도를 입력하십시오.");
+	     				return;
+	     			}
+	     			if (model1.getValue("/root/reqData/searchData/emp_no") == ""){
+	     				alert("사번을 입력하십시오.");
+	     				return;
+	     			}
+					
+					if (!rowInSubmit(datagrid2)) return;
+					
+					if(!commGridReqCheck("datagrid2")) return;
+					
+					var lastyear_cyov_amt = 0 ;
+					
+					for(var i = 2; i < datagrid2.rows; i++){
+							//alert(datagrid2.valueMatrix(i, datagrid2.colRef("cyov_amt")));						
+						
+							lastyear_cyov_amt  =  lastyear_cyov_amt + Number(datagrid2.valueMatrix(i, datagrid2.colRef("cyov_amt"))); 
+							
+							var pattern = ","+( datagrid2.valueMatrix(i, datagrid2.colRef("dona_plac_clsf")) )+",";
+							var validation  = (","+model.getValue("/root/initData/hd_yadjm_115600_m/dataSet/xx_dona_plac_clsf")+",").indexOf(pattern)>-1;
+							var validation2  = (","+model.getValue("/root/initData/hd_yadjm_115600_m/dataSet/xx_dona_plac_clsf2")+",").indexOf(pattern)>-1;
+
+							//if ((datagrid2.valueMatrix(i, datagrid2.colRef("dona_plac_clsf")) == "30") || (datagrid2.valueMatrix(i, datagrid2.colRef("dona_plac_clsf")) == "31")){ 120215
+							if (validation){
+								//alert(datagrid2.valueMatrix(i, datagrid2.colRef("dona_yymm")).substring(4,6));
+								if(Number(datagrid2.valueMatrix(i, datagrid2.colRef("dona_yymm")).substring(4,6)) > 6 ){
+									alert("특례기부금과 공익신탁 기부금은  2012년 7월 1일 부터 폐지되었습니다.");
+									return;
+								}
+							}
+							/*정치자금이 아닌 경우 사업자등록번호 필수입력 체크*/
+							if (!validation2){
+								var ern = datagrid2.valueMatrix(i, datagrid2.colRef("ern"));
+								if (ern == "") {
+									var dona_clsf = datagrid2.labelMatrix(i, datagrid2.colRef("dona_plac_clsf"));
+									alert(" 기부처구분이 [ " + dona_clsf + " ]인 경우 \n 사업자등록번호(주민등록번호)는 필수 입력사항입니다.");
+									model.setFocus(datagrid2.attribute("id"));
+									datagrid2.row = i;
+									datagrid2.col = datagrid2.colRef("ern");
+									datagrid2.editCell();
+									return;
+								}
+							}
+					}
+					
+					//alert(lastyear_cyov_amt);
+					
+					if (lastyear_cyov_amt > 0 )
+					{
+						alert(" ※ 기부금 액수 초과로 이월공제하는 경우, \n \n 한도를 반드시 확인하여 주시기 바랍니다.");
+					}
+					
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					model1.setValue("/root/reqData/reqForm/multiUpData", datagrid2.getUpdateData());
+					model1.send("hd_yadjm_2012_1213");
+					
+					if(submit_completed()) {							
+						model1.resetInstanceNode("/root/resData/gridData/record");
+						model1.refresh();
+						datagrid2.clearStatus();
+						button3.dispatch("onclick");
+						
+						//상위 메인화면 스크립트 실행
+						parent.window.javaScript.dona_Script();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" style="left:840px; top:15px; width:51px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			      //viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					window.close();
+			     ]]>
+			</script>
+		</button>
+		<button id="btnG1" class="btn_grid03" style="left:840px; top:55px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//var selectedIdx = 2;
+					//var prn = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/prn");		
+					datagrid2.addRow(false, false);
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="기부처^기부처^기부처^기부내역^기부내역^기부내역^기부내역^기부내역^기부자^기부자^기부자^이월공제(해당자만 입력)^이월공제(해당자만 입력)^이월공제(해당자만 입력)^값^값|사업자등록번호(주민등록번호)^사업자등록번호(주민등록번호)^상호(15자 이내)^기부처구분^연월^건수^금액^적요^성명^주민등록번호^관계^전년이월금액^공제신청금액^내년이월금액^값^값" colsep="#" colwidth="122, 100, 120, 110, 70, 60, 90, 100, 80, 100, 120, 100, 130, 90, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rows="1" rowsep="|" selectionmode="free" style="left:10px; top:80px; width:885px; height:350px; ">
+			<col class="req" ref="num_type" type="combo" caption="사업자등록번호">
+				<choices>
+					<item>
+						<label>사업자등록번호</label>
+						<value>10</value>
+					</item>
+					<item>
+						<label>주민등록번호</label>
+						<value>13</value>
+					</item>
+				</choices>
+			</col>
+			<col ref="ern" type="input" format="999-99-99999" caption="사업자등록번호"/>
+			<col class="req" ref="firmnm" type="input" caption="상호" style="text-align:left; "/>
+			<col class="req" ref="dona_plac_clsf" type="combo" caption="기부처" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dona_plac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="dona_yymm" type="inputdate" format="yyyy-mm" caption="연월"/>
+			<col class="req" ref="dona_ptcr_noit" type="input" format="#,###" maxlength="2" caption="건수" style="text-align:right; "/>
+			<col class="req" ref="dona_ptcr_amt" type="input" format="#,###" maxlength="10" caption="총금액" style="left:602px; top:40px; width:90px; height:20px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+				var  dona_ptcr_amt  =0; 
+				var lastyear_cyov_amt = 0; 
+				
+				if(datagrid2.col == datagrid2.colRef("dona_ptcr_amt")){
+					
+					dona_ptcr_amt =  Number(datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("dona_ptcr_amt")));
+					lastyear_cyov_amt =   Number(datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("lastyear_cyov_amt"))) ;
+					
+					datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("corr_txn_prd_dduc_amt")) =  dona_ptcr_amt + lastyear_cyov_amt ;
+				}
+		    	]]>
+				</script>
+			</col>
+			<col ref="rmks" type="input" style="text-align:left; "/>
+			<col class="req" ref="obj_pers_flnm" type="combo" caption="성명">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/faml_flnm/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="prn" format="999999-9999999" caption="주민등록번호"/>
+			<col ref="rshp" type="combo" visibility="hidden" caption="관계" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/rshp/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="lastyear_cyov_amt" type="input" format="#,###" maxlength="10" caption="전년이월금액" style="text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var  dona_ptcr_amt  = 0; 
+					var lastyear_cyov_amt = 0; 
+				
+					if(datagrid2.col == datagrid2.colRef("lastyear_cyov_amt")){
+					
+						dona_ptcr_amt =  Number(datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("dona_ptcr_amt")));
+						lastyear_cyov_amt =   Number(datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("lastyear_cyov_amt"))) ;
+					
+						datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("corr_txn_prd_dduc_amt")) =  dona_ptcr_amt + lastyear_cyov_amt ;
+					}
+		    	]]>
+				</script>
+			</col>
+			<col class="req" ref="corr_txn_prd_dduc_amt" type="input" format="#,###" maxlength="10" caption="해당과세기간공제금액" style="text-align:right; "/>
+			<col ref="cyov_amt" type="output" format="#,###" maxlength="10" caption="내년이월액" style="text-align:right; "/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (datagrid2.col == 0) {
+						rowStatus(datagrid2);
+						return;
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(datagrid2.col == datagrid2.colRef("ern")){
+						var row = datagrid2.row-1;
+						if(datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("num_type")) == "10") {
+							if(!CheckBusiness_Number(datagrid2.valueMatrix(datagrid2.row,datagrid2.col))){
+								alert("정상적인 사업자번호가 아닙니다.");
+								model1.setValue("/root/resData/gridData/record["+row+"]/ern","");
+								datagrid2.refresh();
+							}
+						}
+					}
+					//사업자등록번호, 주민등록번호를 변경할 때마다 cell의 포멧을 변경한다.
+					if(datagrid2.col == datagrid2.colRef("num_type")){
+						if(datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("num_type")) == "10") {
+						//	datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("ern")) = "";
+							datagrid2.cellFormat(datagrid2.row, datagrid2.colRef("ern")) = "999-99-99999";
+						} else {
+						//	datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("ern")) = "";
+							datagrid2.cellFormat(datagrid2.row, datagrid2.colRef("ern")) = "999999-9999999";
+						}
+					} else	if (datagrid2.col == datagrid2.colRef("obj_pers_flnm")) {
+						var selectedIdx = datagrid2.row -1;
+						var obj_pers_flnm = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/obj_pers_flnm"); 
+						model1.setValue("/root/reqData/searchData/obj_pers_flnm",obj_pers_flnm);
+						
+						model1.send("hd_yadjm_1810");
+						model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/prn", model1.getValue("/root/tempData/dataSet/CURLIST/record/faml_prn"));
+						
+						model1.removeNodeset("/root/tempData/dataSet");
+						model1.refresh();
+					} else if (datagrid2.col == datagrid2.colRef("dona_ptcr_amt")) {
+						var selectedIdx = datagrid2.row -1;
+						var dona_ptcr_amt = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("dona_ptcr_amt"));
+						var corr_txn_prd_dduc_amt = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("corr_txn_prd_dduc_amt"));
+						var lastyear_cyov_amt = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("lastyear_cyov_amt"));  //20120112 추가
+						
+						var sum = Number(dona_ptcr_amt) + Number(lastyear_cyov_amt) ;
+						if(parseInt(sum) < parseInt(corr_txn_prd_dduc_amt)){
+							//alert("해당과세기간 공제금액은 기부내역의 금액보다 클 수 없습니다1."+dona_ptcr_amt+" : "+corr_txn_prd_dduc_amt);
+							 alert("해당과세기간 공제금액("+corr_txn_prd_dduc_amt+")은 기부내역금액 + 전년이월금액의 금액("+sum+")보다 클 수 없습니다." );
+							model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/corr_txn_prd_dduc_amt", "");
+						//	model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/cyov_amt", "");
+						    datagrid2.refresh();
+							return;
+						}
+						model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/cyov_amt", sum -corr_txn_prd_dduc_amt);
+						getTotalAmt();
+					} else if( datagrid2.col == datagrid2.colRef("corr_txn_prd_dduc_amt") ){
+						var selectedIdx = datagrid2.row -1;
+						var dona_ptcr_amt = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("dona_ptcr_amt"));
+						var lastyear_cyov_amt = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("lastyear_cyov_amt"));  //20120112 추가
+						var corr_txn_prd_dduc_amt = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("corr_txn_prd_dduc_amt"));
+						
+						var sum = Number(dona_ptcr_amt) + Number(lastyear_cyov_amt) ;
+						//alert(dona_ptcr_amt+" : "+corr_txn_prd_dduc_amt);
+						if(parseInt(sum) < parseInt(corr_txn_prd_dduc_amt)){
+							//alert("해당과세기간 공제금액은 기부내역의 금액보다 클 수 없습니다2.");
+						 alert("해당과세기간 공제금액("+corr_txn_prd_dduc_amt+")은 기부내역금액 + 전년이월금액의 금액("+sum+")보다 클 수 없습니다." );
+							model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/corr_txn_prd_dduc_amt", "");
+						//	model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/cyov_amt", "");
+							datagrid2.refresh();
+							return;
+						}
+						model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/cyov_amt", sum - corr_txn_prd_dduc_amt);
+						getTotalAmt();
+					}
+				]]>
+			</script>
+		</datagrid>
+		<!--import id="import2" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<button id="button3" class="btn02" style="left:670px; top:15px; width:53px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (model1.getValue("/root/reqData/searchData/adjm_rvrs_yy") == "") {
+						alert("정산년도를 입력하십시오.");
+						return;
+					}
+					
+					if (model1.getValue("/root/reqData/searchData/emp_no") == "") {
+						alert("사번을 입력하십시오.");
+						return;
+					}
+					
+     				model1.send("hd_yadjm_1930");
+					model1.copyNode("/root/resData/gridData", "/root/tempData/dataSet/CURLIST");
+					model1.removeNodeset("/root/tempData/dataSet");
+					datagrid2.clearStatus();
+					model1.refresh();			
+					
+					getTotalAmt();
+					
+					for(i=0;i<10;i++){
+						btnG1.dispatch("onclick");
+					}
+					model1.refresh();
+				]]>
+			</script>
+		</button>
+		<input id="input2" ref="/root/resData/tot_amt" maxlength="4" format="#,###" style="left:114px; top:24px; width:120px; height:18px; text-align:right; "/>
+		<caption id="caption19" class="list_cap01" style="left:10px; top:20px; width:100px; height:26px; text-align:center; ">총 합계</caption>
+		<button id="button6" class="btn02" disabled="true" style="left:725px; top:15px; width:53px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+	     			if (!rowDelSubmit(datagrid2))
+	     				return;
+	     				
+					if (window.alert("삭제하시겠습니까?", "확인", 1) != 1)
+						return;
+						
+					model1.setValue("/root/reqData/reqForm/multiUpData", datagrid2.getUpdateData());
+					model1.send("hd_yadjm_2012_1213");
+					
+					if(submit_completed()) {							
+						model1.resetInstanceNode("/root/resData/gridData/record");
+						model1.refresh();
+						datagrid2.clearStatus();
+						button3.dispatch("onclick");
+						
+						//상위 메인화면 스크립트 실행
+						parent.window.javaScript.dona_Script();
+					}
+				]]>
+			</script>
+		</button>
+		<group id="group2" class="gro_line" style="left:10px; top:45px; width:880px; height:5px; "/>
+		<caption id="caption2" visibility="visible" style="left:15px; top:438px; width:853px; height:182px; font-weight:bolder; ">
+			<![CDATA[※ 연월 : 임의의 날짜(201201)를 대표로 입력해도 무방.
+※ 동일한 사업장이면 대표로 하나 입력하고 건수, 합계 금액을 입력해도 무방.
+        ex) 어린이재단에 매월 기부한 경우-> 건수: 12, 금액: 합계 금액
+※ 이월공제(해당자만 입력)
+    1. 전년이월금액 : 2011년에 이월공제 신청한 금액(자동)
+    2. 공제신청금액 : 2012년에 공제받으려고 신청하는 금액 
+       (이월공제 신청자만 금액 수정하면 됨)	   
+	(전년이월금액 + 올해 기부금의 합계액의 범위내에서 신청금액 입력) 
+    3. 내년 이월금액 : 잔액은 내년에 이월하여 사용가능 
+    ]]>
+		</caption>
+	</xhtml:body>
+</xhtml:html>

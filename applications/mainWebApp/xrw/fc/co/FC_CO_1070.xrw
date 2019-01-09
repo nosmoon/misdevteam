@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<acct_num>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</acct_num>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<sys_clsf/>
+						</fwdData>
+						<searchData>
+							<sys_clsf/>
+							<acct_mang_cd/>
+							<frdt/>
+							<todt/>
+							<tran_content/>
+							<tran_amt/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record1>
+								<bank_name/>
+								<tran_date/>
+								<tran_amt/>
+								<extnc_amt/>
+								<remain_amt/>
+								<tran_content/>
+								<cms_code/>
+								<tran_branch/>
+								<biz_reg_no/>
+								<bank_id/>
+								<acct_num/>
+								<tran_date_seq/>
+								<current_clsf/>
+							</record1>
+							<record2>
+								<bank_name/>
+								<tran_date/>
+								<tran_amt/>
+								<extnc_amt/>
+								<remain_amt/>
+								<tran_content/>
+								<acct_tonghwa/>
+								<tran_branch/>
+								<biz_reg_no/>
+								<bank_id/>
+								<acct_num/>
+								<tran_date_seq/>
+								<current_clsf/>
+							</record2>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="co_bank_1000_m" action="/co/bank/1000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[		
+				
+				model.setValue("/root/reqData/searchData/sys_clsf", model.getValue("/root/reqData/fwdData/sys_clsf"));
+				
+				
+				model.setValue("/root/reqData/searchData/frdt", dateAdd("d", -6, getCurrentDate()));
+///				model.setValue("/root/reqData/searchData/frdt", "20090527");
+				model.setValue("/root/reqData/searchData/todt", getCurrentDate());
+				
+				model.send("co_bank_1000_m");
+				if(submit_completed()){
+					model.copyNode("/root/initData/comboSet/acct_num", "/root/tempData/acct_num");					
+					model.refresh();
+				}
+				
+				var acct_mang_no = model.getValue("/root/reqData/fwdData/acct_mang_no");
+
+				cb_acct_num.value = acct_mang_no;
+
+				if(cb_acct_num.value != ""){
+					if(combo_data_contains(cb_acct_num,cb_acct_num.value) == -1){
+						cb_acct_num.select(0);
+					}
+					else{
+						cb_acct_num.disabled = true;						
+					}					
+				}else{					
+					cb_acct_num.select(0);
+				}
+				loadList();
+				
+				]]>
+			</script>
+			<submission id="co_bank_1010_l" action="/co/bank/1010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/fcmc_common.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function loadList(){				
+				model.send("co_bank_1010_l");	
+				if(submit_completed()){
+					var current_clsf = model.getValue("/root/resData/gridData/current_clsf");
+					if(current_clsf  == "D"){
+						model.toggle("case1");
+					}else if(current_clsf == "F"){
+						model.toggle("case2");
+					}
+				}
+			}
+			function select(){
+				
+				if(switch1.selectedIndex == 0){
+					var   cnt1 = 0;
+					var 	biz_reg_no  = "";
+					var 	bank_id       = "";
+					var 	acct_num      = "";
+					var 	tran_date     = "";
+					var 	tran_date_seq = "";
+					var 	tran_amt     = "";
+					var 	tran_amt1     = 0;
+					var 	cms_code   = "";
+					var 	current_clsf  = "";
+					var 	tran_content  = "";
+					for(var i =1; i<datagrid1.rows; i++){
+						if(datagrid1.valueMatrix(i,1) =="1"){
+							cnt1 = cnt1+1;
+							if(cnt1 == 1){
+								biz_reg_no = get_refvalue("/root/resData/gridData/record1["+i+"]/biz_reg_no");
+								bank_id = get_refvalue("/root/resData/gridData/record1["+i+"]/bank_id");
+								acct_num = get_refvalue("/root/resData/gridData/record1["+i+"]/acct_num");
+								tran_date = get_refvalue("/root/resData/gridData/record1["+i+"]/tran_date");
+								tran_date_seq = get_refvalue("/root/resData/gridData/record1["+i+"]/tran_date_seq");
+								current_clsf = get_refvalue("/root/resData/gridData/record1["+i+"]/current_clsf");
+								tran_amt = get_refvalue("/root/resData/gridData/record1["+i+"]/tran_amt");
+							}
+							else{
+								biz_reg_no = biz_reg_no + "#" + get_refvalue("/root/resData/gridData/record1["+i+"]/biz_reg_no");
+								bank_id = bank_id + "#" + get_refvalue("/root/resData/gridData/record1["+i+"]/bank_id");
+								acct_num = acct_num + "#" + get_refvalue("/root/resData/gridData/record1["+i+"]/acct_num");
+								tran_date = tran_date + "#" + get_refvalue("/root/resData/gridData/record1["+i+"]/tran_date");
+								tran_date_seq = tran_date_seq + "#" + get_refvalue("/root/resData/gridData/record1["+i+"]/tran_date_seq");
+								current_clsf = current_clsf + "#" + get_refvalue("/root/resData/gridData/record1["+i+"]/current_clsf");
+								tran_amt = tran_amt + "#" + get_refvalue("/root/resData/gridData/record1["+i+"]/tran_amt");								
+							}
+							tran_amt1 = Number(tran_amt1) + Number(get_refvalue("/root/resData/gridData/record1["+i+"]/tran_amt"));
+						}
+					}					
+				}else{
+					var   cnt2 = 0;
+					var 	biz_reg_no  = "";
+					var 	bank_id       = "";
+					var 	acct_num      = "";
+					var 	tran_date     = "";
+					var 	tran_date_seq = "";
+					var 	tran_amt     = "";
+					var 	tran_amt1     = 0;
+					var 	cms_code   = "";					
+					var 	frex_amt      = "";
+					var 	acct_tonghwa  = "";
+					var 	current_clsf  = "";
+					var 	tran_content  = "";
+					
+					for(var i =1; i<datagrid2.rows; i++){
+						if(datagrid2.valueMatrix(i,1) =="1"){
+							cnt2 = cnt2+1;
+							if(cnt1 == 1){
+								biz_reg_no = get_refvalue("/root/resData/gridData/record2["+i+"]/biz_reg_no");
+								bank_id = get_refvalue("/root/resData/gridData/record2["+i+"]/bank_id");
+								acct_num = get_refvalue("/root/resData/gridData/record2["+i+"]/acct_num");
+								tran_date = get_refvalue("/root/resData/gridData/record2["+i+"]/tran_date");	
+								tran_date_seq = get_refvalue("/root/resData/gridData/record2["+i+"]/tran_date_seq");
+								current_clsf = get_refvalue("/root/resData/gridData/record2["+i+"]/current_clsf");
+								tran_amt = get_refvalue("/root/resData/gridData/record2["+i+"]/tran_amt");								
+							}
+							else{
+								biz_reg_no = biz_reg_no + "#" + get_refvalue("/root/resData/gridData/record2["+i+"]/biz_reg_no");
+								bank_id = bank_id + "#" + get_refvalue("/root/resData/gridData/record2["+i+"]/bank_id");
+								acct_num = acct_num + "#" + get_refvalue("/root/resData/gridData/record2["+i+"]/acct_num");
+								tran_date = tran_date + "#" + get_refvalue("/root/resData/gridData/record2["+i+"]/tran_date");
+								tran_date_seq = tran_date_seq + "#" + get_refvalue("/root/resData/gridData/record2["+i+"]/tran_date_seq");
+								current_clsf = current_clsf + "#" + get_refvalue("/root/resData/gridData/record2["+i+"]/current_clsf");
+								tran_amt = tran_amt + "#" + get_refvalue("/root/resData/gridData/record2["+i+"]/tran_amt");
+							}
+						}
+						tran_amt1 = Number(tran_amt1) + Number(get_refvalue("/root/resData/gridData/record2["+i+"]/tran_amt"));
+					}
+					
+				}
+			
+				var 	current_clsf_ref  = model.getValue("/root/reqData/fwdData/current_clsf_ref");	
+				var 	biz_reg_no_ref    = model.getValue("/root/reqData/fwdData/biz_reg_no_ref");	
+				var 	bank_id_ref       = model.getValue("/root/reqData/fwdData/bank_id_ref");		
+				var 	acct_num_ref      = model.getValue("/root/reqData/fwdData/acct_num_ref");	
+				var 	tran_date_ref     = model.getValue("/root/reqData/fwdData/tran_date_ref");	
+				var 	tran_date_seq_ref = model.getValue("/root/reqData/fwdData/tran_date_seq_ref");					
+				
+				var 	acct_mang_no_ref  = model.getValue("/root/reqData/fwdData/acct_mang_no_ref");	
+				var 	acct_mang_nm_ref  = model.getValue("/root/reqData/fwdData/acct_mang_nm_ref");	
+				var 	tran_amt_ref      = model.getValue("/root/reqData/fwdData/tran_amt_ref");	
+				var 	tran_amt_ref1      = model.getValue("/root/reqData/fwdData/tran_amt_ref1");	
+				var 	tran_content_ref  = model.getValue("/root/reqData/fwdData/tran_content_ref");		
+				var 	cms_code_ref      = model.getValue("/root/reqData/fwdData/cms_code_ref");	
+				var 	acct_tonghwa_ref  = model.getValue("/root/reqData/fwdData/acct_tonghwa_ref");	
+				var 	frex_amt_ref      = model.getValue("/root/reqData/fwdData/frex_amt_ref");	
+	
+				var acct_mang_no   	= model.getValue("/root/reqData/searchData/acct_mang_cd");
+				var acct_mang_nm   	= cb_acct_num.label;
+				
+//				alert("current_clsf_ref = " + current_clsf_ref +"\nbiz_reg_no_ref = " + biz_reg_no_ref +"\nbank_id_ref = " + bank_id_ref +"\nacct_num_ref = " + acct_num_ref +"\ntran_date_ref = " + tran_date_ref +"\ntran_date_seq_ref = " + tran_date_seq_ref);
+				
+				opener.model.setValue(current_clsf_ref		,current_clsf);
+				opener.model.setValue(biz_reg_no_ref		,biz_reg_no);
+				opener.model.setValue(bank_id_ref			,bank_id);
+				opener.model.setValue(acct_num_ref	,acct_num);
+				opener.model.setValue(tran_date_ref		,tran_date);
+				opener.model.setValue(tran_date_seq_ref	,tran_date_seq);
+				opener.model.setValue(tran_amt_ref ,tran_amt);
+				opener.model.setValue(tran_amt_ref1 ,tran_amt1);
+				
+				if(acct_mang_no_ref != ""){
+					opener.model.setValue(acct_mang_no_ref ,acct_mang_no);
+				}
+				if(acct_mang_nm_ref != ""){
+					opener.model.setValue(acct_mang_nm_ref ,acct_mang_nm);
+				}
+//				if(tran_amt_ref != ""){
+//					opener.model.setValue(tran_amt_ref ,tran_amt);
+//				}
+				if(tran_content_ref != ""){
+					opener.model.setValue(tran_content_ref ,tran_content);
+				}
+				if(cms_code_ref != ""){
+					opener.model.setValue(cms_code_ref,cms_code);
+				}
+				if(acct_tonghwa_ref != ""){
+					opener.model.setValue(acct_tonghwa_ref,acct_tonghwa);
+				}
+				if(frex_amt_ref != ""){
+					opener.model.setValue(frex_amt_ref,frex_amt);
+				}
+				
+				window.close();				
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="760" pageheight="480">
+		<caption id="caption5" class="list_cap02" style="left:10px; top:71px; width:740px; height:26px; "/>
+		<caption id="caption2" class="list_cap02" style="left:10px; top:46px; width:740px; height:26px; "/>
+		<button id="button1" class="btn02" style="left:639px; top:10px; width:50px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				select();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" style="left:699px; top:10px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();				
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" style="left:579px; top:10px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[		
+					model.reset();
+				]]>
+			</script>
+		</button>
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:350px; height:27px; ">통장입금내역</caption>
+		<button id="button7" class="btn02" style="left:519px; top:10px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[			
+				if(validateReq()){
+					loadList();
+				}
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:46px; width:75px; height:26px; ">계좌번호</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:105px; width:740px; height:5px; "/>
+		<caption id="caption9" class="list_cap01" style="left:284px; top:46px; width:75px; height:26px; ">입금기간</caption>
+		<select1 id="cb_acct_num" ref="/root/reqData/searchData/acct_mang_cd" navindex="1" appearance="minimal" style="left:89px; top:50px; width:190px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/acct_num/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+		
+				if(validateReq()){
+					loadList();
+				}
+								
+				]]>
+			</script>
+		</select1>
+		<input id="input1" ref="/root/reqData/searchData/frdt" class="req" navindex="2" imemode="hangul" inputtype="date" format="yyyy-mm-dd" style="left:362px; top:50px; width:90px; height:18px; text-align:left; "/>
+		<input id="input2" ref="/root/reqData/searchData/todt" class="req" navindex="3" inputtype="date" format="yyyy-mm-dd" style="left:478px; top:50px; width:90px; height:18px; text-align:left; "/>
+		<caption id="caption6" class="list_cap01" style="left:284px; top:71px; width:75px; height:26px; ">입금액</caption>
+		<input id="input3" ref="/root/reqData/searchData/tran_content" navindex="4" imemode="hangul" style="left:89px; top:75px; width:190px; height:18px; "/>
+		<input id="input4" ref="/root/reqData/searchData/tran_amt" navindex="5" format="(-)#,###" style="left:362px; top:75px; width:100px; height:18px; text-align:right; "/>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:75px; height:26px; ">입금주</caption>
+		<caption id="caption3" style="left:455px; top:50px; width:20px; height:20px; text-align:center; ">~</caption>
+		<switch id="switch1" style="left:10px; top:120px; width:740px; height:360px; border-color:transparent; border-style:none; ">
+			<case id="case1">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/record1" caption="선택^은행^거래일자^입금액^소멸금액^잔액^입금주^가상계좌^거래지점^biz_reg_no^bank_id^acct_num^tran_date_seq^current_clsf" colsep="#" colwidth="50, 90, 80, 85, 85, 85, 150, 130, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:0px; top:1px; width:740px; height:344px; ">
+					<col checkvalue="1,0" type="checkbox"/>
+					<col ref="bank_name"/>
+					<col ref="tran_date" format="yyyy-mm-dd"/>
+					<col ref="tran_amt" format="(-)#,###" style="text-align:right; word-wrap:none; "/>
+					<col ref="extnc_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="remain_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="tran_content" style="text-align:left; "/>
+					<col ref="cms_code" style="text-align:left; "/>
+					<col ref="tran_branch" style="text-align:left; "/>
+					<col ref="biz_reg_no"/>
+					<col ref="bank_id"/>
+					<col ref="acct_num"/>
+					<col ref="tran_date_seq"/>
+					<col ref="current_clsf"/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+						
+//						if(!datagrid1.iscell(event.target))  return;
+						
+//						select();
+				
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var i = datagrid1.row;
+							if(datagrid1.valueMatrix(i,1) == "1"){
+								datagrid1.rowStatus(i) = "1";
+							}
+							else{
+								datagrid1.rowStatus(i) = "0";
+							}						
+						]]>
+					</script>
+				</datagrid>
+			</case>
+			<case id="case2" selected="true">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData/record2" caption="선택^은행^거래일자^입금액^소멸금액^잔액^입금주^통화구분^거래지점^biz_reg_no^bank_id^acct_num^tran_date_seq^current_clsf" colsep="^" colwidth="50, 90, 100, 85, 85, 85, 150, 100, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:0px; top:1px; width:740px; height:344px; ">
+					<col checkvalue="1,0" type="checkbox"/>
+					<col ref="bank_name"/>
+					<col ref="tran_date" format="yyyy-mm-dd"/>
+					<col ref="tran_amt" format="(-)#,###.99" style="text-align:right; word-wrap:none; "/>
+					<col ref="extnc_amt" format="(-)#,###.99" style="text-align:right; "/>
+					<col ref="remain_amt" format="(-)#,###.99" style="text-align:right; "/>
+					<col ref="tran_content" style="text-align:left; "/>
+					<col ref="acct_tonghwa" style="text-align:center; "/>
+					<col ref="tran_branch" style="text-align:left; "/>
+					<col ref="biz_reg_no"/>
+					<col ref="bank_id"/>
+					<col ref="acct_num"/>
+					<col ref="tran_date_seq"/>
+					<col ref="current_clsf"/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+						
+//						if(!datagrid2.iscell(event.target))  return;
+						
+//						select();
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var i = datagrid2.row;
+							if(datagrid2.valueMatrix(i,1) == "1"){
+								datagrid2.rowStatus(i) = "1";
+							}
+							else{
+								datagrid2.rowStatus(i) = "0";
+							}
+						]]>
+					</script>
+				</datagrid>
+			</case>
+		</switch>
+	</xhtml:body>
+</xhtml:html>

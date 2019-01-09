@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_BAS_1400.xrw
+* 기능 : 기초관리-기초잔액관리
+* 작성일자 : 2009-03-05
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>기초잔액관리(PL_BAS_1400)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<dlco_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</dlco_clsf>
+							<area>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</area>
+							<medi_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</medi_clsf>
+							<meda_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</meda_clsf>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<dlco_clsf/>
+								<area/>
+								<dlco_cd/>
+								<dlco_nm/>
+							</searchTop>
+							<searchDtl>
+								<dlco_cd/>
+								<dlco_seq/>
+							</searchDtl>
+						</searchData>
+						<reqForm/>
+						<multiUpdate>
+							<acc_flag/>
+							<updateData/>
+						</multiUpdate>
+					</reqData>
+					<resData>
+						<resform>
+							<BASEBALLIST>
+								<record>
+									<setup_dt/>
+									<medi_clsf/>
+									<meda_clsf/>
+									<basi_yymm/>
+									<setup_amt/>
+									<dd_clos_yn/>
+									<remk/>
+									<reg_dt/>
+									<reg_seq/>
+									<dlco_cd/>
+									<dlco_seq/>
+								</record>
+							</BASEBALLIST>
+						</resform>
+						<gridData>
+							<DLCOBASEBALCUR>
+								<record>
+									<dlco_clsf_nm/>
+									<area_nm/>
+									<dlco_nm/>
+									<dlco_abrv_nm/>
+									<magz_setup_amt/>
+									<sep_book_setup_amt/>
+									<rptv_flnm/>
+									<prv_curr_clsf_nm/>
+									<magz_deal_yn/>
+									<sep_book_deal_yn/>
+									<dlco_cd/>
+									<dlco_seq/>
+									<comn_mang_no/>
+								</record>
+							</DLCOBASEBALCUR>
+						</gridData>
+						<MsgData/>
+						<resultData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<btState/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="pl_bas_1400_m" action="/pl/bas/1400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/comboSet"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+			<submission id="pl_bas_1410_l" action="/pl/bas/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData/DLCOBASEBALCUR"/>
+			<submission id="pl_bas_1420_l" action="/pl/bas/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchDtl" resultref="/root/resData/resform"/>
+			<submission id="pl_bas_1430_a" action="/pl/bas/1430" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpdate" resultref="/root/resData/resultData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					model.send("pl_bas_1400_m");						//Submission
+
+					model.copyNode("/root/initData/comboSet/dlco_clsf","/root/resData/comboSet/dlco_clsf");				//거래처구분 temp노드에 copy
+					model.copyNode("/root/initData/comboSet/area","/root/resData/comboSet/area");						//지역 copy
+					model.copyNode("/root/initData/comboSet/medi_clsf","/root/resData/comboSet/medi_clsf");				//매체구분 copy
+					model.copyNode("/root/initData/comboSet/meda_clsf","/root/resData/comboSet/meda_clsf");				//조정구분 copy
+
+					//콤보 초기구분값 세팅(전체(A), 선택(S), 공백("") -> value는 "")
+					makeComboGubun("A", "/root/initData/comboSet/dlco_clsf", "item", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/area", "item", "cdnm", "cd");
+
+					model.setValue("/root/tempData/btState","RE");			//버튼제어상태 (RE:초기화)
+
+					model.setFocus("combo2");
+					model.refresh();
+				}
+
+				//조회
+				function srcRetrieve(){
+					model.send("pl_bas_1410_l");						//Submission
+
+					model.setValue("/root/tempData/btState","RT");			//버튼제어상태 (RT:조회)
+					
+					//REQUEST 노드에 키값 초기화
+					model.setValue("/root/reqData/searchData/searchDtl/dlco_cd","");				//거래처코드
+					model.setValue("/root/reqData/searchData/searchDtl/dlco_seq","");				//거래처순번
+
+					//초기화
+					model.resetInstanceNode( "/root/resData/resform" );
+					model.refresh();
+
+					model.setFocus("combo2");
+					//그리드상태 제어
+					readonlyGrid();
+				}
+
+				//상세검색 Set
+				function serchDtl(){
+					var dlco_cd = datagrid1.valueMatrix(datagrid1.row, 11);				//선택한 레코드의 거래처코드
+					var dlco_seq = datagrid1.valueMatrix(datagrid1.row, 12);				//선택한 레코드의 거래처순번
+
+					//REQUEST 노드에 키값 SET
+					model.setValue("/root/reqData/searchData/searchDtl/dlco_cd",dlco_cd);			//거래처코드
+					model.setValue("/root/reqData/searchData/searchDtl/dlco_seq",dlco_seq);		//거래처순번
+
+					model.send("pl_bas_1420_l");						//Submission
+
+					//그리드상태 제어
+					readonlyGrid();
+
+					model.setValue("/root/tempData/btState","DT");			//버튼제어상태 (DT:상세조회)
+
+					model.refresh();
+				}
+
+				//저장처리
+				function saveProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 get
+					
+					//Confirm체크
+					if(!commConfirmBox("저장 하시겠습니까?", "저장")){
+						return;
+					}
+
+					//버튼체크
+					if(btnctl != "IN" && btnctl != "DT" && btnctl != "SA" && btnctl != "DE"){
+						commAlert("상세조회 후 저장할 수 있습니다.");
+						return;
+					}
+
+					//키등록상태 체크(상세조회인지 체크)
+					var dlco_cd = model.getValue("/root/reqData/searchData/searchDtl/dlco_cd");		//거래처코드
+					var dlco_seq = model.getValue("/root/reqData/searchData/searchDtl/dlco_seq");	//거래처순번
+					
+					if(dlco_cd == "" || dlco_seq == ""){
+						commAlert("상세조회 후 저장할 수 있습니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/multiUpdate/acc_flag","S");					//처리구분 Set(S:저장)
+
+					//GRID DATA SET
+					model.setValue("/root/reqData/multiUpdate/updateData",datagrid2.getUpdateData());
+					model.send("pl_bas_1430_a");
+
+					//에러체크
+					if(submit_completed()){
+						model.send("pl_bas_1420_l");					//Submission(상세조회)
+						model.refresh();
+	
+						//그리드상태 제어
+						readonlyGrid();
+
+						model.setValue("/root/tempData/btState","SA");		//버튼제어상태 (SA:저장)
+					}
+				}
+
+				//삭제처리
+				function deleteProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 get
+					
+					//Confirm체크
+					if(!commConfirmBox("삭제 하시겠습니까?", "삭제")){
+						return;
+					}
+
+					//버튼체크
+					if(btnctl != "IN" && btnctl != "DT" && btnctl != "SA" && btnctl != "DE"){
+						commAlert("상세조회 후 삭제할 수 있습니다.");
+						return;
+					}
+
+					//키등록상태 체크(상세조회인지 체크)
+					var dlco_cd = model.getValue("/root/reqData/searchData/searchDtl/dlco_cd");		//거래처코드
+					var dlco_seq = model.getValue("/root/reqData/searchData/searchDtl/dlco_seq");	//거래처순번
+					
+					if(dlco_cd == "" || dlco_seq == ""){
+						commAlert("상세조회 후 삭제할 수 있습니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/multiUpdate/acc_flag","D");					//처리구분 Set(D:삭제)
+
+					//GRID DATA SET
+					pl_grid_delete("datagrid2");		//선택 row 삭제상태로 set
+					model.setValue("/root/reqData/multiUpdate/updateData",datagrid2.getUpdateData());
+					model.send("pl_bas_1430_a");
+
+					//에러체크
+					if(submit_completed()){
+						model.send("pl_bas_1420_l");					//Submission(상세조회)
+						model.refresh();
+
+						//그리드상태 제어
+						readonlyGrid();
+
+						model.setValue("/root/tempData/btState","DE");		//버튼제어상태 (DE:삭제)
+					}
+				}
+
+				//상세내역 Readonly 처리
+				function readonlyGrid(){
+					var gridRows = datagrid2.rows - 1;					//처리할 그리드 row수(fixed row-타이틀 제외)
+					var gridCols = datagrid2.cols -1;					//그리드 column 수
+					var chkflag = "";									//처리조건 VALUE
+					
+					//건수체크
+					if(gridRows < 1){
+						return;
+					}
+					
+					//GRID ROW만큼 반복수행
+					for(var i = 1;i <= gridRows;i++){
+						//조건 Get
+						chkflag = model.getValue("/root/resData/resform/BASEBALLIST/record["+i+"]/dd_clos_yn");
+						
+						//조건에 따라 해당 Row Readonly 처리
+						if(chkflag == "Y"){
+							datagrid2.isReadOnly(i, 0, i , gridCols) = true;
+							datagrid2.rowstyle(i, "data", "background-color") = "#C0C0C0";
+						}else{
+							datagrid2.isReadOnly(i, 0, i , gridCols) = false;
+							datagrid2.rowstyle(i, "data", "background-color") = "#FFFFFF";
+						}
+						
+						chkflag = "";
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;2,64;2,71;1,936;2,725;" style="font-family:굴림; vertical-align:top; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnReset" class="btn03" style="left:584px; top:45px; width:63px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+
+					//REQUEST 노드에 키값 초기화
+					model.setValue("/root/reqData/searchData/searchDtl/dlco_cd","");				//거래처코드
+					model.setValue("/root/reqData/searchData/searchDtl/dlco_seq","");				//거래처순번
+
+					model.setFocus("combo2");
+					//그리드상태 제어
+					readonlyGrid();
+				]]>
+			</script>
+		</button>
+		<button id="btnRetrive" class="btn03" crud="R" style="left:653px; top:45px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					srcRetrieve();
+				]]>
+			</script>
+		</button>
+		<button id="btnInsert" class="btn03" crud="C" style="left:722px; top:45px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					saveProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnDelete" class="btn03" crud="D" style="left:791px; top:45px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					deleteProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:860px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group1" style="left:10px; top:71px; width:926px; height:30px; ">
+			<caption id="caption4" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="combo2" ref="/root/reqData/searchData/searchTop/dlco_clsf" appearance="minimal" style="left:73px; top:4px; width:120px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dlco_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption2" class="list_cap03" style="left:477px; top:0px; width:70px; height:26px; ">거래처</caption>
+			<caption id="caption5" class="list_cap03" style="left:0px; top:0px; width:70px; height:26px; ">거래처구분</caption>
+			<input id="dlco_cd_s" ref="/root/reqData/searchData/searchTop/dlco_cd" disabled="true" style="left:550px; top:4px; width:68px; height:18px; text-align:center; "/>
+			<input id="dlco_nm_s" ref="/root/reqData/searchData/searchTop/dlco_nm" inputtype="button" style="left:622px; top:4px; width:231px; height:18px; text-align:left; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						//거래처검색 Call
+						pl_getDlcoInfo_p("B",
+									"N",
+									"/root/reqData/searchData/searchTop",
+									"",
+									"dlco_cd",
+									"",
+									"dlco_nm",
+									"dlco_clsf",
+									"area",
+									"")
+						 /*
+						 * - btnChk(버튼체크) : B-버튼클릭, P-버튼클릭외(INPUT BOX OR ENTER)
+						 * - flag(형태구분)   : N-일반 컴포넌트, G-그리드 컴퍼넌트
+						 * - rootPath         : 상위노드 xpath  
+						 * - grid             : grid 호출일경우 grid id명(String)
+						 * - dlco_cdReq       : 거래처코드 Element명
+						 * - dlco_seqReq      : 거래처순번 Element명
+						 * - dlco_nmReq       : 거래처명 Element명
+						 * - dlco_clsfReq     : 거래처구분 Element명
+						 * - areaReq          : 지역 Element명
+						 * - prv_curr_clsfReq : 전현임구분 Element명
+						*/
+					]]>
+				</script>
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						//엔터키 체크
+						if(event.keyCode == 13) {
+							var dlco_nm = dlco_nm_s.currentText;										//거래처명
+							if(dlco_nm == ""){
+								model.setValue("/root/reqData/searchData/searchTop/dlco_cd","");				//거래처코드 초기화
+								return;
+							}else{
+								model.setValue("/root/reqData/searchData/searchTop/dlco_nm",dlco_nm);		//거래처명 초기화
+							}
+							
+							//거래처검색 Call
+							pl_getDlcoInfo_p("P",
+										"N",
+										"/root/reqData/searchData/searchTop",
+										"",
+										"dlco_cd",
+										"",
+										"dlco_nm",
+										"dlco_clsf",
+										"area",
+										"")
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var dlco_nm = model.getValue("/root/reqData/searchData/searchTop/dlco_nm");	//거래처명
+					
+						//거래처명 nul인 경우 코드 초기화
+						if(dlco_nm == ""){
+							model.setValue("/root/reqData/searchData/searchTop/dlco_cd","");		//거래처명 초기화
+							return;
+						}
+					]]>
+				</script>
+			</input>
+			<select1 id="combo1" ref="/root/reqData/searchData/searchTop/area" appearance="minimal" style="left:313px; top:4px; width:120px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/area/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap03" style="left:240px; top:0px; width:70px; height:26px; ">지역</caption>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/DLCOBASEBALCUR/record" caption="거래처구분^지역^거래처명^구분명칭^정간물설정액^단행본설정액^대표자명^전현임^정간물거래^단행본거래^거래처코드^거래처순번^공통관리번호" colsep="^" colwidth="100, 70, 200, 100, 110, 110, 80, 70, 70, 70, 100, 100, 100" frozencols="3" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:112px; width:926px; height:298px; ">
+			<col ref="dlco_clsf_nm" style="text-align:center; "/>
+			<col ref="area_nm" style="text-align:center; "/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="dlco_abrv_nm" style="text-align:left; "/>
+			<col ref="magz_setup_amt" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="sep_book_setup_amt" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="rptv_flnm" style="text-align:center; "/>
+			<col ref="prv_curr_clsf_nm" style="text-align:center; "/>
+			<col ref="magz_deal_yn" style="text-align:center; "/>
+			<col ref="sep_book_deal_yn" style="text-align:center; "/>
+			<col ref="dlco_cd" visibility="hidden"/>
+			<col ref="dlco_seq" visibility="hidden"/>
+			<col ref="comn_mang_no" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					serchDtl();
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:10px; top:420px; width:217px; height:20px; ">거래처 잔액 상세 설정 내역</caption>
+		<datagrid id="datagrid2" nodeset="/root/resData/resform/BASEBALLIST/record" caption="설정일자^매체구분^설정구분^반영기준년월^설정금액^마감상태^비고^등록일자^등록순번^거래처코드^거래처순번" colsep="#" colwidth="120, 100, 100, 100, 120, 70, 294, 100, 100, 100, 100" frozencols="4" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" arrowkey="Y" style="left:10px; top:440px; width:926px; height:285px; ">
+			<col ref="setup_dt" type="inputdate" format="yyyy-mm-dd" style="text-align:left; "/>
+			<col ref="medi_clsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="meda_clsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/meda_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="basi_yymm" type="input" format="yyyy-mm" style="text-align:center; "/>
+			<col ref="setup_amt" type="input" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="dd_clos_yn" style="text-align:center; "/>
+			<col ref="remk" type="input" style="text-align:left; "/>
+			<col ref="reg_dt" visibility="hidden"/>
+			<col ref="reg_seq" visibility="hidden"/>
+			<col ref="dlco_cd" visibility="hidden"/>
+			<col ref="dlco_seq" visibility="hidden"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

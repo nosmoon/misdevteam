@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 선택계열의 정보를 담당 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<comboSet>
+							<evnt_yy>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</evnt_yy>
+						</comboSet>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+					<reqData>
+						<!-- 검색조건 처리 -->
+						<searchData>
+							<evnt_yy/>
+							<evnt_cd/>
+							<evnt_cd_fr/>
+							<evnt_cd_to/>
+							<evnt_nm1/>
+							<evnt_nm2/>
+							<srch_clsf/>
+						</searchData>
+						<!-- 등록/수정/삭제 요청 Form Data -->
+						<reqForm>
+							<evnt_yy/>
+							<evnt_cd/>
+							<evnt_seq/>
+							<evnt_nm/>
+							<srch_clsf1/>
+							<srch_clsf2/>
+							<srch_clsf3/>
+							<srch_clsf4>4</srch_clsf4>
+						</reqForm>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<multiUpDate>
+						</multiUpDate>
+						<fwdData>
+							<func_nm/>
+							<rtn_ref/>
+							<evnt_yy/>
+							<evnt_cd/>
+						</fwdData>
+					</reqData>
+					<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+					<resData>
+						<!-- 전달 받은 리스트 데이터를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<record>
+								<evnt_code/>
+								<evnt_nm/>
+								<evnt_yy/>
+								<evnt_cd/>
+								<evnt_seq/>
+							</record>
+						</gridData>
+						<!-- 전달 받은 Msg를 담당 ( submit의 결과가 담김) -->
+						<msg>
+							<errCode/>
+							<errMsg/>
+						</msg>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<rtn_ref/>
+							<evnt_yy/>
+							<evnt_cd/>
+						</resForm>
+					</resData>
+					<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function getEvntList() {
+						if (model1.getValue("/root/reqData/searchData/evnt_yy") == "") {
+							alert("행사년도를 선택하십시오.");
+							return;
+						}
+						
+						model1.send("en_comm_1100");
+						model1.copyNode("/root/resData/gridData", "/root/tempData/dataSet/CURLIST");
+						model1.removeNodeset("/root/tempData/dataSet");
+						model1.refresh();
+						
+						if (datagrid2.rows == 1)
+							datagrid2.addRow();
+					}
+					
+					function setSearchClsf(srch_clsf) {
+						if (srch_clsf == "1") {
+							radio2.value= "";
+							radio3.value= "";
+							radio4.value= "";
+						} else if (srch_clsf == "2") {
+							radio1.value= "";
+							radio3.value= "";
+							radio4.value= "";
+						} else if (srch_clsf == "3") {
+							radio1.value= "";
+							radio2.value= "";
+							radio4.value= "";
+						} else if (srch_clsf == "4") {
+							radio1.value= "";
+							radio2.value= "";
+							radio3.value= "";
+						}
+						
+						model1.setValue("/root/reqData/searchData/srch_clsf", srch_clsf);
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//현재년도 조회
+					model1.send("en_evnt_1001");
+					makeComboSet("", "/root/tempData/dataSet/CURLIST/record", "/root/initData/comboSet/evnt_yy", "evnt_yy", "evnt_yy")
+					model1.removeNodeset("/root/tempData/dataSet");
+					
+					if (model1.getValue("/root/reqData/fwdData/evnt_yy") == "")
+						model1.setValue("/root/reqData/searchData/evnt_yy", commCurDate("y"));
+					else
+						model1.setValue("/root/reqData/searchData/evnt_yy", model1.getValue("/root/reqData/fwdData/evnt_yy"));
+						
+					combo1.refresh();
+
+					maintitle.text = "행사코드 조회";
+					radio4.value = "4";
+					
+					if (model1.getValue("/root/reqData/fwdData/evnt_cd") != "") {
+						model1.setValue("/root/reqData/searchData/evnt_cd", model1.getValue("/root/reqData/fwdData/evnt_cd"));
+						model1.refresh();
+						radio1.value = "1";
+						radio1.dispatch("onclick");
+						getEvntList();
+					}
+				]]>
+			</script>
+			<submission id="en_comm_1100" action="/en/comm/1100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="en_evnt_1001" action="/en/evnt/1001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/en_common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="450" pageheight="400" style="font-family:굴림; ">
+		<group id="group_tit" class="gro_tit1_400" style="left:10px; top:5px; width:430px; height:29px; ">
+			<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:0px; top:0px; width:430px; height:27px; ">행사코드 조회</caption>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:170px; width:430px; height:5px; "/>
+		<group id="group1" class="gro_sel" style="left:10px; top:36px; width:430px; height:126px; ">
+			<caption id="caption6" class="list_cap01" style="left:0px; top:75px; width:75px; height:26px; text-align:center; "/>
+			<caption id="caption5" class="list_cap02" style="left:74px; top:100px; width:356px; height:26px; text-align:center; "/>
+			<caption id="caption3" class="list_cap01" style="left:0px; top:100px; width:75px; height:26px; text-align:center; "/>
+			<caption id="caption2" class="list_cap02" style="left:74px; top:75px; width:356px; height:26px; text-align:center; "/>
+			<caption id="caption25" class="list_cap01" style="left:0px; top:25px; width:75px; height:26px; text-align:center; "/>
+			<caption id="caption50" class="list_cap02" style="left:74px; top:25px; width:356px; height:26px; text-align:center; "/>
+			<input id="input2" ref="/root/reqData/searchData/evnt_cd" style="left:79px; top:29px; width:52px; height:18px; background-color:#ffffff; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						if (event.keyCode == 13) {
+							model1.setValue("/root/reqData/searchData/evnt_cd", input2.currentText);
+							getEvntList();
+						}
+					]]>
+				</script>
+			</input>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:50px; width:75px; height:26px; text-align:center; "/>
+			<caption id="caption4" class="list_cap02" style="left:74px; top:50px; width:356px; height:26px; text-align:center; "/>
+			<input id="input1" ref="/root/reqData/searchData/evnt_cd_fr" style="left:79px; top:54px; width:52px; height:18px; background-color:#ffffff; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						if (event.keyCode == 13) {
+							model1.setValue("/root/reqData/searchData/evnt_cd_fr", input1.currentText);
+							getEvntList();
+						}
+					]]>
+				</script>
+			</input>
+			<select1 id="radio1" ref="/root/reqData/reqForm/srch_clsf1" appearance="full" overflow="visible" style="left:10px; top:30px; width:55px; height:15px; background-color:#eaedfe; border-style:none; ">
+				<choices>
+					<item>
+						<label>코   드</label>
+						<value>1</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						setSearchClsf(radio1.value);		
+					]]>
+				</script>
+			</select1>
+			<select1 id="radio2" ref="/root/reqData/reqForm/srch_clsf2" appearance="full" overflow="visible" style="left:10px; top:55px; width:55px; height:15px; background-color:#eaedfe; border-style:none; ">
+				<choices>
+					<item>
+						<label>코   드</label>
+						<value>2</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						setSearchClsf(radio2.value);		
+					]]>
+				</script>
+			</select1>
+			<select1 id="radio3" ref="/root/reqData/reqForm/srch_clsf3" appearance="full" overflow="visible" style="left:10px; top:80px; width:55px; height:15px; background-color:#eaedfe; border-style:none; ">
+				<choices>
+					<item>
+						<label>코드명</label>
+						<value>3</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						setSearchClsf(radio3.value);		
+					]]>
+				</script>
+			</select1>
+			<select1 id="radio4" ref="/root/reqData/reqForm/srch_clsf4" appearance="full" overflow="visible" style="left:10px; top:105px; width:55px; height:15px; background-color:#eaedfe; border-style:none; ">
+				<choices>
+					<item>
+						<label>코드명</label>
+						<value>4</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						setSearchClsf(radio4.value);		
+					]]>
+				</script>
+			</select1>
+			<caption id="caption7" style="left:133px; top:30px; width:100px; height:20px; ">로 시작하는</caption>
+			<caption id="caption8" style="left:133px; top:55px; width:33px; height:20px; ">에서</caption>
+			<input id="input3" ref="/root/reqData/searchData/evnt_cd_to" style="left:166px; top:54px; width:52px; height:18px; background-color:#ffffff; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						if (event.keyCode == 13) {
+							model1.setValue("/root/reqData/searchData/evnt_cd_to", input3.currentText);
+							getEvntList();
+						}
+					]]>
+				</script>
+			</input>
+			<caption id="caption9" style="left:220px; top:55px; width:33px; height:20px; ">까지</caption>
+			<caption id="caption10" style="left:332px; top:80px; width:67px; height:20px; ">로 시작하는</caption>
+			<input id="input4" ref="/root/reqData/searchData/evnt_nm1" style="left:79px; top:79px; width:251px; height:18px; background-color:#ffffff; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						if (event.keyCode == 13) {
+							model1.setValue("/root/reqData/searchData/evnt_nm1", input4.currentText);
+							getEvntList();
+						}
+					]]>
+				</script>
+			</input>
+			<caption id="caption11" style="left:332px; top:105px; width:88px; height:20px; ">을(를) 포함하는</caption>
+			<input id="input5" ref="/root/reqData/searchData/evnt_nm2" style="left:79px; top:104px; width:251px; height:18px; background-color:#ffffff; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						if (event.keyCode == 13) {
+							model1.setValue("/root/reqData/searchData/evnt_nm2", input5.currentText);
+							getEvntList();
+						}
+					]]>
+				</script>
+			</input>
+			<caption id="caption12" class="list_cap01" style="left:0px; top:0px; width:75px; height:26px; ">행사년도</caption>
+			<caption id="caption13" class="list_cap02" style="left:74px; top:0px; width:356px; height:26px; text-align:center; "/>
+			<select1 id="combo1" ref="/root/reqData/searchData/evnt_yy" class="req" navindex="5" appearance="minimal" caption="행사년도" style="left:79px; top:4px; width:60px; height:18px; text-align:center; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/evnt_yy/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="코  드^코 드 명^evnt_yy^evnt_cd^evnt_seq" colsep="^" colwidth="111, 291, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" noeset="/root/gridData/main/a" style="left:10px; top:185px; width:430px; height:205px; ">
+			<col ref="evnt_code" style="text-align:center; "/>
+			<col ref="evnt_nm" style="text-align:left; "/>
+			<col ref="evnt_yy" visibility="hidden"/>
+			<col ref="evnt_cd" visibility="hidden"/>
+			<col ref="evnt_seq" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid2.row == 0) return;			
+					
+					var selectedIdx = datagrid2.row;
+					var evnt_yy = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/evnt_yy");
+					var evnt_cd = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/evnt_cd");
+					var evnt_seq = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/evnt_seq");
+					var evnt_nm = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/evnt_nm");
+					
+					model1.setValue("/root/reqData/reqForm/evnt_yy", evnt_yy);
+					model1.setValue("/root/reqData/reqForm/evnt_cd", evnt_cd);
+					model1.setValue("/root/reqData/reqForm/evnt_seq", evnt_seq);
+					model1.setValue("/root/reqData/reqForm/evnt_nm", evnt_nm);
+				]]>
+			</script>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(datagrid2.row == 0) return;			
+					
+					var selectedIdx = datagrid2.row;
+					var evnt_yy = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/evnt_yy");
+					var evnt_cd = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/evnt_cd");
+					var evnt_seq = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/evnt_seq");
+					var evnt_nm = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/evnt_nm");
+					
+					model1.setValue("/root/reqData/reqForm/evnt_yy", evnt_yy);
+					model1.setValue("/root/reqData/reqForm/evnt_cd", evnt_cd);
+					model1.setValue("/root/reqData/reqForm/evnt_seq", evnt_seq);
+					model1.setValue("/root/reqData/reqForm/evnt_nm", evnt_nm);
+
+					var rtn_ref = model1.getValue("/root/resData/resForm/rtn_ref");
+					
+					if (evnt_cd == ''){
+						alert("행사를 선택하십시오.");
+						return;
+					} else {
+						var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+						eval("window.opener.javascript." + retFunc + "('" + evnt_yy + "', '" + evnt_cd + "', '" + evnt_seq + "', '" + evnt_nm + "')");
+						window.close();
+						//window.opener.model1.setValue(rtn_ref + "/evnt_cd", evnt_cd);
+						//window.opener.model1.setValue(rtn_ref + "/evnt_seq", evnt_seq);
+						//window.opener.model1.setValue(rtn_ref + "/evnt_nm", evnt_nm);
+						//window.opener.model1.refresh();
+					}
+				]]>
+			</script>
+		</datagrid>
+		<group id="group2" class="gro_btn" style="left:276px; top:8px; width:160px; height:21px; ">
+			<button id="btnA4" class="btn02" style="left:0px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					getEvntList();
+					]]>
+				</script>
+			</button>
+			<button id="btnConfirm" class="btn02" style="left:54px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var evnt_yy = model1.getValue("/root/reqData/reqForm/evnt_yy");
+						var evnt_cd = model1.getValue("/root/reqData/reqForm/evnt_cd");
+						var evnt_seq = model1.getValue("/root/reqData/reqForm/evnt_seq");
+						var evnt_nm = model1.getValue("/root/reqData/reqForm/evnt_nm");
+						var rtn_ref = model1.getValue("/root/resData/resForm/rtn_ref");
+						
+						if (evnt_cd == ''){
+							alert("행사를 선택하십시오.");
+							return;
+						} else {
+							var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+							eval("window.opener.javascript." + retFunc + "('" + evnt_yy + "', '" + evnt_cd + "', '" + evnt_seq + "', '" + evnt_nm + "')");
+							window.close();
+							//window.opener.model1.setValue(rtn_ref + "/evnt_cd", evnt_cd);
+							//window.opener.model1.setValue(rtn_ref + "/evnt_seq", evnt_seq);
+							//window.opener.model1.setValue(rtn_ref + "/evnt_nm", evnt_nm);
+							//window.opener.model1.refresh();
+							//window.close();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:108px; top:0px; width:52px; height:21px; ">
+				<caption>취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

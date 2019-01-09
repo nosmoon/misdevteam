@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<reqform>
+								<code_search_form>
+									<todt/>
+									<js_fn_nm/>
+									<curr_page_no/>
+									<y/>
+									<frdt/>
+									<records_per_page/>
+									<x/>
+								</code_search_form>
+								<tacom_sche_list_form>
+									<seq/>
+								</tacom_sche_list_form>
+								<tacom_sche_detail_form>
+									<chgpers/>
+									<incmgdt/>
+									<use_persclsf/>
+									<todt/>
+									<seq/>
+									<frdt/>
+									<incmgpers/>
+									<chgdt/>
+									<use_pers/>
+									<remk/>
+									<accflag/>
+								</tacom_sche_detail_form>
+							</reqform>
+						</searchData>
+						<reqform/>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<infoGrid>
+								<record>
+									<seq/>
+									<frdt/>
+									<todt/>
+									<remk/>
+									<endyn/>
+									<deptcd/>
+								</record>
+							</infoGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();								
+				]]>
+			</script>
+			<submission id="PID1101subInit" action="/ps/share/1101" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1106search" action="/ps/share/1106" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/code_search_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1111search" action="/ps/share/1111" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/tacom_sche_list_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1116save" action="/ps/share/1116" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/tacom_sche_detail_form" resultref="/root/resData/MsgData"/>
+			<submission id="PID1121save" action="/ps/share/1121" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/tacom_sche_detail_form" resultref="/root/resData/MsgData"/>
+			<submission id="PID1126save" action="/ps/share/1126" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/tacom_sche_detail_form" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					model.send("PID1101subInit", false);
+
+					//model.setValue("/root/reqData/searchData/reqform/code_search_form/records_per_page", model.getValue("/root/tempData/initTemp/recordPerPage"));
+					model.setValue("/root/reqData/searchData/reqform/code_search_form/records_per_page", "5000");
+					model.setValue("/root/reqData/searchData/reqform/code_search_form/curr_page_no", "1");
+					model.setValue("/root/reqData/searchData/reqform/code_search_form/js_fn_nm", model.getValue("/root/tempData/initTemp/js_fn_nm"));
+					
+					model.setValue("/root/reqData/searchData/reqform/code_search_form/frdt", model.getValue("/root/tempData/initTemp/startday"));
+					model.setValue("/root/reqData/searchData/reqform/code_search_form/todt", model.getValue("/root/tempData/initTemp/lastday"));
+				
+					model.removenode("/root/tempData/initTemp");
+					
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/accflag", "I");
+					
+					model.refresh();	
+				}
+				
+				function search()
+				{
+					if(!commValidate(PID1101group3))
+						return;
+					
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/accflag", "I");
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID1106search", false);
+					
+				       model.copyNode("/root/resData/gridData/infoGrid", "/root/tempData/dataTemp/infoGrid");
+				 
+				 	if(instance1.selectNodes("/root/resData/gridData/infoGrid/record/frdt").length == 0)
+						model.alert("검색결과가 없습니다.");
+
+					model.removenode("/root/tempData/dataTemp");
+					
+					PID1101datagrid1.rebuild();
+				}
+								
+				function add()
+				{						
+					var flag = model.getValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/accflag");
+					if(flag == 'U') {
+						
+						alert("신규등록 대상이 아닙니다. 수정버튼을 선택하세요.");
+				  	        return;
+					} else if(flag == 'I') {
+						
+						if(!commValidate(PID1101group1))
+							return;
+						
+						if(model.alert("저장하시겠습니까?", "", 4) == "6") {										
+						
+							model.send("PID1116save", false);
+												
+							if(!submit_completed())
+								return;
+							
+							search();		
+							initControl();
+						}
+					}
+				}
+				
+				function initControl()
+				{
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/accflag", "");
+				
+					clearChildNodes("/root/reqData/searchData/reqform/tacom_sche_detail_form"); // 모든 하위 노드 value 를 초기화 시킨다.
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/accflag", "I");
+								
+					model.refresh();   		   			   		        		     			
+				}
+				
+				function save()
+				{	
+					var flag = model.getValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/accflag");
+					if(flag != 'U') {
+						
+						alert("수정등록 대상이 아닙니다. 저장버튼을 선택하세요.");
+				  	        return;
+					}					
+
+					if(!commValidate(PID1101group1))
+						return;
+					
+					if(model.alert("수정하시겠습니까?", "", 4) == "6") {
+						model.send("PID1121save", false);
+						
+						if(!submit_completed())
+								return;
+								
+						search();		
+						initControl();
+					}
+				}
+				
+				function delete1()
+				{						
+					if(model.getValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/seq") == '') {	// 코드값을 체크하는 구문이 들어간다. 보완해야 함.
+					        alert("해당목록을 클릭 후 삭제하세요.");
+					        return;
+            				}
+
+					if(!commValidate(PID1101group1))
+						return;
+							
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/accflag", "D");
+					
+					if(model.alert("삭제하시겠습니까?", "", 4) == "6") {						
+						model.send("PID1126save", false);									
+						if(!submit_completed())
+								return;
+						
+						search();
+						initControl();
+					}
+				}
+				
+				function gridClick() 
+				{	
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/accflag", "U");
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_list_form/seq", PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("seq")));
+					remakeNode("/root/tempData/dataTemp");					
+					model.send("PID1111search", false);
+								
+					//model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/seq", "/root/tempData/dataTemp/infoGrid");
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/seq", model.getValue("/root/tempData/dataTemp/seq"));
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/frdt", model.getValue("/root/tempData/dataTemp/frdt"));
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/todt", model.getValue("/root/tempData/dataTemp/todt"));
+					model.setValue("/root/reqData/searchData/reqform/tacom_sche_detail_form/remk", model.getValue("/root/tempData/dataTemp/remk"));
+				       				 
+					model.refresh();
+				}			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1101" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="grpCommonBtn" class="gro_btn" style="left:10px; top:40px; width:926px; height:21px; ">
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+			<button id="PID1101button6" class="btn02" crud="R" style="left:818px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1101group3" style="left:10px; top:175px; width:926px; height:25px; ">
+			<caption id="PID1101caption57" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">시작일자</caption>
+			<input id="PID1101input4" ref="/root/reqData/searchData/reqform/code_search_form/frdt" class="req" autonext="false" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID1101input5" style="left:63px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID1101button6");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<input id="PID1101input5" ref="/root/reqData/searchData/reqform/code_search_form/todt" class="req" autonext="false" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="시작일자" setHandler="true" relid="PID1101input4" style="left:185px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID1101button6");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<caption id="PID1101caption7" style="left:163px; top:4px; width:20px; height:20px; text-align:center; ">-</caption>
+		</group>
+		<group id="PID1101group1" style="left:10px; top:95px; width:926px; height:73px; ">
+			<caption id="PID1101caption4" class="list_cap02" style="left:547px; top:0px; width:379px; height:25px; text-align:left; "/>
+			<caption id="PID1101caption1" class="list_cap01" style="left:0px; top:0px; width:100px; height:25px; text-align:left; ">시작일자</caption>
+			<caption id="PID1101caption3" class="list_cap01" style="left:0px; top:24px; width:100px; height:25px; text-align:left; ">설명</caption>
+			<caption id="PID1101caption8" class="list_cap02" style="left:99px; top:0px; width:350px; height:25px; text-align:left; "/>
+			<caption id="PID1101caption9" class="list_cap02" style="left:99px; top:24px; width:827px; height:25px; text-align:left; "/>
+			<caption id="PID1101caption14" class="list_cap01" style="left:0px; top:48px; width:926px; height:25px; text-align:center; "/>
+			<button id="PID1101button1" class="btn_grid02" style="left:370px; top:53px; width:42px; height:17px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						add();
+					]]>
+				</script>
+			</button>
+			<input id="PID1101input2" ref="/root/reqData/searchData/reqform/tacom_sche_detail_form/frdt" class="req" autonext="false" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID1101input3" style="left:103px; top:4px; width:100px; height:18px; "/>
+			<input id="PID1101input3" ref="/root/reqData/searchData/reqform/tacom_sche_detail_form/todt" class="req" autonext="false" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="종료일자" setHandler="true" relid="PID1101input2" style="left:551px; top:4px; width:100px; height:18px; "/>
+			<caption id="PID1101caption2" class="list_cap01" style="left:448px; top:0px; width:100px; height:25px; text-align:left; ">종료일자</caption>
+			<input id="PID1101input1" ref="/root/reqData/searchData/reqform/tacom_sche_detail_form/remk" class="req" autonext="false" caption="설명" style="left:103px; top:28px; width:697px; height:18px; "/>
+			<button id="PID1101button2" class="btn_grid02" style="left:415px; top:53px; width:42px; height:17px; ">
+				<caption>수정</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						save();
+					]]>
+				</script>
+			</button>
+			<button id="PID1101button3" class="btn_grid02" style="left:460px; top:53px; width:42px; height:17px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						delete1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1101button4" class="btn_grid02" style="left:505px; top:53px; width:42px; height:17px; ">
+				<caption>취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						initControl();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1101group2" style="left:10px; top:70px; width:926px; height:25px; ">
+			<caption id="PID1101caption5" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">일정상세내역</caption>
+		</group>
+		<datagrid id="PID1101datagrid1" nodeset="/root/resData/gridData/infoGrid/record" caption="시작일자^종료일자^설명" colsep="^" colwidth="160, 160, 583, 0" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:200px; width:926px; height:530px; cursor:hand; ">
+			<col ref="frdt_detail" format="yyyy-mm-dd"/>
+			<col ref="todt_detail" format="yyyy-mm-dd"/>
+			<col ref="remk" style="text-align:left; "/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID1101datagrid1.mouseCol>PID1101datagrid1.fixedCols-1 && PID1101datagrid1.mouseRow>PID1101datagrid1.fixedRows-1)
+				       {
+						gridClick();
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+		<!--<group id="PID1101group5" style="left:10px; top:465px; width:926px; height:25px; ">
+			<iviewer id="PID1101paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+	</xhtml:body>
+</xhtml:html>

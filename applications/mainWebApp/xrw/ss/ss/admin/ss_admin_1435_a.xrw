@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<idCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</idCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<wrk_search_form>
+								<applySession/>
+								<todt/>
+								<js_fn_nm/>
+								<frdt/>
+								<pageno/>
+								<id/>
+								<pagesize/>
+							</wrk_search_form>
+							<wrk_list_form>
+								<js_fn_nm/>
+								<execno/>
+								<pageno/>
+								<id/>
+								<pagesize/>
+							</wrk_list_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<id/>
+									<execno/>
+									<descri/>
+									<workfrdt/>
+									<worktodt/>
+									<execocom/>
+									<workremk1/>
+									<work_pers/>
+								</record>
+							</listGrid>
+							<detailGrid>
+								<record>
+									<id/>
+									<execno/>
+									<execdtlsno/>
+									<workdescri/>
+									<workfrdt/>
+									<worktodt/>
+									<srctbl/>
+									<targtbl/>
+									<noit1/>
+									<noit2/>
+									<errcd/>
+									<errmsg/>
+								</record>
+							</detailGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1435subInit" action="/ss/admin/1435" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1435search" action="/ss/admin/1440" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/wrk_search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1435detailSearch" action="/ss/admin/1445" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/wrk_list_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{	
+				commEventHandler(PID1435group_scr);
+				
+				model.setValue("/root/reqData/reqform/wrk_search_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/wrk_search_form/pageno", 	"1");
+				//model.setValue("/root/reqData/reqform/extn_search_form/pagesize", "10");
+				model.setValue("/root/reqData/reqform/wrk_search_form/pagesize", "5000");
+				
+				model.send("PID1435subInit", false);
+				
+				modelCopyValue("/root/reqData/reqform/wrk_search_form/frdt","/root/tempData/initTemp/defaultDate");
+				modelCopyValue("/root/reqData/reqform/wrk_search_form/todt","/root/tempData/initTemp/defaultDate");
+				model.copyNode("/root/initData/comboSet/idCombo","/root/tempData/initTemp/idCombo");
+				
+				PID1435combo1.select(0);
+
+                model.refresh();
+			}
+			
+			function search()
+			{
+				if(!commValidate(PID1435group_scr))
+					return;
+
+				remakeNode("/root/tempData/resTemp");
+
+				model.send("PID1435search", false);
+
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+
+				//PID1435caption6.value= "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + " 건";
+							 	
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/id").length == 0)
+					model.alert("검색결과가 없습니다.");
+									
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1435datagrid1.rebuild();
+			}
+			
+			function gridClick()
+			{
+				if(PID1435datagrid1.textMatrix(PID1435datagrid1.row, PID1435datagrid1.colRef("id")) == "")
+					return;
+					
+				remakeNode("/root/tempData/resTemp");
+				
+				model.setValue("/root/reqData/reqform/wrk_list_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/wrk_list_form/pageno", 	"1");
+				//model.setValue("/root/reqData/reqform/extn_search_form/pagesize", "10");
+				model.setValue("/root/reqData/reqform/wrk_list_form/pagesize", "5000");
+				
+				model.setValue("/root/reqData/reqform/wrk_list_form/id", PID1435datagrid1.textMatrix(PID1435datagrid1.row, PID1435datagrid1.colRef("id")));
+				model.setValue("/root/reqData/reqform/wrk_list_form/execno", PID1435datagrid1.textMatrix(PID1435datagrid1.row, PID1435datagrid1.colRef("execno")));
+								
+				model.send("PID1435detailSearch", false);
+				
+				if(!submit_completed())
+					return;
+											
+				model.copyNode("/root/resData/gridData/detailGrid", "/root/tempData/resTemp/detailGrid");
+
+				//PID1435caption10.value= "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + " 건";
+							 	
+			 	if(instance1.selectNodes("/root/resData/gridData/detailGrid/record/id").length == 0)
+					model.alert("검색결과가 없습니다.");
+									
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1435multilinegrid1.rebuild();
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1435" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1435group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:25px; ">
+			<caption id="PID1435caption1" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; "/>
+			<caption id="PID1435caption7" style="left:399px; top:4px; width:15px; height:20px; text-align:center; ">-</caption>
+			<caption id="PID1435caption2" style="left:9px; top:3px; width:41px; height:20px; ">아이디</caption>
+			<select1 id="PID1435combo1" ref="/root/reqData/reqform/wrk_search_form/id" appearance="minimal" style="left:50px; top:4px; width:130px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/idCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="PID1435input1" ref="/root/reqData/reqform/wrk_search_form/frdt" setHandler="true" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" relid="PID1435input2" caption="시작일" style="left:294px; top:4px; width:100px; height:18px; "/>
+			<input id="PID1435input2" ref="/root/reqData/reqform/wrk_search_form/todt" setHandler="true" inputtype="date" format="yyyy-mm-dd" dataType="dateto" relid="PID1435input1" caption="종료일" style="left:420px; top:4px; width:100px; height:18px; "/>
+			<caption id="PID1435caption3" style="left:240px; top:5px; width:50px; height:18px; ">실행일자</caption>
+		</group>
+		<group id="PID1435group_line" class="gro_line" style="left:10px; top:110px; width:926px; height:5px; "/>
+		<datagrid id="PID1435datagrid1" nodeset="/root/resData/gridData/listGrid/record" dragmode="true" caption="ID^설명^시작일시^종료일시^실행결과^작업비고" colsep="^" colwidth="50, 225, 130, 130, 95, 274, 0" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:120px; width:926px; height:300px; ">
+			<col ref="id"/>
+			<col ref="descri" style="text-align:left; "/>
+			<col ref="workfrdt_f"/>
+			<col ref="worktodt_f"/>
+			<col ref="execocom"/>
+			<col ref="workremk1" style="text-align:left; "/>
+			<col ref="execno" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID1435datagrid1.mouseCol>PID1435datagrid1.fixedCols-1 && PID1435datagrid1.mouseRow>PID1435datagrid1.fixedRows-1)
+				       {
+						gridClick();
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+		<!--<group id="PID1435group9" style="left:10px; top:360px; width:926px; height:25px; ">
+			<iviewer id="PID1435paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<group id="PID1435group2" class="gro_sel" style="left:10px; top:430px; width:926px; height:25px; ">
+			<caption id="PID1435caption4" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; "/>
+			<caption id="PID1435caption8" style="left:9px; top:3px; width:54px; height:20px; ">작업 내역</caption>
+		</group>
+		<!--<group id="PID1435group3" style="left:10px; top:720px; width:926px; height:25px; ">
+			<iviewer id="PID1435iviewer1" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<multilinegrid id="PID1435multilinegrid1" nodeset="/root/resData/gridData/detailGrid/record" caption="작업내역^시각(시작/종료)^테이블(소스/타깃)^데이터(추출/전환)^에러(코드/메세지)" colsep="^" colwidth="95, 120, 120, 110, 458" ellipsis="true" rowheader="seq" rowsep="|" tooltip="true" selectionmode="free" mergecellsfixedrows="bycolrec" style="left:10px; top:455px; width:925px; height:285px; ">
+			<row>
+				<col ref="workdescri" rowspan="2" style="text-align:left; "/>
+				<col ref="workfrdt_f" format="yyyy-mm-dd hh:nn:ss" style="text-align:left; "/>
+				<col ref="srctbl" style="text-align:left; "/>
+				<col ref="noit1" format="#,###" style="text-align:right; "/>
+				<col ref="errcd" rowspan="2" style="text-align:left; "/>
+			</row>
+			<row>
+				<col ref="worktodt_f" format="yyyy-mm-dd hh:nn:ss" style="text-align:left; "/>
+				<col ref="targtbl" style="text-align:left; "/>
+				<col ref="noit2" format="#,###" style="text-align:right; "/>
+			</row>
+		</multilinegrid>
+	</xhtml:body>
+</xhtml:html>

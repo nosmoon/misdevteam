@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+							<slcrg_pers>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</slcrg_pers>
+							<mchrg_pers>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mchrg_pers>
+						</comboSet>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqForm>
+							<proc_dt/>
+							<medi_cd/>
+							<hndl_clsf/>
+							<slcrg_pers/>
+							<slcrg_pers_nm/>
+							<mchrg_pers/>
+							<mchrg_pers_nm/>
+							<pubc_dt/>
+							<fee_rate/>
+							<sect_nm/>
+							<hndl_plac_cd/>
+							<hndl_plac_nm/>
+							<preng_advt_bo_yn/>
+						</reqForm>
+						<multiUpdateData/>
+						<flag/>
+						<hndl_clsf_nm/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<select/>
+								<seq/>
+								<advt_cont/>
+								<dlco_no/>
+								<dlco_nm/>
+								<sect_nm/>
+								<dn/>
+								<cm/>
+								<uprc/>
+								<advt_fee/>
+								<vat/>
+								<medi_cd/>
+								<pubc_slip_no/>
+								<preng_occr_dt/>
+								<preng_occr_seq/>
+								<chrg_aprv/>
+								<team_chf_aprv/>
+								<slcrg_pers/>
+								<mchrg_pers/>
+								<pubc_side/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					
+					model.send("ad_res_2300_m");
+					
+					model.copyNode("/root/initData/comboSet/medi_cd", "/root/tempData/medi_cd");
+					model.copyNode("/root/initData/comboSet/slcrg_pers", "/root/tempData/slcrg_pers");
+					model.copyNode("/root/initData/comboSet/mchrg_pers", "/root/tempData/mchrg_pers");
+					
+					datagrid1.fixedcellcheckbox(0, datagrid1.colRef("select"), false) = true;
+					
+					var proc_dt = dateAdd('d', 0, getCurrentDate());
+					var pubc_dt = dateAdd('d', 0, getCurrentDate());
+					
+					model.setValue("/root/reqData/reqForm/proc_dt", proc_dt);
+					model.setValue("/root/reqData/reqForm/pubc_dt", pubc_dt);	
+					
+					model.refresh();			
+					
+					cb_medi_cd.select(0);	
+					
+					model.send("ad_res_2310_l");
+				]]>
+			</script>
+			<submission id="ad_res_2310_l" action="/ad/res/2310" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/resData/gridData"/>
+			<submission id="ad_res_2320_a" action="/ad/res/2320" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="ad_res_2300_m" action="/ad/res/2300" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[			
+			function resetDataGrid(){ 
+				
+				var rows = datagrid1.rows;
+				var cols  = datagrid1.cols;
+/*				
+				for(var i=datagrid1.fixedRows; i<rows; i++){	
+					var pubc_slip_no = model.getValue("/root/resData/gridData/record["+i+"]/pubc_slip_no");
+					if(pubc_slip_no != ""){
+						datagrid1.isReadOnly(i, 1) = true;
+					}
+				}
+*/				
+			}		
+			function checkList(flag){	
+			
+				//if(!checkReqField(flag))	return;
+			
+				if(flag == "I"){
+					
+					if(!commGridReqCheck(datagrid1))	return;
+					
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){						
+						var select		=	datagrid1.valueMatrix(i, datagrid1.colRef("select"));
+						if(select == "Y"){
+							var preng_occr_dt = model.getValue("/root/resData/gridData/record["+i+"]/preng_occr_dt");
+							var preng_occr_seq = model.getValue("/root/resData/gridData/record["+i+"]/preng_occr_seq");
+							if(preng_occr_dt != "" && preng_occr_seq != ""){
+								alert("게재 예약 등록건이 있습니다. 게재 예약 등록건은 선택에서 제외됩니다.");
+								datagrid1.valueMatrix(i, datagrid1.colRef("select")) = "N";
+								datagrid1.removeStatus(i, "update");
+							}
+//							else{
+//								datagrid1.addStatus(i, "insert");
+//							}
+						}
+					}
+				}else if(flag == "U"){
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){		
+						var select = datagrid1.valueMatrix(i, datagrid1.colRef("select"));				
+						if(select == "Y"){
+							var preng_occr_dt = model.getValue("/root/resData/gridData/record["+i+"]/preng_occr_dt");
+							var preng_occr_seq = model.getValue("/root/resData/gridData/record["+i+"]/preng_occr_seq");
+							if(preng_occr_dt == "" && preng_occr_seq == ""){
+								alert("게재 예약 미등록건은 선택에서 제외됩니다.");
+								datagrid1.valueMatrix(i, 1) = "N";
+								datagrid1.removeStatus(i, "update");
+							}
+//							else{
+//								datagrid1.addStatus(i, "update");
+//							}
+						}
+					}					
+				}else if(flag == "D"){
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){		
+						var select = datagrid1.valueMatrix(i, datagrid1.colRef("select"));				
+						if(select == "Y"){
+							var preng_occr_dt = model.getValue("/root/resData/gridData/record["+i+"]/preng_occr_dt");
+							var preng_occr_seq = model.getValue("/root/resData/gridData/record["+i+"]/preng_occr_seq");
+							if(preng_occr_dt == "" && preng_occr_seq == ""){
+								alert("게재 예약 미등록건은 선택에서 제외됩니다.");
+								datagrid1.valueMatrix(i, 1) = "N";
+								datagrid1.removeStatus(i, "update");
+							}
+//							else{
+//								datagrid1.addStatus(i, "delete");
+//							}
+						}
+					}					
+				}
+				
+				var canGo = false;				
+				for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){						
+					var select = datagrid1.valueMatrix(i,datagrid1.colRef("select"));//model.getValue("/root/resData/gridData/record["+i+"]/select");
+					if(select == "Y"){
+						canGo = true;
+						break;
+					}
+				}
+				
+				if(!canGo){
+					alert("선택된 건이 없습니다.");
+					return false;
+				}
+				
+				
+				return true;
+			}		
+			
+			var	_list_clsf	=	"PUBC";
+						
+			function loadList(){
+				
+				datagrid1.fixedcellischeck(0,datagrid1.colRef("select")) = false;	//체크박스 노체크
+				model.send("ad_res_2310_l");
+				if(submit_completed()){
+				}
+			}
+			
+			var _dlco_clsf = "";
+			
+			function setDlcoInfo(dlco_no, dlco_nm){
+				
+				if(_dlco_clsf == "1"){
+							
+					model.setValue("/root/reqData/reqForm/hndl_plac_cd", dlco_no);
+					model.setValue("/root/reqData/reqForm/hndl_plac_nm", dlco_nm);					
+					inp_hndl_plac_cd.refresh();
+					inp_hndl_plac_nm.refresh();									
+					
+				}
+				else if(_dlco_clsf == "2"){
+					datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dlco_no")) = dlco_no;
+					datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dlco_nm")) = dlco_nm;
+					
+					datagrid1.addStatus(datagrid1.row, "update");  //상태 변경						
+				}
+				else if(_dlco_clsf == "3"){
+					datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("dlco_no")) = dlco_no;
+					datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("dlco_nm")) = dlco_nm;
+					
+					datagrid2.addStatus(datagrid1.row, "update");  //상태 변경						
+				}
+			}	
+			
+			function recalculate(uprc_yn, advt_fee_yn, vat_yn, dn_cm_yn){
+				
+				var advt_fee 		=	Number(datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advt_fee")));					
+				var vat 			=	Number(datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("vat")));				
+				var uprc			=	Number(datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("uprc")));					
+				var dn			=	Number(datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dn")));				
+				var cm			=	Number(datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("cm")));
+				
+				var medi_cd		=	cb_medi_cd.value
+				
+				if(medi_cd	==	"110" || medi_cd == "130" || medi_cd == "190" || medi_cd == "120" ){
+					if(uprc_yn == "Y"){
+						advt_fee		=	Math.round(uprc * dn * cm);
+						vat			=	Math.round(advt_fee / 10);
+						
+						datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advt_fee")) = advt_fee;
+						datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("vat")) = vat;
+					}
+					else if(advt_fee_yn == "Y" && dn_cm_yn == ""){
+	//					if(Number(model.getValue("/root/resData/resForm/uprc")) == 0){
+							uprc		=	dn * cm  == 0  ? 0 : Math.round(advt_fee/(dn * cm));
+							datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("uprc")) = uprc;
+	//					}
+	//					if(Number(model.getValue("/root/resData/resForm/vat"))	==	0){
+							vat		=	Math.round(advt_fee / 10);
+							datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("vat")) = vat;
+					}
+					else if(vat_yn	==	"Y"){	
+	
+	//					if(Number(model.getValue("/root/resData/resForm/advt_fee")) == 0){
+							advt_fee		=	Math.round(vat * 10);	
+							datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advt_fee")) = advt_fee;
+	//					}
+	//					if(Number(model.getValue("/root/resData/resForm/uprc")) == 0){
+							uprc			=	dn * cm  == 0  ? 0 : Math.round(advt_fee/(dn * cm));
+							datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("uprc")) = uprc;
+	//					}
+						
+					}
+					else if( dn_cm_yn == "Y" && advt_fee_yn == "" )
+					{
+						if( uprc * dn * cm != 0 ){
+							advt_fee		= 	Math.round(uprc * dn * cm);
+							vat			=	Math.round(advt_fee / 10);
+
+							datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advt_fee")) = advt_fee;
+							datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("vat")) = vat;
+						}
+					}
+					//20120820 정찬화과장 요구사항
+					//예약 수정시 단/cm이 변경이 되면 단가 자동 계산 단,광고료/부가세/게재총액은 변동 없음
+					else if(advt_fee_yn == "Y" && dn_cm_yn == "Y"){
+						uprc		=	dn * cm  == 0  ? 0 : Math.round(advt_fee/(dn * cm));
+						datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("uprc")) = uprc;						
+					}					
+				}	
+				else{
+					if(advt_fee_yn == "Y" && dn_cm_yn == ""){						
+						vat			=	Math.round(advt_fee / 10);
+						datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("vat")) = vat;	
+					}
+					else if(vat_yn	==	"Y"){	
+						advt_fee		=	Math.round(vat * 10);	
+						datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advt_fee")) = advt_fee;						
+					}
+				}
+//				var hndl_clsf	=	model.getValue("/root/resData/resForm/hndl_clsf");
+//				var fee_rate		=	Number(model.getValue("/root/resData/resForm/fee_rate"));
+//				if(fee_rate > 0){
+//					var fee = Math.round(pubc_tot_amt * (fee_rate/100));
+//					model.setValue("/root/resData/resForm/fee", fee);
+//					inp_fee.refresh();
+//				}
+//				var coms_rate	=	Number(model.getValue("/root/resData/resForm/coms_rate"));
+//				if(coms_rate > 0){
+//					var coms = Math.round(pubc_tot_amt * (coms_rate/100));
+//					model.setValue("/root/resData/resForm/coms", coms);
+//					inp_coms.refresh();
+//				}
+				
+				datagrid1.refresh();				
+			}			
+			
+			function setChrgInfo(){
+				
+				makeNodeValue("/root/reqData/searchData/tempData/dlco_no", model.getValue("/root/reqData/reqForm/hndl_plac_cd"));
+				
+				modelSendNoMake("ad_co_9007_s", "/ad/common/9007", "/root/reqData/searchData/tempData", "/root/tempData");	
+				if(submit_completed()){
+//					if(model.getValue("/root/reqData/reqForm/slcrg_pers") == ""){
+						model.setValue("/root/reqData/reqForm/slcrg_pers", 		model.getValue("/root/tempData/slcrg_pers"));
+						model.setValue("/root/reqData/reqForm/slcrg_pers_nm", 	model.getValue("/root/tempData/slcrg_pers_nm"));
+//					}
+//					if(model.getValue("/root/reqData/reqForm/mchrg_pers") == ""){
+						model.setValue("/root/reqData/reqForm/mchrg_pers", 		model.getValue("/root/tempData/mchrg_pers"));
+						model.setValue("/root/reqData/reqForm/mchrg_pers_nm", 	model.getValue("/root/tempData/mchrg_pers_nm"));
+//					}
+					
+					model.refresh();
+				}
+			}
+			
+				
+			function checkReqField(mode){
+
+				if(mode	==	"I" || mode == "U"){
+					
+					var	hndl_clsf	=	model.getValue("/root/reqData/reqForm/hndl_clsf");
+					if(hndl_clsf != "3"){
+						var hndl_plac_cd	=	model.getValue("/root/reqData/reqForm/hndl_plac_cd");
+						var hndl_plac_nm	=	model.getValue("/root/reqData/reqForm/hndl_plac_nm");
+						if(hndl_plac_cd == "" || hndl_plac_nm == ""){
+							alert("취급처는 필수입력사항입니다.");
+							model.setFocus("inp_hndl_plac_cd");
+							return false;
+						}
+					}			
+					
+					var slcrg_pers	=	model.getValue("/root/reqData/reqForm/slcrg_pers");
+					var slcrg_pers_nm	=	model.getValue("/root/reqData/reqForm/slcrg_pers_nm");
+					if(slcrg_pers == "" || slcrg_pers_nm == "") {
+						alert("영업담담은 필수입력사항입니다.");
+						model.setFocus("inp_slcrg_pers");
+						return false;
+					}
+					var mchrg_pers	=	model.getValue("/root/reqData/reqForm/mchrg_pers");
+					var mchrg_pers_nm	=	model.getValue("/root/reqData/reqForm/mchrg_pers_nm");
+					if(mchrg_pers == "" || mchrg_pers_nm == "") {
+						alert("관리담담은 필수입력사항입니다.");
+						model.setFocus("inp_mchrg_pers");
+						return false;
+					}
+				}
+				return true;				
+				
+			}
+										
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,9;1,936;2,70;" style="font-family:굴림; ">
+		<caption id="caption44" class="list_cap02" style="left:10px; top:70px; width:927px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption4" class="list_cap01" style="left:10px; top:70px; width:90px; height:28px; ">게재일자</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:110px; width:927px; height:5px; "/>
+		<button id="button1" class="btn02" crud="D" style="left:710px; top:40px; width:52px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(checkList("D")){
+					if(windowConfirm("삭제하시겠습니까?")){
+						model.setValue("/root/reqData/flag", "D");
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_res_2320_a");	
+						
+						if(submit_completed()){
+							loadList();
+						}						
+					}
+				}				
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn02" crud="U" style="left:653px; top:40px; width:52px; height:21px; ">
+			<caption>수정</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					
+				if(validateReq()){
+					
+					if(checkList("U")){
+
+						if(windowConfirm("수정하시겠습니까?")){
+							model.setValue("/root/reqData/flag", "U");
+							model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+							model.send("ad_res_2320_a");					
+							
+							if(submit_completed()){							
+								loadList();
+							}
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<input id="inp_pubc_dt" ref="/root/reqData/reqForm/proc_dt" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" caption="게재전표일자" style="left:104px; top:75px; width:90px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var	proc_dt	=	model.getValue("/root/reqData/reqForm/proc_dt");
+				//if( inp_pubc_dt.disabled == false ){
+					model.setValue("/root/reqData/reqForm/pubc_dt", proc_dt);
+					inp_pubc_dt.refresh();
+				//20120305 김상훈 수정 }
+				]]>
+			</script>
+		</input>
+		<button id="btnClose" class="btn02" style="left:884px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:245px; top:70px; width:90px; height:28px; ">매체</caption>
+		<select1 id="cb_medi_cd" ref="/root/reqData/reqForm/medi_cd" class="req" navindex="2" appearance="minimal" caption="매체" style="left:339px; top:75px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/medi_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<button id="button3" class="btn02" crud="R" style="left:539px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if( validateReq() ){
+	
+					if(!checkReqField("Q"))	return;
+										
+					loadList();
+				}
+
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" crud="C" style="left:596px; top:40px; width:52px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					if(!checkList("I"))	return;	
+					
+					if(windowConfirm("입력하시겠습니까?")){
+						model.setValue("/root/reqData/flag", "I");
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_res_2320_a");					
+						
+						if(submit_completed()){							
+							loadList();
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn02" crud="R" style="left:767px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var proc_dt	=	model.getValue("/root/reqData/reqForm/proc_dt");
+
+				model.reset();
+				model.refresh();
+				
+				model.setValue("/root/reqData/reqForm/proc_dt", proc_dt);
+				inp_proc_dt.refresh();
+				
+				datagrid1.fixedcellcheckbox(0, datagrid1.colRef("select"), false) = true;
+				for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+					datagrid1.removeStatus(i, "update");
+				}
+
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" style="left:10px; top:130px; width:926px; height:560px; border-color:transparent; border-style:none; ">
+			<case id="case1" style="left:0px; top:0px; width:100.00%; height:100.00%; border-color:transparent; border-style:none; ">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="^순번^내용^광고주^광고주명^면^단^CM^단가^광고료^부가세^영업담당^관리담당^MEDI_CD^PRENG_OCCR_DT^PRENG_OCCR_SEQ^PUBC_SIDE" colsep="#" colwidth="40, 40, 125, 80, 120, 40, 40, 40, 60, 85, 85, 67,65, 100, 100, 100,20" extendlastcol="scroll" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:0px; top:0px; width:926px; height:540px; ">
+					<col checkvalue="Y,N" ref="select" type="checkbox"/>
+					<col ref="seq"/>
+					<col class="req" ref="advt_cont" type="input" caption="내용" style="text-align:left; "/>
+					<col class="req" imemode="disabled" ref="dlco_no" type="input" format="99999999" caption="광고주"/>
+					<col class="req" ref="dlco_nm" type="inputbutton" caption="광고주명" style="text-align:left; word-wrap:none; "/>
+					<col class="req" imemode="disabled" ref="sect_nm" type="input" caption="면"/>
+					<col class="req" ref="dn" type="input" format="#,###" caption="단" style="text-align:right; "/>
+					<col class="req" ref="cm" type="input" format="#,###" caption="CM" style="text-align:right; "/>
+					<col class="req" ref="uprc" type="input" format="#,###" caption="단가" style="text-align:right; "/>
+					<col class="req" ref="advt_fee" type="input" format="#,###" caption="광고료" style="text-align:right; "/>
+					<col class="req" ref="vat" type="input" format="#,###" caption="부가세" style="text-align:right; "/>
+					<col ref="slcrg_pers" type="combo" style="text-align:left; word-wrap:none; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/slcrg_pers/item">
+								<label ref="label"/>
+								<value ref="value"/>
+							</itemset>
+						</choices>
+					</col>
+					<col ref="mchrg_pers" type="combo" style="text-align:left; word-wrap:none; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/mchrg_pers/item">
+								<label ref="label"/>
+								<value ref="value"/>
+							</itemset>
+						</choices>
+					</col>
+					<col ref="medi_cd" visibility="hidden"/>
+					<col ref="preng_occr_dt" visibility="hidden"/>
+					<col ref="preng_occr_seq" visibility="hidden"/>
+					<col ref="pubc_side" visibility="hidden"/>
+					<script type="javascript" ev:event="xforms-select">
+						<![CDATA[
+						var row = datagrid1.mouseRow;
+						var col = datagrid1.mouseCol;
+						
+						if(row <  datagrid1.fixedRows){ //헤더 일괄선택시 		
+							for(var i=datagrid1.fixedRows;i<datagrid1.rows; i++){ 
+								var check_ok = false;
+								for(var j=datagrid1.colRef("seq"); j<datagrid1.cols;j++){
+									if(datagrid1.valueMatrix(i, j) != ""){
+										check_ok = true;
+										break;
+									}
+								}
+								
+								if(check_ok == true){
+									var sect_nm = model.getValue("/root/reqData/reqForm/sect_nm");
+									if( trim(sect_nm) != "" ){
+										if( trim(datagrid1.valueMatrix(i, datagrid1.colRef("sect_nm"))) == "" ){
+											datagrid1.valueMatrix(i, datagrid1.colRef("sect_nm")) = sect_nm;
+										}
+									}									
+									
+									datagrid1.addStatus(i, "update");
+								}
+								else{
+									datagrid1.valueMatrix(i, datagrid1.colRef("select")) = "N";
+									datagrid1.removeStatus(i, "update");
+								}
+							}		
+						}
+						else{					
+							var check_ok = false;
+							for(var j=datagrid1.colRef("seq"); j<datagrid1.cols;j++){
+								if(datagrid1.valueMatrix(datagrid1.row, j) != ""){
+									check_ok = true;
+									break;
+								}
+							}
+							if (check_ok == true ){
+								var sect_nm = model.getValue("/root/reqData/reqForm/sect_nm");
+								if(sect_nm != "" ){
+									if( trim(datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("sect_nm"))) == "" ){
+										datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("sect_nm")) = sect_nm;
+									}
+								}
+								datagrid1.addStatus(datagrid1.row, "update");
+							}
+							else{
+								datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("select")) = "N";
+								datagrid1.removeStatus(datagrid1.row, "update");
+							}
+						}
+						
+						datagrid1.refresh();
+									
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-deselect">
+						<![CDATA[
+						if(datagrid1.row <  datagrid1.fixedRows){ //헤더 일괄선택시 		
+							for(var i=datagrid1.fixedRows;i<datagrid1.rows; i++){ 
+								datagrid1.valueMatrix(i, datagrid1.colRef("select")) = "N";
+								datagrid1.removeStatus(i, "update");
+							}		
+						}else{
+							datagrid1.removeStatus(datagrid1.row, "update");
+						}
+						datagrid1.refresh();
+						
+						]]>
+					</script>
+					<script type="javascript" ev:event="onbuttonclick">
+						<![CDATA[
+						if(datagrid1.col == datagrid1.colRef("dlco_nm")){
+							_dlco_clsf	=	"2";
+							var dlco_nm = datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dlco_nm"));
+							showAdvcsSearchPopup("Y", "Y", "", "", "", dlco_nm);	
+						}
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[					
+						var dataIndex = getSelectedRecordIndex(datagrid1);
+						if(datagrid1.col== datagrid1.colRef("dlco_no")){
+							
+							var dlco_no   = 	datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dlco_no"));
+							
+							dlco_no		 = 	lpad(dlco_no, 8, "0");
+							
+							datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("dlco_no"))	=	dlco_no;
+							
+							commonSubmissionWithXRef("9004", dlco_no ,  "/root/resData/gridData/record["+dataIndex+"]/dlco_no", "/root/resData/gridData/record["+dataIndex+"]/dlco_nm");
+							
+						}
+						else if(datagrid1.col == datagrid1.colRef("dlco_nm")){
+							
+							_dlco_clsf = "2";
+							datagrid1.valueMatrix(dataIndex, datagrid1.colRef("dlco_no")) = "";
+							var dlco_nm	   = model.getValue("/root/resData/gridData/record["+dataIndex+"]/dlco_nm");						
+							findDlcoNoByNameWithRef("1", dlco_nm, "/root/resData/gridData/record["+dataIndex+"]/dlco_no", "/root/resData/gridData/record["+dataIndex+"]/dlco_nm");
+						}
+						else if(datagrid1.col == datagrid1.colRef("uprc")){
+							recalculate("Y", "", "", "")
+						}
+						else if(datagrid1.col == datagrid1.colRef("advt_fee")){
+							recalculate("", "Y", "", "")
+						}
+						else if(datagrid1.col == datagrid1.colRef("vat")){
+							//recalculate("", "", "", "Y");
+						}
+						else if(datagrid1.col == datagrid1.colRef("dn")){
+							var advt_fee = datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advt_fee"))
+							if(advt_fee == ""){
+								recalculate("", "", "", "Y")
+							}else{
+								recalculate("", "Y", "", "Y")
+							}
+						}
+						else if(datagrid1.col == datagrid1.colRef("cm")){
+							var advt_fee = datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advt_fee"))
+							if(advt_fee == ""){
+								recalculate("", "", "", "Y")
+							}else{
+								recalculate("", "Y", "", "Y")
+							}
+						}
+						else if(datagrid1.col == datagrid1.colRef("sect_nm")){
+								
+							var medi_cd 	=  	model.getValue("/root/reqData/reqForm/medi_cd");
+							var proc_dt 	=  	model.getValue("/root/reqData/reqForm/proc_dt");
+							var sect_nm 	=  	datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("sect_nm"));
+							
+							if(medi_cd != "110" && medi_cd != "130" && medi_cd != "180")	return;
+														
+							sect_nm	   	=	sect_nm.toUpperCase();
+							
+							datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("sect_nm")) = sect_nm;						
+							
+							makeNodeValue("/root/reqData/searchData/sect_nm", sect_nm);
+							makeNodeValue("/root/reqData/searchData/medi_cd", medi_cd);
+							makeNodeValue("/root/reqData/searchData/preng_occr_dt", proc_dt);
+							
+							modelSendNoMake("ad_co_9003_s", "/ad/common/9003", "/root/reqData/searchData", "/root/tempData");	
+							
+							var pubc_side	=	model.getValue("/root/tempData/issu_side");
+//							alert(pubc_side);
+							if(pubc_side == ""){
+								alert("해당면이 없습니다.");
+								datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("sect_nm")) = "";
+							}
+							else{
+								datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("pubc_side")) = pubc_side;
+							}
+							
+						}
+
+						datagrid1.refresh();	
+										
+					]]>
+					</script>
+				</datagrid>
+			</case>
+		</switch>
+		<button id="button6" class="btn02" crud="R" style="left:825px; top:40px; width:52px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				if(!checkGridData(datagrid1)){
+					alert("처리할 내역이 없습니다.");
+					return;
+				}
+				
+				var filename = window.fileDialog("save", ",", false, "여백광고 게재예약", "xls", "Excel File(*.xls)|*.xls");
+				if(filename!=""){
+					datagrid1.saveExcel(filename, "sheetname: 여백광고 게재예약;");
+				}
+				
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,538 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<pageInfo/>
+						<comboSet/>
+						<medi_clsf/>
+					</initData>
+					<reqData>
+						<cmpy_cd/>
+						<frdt/>
+						<todt/>
+						<dlco_no/>
+						<dlco_nm/>
+						<grp_cmpy/>
+						<indt_clsf/>
+						<type_clsf/>
+						<slcrg_pers/>
+						<mchrg_pers/>
+						<grp_cmpy_yn>N</grp_cmpy_yn>
+						<grp_cmpy_upd/>
+						<indt_yn>N</indt_yn>
+						<indt_upd/>
+						<type_yn>N</type_yn>
+						<type_upd/>
+						<slcrg_yn>N</slcrg_yn>
+						<slcrg_upd/>
+						<mchrg_yn>N</mchrg_yn>
+						<mchrg_upd/>
+						<multiUpdateData/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<checked/>
+								<dlco_no/>
+								<dlco_nm/>
+								<ern/>
+								<grp_cmpy_cd/>
+								<grp_cmpy_nm/>
+								<indt_cd/>
+								<indt_nm_1/>
+								<indt_nm_2/>
+								<type_cd/>
+								<type_nm/>
+								<slcrg_pers/>
+								<slcrg_pers_nm/>
+								<mchrg_pers/>
+								<mchrg_pers_nm/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+					<fwdData>
+					</fwdData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("ad_bas_1050_m");
+					
+					model.copyNode("/root/initData/comboSet", "/root/tempData");
+					makeComboGubun("", "/root/initData/comboSet/grp_cmpy"		, "item", "label", "value");
+					makeComboGubun("", "/root/initData/comboSet/indt_clsf"			, "item", "label", "value");
+					makeComboGubun("", "/root/initData/comboSet/type_clsf"		, "item", "label", "value");
+					makeComboGubun("A", "/root/initData/comboSet/slcrg_pers"		, "item", "label", "value");
+//					makeComboGubun("", "/root/initData/comboSet/mchrg_pers"		, "item", "label", "value");
+					
+					dg_list.fixedcellcheckbox(0, dg_list.colRef("checked"), false) = true;
+					
+					initPage();
+				]]>
+			</script>
+			<submission id="ad_bas_1050_m" action="/ad/bas/1050" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="ad_bas_1051_l" action="/ad/bas/1051" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData"/>
+			<submission id="ad_bas_1055_a" action="/ad/bas/1055" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function chkSelectYN( datagrid )
+				{
+					var canGo = false;
+					for( var i=datagrid.fixedRows; i<datagrid.rows; i++ )
+					{
+						var ck_yn = datagrid.valueMatrix(i,datagrid.colRef("checked"));
+						if( ck_yn == "Y" )
+						{
+							canGo = true;
+							break;
+						}
+					}
+					
+					if( !canGo )
+					{
+						alert("선택된 건이 없습니다.");
+						return false;
+					}
+					return true;
+				}
+				
+				function setDlcoInfo( dlco_no, dlco_nm )
+				{
+					model.setValue("/root/reqData/dlco_no"	, dlco_no);
+					model.setValue("/root/reqData/dlco_nm"	, dlco_nm);  
+					inp_dlco_no.refresh(); 
+					inp_dlco_nm.refresh();
+					//model.send("getDetail");
+				}
+				
+				function loadDataSet()
+				{
+					//로드후 세팅작업
+				}
+				function loadData()
+				{
+					dg_list.fixedcellischeck(0, dg_list.colRef("checked")) = false;
+					
+					model.send("ad_bas_1051_l");
+					if( submit_completed() )
+					{
+						loadDataSet();
+					}
+				}
+				
+				function initPage()
+				{
+//					var curdt = dateAdd("d", 0, getCurrentDate());	//현재일자
+//					model.setValue("/root/reqData/frdt"	,curdt);
+//					model.setValue("/root/reqData/todt"	,curdt);
+					
+					dg_list.fixedcellischeck(0, dg_list.colRef("checked")) = false;
+					
+					
+					cmb_grp_cmpy_upd.disabled 	= true;
+					cmb_indt_upd.disabled		= true;
+					cmb_type_upd.disabled		= true;
+					cmb_slcrg_upd.disabled		= true;
+					cmb_mchrg_upd.disabled		= true;
+					
+					model.refresh();
+				}
+				
+				function loadPage( dlco_no, edit_yn )
+				{
+					if( dlco_no.length != 8 )	return;
+					model.property(KEY_DLCO_NO)  	= dlco_no;
+					if( edit_yn == "Y" )
+					{
+						viewer("mainFrame").window.javaScript.onLoadExPopupPage("AD_BAS_1000");
+					}
+					else
+					{
+				    		viewer("mainFrame").window.javaScript.onLoadPopupPage("AD_BAS_1000");
+					}
+				}
+				
+				function goReport(gubun)
+				{
+					// 출력기능 보류.
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,936;2,61;2,704;2,200;2,131;" style="font-family:굴림; ">
+		<caption id="caption1" class="list_cap02" style="left:10px; top:100px; width:927px; height:30px; text-align:left; vertical-align:middle; "/>
+		<caption id="caption4" ref="/root/reqData/mchrg_pers" class="list_cap02" style="left:10px; top:160px; width:927px; height:30px; "/>
+		<caption id="caption2" ref="/root/reqData/mchrg_pers" class="list_cap02" style="left:10px; top:130px; width:927px; height:30px; "/>
+		<caption id="cpt_head" class="list_cap02" style="left:10px; top:70px; width:927px; height:30px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:.; width:927px; height:5px; "/>
+		<button id="btnSelect" class="btn02" crud="R" style="left:583px; top:41px; width:54px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					loadData();
+				]]>
+			</script>
+		</button>
+		<button id="btnUpdate" class="btn02" crud="R" style="left:648px; top:41px; width:54px; height:21px; ">
+			<caption>수정</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var grp_cmpy_yn	=	model.getValue("/root/reqData/grp_cmpy_yn");
+					var indt_yn		=	model.getValue("/root/reqData/indt_yn");
+					var type_yn		=	model.getValue("/root/reqData/type_yn");
+					var slcrg_pers_yn	=	model.getValue("/root/reqData/slcrg_yn");
+					var mchrg_pers_yn	=	model.getValue("/root/reqData/mchrg_yn");
+					
+					if( grp_cmpy_yn != "Y" && indt_yn != "Y" && type_yn != "Y" && slcrg_pers_yn != "Y" && mchrg_pers_yn != "Y" )
+					{
+						alert("수정항목을 선택하여 주세요.");
+						return;
+					}
+					else
+					{
+						if( chkSelectYN(dg_list) )
+						{
+							if( windowConfirm("일괄수정 하시겠습니까?") )
+							{
+								model.makeNode("/root/reqData/flag");
+								model.setValue("/root/reqData/flag", "U");
+								
+								//alert(dg_list.getUpdateData("insert"));
+								model.setValue("/root/reqData/multiUpdateData", dg_list.getUpdateData("insert"));
+								model.send("ad_bas_1055_a");
+								if( submit_completed() )
+								{
+									loadData();
+								}
+							}
+						}
+					}		
+				]]>
+			</script>
+		</button>
+		<button id="btnInit" class="btn03" crud="R" style="left:721px; top:41px; width:67px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+					initPage();
+				]]>
+			</script>
+		</button>
+		<button id="btnExcelDown" class="btn02" crud="R" style="left:806px; top:41px; width:54px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if( filename!="" )
+					{
+						dg_list.saveExcel(filename, "sheetname:광고주관리목록;");
+					}
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn02" style="left:882px; top:41px; width:54px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( window.type == "mdi" )
+					{
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}
+					else
+					{
+						window.close();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="cpt_dlco" class="list_cap01" style="left:380px; top:70px; width:70px; height:30px; text-align:center; vertical-align:middle; ">거래처</caption>
+		<input id="inp_dlco_no" ref="/root/reqData/dlco_no" navindex="2" visibility="visible" imemode="hangul" style="left:455px; top:75px; width:60px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var dlco_no = inp_dlco_no.currentText;
+					model.setValue("/root/reqData/dlco_no", lpad(dlco_no, 8, "0"));
+					inp_dlco_no.refresh();
+					commonSubmission("9004", inp_dlco_no.currentText, inp_dlco_no, inp_dlco_nm);
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if( event.keyCode== 13 ){
+						var dlco_no = inp_dlco_no.currentText;
+						model.setValue("/root/reqData/dlco_no", lpad(dlco_no, 8, "0"));
+						inp_dlco_no.refresh();
+						commonSubmission("9004", inp_dlco_no.currentText, inp_dlco_no, inp_dlco_nm);
+					}
+				]]>
+			</script>
+		</input>
+		<input id="inp_dlco_nm" ref="/root/reqData/dlco_nm" navindex="2" imemode="hangul" inputtype="button" style="left:521px; top:75px; width:110px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					//findDlcoNoByName("1", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if( event.keyCode== 13 ){
+						// ad_co_9008_s DB CALL
+						findDlcoNoByName("1", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					// AD_CO_1200 XRW CALL
+					showAdvcsSearchPopup("Y", "Y", "Y", "Y", "Y", inp_dlco_nm.currentText);
+				]]>
+			</script>
+		</input>
+		<datagrid id="dg_list" nodeset="/root/resData/gridData/record" visibility="visible" scroll="vertical" caption="선택^거래처코드^거래처명^사업자번호^그룹사코드^그룹사명^업종코드^업종^업종^유형코드^유형^담당^담당^담당^담당|선택^거래처코드^거래처명^사업자번호^그룹사코드^그룹사명^업종코드^대분류^소분류^유형코드^유형^영업사번^영업^관리사번^관리" colsep="#" colwidth="50, 100, 120, 120, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" datatype="xml" explorerbar="sort" extendlastcol="scroll" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:9px; top:204px; width:927px; height:500px; ">
+			<col checkvalue="Y,N" ref="checked" type="checkbox"/>
+			<col ref="dlco_no" visibility="hidden"/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="ern"/>
+			<col ref="grp_cmpy_cd" visibility="hidden"/>
+			<col ref="grp_cmpy_nm"/>
+			<col ref="indt_cd" visibility="hidden"/>
+			<col ref="indt_nm_1"/>
+			<col ref="indt_nm_2"/>
+			<col ref="type_cd" visibility="hidden" style="left:855px; top:40px; width:100px; height:20px; "/>
+			<col ref="type_nm"/>
+			<col ref="slcrg_pers" visibility="hidden"/>
+			<col ref="slcrg_pers_nm"/>
+			<col ref="mchrg_pers" visibility="hidden"/>
+			<col ref="mchrg_pers_nm"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if( !isDataRegion(dg_list) )		return;
+					
+					if( dg_list.col == dg_list.colRef("dlco_nm") )
+					{
+						var dlco_no = dg_list.valueMatrix(dg_list.row, dg_list.colRef("dlco_no"));
+						loadPage(dlco_no, "Y");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if( dg_list.row < dg_list.fixedRows )
+					{
+						for( var i=dg_list.fixedRows; i<dg_list.rows; i++ )
+						{
+							dg_list.addStatus(i, "insert");
+						}
+					}
+					else
+					{
+						dg_list.addStatus(dg_list.row, "insert");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-deselect">
+				<![CDATA[
+					if( dg_list.row < dg_list.fixedRows )
+					{
+						for( var i=dg_list.fixedRows; i<dg_list.rows; i++ )
+						{
+							dg_list.removeStatus(i, "insert");
+						}
+					}
+					else
+					{
+						dg_list.removeStatus(dg_list.row, "insert");		
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="sbt_01" class="tit02" style="left:20px; top:135px; width:147px; height:20px; ">일괄수정 항목</caption>
+		<caption id="cpt_incmg_dt_tm" class="list_cap01" style="left:10px; top:70px; width:70px; height:30px; text-align:center; vertical-align:middle; ">등록일자</caption>
+		<caption id="caption29" style="left:190px; top:75px; width:15px; height:17px; text-align:center; ">~</caption>
+		<input id="inp_frdt" ref="/root/reqData/frdt" navindex="2" imemode="hangul" inputtype="date" format="yyyy-mm-dd" style="left:86px; top:75px; width:100px; height:18px; "/>
+		<input id="inp_todt" ref="/root/reqData/todt" navindex="2" imemode="hangul" inputtype="date" format="yyyy-mm-dd" style="left:211px; top:75px; width:100px; height:18px; "/>
+		<caption id="cpt_grp_cmpy" class="list_cap01" style="left:10px; top:100px; width:70px; height:30px; text-align:center; vertical-align:middle; ">그룹사</caption>
+		<select1 id="cmb_grp_cmpy" ref="/root/reqData/grp_cmpy" navindex="3" appearance="minimal" style="left:85px; top:105px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/grp_cmpy/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="cpt_indt" class="list_cap01" style="left:195px; top:100px; width:70px; height:30px; text-align:center; vertical-align:middle; ">업종</caption>
+		<select1 id="cmb_indt" ref="/root/reqData/indt_clsf" navindex="3" appearance="minimal" style="left:270px; top:105px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/indt_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="cpt_type" class="list_cap01" style="left:380px; top:100px; width:70px; height:30px; text-align:center; vertical-align:middle; ">유형</caption>
+		<select1 id="cmb_type" ref="/root/reqData/type_clsf" navindex="3" appearance="minimal" style="left:455px; top:105px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/type_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="cpt_slcrg" class="list_cap01" style="left:565px; top:100px; width:70px; height:30px; text-align:center; vertical-align:middle; ">영업담당</caption>
+		<select1 id="cmb_slcrg" ref="/root/reqData/slcrg_pers" navindex="3" appearance="minimal" style="left:640px; top:105px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/slcrg_pers/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="cpt_mchrg" class="list_cap01" style="left:750px; top:100px; width:70px; height:30px; text-align:center; vertical-align:middle; ">관리담당</caption>
+		<select1 id="cmb_mchrg" ref="/root/reqData/mchrg_pers" navindex="3" appearance="minimal" style="left:825px; top:105px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/mchrg_pers/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="cpt_grpy_cmpy_upd" class="list_cap01" style="left:10px; top:160px; width:70px; height:30px; text-align:center; vertical-align:middle; ">그룹사</caption>
+		<select1 id="cmb_grp_cmpy_upd" ref="/root/reqData/grp_cmpy_upd" navindex="3" appearance="minimal" style="left:85px; top:165px; width:80px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/grp_cmpy/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<bool id="boo_grp_cmpy_yn" checkvalue="Y,N" ref="/root/reqData/grp_cmpy_yn" style="left:160px; top:165px; width:30px; height:20px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var chk_yn = model.getValue("/root/reqData/grp_cmpy_yn");
+					if( chk_yn == "Y" )
+					{
+						cmb_grp_cmpy_upd.disabled = false;
+					}
+					else
+					{
+						cmb_grp_cmpy_upd.disabled = true;
+					}
+				]]>
+			</script>
+		</bool>
+		<caption id="cpt_indt_upd" class="list_cap01" style="left:195px; top:160px; width:70px; height:30px; text-align:center; vertical-align:middle; ">업종</caption>
+		<select1 id="cmb_indt_upd" ref="/root/reqData/indt_upd" navindex="3" appearance="minimal" style="left:270px; top:165px; width:80px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/indt_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<bool id="boo_indt_yn" checkvalue="Y,N" ref="/root/reqData/indt_yn" style="left:345px; top:165px; width:30px; height:20px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var chk_yn = model.getValue("/root/reqData/indt_yn");
+					if( chk_yn == "Y" )
+					{
+						cmb_indt_upd.disabled = false;
+					}
+					else
+					{
+						cmb_indt_upd.disabled = true;
+					}
+				]]>
+			</script>
+		</bool>
+		<caption id="cpt_type_upd" class="list_cap01" style="left:380px; top:160px; width:70px; height:30px; text-align:center; vertical-align:middle; ">유형</caption>
+		<select1 id="cmb_type_upd" ref="/root/reqData/type_upd" navindex="3" appearance="minimal" style="left:455px; top:165px; width:80px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/type_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<bool id="boo_type_yn" checkvalue="Y,N" ref="/root/reqData/type_yn" style="left:530px; top:165px; width:30px; height:20px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var chk_yn = model.getValue("/root/reqData/type_yn");
+					if( chk_yn == "Y" )
+					{
+						cmb_type_upd.disabled = false;
+					}
+					else
+					{
+						cmb_type_upd.disabled = true;
+					}
+				]]>
+			</script>
+		</bool>
+		<caption id="cpt_slcrg_upd" class="list_cap01" style="left:565px; top:160px; width:70px; height:30px; text-align:center; vertical-align:middle; ">영업담당</caption>
+		<select1 id="cmb_slcrg_upd" ref="/root/reqData/slcrg_upd" navindex="3" appearance="minimal" style="left:640px; top:165px; width:80px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/slcrg_pers/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<bool id="boo_slcrg_yn" checkvalue="Y,N" ref="/root/reqData/slcrg_yn" style="left:716px; top:165px; width:30px; height:20px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var chk_yn = model.getValue("/root/reqData/slcrg_yn");
+					if( chk_yn == "Y" )
+					{
+						cmb_slcrg_upd.disabled = false;
+					}
+					else
+					{
+						cmb_slcrg_upd.disabled = true;
+					}
+				]]>
+			</script>
+		</bool>
+		<caption id="cpt_mchrg_upd" class="list_cap01" style="left:750px; top:160px; width:70px; height:30px; text-align:center; vertical-align:middle; ">관리담당</caption>
+		<select1 id="cmb_mchrg_upd" ref="/root/reqData/mchrg_upd" navindex="3" appearance="minimal" style="left:825px; top:165px; width:80px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/mchrg_pers/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<bool id="boo_mchrg_yn" checkvalue="Y,N" ref="/root/reqData/mchrg_yn" style="left:901px; top:165px; width:30px; height:20px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var chk_yn = model.getValue("/root/reqData/mchrg_yn");
+					if( chk_yn == "Y" )
+					{
+						cmb_mchrg_upd.disabled = false;
+					}
+					else
+					{
+						cmb_mchrg_upd.disabled = true;
+					}
+				]]>
+			</script>
+		</bool>
+	</xhtml:body>
+</xhtml:html>

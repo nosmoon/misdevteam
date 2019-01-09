@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>광고지사 평가 총평 관리</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<fwdData>
+							<pubc_dt/>
+							<hndl_nm_cd/>
+						</fwdData>
+						<searchData>
+							<pubc_dt/>
+							<hndl_nm_cd/>
+						</searchData>
+					</reqData>
+					<resData>
+						<pubc_dt/>
+						<hndl_nm_cd/>
+						<tot_comnt/>
+					</resData>
+					<codeData>
+						<hndl_nm_cd>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</hndl_nm_cd>
+					</codeData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.send("ad_co_1800_m");
+				var cur_date = getCurrentDate();
+				var cur_yyyy = cur_date.substring(0,4);
+				model.setValue("/root/resData/pubc_dt",cur_yyyy);
+				inp_pubc_dt.refresh();
+				
+				model.copyNode("/root/codeData/hndl_nm_cd"	, "/root/tempData/hndl_nm_cd");
+				makeComboGubun("", "/root/codeData/hndl_nm_cd"		, "item", "label", "value");
+				model.refresh();
+				
+				]]>
+			</script>
+			<submission id="ad_co_1800_m" action="/ad/common/1800" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="ad_co_1810_s" action="/ad/common/1810" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/tempData"/>
+			<submission id="ad_co_1820_a" action="/ad/common/1820" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+	
+			function enter_key(){
+				if(event.keyCode == "13"){
+					loadData();
+				}
+			}
+			function loadData(){
+				var pubc_dt = model.getValue("/root/resData/pubc_dt");
+				var hndl_nm_cd = model.getValue("/root/resData/hndl_nm_cd");
+				
+				model.setValue("/root/reqData/searchData/pubc_dt",pubc_dt);
+				if(hndl_nm_cd == ""){
+					alert("지사를 선택해주세요.");
+					return;
+				}
+				else{
+					model.setValue("/root/reqData/searchData/hndl_nm_cd",hndl_nm_cd);
+				}
+				model.send("ad_co_1810_s");	
+				if(submit_completed()){
+					 model.setValue("/root/resData/tot_comnt",model.getValue("/root/resData/tempData/tot_comnt"));
+					 model.removenode("/root/resData/tempData"); 
+					 model.refresh();				
+				}				
+			}
+			function Save(){
+				model.send("ad_co_1820_a");
+				if( submit_completed() ){
+					loadData();
+				}
+			}
+			function goReport(){
+				// 오즈관련 노드 초기화..
+				resetOznode();
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)
+				makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_CO_1830_P");
+
+				var pubc_dt = model.getValue( "/root/resData/pubc_dt" );
+				if( pubc_dt == "" )
+				{
+					commAlert("평가년도를 선택하세요.");
+					return;
+				}				
+				var hndl_nm_cd = model.getValue("/root/resData/hndl_nm_cd");
+//				if(hndl_nm_cd == ""){
+//					commAlert("지사를 선택하세요.");
+//					return;
+//				}
+		
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd"		, model.property("ss_cmpycd"));					
+				makeNodeValue("/root/oz_data/odiParam/iv_pubc_dt"		, pubc_dt);	
+				makeNodeValue("/root/oz_data/odiParam/iv_hndl_nm_cd"    , hndl_nm_cd);	
+				// 레포트뷰어 호출.					
+				openOzwin("/root/oz_data");					
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="800" pageheight="480" guideline="2,28;2,46;2,70;1,936;1,927;1,926;1,789;" style="font-family:굴림; ">
+		<caption id="caption10" class="list_cap02" style="left:10px; top:46px; width:780px; height:22px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:73px; width:775px; height:5px; "/>
+		<button id="button7" class="btn02" style="left:523px; top:10px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[			
+				loadData();
+				]]>
+			</script>
+		</button>
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:350px; height:27px; ">지사평가 총평 관리</caption>
+		<button id="button2" class="btn02" style="left:741px; top:10px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();				
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:46px; width:85px; height:22px; ">평가년도</caption>
+		<input id="inp_pubc_dt" ref="/root/resData/pubc_dt" class="req" inputtype="date" format="yyyy" style="left:103px; top:48px; width:95px; height:18px; text-align:center; "/>
+		<button id="button3" class="btn02" style="left:633px; top:10px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[		
+					model.reset();
+					model.refresh();
+				]]>
+			</script>
+		</button>
+		<select1 id="cb_hndl_cd" ref="/root/resData/hndl_nm_cd" class="req" navindex="4" appearance="minimal" style="left:504px; top:48px; width:131px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/hndl_nm_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption4" class="list_cap01" style="left:415px; top:46px; width:80px; height:22px; ">지사</caption>
+		<button id="button1" class="btn02" style="left:578px; top:10px; width:50px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[			
+					Save();
+				]]>
+			</script>
+		</button>
+		<textarea id="textarea1" ref="/root/resData/tot_comnt" style="left:15px; top:85px; width:775px; height:375px; vertical-align:top; "/>
+		<button id="button4" class="btn02" style="left:687px; top:10px; width:50px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[			
+				goReport();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

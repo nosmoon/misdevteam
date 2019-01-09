@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_COMM_2500.xrw
+* 기능 : 섹션조회
+* 작성일자 : 2009.06.10
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				/*
+					부모창에서 설정할 값
+					model.property("bns_item_cd_path") 	= "/root/reqData/searchData/bns_item_cd";		//부모창에 조회코드명 저장위치
+					model.property("bns_item_nm_path") 	= "/root/reqData/searchData/bns_item_nm";    //부모창에 조회순위 저장위치
+				*/
+				
+				function goSearch(){
+					
+					var action = "se_comm_2510_l";
+					model.send(action);
+				}
+				
+				function setValue(){
+					var rownum = datagrid1.row;
+					
+					if ( rownum < 0 ) {
+							return;
+					}
+					
+					if ( datagrid1.valueMatrix(rownum, 1) == "" ){
+						return;
+					}
+					
+					var path		= model.property("path_2500");
+					var item		= model.property("item_2500");
+					var indexPro 	= model.property("index_2500");
+
+					var par, sub, srcNode ,node, index;
+					
+					par			= window.opener.instance1.selectSingleNode(path);
+					sub			= par.getElementsByTagName(item);
+
+					if ( sub.length == 1 ){
+						indexPro = "";
+					} else {
+						indexPro = "[" + indexPro + "]";
+					}
+					
+					sub			= par.getElementsByTagName(item + indexPro);
+					
+					index = datagrid1.selectedRow(0);
+					if ( datagrid1.rows == datagrid1.fixedRows + 1 ){
+						index = "";
+					} else {
+						index = "[" + index + "]";
+					}
+
+					var root = "/root/resData/gridData/record" + index + "/";
+					var arr = new Array("sect_cd", "sect_nm", "cd_abrv_nm");
+					
+					var detail = sub.nextNode();
+					var detail_path = path + "/" + item + indexPro;
+					var value;
+					for ( var i = 0 ; i < arr.length ; i++ ){
+						value = model.getValue(root + arr[i]);
+						if ( detail.getElementsByTagName(arr[i]).length < 1 ){
+							opener.model.makeNode(detail_path + "/" + arr[i]);
+						}
+						opener.model.setValue(detail_path + "/" + arr[i], value);
+					}
+					window.close();
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터 -->
+						<session/>
+						<!-- 서버의 세션 정보 -->
+						<comboSet>
+							<!-- 선택계열(콤보박스,체크박스,리스트박스,라디오버튼)의 정보 -->
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영시 사용(화면ID등) -->
+					</initData>
+					<reqData>
+						<!-- 서버에 전달하고자 하는 데이터 (submit시 처리) -->
+						<fwdData/>
+						<!-- popup등의 페이지전환시 데이타 입출력에 사용 -->
+						<searchData>
+							<medi_cd/>
+							<sect_cd/>
+							<sect_nm/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqform>
+						</reqform>
+						<!-- 입력처리 formData 복수사용시 하위노드로 1,2,3으로 정의-->
+						<multiUpDate/>
+						<!-- Grid의 MultiUpDate유형 사용시 처리 -->
+					</reqData>
+					<resData>
+						<!-- 서버로부터 전달 받은 데이터 (submit의 결과) -->
+						<resform>
+						</resform>
+						<!-- (submit의 결과) formData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<gridData>
+							<record>
+								<bns_item_cd/>
+								<bns_itme_nm/>
+							</record>
+						</gridData>
+						<!-- (submit의 결과) gridData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<MsgData/>
+						<!-- (submit의 결과) 전달 받은 MsgData -->
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+					<!-- 저장소 -->
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var medi_cd		= model.property("medi_cd_2500");
+					model.setValue("/root/reqData/searchData/medi_cd"		, medi_cd	);
+					
+					goSearch();
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_comm_2510_l" action="/se/comm/2510" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="pop400" pagewidth="640" pageheight="480" style="font-family:굴림; ">
+		<caption id="caption74" class="list_cap02" style="left:10px; top:65px; width:380px; height:28px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:103px; width:380px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="코드^코드명^약어명" colsep="^" colwidth="80, 170, 130" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="byrow" style="left:10px; top:116px; width:380px; height:250px; ">
+			<col ref="sect_cd"/>
+			<col ref="sect_nm" style="text-align:left; "/>
+			<col ref="cd_abrv_nm" style="text-align:left; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					setValue();
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="list_cap01" style="left:199px; top:65px; width:70px; height:28px; ">코드명</caption>
+		<button id="button7" class="btn03" style="left:193px; top:40px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<input id="input1" ref="/root/reqData/searchData/sect_cd" style="left:83px; top:70px; width:105px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					if ( event.keyCode == 13 ){
+						var cd	= input1.currentText;
+						var cdnm	= input2.currentText;
+						
+						model.setValue("/root/reqData/searchData/bns_item_cd"	, cd		);
+						model.setValue("/root/reqData/searchData/bns_item_nm"	, cdnm	);
+						
+						goSearch();
+					}
+				]]>
+			</script>
+		</input>
+		<input id="input2" ref="/root/reqData/searchData/sect_nm" style="left:274px; top:70px; width:105px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					if ( event.keyCode == 13 ){
+						var cd		= input1.currentText;
+						var cdnm	= input2.currentText;
+						
+						model.setValue("/root/reqData/searchData/bns_item_cd"	, cd);
+						model.setValue("/root/reqData/searchData/bns_item_nm"	, cdnm);
+						
+						goSearch();
+					}
+				]]>
+			</script>
+		</input>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:65px; width:67px; height:28px; ">코드</caption>
+		<caption id="caption2" class="tit01" style="left:15px; top:10px; width:380px; height:27px; ">섹션조회</caption>
+		<button id="button1" class="btn03" style="left:260px; top:40px; width:63px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					setValue();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" style="left:327px; top:40px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

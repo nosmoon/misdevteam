@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<radio/>
+							<checkbox1/>
+							<checkbox2/>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<bodyData>
+						<!-- 화면상의 입/출력 데이터등의 기본적인 데이터를 담당 -->
+						<!-- 정보별로 group화 한다. -->
+						<formData>
+							<!-- 정보별로 group화 한다. -->
+						</formData>
+					</bodyData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<fundcode/>
+								<fund1/>
+								<fund2/>
+								<fund3/>
+								<check/>
+								<fundidx/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="TN_DNS_2110" action="/tn/dns/2110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+						loadList();
+				]]>
+			</script>
+		</model>
+		<script type="javascript">
+			<![CDATA[
+			
+	function openerCopyNode()	{	
+	//alert("gg");
+	try
+		{
+		var length = arguments.length;	
+	
+		 var targNode = arguments[0];
+		 if (opener.instance1.selectSingleNode(targNode)==null) opener.model.makeNode(targNode);
+		
+			for(var j = 1; j<length; j++){					
+	
+					var node1 = instance1.selectSingleNode(arguments[j]);
+					var nodeList = node1.childNodes;
+
+					while (childNode = nodeList.nextNode())
+					{
+									opener.model.duplicate(targNode,childNode.cloneNode(true));
+
+					}
+			}	
+							
+		}					
+		catch (e)
+		{
+			model.alert("Error", "해당노드의 선택이 잘못되었습니다");
+			return false;
+		}
+		
+}	
+
+
+			function loadList(){
+				
+				model1.resetInstanceNode("/root/resData/gridData");
+					 
+				model1.send("TN_DNS_2110");
+				model1.copyNode("/root/resData","/root/tempData");
+				datagrid1.refresh();
+				
+					for (var i=1; i< datagrid1.rows;i++){
+								
+						if(datagrid1.valueMatrix(i, 3) != "")
+						{
+							//datagrid1.cellAttribute("type",i,4,i,4) ="combo";
+							datagrid1.cellStyle("background-color", i, 1, i, 4) = "#FF7C80";
+						}
+
+					}
+					model1.refresh();
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="560" pageheight="480" style="font-family:굴림; ">
+		<group id="group_scr" style="left:10px; top:30px; width:535px; height:25px; ">
+			<button id="button8" class="btn02" style="left:364px; top:0px; width:51px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						loadList();
+						
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:420px; top:0px; width:51px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var fundidxs = "";
+						var fund3s = "";
+						for (var i=1; i< datagrid1.rows;i++){
+								
+							if(datagrid1.valueMatrix(i, 4) == "Y")
+							{
+								if(datagrid1.valueMatrix(i, 3) != "")
+								{
+									var fundidx = datagrid1.valueMatrix(i, 5);
+									var fund3 = datagrid1.valueMatrix(i, 3);
+									fundidxs = fundidxs +"," + fundidx;
+									fund3s = fund3s +"," + fund3;
+								}
+							
+							}
+						}
+						
+							fund3s = fund3s.substring(1,fund3s.length+1);
+							fundidxs = fundidxs.substring(1,fundidxs.length+1);
+							if(fundidxs.length == 0){
+								fundidxs = "";
+								fund3s = "";
+							}
+							var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+							eval("window.opener.javascript." + retFunc + "('" + fundidxs + "', '" + fund3s + "')");
+							window.close();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:476px; top:0px; width:51px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+			window.close();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="코드^1차분류^2차분류^기금^^caption1" colsep="^" colwidth="65, 131, 128, 155, 50, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:75px; width:535px; height:380px; ">
+			<col ref="fundcode"/>
+			<col ref="fund1"/>
+			<col ref="fund2"/>
+			<col ref="fund3"/>
+			<col checkvalue="Y,N" ref="check" type="checkbox"/>
+			<col ref="fundidx" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid1.row == 0) return;			
+		
+					var selectedIdx = datagrid1.selectedRow(0);
+					var check = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/check");
+					var fund3 = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/fund3");
+					var fund2 = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/fund2");
+					var fund1 = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/fund1");
+
+						if(fund3 == ""){
+							if(fund2 == ""){
+								
+								for (var i=selectedIdx; i< datagrid1.rows;i++){
+											
+									if(datagrid1.valueMatrix(i, 1) == fund1)
+									{
+										datagrid1.valueMatrix(i, 4) = check;
+									}
+								}
+							}else{
+								for (var i=selectedIdx; i< datagrid1.rows;i++){
+											
+									if(datagrid1.valueMatrix(i, 2) == fund2)
+									{
+										datagrid1.valueMatrix(i, 4) = check;
+									}
+								}
+							}
+						}
+					datagrid1.refresh();
+//					var matr_nm = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/matr_nm");
+//					
+//					model1.setValue("/root/reqData/searchData/matr_cd",matr_cd);
+//					model1.setValue("/root/reqData/searchData/matr_nm",matr_nm);
+//					
+//					model1.makeNode("/root/reqData/fwdData/matr_cd");
+//					model1.makeNode("/root/reqData/fwdData/matr_nm");
+//					model1.setValue("/root/reqData/fwdData/matr_cd", matr_cd);
+//					model1.setValue("/root/reqData/fwdData/matr_nm", matr_nm);
+//					
+//					input3.refresh();
+//					input6.refresh();
+//				]]>
+			</script>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+//					if(datagrid1.row == 0) return;			
+//			
+//					var selectedIdx = datagrid1.selectedRow(0);
+//					var matr_cd = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/matr_cd");
+//					var matr_nm = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/matr_nm");
+//						
+//					if (matr_cd == ''){
+//						alert("자재를 선택해주십시오.");
+//						return;
+//					} else {
+//						var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+//						eval("window.opener.javascript." + retFunc + "('" + matr_cd + "', '" + matr_nm + "')");
+//						window.close();
+//					}
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_tit" class="gro_tit1" style="left:0px; top:0px; width:440px; height:29px; ">
+			<caption id="maintitle" class="tit01" style="left:0px; top:0px; width:400px; height:1px; ">기금검색</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,562 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<gs_request>N</gs_request>
+						<session/>
+						<comboSet>
+							<codeData/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<search_form>
+								<zipcode/>
+								<areaGubun>A</areaGubun>
+								<areaName/>
+								<rdnm/>
+								<bldgnm/>
+								<bocd/>
+								<bonm/>
+								<useyn/>
+								<appryn/>
+							</search_form>
+							<save_form>
+								<bldmngnn/>
+								<bocd/>
+								<bonm/>
+								<flag/>
+							</save_form>
+							<popupData>
+								<bldmngnn/>
+							</popupData>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<zip/>
+									<addr/>
+									<mt/>
+									<localnn1/>
+									<localnn2/>
+									<rdnm/>
+									<base/>
+									<bldgnn1/>
+									<bldgnn2/>
+									<bldgnm/>
+									<adminnm/>
+									<largedlvnm/>
+									<bonm/>
+									<useyn/>
+									<appryn/>
+									<bocd/>
+									<bldmngnn/>
+								</record>
+							</listGrid>
+						</gridData>
+						<testcheck/>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1700init" action="/ss/admin/1700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/codeData"/>
+			<submission id="PID1700search" action="/ss/admin/1701" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1700approve_request" action="/ss/admin/1702" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/save_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1700approve" action="/ss/admin/1703" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/save_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				model.send("PID1700init", false);
+				
+				PID1700datagrid1.fixedcellcheckbox(0, PID1700datagrid1.colRef("check"), true) = true;
+
+//				if( model.getValue("/root/initData/comboSet/codeData/uid") == "cit0032" 
+//					|| model.getValue("/root/initData/comboSet/codeData/uid") == "cit0040"
+//					|| model.getValue("/root/initData/comboSet/codeData/uid") == "cit0031"
+//					|| model.getValue("/root/initData/comboSet/codeData/uid") == "c205013"
+//					|| model.getValue("/root/initData/comboSet/codeData/uid") == "c192044") {
+//					PID1700group_scr2_sub.visible = true;
+//				} else {
+//					PID1700group_scr2_sub.visible = false;
+//				}
+				
+				PID1700combo3.value="20";
+				
+				model.refresh();
+			}
+			
+			function search()
+			{
+//				if( model.getValue("/root/initData/comboSet/codeData/uid") == "cit0032" 
+//					|| model.getValue("/root/initData/comboSet/codeData/uid") == "cit0040"
+//					|| model.getValue("/root/initData/comboSet/codeData/uid") == "cit0031"
+//					|| model.getValue("/root/initData/comboSet/codeData/uid") == "c205013"
+//					|| model.getValue("/root/initData/comboSet/codeData/uid") == "c192044") {
+//				}else{
+//					if(PID1700input1.value=="" && PID1700input2.value=="" && PID1700input3.value=="" && PID1700input4.value=="" && iptCommonmBranchQ.value==""){
+//						alert("하나 이상의 조건을 입력하십시오.\n(우편번호,지역,도로명,건물명,센터 중)");
+//						return;
+//					}
+//				}
+				remakeNode("/root/tempData/resTemp");
+				
+				model.send("PID1700search", false);
+				
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+						 	
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/zip").length == 0)
+					model.alert("검색결과가 없습니다.");
+													
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1700datagrid1.rebuild();
+			}
+			
+			function approve_request()
+			{
+				if(model.getValue("/root/resData/gridData/listGrid/record/zip")==""){
+					alert("조회 후 실행해주세요.");
+					return;
+				}
+				if(model.getValue("/root/reqData/reqform/save_form/bocd") == "")
+				{
+					alert("적용센터를 선택해주세요.");
+					return;
+				}
+				
+				makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+				model.setValue("/root/reqData/reqform/save_form/bldmngnn", model.getValue("/root/tempData/gridTemp/bldmngnn"));
+				
+				if(model.getValue("/root/reqData/reqform/save_form/bldmngnn") == "")
+				{
+					alert("승인요청할 건을 1건이상 선택해주세요.");
+					return;
+				}
+				
+				model.send("PID1700approve_request", false);
+					
+				if(!submit_completed())
+					return;
+									
+				search();
+			}
+			
+			function approve(flag)
+			{	
+			
+				if(model.getValue("/root/resData/gridData/listGrid/record/zip")==""){
+					alert("조회 후 실행해주세요.");
+					return;
+				}	
+				var chkflag = "2";
+				
+				if(flag == "A"){
+					var chkflag = model.alert("해당 건에 대하여 승인 완료를 하시겠습니까?","승인완료확인창",1);
+				}else if(flag == "B"){
+					var chkflag = model.alert("해당 건에 대하여 승인 거절을 하시겠습니까?","승인거절확인창",1);
+				}
+				
+				if(chkflag == "2"){
+					return;
+				}
+						
+				makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+				model.setValue("/root/reqData/reqform/save_form/bldmngnn", model.getValue("/root/tempData/gridTemp/bldmngnn"));
+				model.setValue("/root/reqData/reqform/save_form/flag", flag);
+				
+				if(model.getValue("/root/reqData/reqform/save_form/bldmngnn") == "")
+				{
+					alert("승인할 건을 1건이상 선택해주세요.");
+					return;
+				}
+				
+				model.send("PID1700approve", false);
+					
+				if(!submit_completed())
+					return;
+									
+				search();
+			}
+			
+			//기존의 bo_list_search
+			function searchWithBranch()
+			{
+				model.setValue("/root/initData/gs_request", "L");
+				
+				if(iptCommonmBranchQ.value == "")
+				{
+					model.setValue("/root/reqData/reqform/search_form/bocd", "");
+					model.setValue("/root/initData/gs_request", "N");
+					search();
+				}
+				else
+				{
+					//modelCopyValue("/root/reqData/reqform/searchForm/common_deptcd", "/root/reqData/reqform/searchForm/deptcd");
+					searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+				}
+			}
+			
+			function onClickBranchPopup()
+			{
+				//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+				openBranch("/root/reqData/reqform/search_form", "/root/tempData/tempBranch");
+
+               		if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+					return;
+				
+				iptCommonmBranchQ.value = model.getValue("/root/tempData/tempBranch/bonm");
+				modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/tempBranch/bocd");
+
+				if(model.getValue("/root/initData/gs_request") == "L")
+				{
+					model.setValue("/root/initData/gs_request", "N");
+					search();
+				}
+			}
+			
+			function onKeyDown()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("btnSearchBranchQ");
+					
+					if(iptCommonmBranchQ.value == '')
+						onClickBranchPopup();
+					else
+					{
+						//화면별 선처리
+						//modelCopyValue("/root/reqData/reqform/searchForm/common_deptcd", "/root/reqData/reqform/searchForm/deptcd");
+						//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+						//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+						//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+						searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+					}
+				}
+			}
+			
+			//지국 enter key 검색 시 callback 함수. onKeyDown
+			function searchBranchCallBack()
+			{
+				//검색 후처리.
+				if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+				{
+					iptCommonmBranchQ.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+					modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+				}
+				else
+					onClickBranchPopup();
+			}
+			
+			function onClickBranchPopup1()
+			{
+				openBranch("/root/reqData/reqform/save_form", "/root/tempData/tempBranch");
+				
+				if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+					return;
+
+				//cmbCommonTeamQ.value = model.getValue("/root/tempData/tempBranch/deptcd");
+
+				iptCommonmBranchQ2.value = model.getValue("/root/tempData/tempBranch/bonm");
+				modelCopyValue("/root/reqData/reqform/save_form/bocd", "/root/tempData/tempBranch/bocd");
+
+				//search();					
+			}
+			
+			function onKeyDown1()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("btnSearchBranchQ");
+					
+					if(iptCommonmBranchQ2.value == '')
+						onClickBranchPopup1();
+					else
+					{
+						//화면별 선처리
+						//modelCopyValue("/root/reqData/reqform/searchForm/common_deptcd", "/root/reqData/reqform/searchForm/deptcd");
+						//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+						//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+						//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+						searchBranchByName("/root/reqData/reqform/save_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack1()", "/root/initData/gs_request");
+					}
+				}
+			}
+			
+			//지국 enter key 검색 시 callback 함수. onKeyDown
+			function searchBranchCallBack1()
+			{
+				//검색 후처리.
+				if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+				{
+					iptCommonmBranchQ2.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+					modelCopyValue("/root/reqData/reqform/save_form/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+				}
+				else
+					onClickBranchPopup1();
+			}
+			
+			function excel_list()
+			{
+				var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+				
+				if(filePath != "") {
+					PID1700datagrid1.saveExcel(filePath);
+					//window.exec(filePath);
+				}
+			}
+			
+			function check300()
+			{
+				var cnt=0;
+				var select_row = PID1700datagrid1.row;
+				for(var i=2; i<PID1700datagrid1.rows; i++) {
+					if(PID1700datagrid1.valueMatrix(i,1) == "Y"){		
+						cnt = cnt + 1;				
+						if(cnt > 300){
+							alert("300건 이상 선택할 수 없습니다.");
+							PID1700datagrid1.valueMatrix(select_row,1) = "N";
+							return;					
+						}
+						
+					}
+				}
+			}
+			
+			function history_popup(){
+				model.setValue("/root/reqData/reqform/popupData/bldmngnn",PID1700datagrid1.textMatrix(PID1700datagrid1.row, PID1700datagrid1.colRef("bldmngnn")));
+				
+				if(model.getValue("/root/reqData/reqform/popupData/bldmngnn") != ''){
+					window.load("/xrw/ss/admin/ss_admin_1710_p.xrw", "new", "",  "width:830px; height:450; align:center", "/root/reqData/reqform/popupData", "/root/initData/searchData/search_form");
+				}
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1700" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA12" class="btn02" style="left:651px; top:0px; width:52px; height:21px; ">
+				<caption>승인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						approve('A');
+						//search();
+					]]>
+				</script>
+			</button>
+			<button id="btnA13" class="btn02" style="left:708px; top:0px; width:52px; height:21px; ">
+				<caption>거절</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						approve('B');
+						//search();
+					]]>
+				</script>
+			</button>
+			<button id="btnA1" class="btn02" style="left:764px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						searchWithBranch();
+						//search();
+					]]>
+				</script>
+			</button>
+			<button id="PID1000button1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						excel_list();	
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1700group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:25px; ">
+			<caption id="PID1700caption2" class="list_cap01" style="left:0px; top:0px; width:60px; height:25px; ">우편번호</caption>
+			<caption id="PID1700caption14" class="list_cap02" style="left:59px; top:0px; width:60px; height:25px; "/>
+			<input id="PID1700input1" ref="/root/reqData/reqform/search_form/zipcode" format="999-999" style="left:62px; top:4px; width:50px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnA1");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<caption id="PID1700caption18" class="list_cap02" style="left:157px; top:0px; width:153px; height:25px; "/>
+			<caption id="PID1700caption20" class="list_cap01" style="left:118px; top:0px; width:40px; height:25px; ">지역</caption>
+			<select1 id="PID1700combo1" ref="/root/reqData/reqform/search_form/areaGubun" appearance="minimal" style="left:160px; top:4px; width:65px; height:18px; ">
+				<choices>
+					<item>
+						<label>시/도</label>
+						<value>A</value>
+					</item>
+					<item>
+						<label>구/군</label>
+						<value>B</value>
+					</item>
+					<item>
+						<label>동/읍/면/리</label>
+						<value>C</value>
+					</item>
+				</choices>
+			</select1>
+			<input id="PID1700input2" ref="/root/reqData/reqform/search_form/areaName" style="left:228px; top:4px; width:60px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnA1");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<caption id="PID1700caption50" class="list_cap01" style="left:294px; top:0px; width:50px; height:25px; ">도로명</caption>
+			<caption id="PID1700caption51" class="list_cap02" style="left:343px; top:0px; width:92px; height:25px; "/>
+			<input id="PID1700input3" ref="/root/reqData/reqform/search_form/rdnm" style="left:348px; top:4px; width:82px; height:18px; "/>
+			<caption id="PID1700caption52" class="list_cap01" style="left:433px; top:0px; width:50px; height:25px; ">건물명</caption>
+			<caption id="PID1700caption53" class="list_cap02" style="left:482px; top:0px; width:114px; height:25px; "/>
+			<input id="PID1700input4" ref="/root/reqData/reqform/search_form/bldgnm" style="left:487px; top:4px; width:99px; height:18px; "/>
+			<caption id="PID1700caption7" class="list_cap02" style="left:649px; top:0px; width:126px; height:25px; "/>
+			<caption id="PID1700caption27" class="list_cap01" style="left:595px; top:0px; width:55px; height:25px; ">센터</caption>
+			<input id="iptCommonmBranchQ" ref="/root/reqData/reqform/search_form/bonm" style="left:656px; top:4px; width:66px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					onKeyDown();				
+					]]>
+				</script>
+			</input>
+			<button id="PID1700button1" class="btn_grid02" style="left:726px; top:5px; width:42px; height:17px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					onClickBranchPopup();				
+					]]>
+				</script>
+			</button>
+			<caption id="PID1700caption54" class="list_cap02" style="left:832px; top:0px; width:94px; height:25px; "/>
+			<caption id="PID1700caption57" class="list_cap01" style="left:773px; top:0px; width:60px; height:25px; ">담당처리</caption>
+			<select1 id="PID1700combo3" ref="/root/reqData/reqform/search_form/appryn" appearance="minimal" style="left:838px; top:4px; width:81px; height:18px; ">
+				<choices>
+					<item>
+						<label>신청중</label>
+						<value>20</value>
+					</item>
+					<item>
+						<label>승인완료</label>
+						<value>30</value>
+					</item>
+					<item>
+						<label>승인거절</label>
+						<value>40</value>
+					</item>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<datagrid id="PID1700datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="^승인여부^센터^센터^우편번호(구주소)^우편번호(구주소)^우편번호(구주소)^우편번호(구주소)^우편번호(구주소)^우편번호(신주소)^우편번호(신주소)^우편번호(신주소)^우편번호(신주소)^우편번호(신주소)^우편번호(신주소)^우편번호(신주소)|^승인여부^변경전(현재)^변경후^우편번호^주소^산여부^지번^부번^도로명^지하여부^건물번호1^건물번호2^건물명^행정명^대량배달처" colsep="^" colwidth="30, 60, 80, 80, 70, 200, 50, 50, 50, 80, 60, 60, 60, 200, 80, 150" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" tooltip="true" style="left:10px; top:110px; width:926px; height:600px; ">
+			<col checkvalue="Y,N" ref="check" type="checkbox"/>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					check300();			
+				]]>
+			</script>
+			<col ref="appryn"/>
+			<col ref="bonm"/>
+			<col ref="chgbonm"/>
+			<col ref="zip"/>
+			<col ref="addr" style="text-align:left; "/>
+			<col ref="mt"/>
+			<col ref="localnn1"/>
+			<col ref="localnn2"/>
+			<col ref="rdnm"/>
+			<col ref="base"/>
+			<col ref="bldgnn1"/>
+			<col ref="bldgnn2"/>
+			<col ref="bldgnm" style="text-align:left; "/>
+			<col ref="adminnm"/>
+			<col ref="largedlvnm" style="text-align:left; "/>
+			<col ref="bldmngnn" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if(PID1700datagrid1.col == 1 && PID1700datagrid1.row == 0) {
+						for(var i=2; i<PID1700datagrid1.rows; i++) {
+							PID1700datagrid1.valueMatrix(i,1) = "Y";
+							if(i>301){
+								alert("300건 이상 선택할 수 없습니다.");
+								PID1700datagrid1.valueMatrix(i,1) = "N";
+								return;
+							}
+						}
+					}					
+				]]>
+			</script>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+					      if(PID1700datagrid1.mouseCol>PID1700datagrid1.fixedCols-1 && PID1700datagrid1.mouseRow>PID1700datagrid1.fixedRows-1)
+					       {
+					             history_popup();
+						}
+					}			
+					]]>
+			</script>
+			<script type="javascript" ev:event="xforms-deselect">
+				<![CDATA[
+					if(PID1700datagrid1.col == 1 && PID1700datagrid1.row == 0) {
+						for(var i=2; i<PID1700datagrid1.rows; i++) {
+							PID1700datagrid1.valueMatrix(i,1) = "N";
+						}
+					}
+				]]>
+			</script>
+		</datagrid>
+		<!--<group id="PID1700group2" style="left:10px; top:425px; width:926px; height:25px; ">
+			<iviewer id="PID1700paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+	</xhtml:body>
+</xhtml:html>

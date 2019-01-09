@@ -1,0 +1,148 @@
+
+
+package chosun.ciis.hd.edu.dm;
+
+import java.sql.*;
+import oracle.jdbc.driver.*;
+import somo.framework.db.*;
+import somo.framework.util.*;
+import chosun.ciis.hd.edu.ds.*;
+import chosun.ciis.hd.edu.rec.*;
+
+/**
+ * 
+ */
+
+
+public class HD_EDU_2200_LDM extends somo.framework.db.BaseDM implements java.io.Serializable{
+
+	public String cmpy_cd;
+	public String cour_yyyymm;
+	public String emp_no;
+	public String proc_stat;
+
+	public HD_EDU_2200_LDM(){}
+	public HD_EDU_2200_LDM(String cmpy_cd, String cour_yyyymm, String emp_no, String proc_stat){
+		this.cmpy_cd = cmpy_cd;
+		this.cour_yyyymm = cour_yyyymm;
+		this.emp_no = emp_no;
+		this.proc_stat = proc_stat;
+	}
+
+	public void setCmpy_cd(String cmpy_cd){
+		this.cmpy_cd = cmpy_cd;
+	}
+
+	public void setCour_yyyymm(String cour_yyyymm){
+		this.cour_yyyymm = cour_yyyymm;
+	}
+
+	public void setEmp_no(String emp_no){
+		this.emp_no = emp_no;
+	}
+
+	public void setProc_stat(String proc_stat){
+		this.proc_stat = proc_stat;
+	}
+
+	public String getCmpy_cd(){
+		return this.cmpy_cd;
+	}
+
+	public String getCour_yyyymm(){
+		return this.cour_yyyymm;
+	}
+
+	public String getEmp_no(){
+		return this.emp_no;
+	}
+
+	public String getProc_stat(){
+		return this.proc_stat;
+	}
+
+	public String getSQL(){
+		 return "{ call MISHDL.SP_HD_EDU_2200_L(? ,? ,? ,? ,? ,? ,? ,?) }";
+	}
+
+	public void setParams(CallableStatement cstmt, BaseDM bdm) throws SQLException{
+		HD_EDU_2200_LDM dm = (HD_EDU_2200_LDM)bdm;
+		cstmt.registerOutParameter(1, Types.VARCHAR);
+		cstmt.registerOutParameter(2, Types.VARCHAR);
+		cstmt.registerOutParameter(3, Types.VARCHAR);
+		cstmt.setString(4, dm.cmpy_cd);
+		cstmt.setString(5, dm.cour_yyyymm);
+		cstmt.setString(6, dm.emp_no);
+		cstmt.setString(7, dm.proc_stat);
+		cstmt.registerOutParameter(8, OracleTypes.CURSOR);
+	}
+
+	public BaseDataSet createDataSetObject(){
+		return new HD_EDU_2200_LDataSet();
+	}
+
+
+
+	public void print(){
+		System.out.println("SQL = " + this.getSQL());
+		System.out.println("cmpy_cd = [" + getCmpy_cd() + "]");
+		System.out.println("cour_yyyymm = [" + getCour_yyyymm() + "]");
+		System.out.println("emp_no = [" + getEmp_no() + "]");
+		System.out.println("proc_stat = [" + getProc_stat() + "]");
+	}
+}
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 req.getParameter() 처리 및 결과확인 검사시 사용하십시오.
+
+String cmpy_cd = req.getParameter("cmpy_cd");
+if( cmpy_cd == null){
+	System.out.println(this.toString+" : cmpy_cd is null" );
+}else{
+	System.out.println(this.toString+" : cmpy_cd is "+cmpy_cd );
+}
+String cour_yyyymm = req.getParameter("cour_yyyymm");
+if( cour_yyyymm == null){
+	System.out.println(this.toString+" : cour_yyyymm is null" );
+}else{
+	System.out.println(this.toString+" : cour_yyyymm is "+cour_yyyymm );
+}
+String emp_no = req.getParameter("emp_no");
+if( emp_no == null){
+	System.out.println(this.toString+" : emp_no is null" );
+}else{
+	System.out.println(this.toString+" : emp_no is "+emp_no );
+}
+String proc_stat = req.getParameter("proc_stat");
+if( proc_stat == null){
+	System.out.println(this.toString+" : proc_stat is null" );
+}else{
+	System.out.println(this.toString+" : proc_stat is "+proc_stat );
+}
+----------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 req.getParameter() 처리시 사용하십시오.
+
+String cmpy_cd = Util.checkString(req.getParameter("cmpy_cd"));
+String cour_yyyymm = Util.checkString(req.getParameter("cour_yyyymm"));
+String emp_no = Util.checkString(req.getParameter("emp_no"));
+String proc_stat = Util.checkString(req.getParameter("proc_stat"));
+----------------------------------------------------------------------------------------------------*//*----------------------------------------------------------------------------------------------------
+Web Tier에서 한글처리와 동시에 req.getParameter() 처리시 사용하십시오.
+
+String cmpy_cd = Util.Uni2Ksc(Util.checkString(req.getParameter("cmpy_cd")));
+String cour_yyyymm = Util.Uni2Ksc(Util.checkString(req.getParameter("cour_yyyymm")));
+String emp_no = Util.Uni2Ksc(Util.checkString(req.getParameter("emp_no")));
+String proc_stat = Util.Uni2Ksc(Util.checkString(req.getParameter("proc_stat")));
+----------------------------------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 DM 파일의 변수를 설정시 사용하십시오.
+
+dm.setCmpy_cd(cmpy_cd);
+dm.setCour_yyyymm(cour_yyyymm);
+dm.setEmp_no(emp_no);
+dm.setProc_stat(proc_stat);
+----------------------------------------------------------------------------------------------------*/
+
+
+/* 작성시간 : Tue Apr 12 14:10:56 KST 2011 */

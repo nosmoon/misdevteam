@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_ETC_1100.xrw
+* 기능 : 판매 - 기타관리 - 확장수당 지급내역 조회
+* 작성일자 : 2009.03.04
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var bgn_yymm			= model.getValue("/root/reqData/searchData/bgn_yymm");
+					var end_yymm		= model.getValue("/root/reqData/searchData/end_yymm");
+					
+					if ( bgn_yymm == ""  ){
+						commAlert("시작 년월이 없습니다");
+						return;
+					}
+					
+					if ( end_yymm == "" ){
+						end_yymm	= bgn_yymm;
+						model.setValue("/root/reqData/searchData/end_yymm", end_yymm);
+					}
+					
+					if ( bgn_yymm > end_yymm ){
+						commAlert("종료년월일이 시작년월보다 클 수 없습니다.");
+						return;
+					}
+					
+					var strdt1 = bgn_yymm+"01";
+					var strdt2 = end_yymm+"30";
+					if(!se_chkOverDate(strdt1,strdt2)) return;
+					var searchForm = model.getValue("/root/reqData/searchData/searchForm");
+					var hiddenYn, width;
+					if ( searchForm == "1" ){
+						hiddenYn = new Array(false, true, true, true);
+						width = new Array(100, 120, 0, 0, 0, 0, 100, 100, 140, 100, 100, 140);
+					} else if ( searchForm == "2" ){
+						hiddenYn = new Array(false, false, true, true);
+						width = new Array(80, 110, 110, 0, 0, 0, 90, 90, 120, 90, 90, 120);
+					} else if ( searchForm == "3" ){
+						hiddenYn = new Array(false, false, false, true);
+						width = new Array(80, 100, 100, 100, 0, 0, 80, 80, 100, 80, 80, 100);
+					} else {
+						hiddenYn = new Array(false, false, false, false);
+						width = new Array(70, 80, 80, 80, 80, 60, 70, 70, 85, 70, 70, 85);
+					}
+
+					for ( var i = 0 ; i < hiddenYn.length ; i++ ){
+						datagrid1.colHidden(i + 2) = hiddenYn[i];
+					}
+					
+					for ( var i = 0 ; i < width.length ; i++ ){
+						datagrid1.colWidth(i + 1) = width[i];
+					}
+					
+					var action = "se_etc_1110_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					model.refresh();
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<objlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</objlist>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<bgn_yymm/>
+							<end_yymm/>
+							<team/>
+							<part/>
+							<area/>
+							<searchForm>1</searchForm>
+							<pay_obj_clsf/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<pay_obj_clsf_nm/>
+									<dept_nm/>
+									<sub_dept_nm/>
+									<area_nm/>
+									<bo_nm/>
+									<bo_head_nm/>
+									<recp_pers_nm/>
+									<qty/>
+									<uprc/>
+									<amt/>
+									<incm_tax/>
+									<res_tax/>
+									<real_amt/>
+									<acct_no/>
+									<rcpm_main_nm/>
+									<setl_bank_nm/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					makeTeamSearch(
+									"se_etc_1100_m"
+								  , "/se/etc/1100"
+								  , "/root/reqData"  
+					               , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  , "area_combo"
+								  );
+				
+					var bgn_yymm		= model.getValue("/root/initData/bgn_yymm");
+					var end_yymm		= model.getValue("/root/initData/end_yymm");
+					
+					model.setValue("/root/reqData/searchData/bgn_yymm", bgn_yymm);
+					model.setValue("/root/reqData/searchData/end_yymm", end_yymm);
+					makeComboGubun("A", "/root/initData/comboSet/objlist", "record", "cdnm", "cd");
+					combo5.select(0);
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_etc_1100_m" action="/se/etc/1100" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_etc_1110_l" action="/se/etc/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:128px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="구분^팀^파트^지역^센터^센터대표^부수^단가^확장수당^소득세^주민세^실수령액" colsep="#" colwidth="70, 80, 80, 80, 80, 60, 70, 70, 85, 70, 70, 85" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:140px; width:926px; height:585px; ">
+			<col ref="pay_obj_clsf_nm"/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="sub_dept_nm" style="text-align:left; "/>
+			<col ref="area_nm" style="text-align:left; "/>
+			<col ref="bo_nm" style="text-align:left; "/>
+			<col ref="bo_head_nm" style="text-align:center; "/>
+			<col ref="qty" format="#,###" style="text-align:right; "/>
+			<col ref="uprc" format="#,###" style="text-align:right; "/>
+			<col ref="amt" format="#,###" style="text-align:right; "/>
+			<col ref="incm_tax" format="#,###" style="text-align:right; "/>
+			<col ref="res_tax" format="#,###" style="text-align:right; "/>
+			<col ref="real_amt" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:52px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption3" class="list_cap01" style="left:211px; top:0px; width:70px; height:26px; ">파트</caption>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; ">팀</caption>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team" appearance="minimal" style="left:73px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/searchForm","2");
+						searchForm.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption1" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part" appearance="minimal" style="left:284px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/searchForm","3");
+						searchForm.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption2" class="list_cap01" style="left:423px; top:0px; width:70px; height:26px; ">지역</caption>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area" appearance="minimal" style="left:496px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/searchForm","4");
+						searchForm.refresh();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:635px; top:0px; width:70px; height:26px; ">조회형태</caption>
+			<select1 id="searchForm" ref="/root/reqData/searchData/searchForm" appearance="minimal" style="left:708px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<item>
+						<label>팀</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>파트</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>지역</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>센터</label>
+						<value>4</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption5" class="list_cap01" style="left:0px; top:25px; width:70px; height:26px; ">년월</caption>
+			<caption id="caption6" style="left:170px; top:28px; width:15px; height:20px; ">~</caption>
+			<input id="input3" ref="/root/reqData/searchData/bgn_yymm" class="req" navindex="1" format="yyyy-mm" caption="지급시작일자" style="left:73px; top:29px; width:90px; height:18px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/bgn_yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<input id="input4" ref="/root/reqData/searchData/end_yymm" navindex="1" format="yyyy-mm" style="left:188px; top:29px; width:90px; height:18px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input4.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/end_yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<caption id="caption8" class="list_cap01" style="left:423px; top:25px; width:70px; height:26px; ">수당구분</caption>
+			<select1 id="combo5" ref="/root/reqData/searchData/pay_obj_clsf" appearance="minimal" style="left:496px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/objlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<button id="button7" class="btn03" crud="R" style="left:741px; top:44px; width:63px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+					datagrid1.saveExcel(dir);
+					commAlert("엑셀 저장이 완료되었습니다.");
+					return;
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_1000.xrw
+* 기능 : 판매 - 발송관리 - 대표노선등록
+* 작성일자 : 2009.02.02
+* 작성자 : 김대준
+*********************************************************************************************** -->

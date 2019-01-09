@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<!--=======================================================================-->
+<!-- 페이지 ID :	MDITitleBar.xrw									-->
+<!-- 페이지명 :	MDI Window Title Bar								-->
+<!--=======================================================================-->
+<!--				변		경		사		항					-->
+<!--=======================================================================-->
+<!-- DATE		AUTHOR		DESCRIPTION						-->
+<!--=======================================================================-->
+<!-- 2007.10.01		이재훈		최초 디자인						-->
+<!--=======================================================================-->
+<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<pageInfo>
+						<pageTitle/>
+						<pageID/>
+						<pageSecret/>
+						<pageUrl/>
+						<statusMsg/>
+						<statusIP/>
+						<statusUserID/>
+						<statusUsername/>
+						<statusServer/>
+						<statusTime/>
+					</pageInfo>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				// TitleBar를 MDI Window 일 때만 보여 줌
+				if (window.type == "main" || window.type == "iviewer") {
+					grpBtn.visible = false;
+					capTitleBar.visible = false;
+					btnMDI.visible = false;
+				}
+				
+				// 화면을 리로드 했을 경우 pageInfo setting
+				try {
+					if (model.getValue("/root/pageInfo/pageID") == "") {
+						viewer("mainFrame").window.javaScript.setPageInfo(window);
+					}
+				}
+				catch(e) {}
+				
+				// TitleBar의 caption setting
+				//capTitleBar.text = model.getValue("/root/pageInfo/pageTitle");
+				]]>
+			</script>
+		</model>
+		<xhtml:style id="style1">
+			<![CDATA[
+			caption.titleBar {
+				font-size:12px !important;
+				font-family:굴림,arial !important;
+				font-weight:bold !important;
+				color:#ffffff !important;
+				padding-top:3px !important;
+				padding-left:22px !important;
+				padding-right:68px !important;
+			}
+			]]>
+		</xhtml:style>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+/***************************************************
+// 함 수 명 : winMax
+// 내    용 : MDI Window의 축소화 최대화 Button 이벤트
+// 작 성 자 : 이재훈
+// 작 성 일 : 2006-03-27
+***************************************************/
+function winMax()
+{	
+	var child = btnMax.children;
+	
+	if (btnMax.attribute("_maxFlag") == "MAX") {	// 전체창 Button
+		window.maximize();
+		btnMax.attribute("hover.background-image") = "/images/mainFrame/mdi_win_ov.gif";
+		btnMax.attribute("background-image") = "/images/mainFrame/mdi_win.gif";
+		
+		for ( i = 0; i < child.length; i++) {
+			if ( child.item(i).elementName == "xforms:hint" ) {
+				child.item(i).attribute("text") = "화면 복원";
+			}
+		}
+		
+		btnMax.attribute("_maxFlag") = "MIN";
+	}
+	else {	// 화면 복원 Button
+		window.restore();
+		btnMax.attribute("hover.background-image") = "/images/mainFrame/mdi_max_ov.gif";
+		btnMax.attribute("background-image") = "/images/mainFrame/mdi_max.gif";
+		
+		for ( i = 0; i < child.length; i++) {
+			if ( child.item(i).elementName == "xforms:hint" ) {
+				child.item(i).attribute("text") = "최대화";
+			}
+		}
+		
+		btnMax.attribute("_maxFlag") = "MAX";
+	}
+}
+
+/***************************************************
+// 함 수 명 : onwindowactivate
+// 내    용 : MDI Window에 focusIn하였을 경우 상태지정
+// 작 성 자 : 이재훈
+// 작 성 일 : 2006-03-27
+***************************************************/				
+function onwindowactivate()
+{
+	capTitleBar.attribute("background-image") = "/images/mainFrame/mdi_bg.gif";
+	
+	var mainWin = viewer("mainFrame").window;
+	var pageID = model.getValue("/root/pageInfo/pageID");
+
+	if ( (taskBtnObj = mainWin.document.body.mainTask.children.item("taskBtn" + pageID)) != null) {
+		taskBtnObj.selected = true;
+	}
+	
+	var workWin = mainWin.javaScript.getWorkWindow().window;
+	var mdicnt = workWin.children.length;
+
+	for (var i = 0; i < mdicnt; i++) {
+		var mdiWin =  workWin.children.item(i);
+	
+		if(mdiWin.attribute("id")  !=  pageID) {
+			try {
+				mdiWin.window.document.all("capTitleBar").attribute("background-image")="/images/mainFrame/mdi_bg_d.gif";
+			}
+			catch (e) {}
+		}
+	}
+	
+	event.propagate = "stop"
+}
+
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="780px" pageheight="20px">
+		<caption id="capTitleBar" ref="/root/pageInfo/pageTitle" class="titleBar" caption="true" style="left:0px; top:0px; width:100%; height:20px; background-image:/images/mainFrame/mdi_bg.gif; background-repeat:repeat-x; border-style:none; "/>
+		<button id="btnMDI" navindex="-1" caption="true" style="left:3px; top:3px; width:12px; height:14px; background-image:/images/mainFrame/mdi_logo.gif; border-style:none; ">
+			<caption/>
+		</button>
+		<group id="grpBtn" right="100%" style="top:0px; width:82px; height:20px; background-color:transparent; ">
+			<button id="btnMemo" navindex="-1" hover.background-image="/images/mainFrame/mdi_memo_ov.gif" style="left:0px; top:2px; width:15px; height:15px; background-color:transparent; background-image:/images/mainFrame/mdi_memo.gif; border-style:none; ">
+				<caption/>
+				<hint>
+					<![CDATA[내메모]]>
+				</hint>
+			</button>
+			<button id="btnHelp" navindex="-1" hover.background-image="/images/mainFrame/mdi_help_ov.gif" style="left:16px; top:2px; width:15px; height:15px; background-color:transparent; background-image:/images/mainFrame/mdi_help.gif; border-style:none; ">
+				<caption/>
+				<hint>
+					<![CDATA[도움말]]>
+				</hint>
+			</button>
+			<button id="btnMin" navindex="-1" hover.background-image="/images/mainFrame/mdi_min_ov.gif" style="left:32px; top:2px; width:15px; height:15px; background-color:transparent; background-image:/images/mainFrame/mdi_min.gif; border-style:none; ">
+				<caption/>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					window.minimize();
+					window.visible = false;
+					]]>
+				</script>
+				<hint>
+					<![CDATA[최소화]]>
+				</hint>
+			</button>
+			<button id="btnMax" navindex="-1" _maxFlag="MAX" hover.background-image="/images/mainFrame/mdi_max_ov.gif" style="left:48px; top:2px; width:15px; height:15px; background-color:transparent; background-image:/images/mainFrame/mdi_max.gif; border-style:none; ">
+				<caption/>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					winMax();	
+					]]>
+				</script>
+				<hint>
+					<![CDATA[최대화]]>
+				</hint>
+			</button>
+			<button id="btnClose" navindex="-1" hover.background-image="/images/mainFrame/mdi_close_ov.gif" style="left:64px; top:2px; width:15px; height:15px; background-color:transparent; background-image:/images/mainFrame/mdi_close.gif; border-style:none; ">
+				<caption/>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/pageInfo/pageID"));
+					]]>
+				</script>
+				<hint>
+					<![CDATA[닫기]]>
+				</hint>
+			</button>
+			<script type="javascript" ev:event="onshowhint">
+				<![CDATA[
+				var hint = window.hint;
+				hint.attribute("left") = parseInt(event.screenX) - 42;
+				hint.attribute("background-color") = "#ffff66";
+				]]>
+			</script>
+		</group>
+	</xhtml:body>
+</xhtml:html>

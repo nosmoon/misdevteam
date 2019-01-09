@@ -1,0 +1,131 @@
+/***************************************************************************************************
+* WBMapping
+***************************************************************************************************/
+
+public class PR_PRTCNSG_1000WBMapping {
+	public static final int PR_PRTCNSG_1100 = 1100;
+}
+
+/***************************************************************************************************
+* Servlet
+***************************************************************************************************/
+
+	public String executeWorker(HttpServletRequest req, HttpServletResponse res, int pid) throws AppException, IOException {
+		String nextPage = null;
+		BaseWB wb = null;
+
+		switch(pid) {
+			case PR_PRTCNSG_1000WBMapping.PR_PRTCNSG_1100:
+				wb = new PR_PRTCNSG_1000WB();
+				((PR_PRTCNSG_1000WB)wb).pr_prtcnsg_1100_l(req, res);
+				nextPage = "/jsp/pr/prtcnsg/pr_prtcnsg_1100_l.jsp";
+				break;
+			default:
+				throw new SysException(new Exception("요청한 페이지를 찾을 수 없습니다."));
+				break;
+
+			}
+		return nextPage;
+	}
+
+/***************************************************************************************************
+* WB
+***************************************************************************************************/
+
+	public void pr_prtcnsg_1100_l(HttpServletRequest req, HttpServletResponse res) throws AppException {
+		PR_PRTCNSG_1100_LDataSet ds = null;
+		PR_PRTCNSG_1100_LDM dm = new PR_PRTCNSG_1100_LDM();
+
+		dm.cmpy_cd = Util.checkString(req.getParameter("cmpy_cd"));
+		dm.fac_clsf = Util.checkString(req.getParameter("fac_clsf"));
+		dm.issu_dt = Util.checkString(req.getParameter("issu_dt"));
+		dm.prt_dt = Util.checkString(req.getParameter("prt_dt"));
+		dm.medi_cd = Util.checkString(req.getParameter("medi_cd"));
+
+		dm.print();
+
+		try {
+			PR_PRTCNSG_1000EJBHome home = (PR_PRTCNSG_1000EJBHome)JNDIManager.getInstance().getHome("PR_PRTCNSG_1000EJB");
+			PR_PRTCNSG_1000EJB ejb = home.create();
+
+			ds = ejb.pr_prtcnsg_1100_l(dm);
+			req.setAttribute("ds", ds);
+		}
+		catch (CreateException e) {
+			SysException se = new SysException(e);
+			LogManager.getInstance().log(se);
+			throw se;
+		}
+		catch (RemoteException e) {
+			SysException se = new SysException(e);
+			LogManager.getInstance().log(se);
+			throw se;
+		}
+
+		/*******************************************************************************************
+		String multiUpdateData = Util.checkString(req.getParameter("multiUpdateData"));
+		Hashtable hash = getHashMultiUpdateData(multiUpdateData);
+
+		dm.cmpy_cd = (String)hash.get("cmpy_cd");
+		dm.fac_clsf = (String)hash.get("fac_clsf");
+		dm.issu_dt = (String)hash.get("issu_dt");
+		dm.prt_dt = (String)hash.get("prt_dt");
+		dm.medi_cd = (String)hash.get("medi_cd");
+		*******************************************************************************************/
+
+		/*******************************************************************************************
+		dm.cmpy_cd = Util.getSessionParameterValue(req,"cmpy_cd",true);
+		dm.fac_clsf = Util.getSessionParameterValue(req,"fac_clsf",true);
+		dm.issu_dt = Util.getSessionParameterValue(req,"issu_dt",true);
+		dm.prt_dt = Util.getSessionParameterValue(req,"prt_dt",true);
+		dm.medi_cd = Util.getSessionParameterValue(req,"medi_cd",true);
+		*******************************************************************************************/
+	}
+
+/***************************************************************************************************
+* EJB
+***************************************************************************************************/
+
+public interface PR_PRTCNSG_1000EJB extends javax.ejb.EJBObject {
+	PR_PRTCNSG_1100_LDataSet pr_prtcnsg_1100_l(PR_PRTCNSG_1100_LDM dm) throws AppException, RemoteException;
+}
+
+/***************************************************************************************************
+* EJBBean
+***************************************************************************************************/
+
+public class PR_PRTCNSG_1000EJBBean extends somo.framework.ejb.BaseSessionBean implements javax.ejb.SessionBean {
+	public PR_PRTCNSG_1100_LDataSet pr_prtcnsg_1100_l(PR_PRTCNSG_1100_LDM dm) throws AppException {
+		PR_PRTCNSG_1100_LDataSet ds = null;
+
+		try {
+			PR_PRTCNSG_1000DAO dao = new PR_PRTCNSG_1000DAO();
+			ds = dao.pr_prtcnsg_1100_l(dm);
+		}
+		catch (SysException e) {
+			throw new EJBException();
+		}
+		return ds;
+	}
+}
+
+/***************************************************************************************************
+* DAO
+***************************************************************************************************/
+
+public class PR_PRTCNSG_1000DAO {
+	public PR_PRTCNSG_1100_LDataSet pr_prtcnsg_1100_l(PR_PRTCNSG_1100_LDM dm) throws AppException {
+		DBManager manager = new DBManager("MISMAT");
+		PR_PRTCNSG_1100_LDataSet ds = (PR_PRTCNSG_1100_LDataSet)manager.executeCall(dm);
+
+		if(!ds.getErrcode().equals("")) {
+			throw new AppException(ds.getErrcode(), ds.getErrmsg());
+		}
+
+		return ds;
+	}
+}
+
+
+
+/* 작성시간 : Tue May 19 14:46:08 KST 2009 */

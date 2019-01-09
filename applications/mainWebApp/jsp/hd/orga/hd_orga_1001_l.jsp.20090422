@@ -1,0 +1,113 @@
+<%@	page contentType="text/xml; charset=EUC-KR" %>
+
+<%@	page import="
+		java.io.*
+	,	java.sql.*
+	,	java.util.*
+	,	kr.co.comsquare.rwXmlLib.*
+	,	kr.co.comsquare.db.*
+	,	kr.co.comsquare.util.Tokenizer
+	,   chosun.ciis.co.base.util.*
+	,	chosun.ciis.hd.orga.rec.*
+	,	chosun.ciis.hd.orga.ds.*;
+	"
+%>
+
+<%
+	RwXml rx = new RwXml();
+	HD_ORGA_1001_LDataSet ds = (HD_ORGA_1001_LDataSet)request.getAttribute("ds");
+	
+	int root = RwXml.rootNodeID;
+	int formData = 0;
+	int tempData = 0;
+	int recordSet = 0;
+	int iLvl_cnt = 0;
+	formData = rx.add(root, "deptTree", "");
+	
+	
+	
+	try {
+		iLvl_cnt = Integer.parseInt(ds.level_cnt);
+		
+//		for(int ii = i; ii < iLvl_cnt; ii++) {
+			for(int i = 0; i < ds.curlist.size(); i++) {
+				HD_ORGA_1001_LCURLISTRecord rec = (HD_ORGA_1001_LCURLISTRecord)ds.curlist.get(i);
+				
+				if (Integer.parseInt(rec.lvl) == 1){
+					int record = rx.add(formData, "item", "");
+					//rx.add(record, "label", StringUtil.replaceToXml(rec.dept_nm));
+					rx.add(record, "label", StringUtil.replaceToXml(rec.dept_nm) + "(" + rec.dept_cd + ") ");
+					rx.add(record, "value", rec.dept_cd);
+					rx.add(record, "selectImage", "select.gif");
+					rx.add(record, "image", "image.gif");
+					
+//					for(int ii = Integer.parseInt(rec.lvl) + 1; ii < iLvl_cnt; ii++) {
+						for(int j = 0; j < ds.curlist.size(); j++) {
+							HD_ORGA_1001_LCURLISTRecord sub_rec = (HD_ORGA_1001_LCURLISTRecord)ds.curlist.get(j);
+//							System.out.print("부서코드=" + rec.dept_cd + "=========");
+//							System.out.println("상위 부서코드=" + sub_rec.supr_dept_cd);
+							if (sub_rec.supr_dept_cd.equals(rec.dept_cd)){
+								int sub_record = rx.add(record, "item", "");
+	
+								//rx.add(sub_record, "label", StringUtil.replaceToXml(sub_rec.dept_nm));
+								rx.add(sub_record, "label", StringUtil.replaceToXml(sub_rec.dept_nm) + "(" + sub_rec.dept_cd + ") ");
+								rx.add(sub_record, "value", sub_rec.dept_cd);
+								rx.add(sub_record, "selectImage", "select.gif");
+								rx.add(sub_record, "image", "image.gif");
+								
+								for(int jj = 0; jj < ds.curlist.size(); jj++) {
+									HD_ORGA_1001_LCURLISTRecord sub_rec_2 = (HD_ORGA_1001_LCURLISTRecord)ds.curlist.get(jj);
+									
+									if (sub_rec_2.supr_dept_cd.equals(sub_rec.dept_cd)){
+										int sub_record_2 = rx.add(sub_record, "item", "");
+			
+										//rx.add(sub_record_2, "label", StringUtil.replaceToXml(sub_rec_2.dept_nm));
+										rx.add(sub_record_2, "label", StringUtil.replaceToXml(sub_rec_2.dept_nm) + "(" + sub_rec_2.dept_cd + ") ");
+										rx.add(sub_record_2, "value", sub_rec_2.dept_cd);
+										rx.add(sub_record_2, "selectImage", "select.gif");
+										rx.add(sub_record_2, "image", "image.gif");
+									}
+								}
+							}
+						}
+//					}
+				}
+	//			rx.add(record, "lvl", rec.lvl);
+	//			rx.add(record, "part_dn_nm", StringUtil.convertXML(rec.part_dn_nm));
+	//			rx.add(record, "abrv_nm", StringUtil.convertXML(rec.abrv_nm));
+	//			rx.add(record, "supr_dept_cd", rec.supr_dept_cd);		
+	//			rx.add(record, "now_use_yn", rec.now_use_yn);
+			}
+//		}
+//		rx.add(recordSet, "totalcnt", ds.curlist.size());
+		/****** CURLIST END */
+
+	}
+	catch (Exception e) {
+	}
+	finally {
+		out.println(rx.xmlFlush());
+		out.println(rx.xmlEndFlush());
+	}
+%>
+
+<%
+/*
+TrustForm의 Instance 선언부에 복사해서 사용
+<dataSet>
+	<CURLIST>
+		<record>
+			<lvl/>
+			<dept_nm/>
+			<part_dn_nm/>
+			<abrv_nm/>
+			<supr_dept_cd/>
+			<dept_cd/>
+			<now_use_yn/>
+		</record>
+	</CURLIST>
+</dataSet>
+*/
+%>
+
+<% /* 작성시간 : Sun Feb 15 18:11:04 KST 2009 */ %>

@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<radio/>
+							<checkbox1/>
+							<checkbox2/>
+						</comboSet>
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+					</initData>
+					<bodyData/>
+					<resData>
+						<gridData>
+							<record>
+								<ern/>
+								<dlco_nm/>
+								<suply_amt/>
+								<vat_amt/>
+								<total/>
+							</record>
+						</gridData>
+						<resForm/>
+						<msg/>
+						<errMsg/>
+					</resData>
+					<reqData>
+						<searchData>
+							<occr_dt_fr/>
+							<occr_dt_to/>
+							<ern/>
+						</searchData>
+						<dlco_no/>
+						<dlco_nm/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+//				     function date()
+//				     {
+//				     	    var d = new Date();
+//				     	    var rec = "";
+//				     	    
+//				     	    rec = "" + d.getYear();
+//				     	    
+//				     	    if( d.getMonth() < 10 )  rec = rec + "0" + (d.getMonth() + 1 ) +   ( ( d.getDate()  < 10 )  ?  "0" +  d.getDate() :  d.getDate()  );
+//				     	    else if ( d.getMonth() > 10 )  rec = rec  + (d.getMonth() + 1) +  ( ( d.getDate()  < 10 )  ?  "0" +  d.getDate() :  d.getDate()  );
+//				     	    
+//				     	    return (rec);
+//				     }
+					//조회 기간 설정 요청으로 인하여 function수정 (2012.07.19 김성미) - 자재팀 황우주 과장님 요청
+				   function date(gubun) {
+						var d = new Date();
+						var rec = "";
+						var brec = "";
+						var mm= "";
+						var dd= "";
+												
+//						if(gubun.substring(0,1) == 'B')
+//						{
+//							mm = d.getMonth();							
+//						}else{
+//							mm = d.getMonth() + 1;
+//						}
+						if(gubun.substring(0,1) == 'B')
+						{	
+							if(	d.getMonth() == '0')
+							{
+								mm = "12";	
+								rec =  "" + d.getYear() - 1;			
+							}else
+							{
+								mm = d.getMonth();	
+								rec =  "" + d.getYear();			
+							}
+													
+						}else{
+							mm = d.getMonth() + 1;
+							rec =  "" + d.getYear();	
+						}
+						var ldd = (new Date(d.getYear(),mm ,0)).getDate();
+						
+												
+						//rec =  "" + d.getYear();
+						brec = (new Date(d.getYear(),0 ,0)).getYear();
+						
+						
+						if( d.getDate() < 10 ) dd = "0" + d.getDate();
+						else dd =   d.getDate();
+					
+						if(mm< 10 )  rec = rec + "0" + (mm) ;
+						else if (mm>= 10 )  rec = rec  + (mm) ;
+					    
+					
+					
+						if( gubun == 'FROM'){
+								rec   = rec + "01";
+						}else if ( gubun == 'TO' ) {
+								rec   = rec +  dd;
+						}else if ( gubun == 'BFROM') {
+								rec   = rec + "01";
+						}else if ( gubun == 'BLAST') {
+								rec   = rec + ldd;
+						}else if ( gubun == 'BYFROM') {
+								rec   = brec + "0101";
+						}else if ( gubun == 'BYTO') {
+								rec   = brec + "1231";
+						}
+											
+						return rec;
+					}
+				       function setErn(dlco_no ,  dlco_nm , ern,  persi_nm )
+				     {
+				     	    model1.setValue("/root/reqData/dlco_no", dlco_no);
+				     	    model1.setValue("/root/reqData/dlco_nm", dlco_nm);
+				     	    model1.setValue("/root/reqData/searchData/ern", ern);
+				     	    
+				     	    input7.refresh();
+				     	    input8.refresh();
+				     	    input9.refresh();
+				     	    
+				     }
+				     function InitPage()
+			            {	 
+						var dateString ="";
+						dateString = date("TO");
+						model1.copyNode("/root/initData/pageInfo",parent.root.initData.pageInfo);
+						
+						model1.setValue("/root/reqData/searchData/occr_dt_fr", dateString);
+						model1.setValue("/root/reqData/searchData/occr_dt_to", dateString);
+						
+						input3.refresh();
+						input4.refresh();
+				    }
+					
+				]]>
+			</script>
+			<submission id="mt_submatrin_1400" action="/mt/submatrin/1400" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_common_0002" action="/mt/common/0002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/ern" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/mt_common.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="925" pageheight="600" guideline="2,405;2,8;1,5;1,915;2,32;">
+		<group id="group2" class="gro_sel" style="left:5px; top:45px; width:910px; height:50px; ">
+			<caption id="caption1" class="list_cap02" style="left:104px; top:20px; width:383px; height:24px; text-align:center; "/>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:105px; height:24px; text-align:center; ">거래기간</caption>
+			<caption id="caption5" class="list_cap02" style="left:104px; top:0px; width:806px; height:24px; text-align:center; "/>
+			<caption id="caption8" class="list_cap01" style="left:0px; top:23px; width:105px; height:24px; text-align:center; ">사업자번호</caption>
+			<caption id="caption9" class="list_cap02" style="left:104px; top:23px; width:806px; height:24px; text-align:center; "/>
+			<input id="input3" ref="/root/reqData/searchData/occr_dt_fr" class="req" inputtype="date" style="left:109px; top:3px; width:100px; height:18px; "/>
+			<input id="input4" ref="/root/reqData/searchData/occr_dt_to" class="req" inputtype="date" style="left:260px; top:3px; width:100px; height:18px; "/>
+			<caption id="caption10" style="left:226px; top:6px; width:15px; height:15px; text-align:center; ">~</caption>
+			<input id="input7" ref="/root/reqData/searchData/ern" inputtype="button" style="left:109px; top:26px; width:120px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						var keyCode = event.keycode;
+						
+						if ( keyCode == 9 || keyCode == 13 )
+						{
+							       model1.setValue("/root/reqData/searchData/ern", input7.currentText);
+							       
+								model1.send("mt_common_0002");
+								
+								model1.setValue("/root/reqData/searchData/ern",model1.getValue("/root/tempData/ern"));
+								model1.setValue("/root/reqData/dlco_no",model1.getValue("/root/tempData/dlco_no"));
+								model1.setValue("/root/reqData/dlco_nm",model1.getValue("/root/tempData/dlco_nm"));
+								
+								input7.refresh();
+								input8.refresh();
+								input9.refresh();
+								
+						}
+						
+					]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					comm_dlco_pop("setErn", "/root/reqData/fwdData");
+					/*
+					var funcName = "setErn";	
+					model1.setValue("/root/reqData/fwdData/func_name", funcName );
+					    
+					window.load("/xrw/co/dlco/CO_DLCO_1100.xrw"
+							, "modal"
+							, ""
+							,"left:30px; top:200px; width:640px; height:520; align:center; caption:hidden;"
+							, "/root/reqData/fwdData/func_name", "/root/reqData/fwdData/func_nm");
+							
+//					 			  , "left:100; top:100; width:650; height:520; sysmenu:visible; min:visible; max:true; resize:true; caption:visible;"
+					*/
+					]]>
+				</script>
+			</input>
+			<input id="input8" ref="/root/reqData/dlco_no" style="left:233px; top:26px; width:100px; height:18px; "/>
+			<input id="input9" ref="/root/reqData/dlco_nm" style="left:337px; top:26px; width:120px; height:18px; "/>
+			<button id="button2" class="btn02" style="left:385px; top:2px; width:50px; height:21px; ">
+				<caption>당일</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					    model1.setValue("/root/reqData/searchData/occr_dt_fr", date("TO"));
+						model1.setValue("/root/reqData/searchData/occr_dt_to", date("TO"));
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:445px; top:2px; width:50px; height:21px; ">
+				<caption>당월</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					    model1.setValue("/root/reqData/searchData/occr_dt_fr", date("FROM"));
+						model1.setValue("/root/reqData/searchData/occr_dt_to", date("TO"));
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn02" style="left:505px; top:2px; width:50px; height:21px; ">
+				<caption>전월</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.setValue("/root/reqData/searchData/occr_dt_fr", date("BFROM"));
+						model1.setValue("/root/reqData/searchData/occr_dt_to", date("BLAST"));  	
+						model1.refresh(); 
+					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn02" style="left:565px; top:2px; width:50px; height:21px; ">
+				<caption>전년</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					    model1.setValue("/root/reqData/searchData/occr_dt_fr", date("BYFROM"));
+						model1.setValue("/root/reqData/searchData/occr_dt_to", date("BYTO"));
+						model1.refresh(); 
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="사업자등록번호^상호^매입총액^부가세^계" colsep="^" colwidth="179, 199, 149, 173, 158" mergecellsfixedrows="bycolrec" rowsep="|" style="left:5px; top:110px; width:910px; height:410px; ">
+			<col ref="ern"/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="suply_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="vat_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="total" format="(-)#,###" style="text-align:right; "/>
+		</datagrid>
+		<group id="group1" class="gro_btn" style="left:655px; top:11px; width:260px; height:21px; ">
+			<button id="button3" class="btn02" style="left:40px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					InitPage();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" CRUD="R" style="left:95px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					  // Vaidation Chk
+					  model1.send("mt_submatrin_1400");
+					  
+					  model1.copyNode("/root/resData/gridData", "/root/tempData/gridData" );
+					  datagrid1.refresh();
+					  
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:208px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" CRUD="R" style="left:150px; top:0px; width:52px; height:21px; ">
+				<caption>EXCEL 저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						datagrid1.saveExcel(filename, "sheetname:Transaction;colhiddenextend:true;exportfalserows:;");
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

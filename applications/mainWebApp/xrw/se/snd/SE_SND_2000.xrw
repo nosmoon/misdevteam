@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_2000.xrw
+* 기능 : 판매 - 발송관리 - 노선순위변경
+* 작성일자 : 2009.02.12
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var action = "se_snd_2010_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					if ( datagrid1.rows > datagrid1.fixedRows ){
+						inputTf(false);
+					}
+					
+					model.refresh();
+				}
+				
+				function inputTf(tf){
+					var gridRows = datagrid1.rows - 1;
+					var gridCols = datagrid1.cols - 1;
+					
+					datagrid1.isReadOnly(1, 1, gridRows , gridCols) = tf;
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<curlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</curlist>
+							<routelist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</routelist>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<prt_plac_cd/>
+							<route_clsf/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<route_cd/>
+									<route_nm/>
+									<route_rank/>
+									<chg_route_rank/>
+									<route_clsf/>
+									<prt_plac_cd/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action = "se_snd_2000_m";
+					model.send(action);
+					
+					combo1.select(0);
+					combo3.select(0);
+					
+					inputTf(true);
+										
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_snd_2000_m" action="/se/snd/2000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_snd_2010_l" action="/se/snd/2010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="se_snd_2020_a" action="/se/snd/2020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="C" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var value = datagrid1.valueMatrix(1, 1);
+					if ( value == "" && datagrid1.rows == datagrid1.fixedRows + 1 ){
+						commAlert("저장할 내용이 없습니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					
+					var action = "se_snd_2020_a";
+					model.send(action);
+					
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="노선코드^노선명^노선순위^변경순위" colsep="#" colwidth="240,240,195,195" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:120px; width:926px; height:606px; ">
+			<col ref="route_cd"/>
+			<col ref="route_nm" style="text-align:left; "/>
+			<col ref="route_rank" format="#,###" style="text-align:right; "/>
+			<col ref="chg_route_rank" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="route_clsf" visibility="hidden"/>
+			<col ref="prt_plac_cd" visibility="hidden"/>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption3" class="list_cap01" style="left:198px; top:0px; width:90px; height:26px; ">노선구분</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/route_clsf" class="req" appearance="minimal" caption="노선구분" style="left:294px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/routelist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; ">인쇄처</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/prt_plac_cd" class="req" appearance="minimal" caption="인쇄처" style="left:76px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:739px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_1000.xrw
+* 기능 : 판매 - 발송관리 - 대표노선등록
+* 작성일자 : 2009.02.02
+* 작성자 : 김대준
+*********************************************************************************************** -->

@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet_ad.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>지국 현황</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<curlist/>
+							<teamlist/>
+							<partlist/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<asnt_dstc_cd/>
+							<asnt_dstc_nm/>
+							<adms_dstc_cd/>
+							<adms_dstc_nm/>
+							<dept_cd/>
+							<sub_dept_cd/>
+							<dlco_cd_seq/>
+							<bo_nm/>
+							<bo_head_nm/>
+							<cntr_stat_clsf/>
+							<ern/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+								<cntr_stat_clsf_nm/>
+								<dlco_cd_seq/>
+								<asnt_dstc_cd_nm/>
+								<adms_dstc_cdd_nm/>
+								<bo_nm/>
+								<bo_head_nm/>
+								<ptph_no/>
+								<addr/>
+								<jurs_dong_nm/>
+								<jurs_apt/>
+								<leaf_addr/>
+								<job_ptph_no/>
+								<ern/>
+								<setl_bank_nm/>
+								<acct_no/>
+								<rcpm_main_nm/>
+							</record>
+						</gridData1>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="is_bas_1700_m" action="/is/bas/1700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/is_bas_1700_m/dataSet"/>
+			<submission id="is_bas_1710_l" action="/is/bas/1710" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1/record"/>
+			<submission id="fc_co_8000_s" action="/fc/co8000/8000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/resData/resform2/dataSet"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				makeTeamSearch(
+								   "is_bas_1700_m"
+								 , "/is/bas/1700"
+								  , "/root/reqData"  
+		                           			  , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  );
+				combo5.select(1); //계약상태 현임으로 셋팅
+				
+				model.refresh();	
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			/** 콤보박스 환경설정한다. **/
+			function makeTeamSearch(submitId, action, ref, resultref, teamCombo, partCombo){
+
+				modelSendNoMake(submitId, action, ref, resultref);
+				if(!submit_completed()) return;
+				
+				var teamEvent = 'selectTeam("' + resultref + '", "' + teamCombo + '", "' + partCombo + '");';
+				//var partEvent = 'selectPart("' + resultref + '", "' + teamCombo + '", "' + partCombo + '", "' + areaCombo + '");';
+				//teamEvent = teamEvent + partEvent;
+			
+				eval(teamCombo + ".attribute('xforms-select') = '" + teamEvent + "'");
+				//eval(partCombo + ".attribute('xforms-select') = '" + partEvent + "'");
+				
+				makeComboGubun("A", resultref + "/curlist", "record", "cdnm", "cd");
+				makeComboGubun("A", resultref + "/teamlist", "record", "dept_nm", "dept_cd");
+				makeComboGubun("A", resultref + "/partlist", "record", "dept_nm", "dept_cd");
+			
+				selectTeam(resultref, teamCombo, partCombo);
+				//selectPart(resultref, teamCombo, partCombo, areaCombo); 보류
+				model.refresh();
+			    //eval(teamCombo + ".select(0)");
+			}
+			
+			/** 팀이 선택되면 파트의 값을 변경한다. **/
+			function selectTeam(resultref, teamCombo, partCombo){
+				var key        = eval(teamCombo + ".value");
+				var arr        = instance1.selectSingleNode(resultref + "/partlist_temp/record"); 
+
+				if(arr == null){
+					var len = null;
+				}else{
+					var len = arr.length;
+				}
+			
+				var val, record, dept_cd, dept_nm, node2, node3;
+				var node = resultref + "/partlist";
+				var nodeTemp = resultref + "/partlist_temp";
+				var index = 1;
+				model.removeNodeset(node);
+			
+			//alert('part='+len);	
+			//alert('dept_cd='+model.getValue(nodeTemp + "/record/dept_cd"));
+			//alert('dept_nm='+model.getValue(nodeTemp + "/record/dept_nm"));
+			
+				if(len==0){
+					val          = model.getValue(nodeTemp + "/record/supr_dept_cd");
+					if ( key == val || key == "" ){
+							model.makeNode(node + "/record[" + 1 + "]");
+							model.makeNode(node + "/record[" + 1 + "]/dept_cd");
+							model.makeNode(node + "/record[" + 1 + "]/dept_nm");
+							
+							model.setValue(node + "/record[" + 1 + "]/dept_cd", model.getValue(nodeTemp + "/record/dept_cd"));
+							model.setValue(node + "/record[" + 1 + "]/dept_nm", model.getValue(nodeTemp + "/record/dept_nm"));
+					}
+				}else if(len > 1){
+					for ( var i = 1 ; i <= len ; i++ ){
+						val          = model.getValue(nodeTemp + "/record[" + i + "]/supr_dept_cd");
+						if ( key == val || key == "" ){
+								model.makeNode(node + "/record[" + index + "]");
+								model.makeNode(node + "/record[" + index + "]/dept_cd");
+								model.makeNode(node + "/record[" + index + "]/dept_nm");
+								
+								model.setValue(node + "/record[" + index + "]/dept_cd", model.getValue(nodeTemp + "/record[" + i + "]/dept_cd"));
+								model.setValue(node + "/record[" + index + "]/dept_nm", model.getValue(nodeTemp + "/record[" + i + "]/dept_nm"));
+								
+								index++;
+				
+						}
+					}
+				}
+				
+				model.refresh();
+				makeComboGubun("A", resultref + "/partlist", "record", "dept_nm", "dept_cd");
+				
+				eval(partCombo + ".select(0)");
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,935;2,61;2,71;2,145;2,124;2,131;2,139;2,699;" style="font-family:굴림; ">
+		<caption id="caption3" class="list_cap02" style="left:10px; top:98px; width:926px; height:28px; "/>
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:134px; width:926px; height:5px; "/>
+		<button id="button4" class="btn02" crud="R" style="left:720px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.send("is_bas_1710_l");
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" crud="R" style="left:828px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="btn02" crud="C" style="left:774px; top:40px; width:50px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[								
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" class="nobg" caption="계약상태^지국코드^구역^행정구역^지국명^지국장^휴대폰^주소^관할동명^관할APT^작업장주소^작업자HP^사업자번호^은행^계좌번호^예금주" colsep="^" colwidth="60, 100, 90, 100, 100, 70, 90, 150, 100, 100, 100, 100, 100, 100, 100, 100" explorerbar="sort" extendlastcol="scroll" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:146px; width:925px; height:543px; ">
+			<col ref="cntr_stat_clsf_nm"/>
+			<col ref="dlco_cd_seq"/>
+			<col ref="asnt_dstc_cd_nm" style="text-align:left; "/>
+			<col ref="adms_dstc_cdd_nm" style="text-align:left; "/>
+			<col ref="bo_nm" style="text-align:left; "/>
+			<col ref="bo_head_nm"/>
+			<col ref="ptph_no"/>
+			<col ref="addr" style="text-align:left; "/>
+			<col ref="jurs_dong_nm"/>
+			<col ref="jurs_apt"/>
+			<col ref="leaf_addr" style="text-align:left; "/>
+			<col ref="job_ptph_no"/>
+			<col ref="ern"/>
+			<col ref="setl_bank_nm" style="text-align:left; "/>
+			<col ref="acct_no"/>
+			<col ref="rcpm_main_nm"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				/**거래처코드로 거래처등록에서 거래처를 조회한다**/
+				var rownum = datagrid1.row;
+					
+				/* 타이틀을 클릭한 경우 그냥 리턴 */
+				if ( rownum <= 0 ) {
+					return;
+				}
+				
+				if (!datagrid1.isCell(event.target)) return;
+				
+				var  dlco_cd_seq = model1.getValue("/root/resData/gridData1/record[" + rownum + "]/dlco_cd_seq");
+				
+				if( dlco_cd_seq == ""){
+					return;	
+				}	
+				
+				model.property(KEY_DLCO_CLSF)  	= dlco_cd_seq.substring(0,1);
+				model.property(KEY_DLCO_CD)  	= dlco_cd_seq.substring(1,6);
+				model.property(KEY_DLCO_SEQ)  	= dlco_cd_seq.substring(6,9);
+				
+				var pageID = model.getValue("/root/initData/pageInfo/pageID");
+				
+				if(pageID == "IS_BAS_1700"){
+					viewer("mainFrame").window.javaScript.onLoadPage2("IS_BAS_1300");
+				}else if(pageID == "SP_BAS_1700"){
+					viewer("mainFrame").window.javaScript.onLoadPage2("SP_BAS_1300");
+				}	
+				
+//				model.makeNode("/root/tempData/keyData/dlco_clsf");					
+//				model.makeNode("/root/tempData/keyData/dlco_cd");
+//				model.makeNode("/root/tempData/keyData/dlco_seq");
+//				model.setValue("/root/tempData/keyData/dlco_clsf", dlco_cd_seq.substring(0,1));	//거래처구분
+//				model.setValue("/root/tempData/keyData/dlco_cd", dlco_cd_seq.substring(1,6));	//거래처코드
+//				model.setValue("/root/tempData/keyData/dlco_seq", dlco_cd_seq.substring(6,9));	//거래처순번
+//			       
+//				window.load("./IS_BAS_1300.xrw","","","","/root/tempData/keyData","/root/reqData/fwdData");	
+				]]>
+			</script>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:882px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));								
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:98px; width:85px; height:28px; ">지국코드</caption>
+		<caption id="caption2" class="list_cap01" style="left:525px; top:98px; width:85px; height:28px; ">계약상태</caption>
+		<input id="inp_hndl" ref="/root/reqData/searchData/dlco_cd_seq" style="left:99px; top:103px; width:60px; height:18px; text-align:left; "/>
+		<select1 id="combo5" ref="/root/reqData/searchData/cntr_stat_clsf" appearance="minimal" style="left:614px; top:102px; width:100px; height:20px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/curlist/record">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption8" class="list_cap01" style="left:267px; top:71px; width:85px; height:28px; ">행정구역</caption>
+		<caption id="caption9" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">구역</caption>
+		<caption id="caption11" class="list_cap01" style="left:730px; top:71px; width:85px; height:28px; ">파트</caption>
+		<select1 id="team_combo" ref="/root/reqData/searchData/dept_cd" navindex="9" appearance="minimal" style="left:614px; top:76px; width:110px; height:20px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/teamlist/record">
+					<label ref="dept_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<select1 id="part_combo" ref="/root/reqData/searchData/sub_dept_cd" navindex="9" appearance="minimal" style="left:820px; top:76px; width:110px; height:20px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/partlist/record">
+					<label ref="dept_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption4" class="list_cap01" style="left:525px; top:71px; width:85px; height:28px; ">팀</caption>
+		<caption id="caption7" class="list_cap01" style="left:166px; top:98px; width:85px; height:28px; ">지국명</caption>
+		<caption id="caption13" class="list_cap01" style="left:730px; top:98px; width:85px; height:28px; ">사업자번호</caption>
+		<input id="input4" ref="/root/reqData/searchData/ern" style="left:820px; top:102px; width:110px; height:18px; text-align:left; "/>
+		<input id="input1" ref="/root/reqData/searchData/bo_nm" imemode="hangul" style="left:257px; top:103px; width:89px; height:18px; text-align:left; "/>
+		<input id="inp_asnt_dstc_cd" ref="/root/reqData/searchData/asnt_dstc_cd" inputtype="button" format="99999" style="left:100px; top:76px; width:67px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				var cd   =  "";
+				var cdnm =  "";
+									
+				var resultRef1 = "/root/reqData/searchData/asnt_dstc_cd";
+				var resultRef2 = "/root/reqData/searchData/asnt_dstc_nm";
+				
+				showCommonCodePopup1("13", "04", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+				
+				/*
+				if(input21.value != ""){
+					if (open_fc_co_8010("focus","s","구역조회","1","","13","04")) {
+						//팝업에서 확인 버튼을 누른 경우(혹은 데이터를 더블클릭 한 경우)
+					}else {
+						//팝업에서 취소 버튼을 누른 경우
+					}
+				}
+				*/
+				model.refresh();				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if(inp_asnt_dstc_cd.value.length == 5 ){
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/job_clsf");
+					model.makeNode("/root/reqData/fwdData/cd_clsf");
+					model.makeNode("/root/reqData/fwdData/cd");
+					model.setValue("/root/reqData/fwdData/job_clsf", "13");
+					model.setValue("/root/reqData/fwdData/cd_clsf", "04");
+					model.setValue("/root/reqData/fwdData/cd", inp_asnt_dstc_cd.value);
+					model.removeNodeset("/root/resData/resform2/dataSet/CURLIST1/record"); 
+					model.makeNode("/root/resData/resform2/dataSet/CURLIST1/record/cd");
+					model.makeNode("/root/resData/resform2/dataSet/CURLIST1/record/cdnm");
+					model.send("fc_co_8000_s");
+					if (model.getValue("/root/resData/resform2/dataSet/CURLIST1/record/cd").Trim() != "") {
+						inp_asnt_dstc_nm.value = model.getValue("/root/resData/resform2/dataSet/CURLIST1/record/cdnm");
+					}else{
+						inp_asnt_dstc_cd.value = "";
+						inp_asnt_dstc_nm.value = "";
+					}					
+				}else {
+					inp_asnt_dstc_cd.value = "";
+					inp_asnt_dstc_nm.value = "";
+				}				
+				]]>
+			</script>
+		</input>
+		<input id="inp_asnt_dstc_nm" ref="/root/reqData/searchData/asnt_dstc_nm" imemode="hangul" style="left:171px; top:76px; width:93px; height:18px; text-align:left; "/>
+		<input id="inp_adms_dstc_cd" ref="/root/reqData/searchData/adms_dstc_cd" navindex="5" imemode="hangul" inputtype="button" format="99999" style="left:355px; top:75px; width:67px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				var cd   =  "";
+				var cdnm =  "";
+					
+				var resultRef1 = "/root/reqData/searchData/adms_dstc_cd";
+				var resultRef2 = "/root/reqData/searchData/adms_dstc_nm";
+				
+				showCommonCodePopup1("13", "02", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");			
+				
+				/*
+				if(input2.value != ""){
+					if (open_fc_co_8010("focus","s","행정구역조회","1","","04","45")) {
+						//팝업에서 확인 버튼을 누른 경우(혹은 데이터를 더블클릭 한 경우)
+					}else {
+						//팝업에서 취소 버튼을 누른 경우
+					}
+				}
+				*/
+				model.refresh();					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if(inp_adms_dstc_cd.value.length == 5 ){
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/job_clsf");
+					model.makeNode("/root/reqData/fwdData/cd_clsf");
+					model.makeNode("/root/reqData/fwdData/cd");
+					model.setValue("/root/reqData/fwdData/job_clsf", "13");
+					model.setValue("/root/reqData/fwdData/cd_clsf", "02");
+					model.setValue("/root/reqData/fwdData/cd", inp_adms_dstc_cd.value);
+					model.removeNodeset("/root/resData/resform2/dataSet/CURLIST1/record"); 
+					model.makeNode("/root/resData/resform2/dataSet/CURLIST1/record/cd");
+					model.makeNode("/root/resData/resform2/dataSet/CURLIST1/record/cdnm");
+					model.send("fc_co_8000_s");
+					if (model.getValue("/root/resData/resform2/dataSet/CURLIST1/record/cd").Trim() != "") {
+						inp_adms_dstc_nm.value = model.getValue("/root/resData/resform2/dataSet/CURLIST1/record/cdnm");
+					}else{
+						inp_adms_dstc_cd.value = "";
+						inp_adms_dstc_nm.value = "";
+					}					
+				}else {
+					inp_adms_dstc_cd.value = "";
+					inp_adms_dstc_nm.value = "";
+				}					
+				]]>
+			</script>
+		</input>
+		<input id="inp_adms_dstc_nm" ref="/root/reqData/searchData/adms_dstc_nm" imemode="hangul" style="left:427px; top:75px; width:93px; height:18px; text-align:left; "/>
+		<input id="input7" ref="/root/reqData/searchData/bo_head_nm" imemode="hangul" style="left:440px; top:102px; width:79px; height:18px; text-align:left; "/>
+		<caption id="caption5" class="list_cap01" style="left:351px; top:98px; width:85px; height:28px; ">지국장</caption>
+	</xhtml:body>
+</xhtml:html>

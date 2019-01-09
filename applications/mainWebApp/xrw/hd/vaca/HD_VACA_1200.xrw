@@ -1,0 +1,855 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>지정휴가사용계획등록</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_vaca_1205_m>
+							<dataSet>
+								<xx_pr_job_clsf_23/>
+								<xx_annc_clsf/>
+								<xx_rmn_vaca_dds/>
+								<xx_proc_stat/>
+								<xx_qq_month_010/>
+								<xx_qq_month_020/>
+								<xx_qq_month_030/>
+								<xx_qq_month_040/>
+							</dataSet>
+						</hd_vaca_1205_m>
+						<session/>
+						<pageInfo/>
+						<comboSet>
+							<qq_clsf>
+								<item/>
+							</qq_clsf>
+						</comboSet>
+					</initData>
+					<reqData>
+						<searchData>
+							<emp_no/>
+							<aply_yy/>
+							<qq_clsf/>
+							<tmp1/>
+							<tmp2/>
+							<emp_no_tm/>
+							<dept_cd/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpData/>
+						<fwdData>1</fwdData>
+						<emp_no_temp/>
+					</reqData>
+					<resData>
+						<resForm>
+							<record>
+							</record>
+							<emp_nm_tm/>
+							<emp_no_tm/>
+							<temp_tm/>
+						</resForm>
+						<gridData1>
+							<record>
+								<appm_vaca_plan_dt/>
+								<emp_no/>
+								<occr_dt/>
+								<seq/>
+								<aply_yy/>
+								<qq_clsf/>
+								<wkdy/>
+								<dept_cd/>
+								<proc_stat/>
+								<db_status/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record>
+								<cmpy_cd/>
+								<clndr_dt/>
+							</record>
+						</gridData2>
+						<prsnData>
+							<emp_no/>
+							<nm_korn/>
+							<dept_cd/>
+							<dty_cd/>
+							<posi_cd/>
+							<pgm_id/>
+							<pgm_nm/>
+							<pgm_url/>
+							<job_clsf/>
+							<annc_frdt/>
+							<annc_todt/>
+							<annc_cont/>
+							<annc_clsf/>
+						</prsnData>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setEmp_no_tm(emp_no){
+						model1.setValue("/root/reqData/searchData/emp_no_tm", emp_no);
+						model1.send("hd_duty_1206");
+						
+						model1.makeNode("/root/resData/resForm/emp_no_tm");
+						model1.makeNode("/root/resData/resForm/emp_nm_tm");
+						model1.makeNode("/root/resData/resForm/temp_tm");
+						
+						model1.setValue("/root/resData/resForm/emp_no_tm", model1.getValue("/root/dataSet/CURLIST/record/emp_no"));
+						model1.setValue("/root/resData/resForm/emp_nm_tm", model1.getValue("/root/dataSet/CURLIST/record/temp"));
+						if(model1.getValue("/root/dataSet/CURLIST/record/temp_tm") == "/"){
+							model1.setValue("/root/resData/resForm/temp_tm", "");
+						}else{
+							model1.setValue("/root/resData/resForm/temp_tm", model1.getValue("/root/dataSet/CURLIST/record/temp_tm"));
+						}
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+					}	
+					function noticeSubmit(){
+						//공지등록(7/30)
+						var emp_no = model1.getValue("/root/resData/resForm/emp_no_tm");
+						//var emp_no = model1.getValue("/root/reqData/searchData/emp_no_tm");
+						model1.send("hd_vaca_1608");
+						model1.copyNode("/root/resData/prsnData","/root/dataSet/CURLIST/record");
+						model1.refresh();
+						model1.removenode("/root/dataSet");
+						
+						model1.makeNode("/root/resData/prsnData/pgm_id");
+						model1.makeNode("/root/resData/prsnData/pgm_nm");
+						model1.makeNode("/root/resData/prsnData/pgm_url");
+						model1.makeNode("/root/resData/prsnData/job_clsf");
+						model1.makeNode("/root/resData/prsnData/annc_frdt");
+						model1.makeNode("/root/resData/prsnData/annc_todt");
+						model1.makeNode("/root/resData/prsnData/annc_cont");
+						model1.makeNode("/root/resData/prsnData/annc_clsf");
+						
+						//공지시작일자 (현재일자) 구하기
+						var now_date = new Date();
+						var year = now_date.getYear();
+						var month = now_date.getMonth() + 1;
+						var day = now_date.getDate();    
+						var month_tm = '0' + month;
+						var day_tm = '0' + day;  
+						if(month_tm.length == 3){
+							month_tm = month_tm.substring(1, 3);
+						}
+						if(day_tm.length == 3){
+							day_tm = day_tm.substring(1, 3);
+						}
+						var now_dt = year + month_tm + day_tm;
+						
+						//공지종료일자 구하기
+						var afr_date = new Date();
+						var afr_date1 = new Date(afr_date.getYear(), afr_date.getMonth(), afr_date.getDate()+7 );
+						var year1 = afr_date1.getYear();
+						var month1 = afr_date1.getMonth() + 1;
+						var day1 = afr_date1.getDate();   
+						var month_tm1 = '0' + month1;
+						var day_tm1 = '0' + day1;  
+						if(month_tm1.length == 3){
+							month_tm1 = month_tm1.substring(1, 3);
+						}
+						if(day_tm1.length == 3){
+							day_tm1 = day_tm1.substring(1, 3);
+						}
+						var afr_dt = year1 + month_tm1 + day_tm1;
+						
+						var annc_frdt = now_dt
+						var annc_todt = afr_dt
+						
+						model1.setValue("/root/resData/prsnData/pgm_id","HD_VACA_1400");
+						model1.setValue("/root/resData/prsnData/pgm_nm","지정휴가사용결재");
+						model1.setValue("/root/resData/prsnData/pgm_url","/xrw/hd/vaca/HD_VACA_1400.xrw");
+						//model1.setValue("/root/resData/prsnData/job_clsf","23");
+						model1.setValue("/root/resData/prsnData/job_clsf",model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_pr_job_clsf_23"));
+						model1.setValue("/root/resData/prsnData/annc_frdt",annc_frdt);
+						model1.setValue("/root/resData/prsnData/annc_todt",annc_todt);
+						model1.setValue("/root/resData/prsnData/annc_cont","지정휴가사용 결재바랍니다.");
+						//model1.setValue("/root/resData/prsnData/annc_clsf","20");
+						model1.setValue("/root/resData/prsnData/annc_clsf",model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_annc_clsf"));
+						
+						model1.send("hd_prsn_2010");
+						alert("지정휴가사용결재 승인을 요청하였습니다.");
+					}	
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				
+				model.send("hd_vaca_1205_m");
+				model.refresh();
+					/*
+					alert(model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_pr_job_clsf_23"));
+					alert(model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_annc_clsf"));
+					alert(model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_rmn_vaca_dds"));
+					alert(model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_proc_stat"));
+					alert(model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_010"));
+					alert(model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_020"));
+					alert(model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_030"));
+					alert(model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_040"));
+					*/
+					
+				var xx_qq_month_010 = model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_010").split(",");
+				var xx_qq_month_020 = model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_020").split(",");
+				var xx_qq_month_030 = model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_030").split(",");
+				var xx_qq_month_040 = model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_040").split(",");
+				
+				/*
+				partMonAry[10][0] = "12";
+				partMonAry[10][1] = "1";
+				partMonAry[10][2] = "2";
+				partMonAry[20][0] = "3";
+				partMonAry[20][1] = "4";
+				partMonAry[20][2] = "5";
+				partMonAry[30][0] = "6";
+				partMonAry[30][1] = "7";
+				partMonAry[30][2] = "8";
+				partMonAry[40][0] = "9";
+				partMonAry[40][1] = "10";
+				partMonAry[40][2] = "11";
+				*/
+				partMonAry[10][0] = xx_qq_month_010[0];
+				partMonAry[10][1] = xx_qq_month_010[1];
+				partMonAry[10][2] = xx_qq_month_010[2];
+				partMonAry[20][0] = xx_qq_month_020[0];
+				partMonAry[20][1] = xx_qq_month_020[1];
+				partMonAry[20][2] = xx_qq_month_020[2];
+				partMonAry[30][0] = xx_qq_month_030[0];
+				partMonAry[30][1] = xx_qq_month_030[1];
+				partMonAry[30][2] = xx_qq_month_030[2];
+				partMonAry[40][0] = xx_qq_month_040[0];
+				partMonAry[40][1] = xx_qq_month_040[1];
+				partMonAry[40][2] = xx_qq_month_040[2];
+					
+					//////////////////////////////////////////////////
+					//타이틀처리
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						//maintitle.text = "지정휴가사용계획등록";
+						caption5.visible = true;		// 보임
+						iv_Title.visible = false;		// 숨김
+						iv_PopTitle.visible = true;		// 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						caption5.visible = false;		// 숨김
+						iv_Title.visible = true;		// 보임
+						iv_PopTitle.visible = false;	// 숨김
+					}
+					
+					//기준년도, 분기구분, 사원정보, 법정공휴일 생성
+					model1.send("hd_vaca_1201");
+					model1.setValue("/root/reqData/searchData/aply_yy",yeardate(0));
+					model1.copyNode("/root/initData/comboSet/qq_clsf", "/root/dataSet/CURLIST");
+					model1.copyNode("/root/resData/resForm","/root/dataSet/CURLIST1");
+					model1.copyNode("/root/resData/gridData2","/root/dataSet/CURLIST2");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					
+					model1.send("hd_duty_1205");
+					
+					model1.makeNode("/root/resData/resForm/emp_no_tm");
+					model1.makeNode("/root/resData/resForm/emp_nm_tm");
+					model1.makeNode("/root/resData/resForm/temp_tm");
+					
+					model1.setValue("/root/resData/resForm/emp_no_tm", model1.getValue("/root/dataSet/CURLIST1/record/emp_no"));
+					model1.setValue("/root/resData/resForm/emp_nm_tm", model1.getValue("/root/dataSet/CURLIST1/record/nm_korn"));
+					if(model1.getValue("/root/dataSet/CURLIST1/record/posi_nm") != "" || model1.getValue("/root/dataSet/CURLIST1/record/dty_nm") != ""){
+						model1.setValue("/root/resData/resForm/temp_tm", model1.getValue("/root/dataSet/CURLIST1/record/dty_nm")+"/"+model1.getValue("/root/dataSet/CURLIST1/record/posi_nm"));
+					}else if(model1.getValue("/root/dataSet/CURLIST1/record/dty_nm") == "" && model1.getValue("/root/dataSet/CURLIST1/record/posi_nm") == ""){
+						model1.setValue("/root/resData/resForm/temp_tm", "");
+					}
+					model1.setValue("/root/reqData/emp_no_temp", model1.getValue("/root/resData/resForm/emp_no_tm"));
+					model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/dataSet/CURLIST2/record/dept_cd"));
+					model1.removenode("/root/dataSet");
+					
+					//캘린더 생성
+					searchVacaData();
+				]]>
+			</script>
+			<submission id="hd_vaca_1200" action="/hd/vaca/1200/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_1201" action="/hd/vaca/1201/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_1202" action="/hd/vaca/1202/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_1203" action="/hd/vaca/1203/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_1204" action="/hd/vaca/1204" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_2000" action="/hd/vaca/2000/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1206" action="/hd/duty/1206" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1205" action="/hd/duty/1205" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_vaca_1608" action="/hd/vaca/1608" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm/emp_no_tm" resultref="/root/tempData"/>
+			<submission id="hd_prsn_2010" action="/hd/prsn/2010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/prsnData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_1205_m" action="/hd/vaca/1205" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/hd_vaca_1205_m/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//////////////////////////////////////////////////
+				// 전역변수
+				//////////////////////////////////////////////////
+				var buffDay = new Array();
+				
+				var weeklyAry = new Array(7);
+				weeklyAry[0] = "일";
+				weeklyAry[1] = "월";
+				weeklyAry[2] = "화";
+				weeklyAry[3] = "수";
+				weeklyAry[4] = "목";
+				weeklyAry[5] = "금";
+				weeklyAry[6] = "토";
+				
+				//전역변수 : 분기별 월정보 배열
+				//이 값은 캘린더를 분기별로 설정, 콤보박스의 값을 이용해 월정보를 가져올때 사용한다.
+				var partMonAry = new Array(3);
+				partMonAry[10] = new Array(3);
+				partMonAry[20] = new Array(3);
+				partMonAry[30] = new Array(3);
+				partMonAry[40] = new Array(3);
+				
+				//월 값으로 배열에서 분기값을 추출해내는 함수
+				function getPartbyMonth(month){
+//					alert(partMonAry.length);
+//					for(var i=0; i<partMonAry.length; i++){
+//						if(typeof partMonAry[i] != "undefined"){
+//							for(var j=0; j<partMonAry[i].length; j++){
+//								if(month==partMonAry[i][j]){
+//									return (i/10)*10;
+//								}
+//							}
+//						}
+//					}
+//					return "";
+//					alert(month);
+						var pattern = ","+month+",";
+						var validation   = (","+model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_010")+",").indexOf(pattern)>-1;
+						var validation2  = (","+model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_020")+",").indexOf(pattern)>-1;
+						var validation3  = (","+model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_030")+",").indexOf(pattern)>-1;
+						var validation4  = (","+model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_qq_month_040")+",").indexOf(pattern)>-1;
+						//alert(validation+"-"+validation2 +"-"+ validation3+"-"+validation4);
+							/*
+							if(month == "12" || month == "01" ||month == "02"  ){
+								return "10";
+							}else if(month == "03" || month == "04" ||month == "05"  ){
+								return "20";
+							}else if(month == "06" || month == "07" ||month == "08"  ){
+								return "30";
+							}else if(month == "09" || month == "10" ||month == "11"  ){
+								return "40";
+							}
+							*/
+							if(validation){
+								return "10";
+							}else if(validation2 ){
+								return "20";
+							}else if(validation3 ){
+								return "30";
+							}else if(validation4 ){
+								return "40";
+							}
+				}
+					
+				//기준년도, 분기별 캘린더, 분기구분값 설정
+				function calendarSearch(s_year){
+					//기준년도 설정
+					model1.setValue("/root/reqData/searchData/aply_yy",s_year);
+					
+					//분기구분값, 캘린더 설정
+					var s_qq_clsf = model1.getValue("/root/reqData/searchData/qq_clsf");
+					if(s_qq_clsf==""){
+						var s_month = monthdate(0);
+						combo1.value = getPartbyMonth(s_month).toString();
+						calendarView(getPartbyMonth(s_month).toString());
+					}else{
+						combo1.value = s_qq_clsf;
+						calendarView(s_qq_clsf);
+					}
+				}
+					
+				//기준년도 & 분기구분을 기준으로 3개의 캘린더를 화면상에 표시하는 함수.
+				function calendarView(qq_clsf){
+					var aply_yy = model1.getValue("/root/reqData/searchData/aply_yy");
+					if(qq_clsf == "10"){
+						calendar_vaca_1200_1.year = aply_yy - 1;
+						calendar_vaca_1200_2.year = aply_yy;
+						calendar_vaca_1200_3.year = aply_yy;
+					}else{
+						calendar_vaca_1200_1.year = aply_yy;
+						calendar_vaca_1200_2.year = aply_yy;
+						calendar_vaca_1200_3.year = aply_yy;
+					}
+					calendar_vaca_1200_1.month = partMonAry[qq_clsf][0];
+					calendar_vaca_1200_2.month = partMonAry[qq_clsf][1];
+					calendar_vaca_1200_3.month = partMonAry[qq_clsf][2];
+					
+					calendar_vaca_1200_1.visible = true;
+					calendar_vaca_1200_2.visible = true;
+					calendar_vaca_1200_3.visible = true;
+					model1.refresh();
+				}
+				
+				//요일 리턴
+				function getWeekend(year,month,day){
+					var d = new Date(year,month,day);
+					return d.getDay();
+				}
+				
+				//yyyymmdd형태 리턴
+				function formatYYYYMMDD(year,month,day){
+					var v_year = year;
+					var v_month = month;
+					v_month = v_month.length==1?"0"+v_month:v_month;
+					var v_day = day
+					v_day = v_day.length==1?"0"+v_day:v_day;
+					return v_year+""+v_month+""+v_day;
+				}
+				
+				//달력입력 중복체크(싱글) - 중복되면 true 아니면 false
+				function dayDuplCheck(s_day){
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						c_day = datagrid1.valueMatrix(i,datagrid1.colRef("appm_vaca_plan_dt"));
+						if(s_day == c_day){
+							return true;
+						}
+					}
+					return false;
+				}
+				
+				//날짜클릭(싱글)
+				function selectVacaDate(){
+					
+					//현재 선택된 캘린더 오브젝트 생성.
+					var calObj = eval(event.currentTarget);
+					var appm_vaca_plan_dt = formatYYYYMMDD(calObj.year, calObj.month, calObj.day);
+					
+					//단일값 설정
+					if(!event.ctrlKey){
+						//휴가잔여일수 체크
+						//휴가잔여일수 = DB에 저장된 잔여일수 - (휴가계획일수 - 그리드에 표시된행 수)
+						var rmn_vaca_dds = model1.getValue("/root/reqData/searchData/tmp1");
+						var total_vaca_dds = model1.getValue("/root/reqData/searchData/tmp2");
+						if(rmn_vaca_dds - total_vaca_dds <= 0){
+							alert("휴가 잔여일수를 초과하였습니다.");
+							return;
+						}
+						
+						//휴일 선택시 경고메세지 출력 후 종료.
+						var weekend = getWeekend(calObj.year, calObj.month-1, calObj.day);
+						if(weekend==0 || weekend==6){
+							alert("휴일은 선택할 수 없습니다.");
+							return;
+						}
+						
+						//법정공휴일 선택시 경고메세지 출력 후 종료.
+						for(var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+							if(datagrid2.valueMatrix(i,datagrid2.colRef("clndr_dt")) == appm_vaca_plan_dt){
+								alert("법정 공휴일은 선택할 수 없습니다.");
+								return;
+							}
+						}
+						
+						//중복일자는 배제하고, 선택된 값 그리드에 설정.
+						if(!dayDuplCheck(appm_vaca_plan_dt)){
+							settingGrid(appm_vaca_plan_dt, weekend);
+						}
+					//다중값 설정
+					}else{
+						if(buffDay.length==0){
+							//시작 날짜값 전역변수에 설정
+							buffDay[0] = appm_vaca_plan_dt;
+						}else{
+							//마지막 날짜값 전역변수에 설정
+							buffDay[1] = appm_vaca_plan_dt;
+							
+							if(buffDay[0]<buffDay[1]){
+								//루프를 돌면서 시작값부터 마지막 날짜값까지 그리드에 설정
+								//공휴일, 법정공휴일, 중복설정값은 빼준다.
+								while(buffDay[0]<=buffDay[1]){
+									var tempDate, strtDate = new Date();
+									tempDate = getDateFromStr(buffDay[0]);
+									strtDate = getDateFromStr(buffDay[0]);
+									
+									//휴가잔여일수 체크
+									//휴가잔여일수 = DB에 저장된 잔여일수 - (휴가계획일수 - 그리드에 표시된행 수)
+									var rmn_vaca_dds = model1.getValue("/root/reqData/searchData/tmp1");
+									var total_vaca_dds = model1.getValue("/root/reqData/searchData/tmp2");
+									if(rmn_vaca_dds - total_vaca_dds <= 0){
+										return;
+									}
+						
+									//휴일 패스
+									var weekend = getWeekend(strtDate.getYear(), strtDate.getMonth()-1, strtDate.getDate());
+									if(weekend==0 || weekend==6){
+										strtDate.setDate(tempDate.getDate()+1)
+										buffDay[0] = getStrFromDate(strtDate);
+										continue;
+									}
+									
+									//법정공휴일 패스
+									var chkFlag = false;
+									for(var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+										if(datagrid2.valueMatrix(i,datagrid2.colRef("clndr_dt")) == buffDay[0]){
+											chkFlag = true;
+										}
+									}
+									if(chkFlag){
+										strtDate.setDate(tempDate.getDate()+1)
+										buffDay[0] = getStrFromDate(strtDate);
+										continue;
+									}
+									
+									//중복일자 패스
+									if(dayDuplCheck(buffDay[0])){
+										strtDate.setDate(tempDate.getDate()+1)
+										buffDay[0] = getStrFromDate(strtDate);
+										continue;
+									}
+									
+									//그리드에 설정
+									settingGrid(buffDay[0], weekend);
+									
+									//시작일+1
+									strtDate.setDate(tempDate.getDate()+1)
+									buffDay[0] = getStrFromDate(strtDate);
+								}
+								
+								//그리드 설정 후 전역변수 초기화
+								buffDay.length = 0;
+							}
+						}
+					}
+					
+					model1.refresh();
+				}
+				
+				function getDateFromStr(yyyymmdd){
+					var year = yyyymmdd.substr(0,4);
+					var month = yyyymmdd.substr(4,2);
+					var day = yyyymmdd.substr(6,2);
+					var rd = new Date(year*1,month*1,day*1);
+					return rd;
+				}
+				
+				function getStrFromDate(date){
+					var year = date.getYear().toString();
+					var month = date.getMonth().toString();
+					month = month.length==1?"0"+month:month;
+					var day = date.getDate().toString();
+					day = day.length==1?"0"+day:day;
+					return year+month+day;
+				}
+				
+				//그리드에 설정
+				function settingGrid(appm_vaca_plan_dt, weekend){
+					datagrid1.addItem();
+					var row = datagrid1.row;
+					model1.setValue("/root/resData/gridData1/record["+row+"]/appm_vaca_plan_dt", appm_vaca_plan_dt);							
+					model1.setValue("/root/resData/gridData1/record["+row+"]/wkdy", weeklyAry[weekend]);
+					model1.setValue("/root/resData/gridData1/record["+row+"]/emp_no", model1.getValue("/root/resData/resForm/record/emp_no"));
+					model1.setValue("/root/resData/gridData1/record["+row+"]/aply_yy", model1.getValue("/root/reqData/searchData/aply_yy"));
+					model1.setValue("/root/resData/gridData1/record["+row+"]/qq_clsf", model1.getValue("/root/reqData/searchData/qq_clsf"));
+					model1.setValue("/root/resData/gridData1/record["+row+"]/dept_cd", model1.getValue("/root/resData/resForm/record/dept_cd"));
+					//model1.setValue("/root/resData/gridData1/record["+row+"]/proc_stat", "01");
+					model1.setValue("/root/resData/gridData1/record["+row+"]/proc_stat", model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_proc_stat"));
+					
+					//토탈카운트를 추가해주자. 잔여휴가일수 계산에서 필요
+					var total_count = model1.getValue("/root/reqData/searchData/tmp2");
+					model1.setValue("/root/reqData/searchData/tmp2",(parseInt(total_count)+1).toString());
+				}
+					
+//				//달수 가져오기
+//				function monthdate(val){
+//					 m = 1+parseInt(val);
+//					 var f_date = "";
+//					 var cDate=new Date();
+//					 var year=cDate.getYear();
+//					 var month=(cDate.getMonth()+ (parseInt(m))).toString();
+//					 month = month.length==1?"0"+month:month;
+//					 if (month=="00"){
+//					  month="12";
+//					  year--;
+//					 }
+//					 var day=cDate.getDate().toString();
+//					 day = day.length==1?"0"+day:day;
+//					 //f_date = year+month+day;
+//					 f_date = month;
+//					 return f_date;  
+//				}
+				function monthdate(val){
+					 var cDate=new Date();
+					 return cDate.getMonth()+1;  
+				}
+				
+				//년수 가져오기
+				function yeardate(val){
+					 m = parseInt(val);
+					 var f_date = "";
+					 var cDate=new Date();
+					 var year=(cDate.getYear()+ (parseInt(m))).toString();
+					 var month=cDate.getMonth()
+					 month = month.length==1?"0"+month:month;
+					 if (month=="00"){
+					  month="12";
+					  year--;
+					 }
+					 var day=cDate.getDate().toString();
+					 day = day.length==1?"0"+day:day;
+					 //f_date = year+month+day;
+					 f_date = year;
+					 return f_date;  
+				}		
+						
+				//기준년도, 분기구분, 캘린더 설정
+				//사원의 연차휴가 정보, 휴가계획 정보 생성
+				function searchVacaData(){
+					var s_date = model1.getValue("/root/reqData/searchData/aply_yy");
+					calendarSearch(s_date);
+					
+					//////////////////////////////////////////////////
+					//기준년도에 해당하는 사원의 연차휴가 정보생성
+					model1.send("hd_vaca_1202");
+					model1.removenode("/root/vacaData");
+					model1.makeNode("/root/vacaData");
+					model1.copyNode("/root/vacaData","/root/tempData2/record");
+					model1.removenode("/root/tempData2");
+					year_vaca_dds	=  model1.getValue("/root/vacaData/year_vaca_dds");	//연차휴가일수
+					add_vaca_dds	=  model1.getValue("/root/vacaData/add_vaca_dds");	//가산휴가일수
+					use_vaca_dds	=  model1.getValue("/root/vacaData/use_vaca_dds");	//사용휴가일수
+					duty_vaca_dds	=  model1.getValue("/root/vacaData/duty_vaca_dds");	//의무휴가일수
+					rmn_vaca_dds	=  model1.getValue("/root/vacaData/rmn_vaca_dds");	//잔여휴가일수
+					
+					//////////////////////////////////////////////////
+					//기준년도, 분기별 해당사원의 휴가계획 정보조회
+					//상태값이 남아있기 때문에 기존의 노드를 모두 초기화
+					model1.removeNode("/root/resData/gridData1");
+					model1.makeNode("/root/resData/gridData1");
+					model1.refresh();
+					model1.send("hd_vaca_1200");
+					model1.copyNode("/root/resData/gridData1", "/root/dataSet/CURLIST");
+					var cnt = model1.getValue("/root/dataSet/CURLIST1/record/vaca_cnt");
+					total_vaca_dds = Number(cnt);
+					//if(rmn_vaca_dds == ""){rmn_vaca_dds = 15}
+					if(rmn_vaca_dds == ""){rmn_vaca_dds = model.getValue("/root/initData/hd_vaca_1205_m/dataSet/xx_rmn_vaca_dds")}
+					model1.setValue("/root/reqData/searchData/tmp1",rmn_vaca_dds);		//잔여휴가일수
+					model1.setValue("/root/reqData/searchData/tmp2",total_vaca_dds);	//등록휴가일수
+					
+					rowCnt.value = "총 "+ model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						datagrid1.isReadOnly(i, datagrid1.colRef("appm_vaca_plan_dt")) = true;
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="960" pageheight="760" guideline="1,10;1,679;2,694;2,701;">
+		<caption id="caption19" class="list_cap02" style="left:85px; top:103px; width:595px; height:26px; "/>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:103px; width:90px; height:26px; ">기준년도</caption>
+		<caption id="caption3" class="list_cap01" style="left:205px; top:103px; width:90px; height:26px; ">분기구분</caption>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption43" class="tit02" style="left:10px; top:138px; width:170px; height:20px; font-weight:bold; ">지정 휴가 사용 계획</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/qq_clsf" appearance="minimal" style="left:299px; top:107px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/qq_clsf/item">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="onkeydown">
+				<![CDATA[
+					if(event.keyCode == 46){
+						combo1.deselect();
+					}
+				]]>
+			</script>
+		</select1>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="휴가일자^caption1^caption2^caption3^caption4^caption5^caption6^caption7^caption8^caption9" colsep="#" colwidth="120, 5, 5, 5, 5, 5, 5, 5, 5, 5" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:338px; width:225px; height:364px; ">
+			<col ref="appm_vaca_plan_dt" format="yyyy-mm-dd"/>
+			<col ref="emp_no" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="aply_yy" visibility="hidden"/>
+			<col ref="qq_clsf" visibility="hidden"/>
+			<col ref="wkdy" visibility="hidden"/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="proc_stat" visibility="hidden"/>
+			<col ref="db_status" visibility="hidden"/>
+		</datagrid>
+		<input id="input1" ref="/root/reqData/searchData/aply_yy" inputtype="date" maxlength="4" format="yyyy" style="left:103px; top:107px; width:99px; height:18px; ">
+			<script type="javascript" ev:event="DOMFocusOut">
+				<![CDATA[
+					if(input1.value.length != 4){input1.value = yeardate(0)}
+				]]>
+			</script>
+		</input>
+		<button id="button2" class="btn02" style="left:460px; top:38px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					searchVacaData();
+				]]>
+			</script>
+		</button>
+		<calendar id="calendar_vaca_1200_1" visibility="hidden" style="left:10px; top:161px; width:220px; height:150px; ">
+			<script type="javascript" ev:event="ondayselect">
+				<![CDATA[
+					selectVacaDate();
+				]]>
+			</script>
+		</calendar>
+		<calendar id="calendar_vaca_1200_2" visibility="hidden" style="left:235px; top:161px; width:220px; height:150px; ">
+			<script type="javascript" ev:event="ondayselect">
+				<![CDATA[
+					selectVacaDate();
+				]]>
+			</script>
+		</calendar>
+		<calendar id="calendar_vaca_1200_3" visibility="hidden" style="left:460px; top:161px; width:220px; height:150px; ">
+			<script type="javascript" ev:event="ondayselect">
+				<![CDATA[
+					selectVacaDate();
+				]]>
+			</script>
+		</calendar>
+		<button id="button26" class="btn04" style="left:158px; top:136px; width:90px; height:21px; ">
+			<caption>내휴가보기</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//window.load("/xrw/hd/vaca/HD_VACA_2000.xrw","modal", "", "caption:hidden;align:center;width:960px;height:760px;left:300px;top:200px", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					window.load("/xrw/hd/vaca/HD_VACA_2010.xrw","modal", "", "caption:hidden;align:center;width:960px;height:760px;left:300px;top:200px", "/root/reqData/fwdData", "/root/reqData/fwdData");
+				]]>
+			</script>
+		</button>
+		<group id="group1" class="gro_btn" style="left:10px; top:315px; width:222px; height:20px; ">
+			<button id="button20" class="btn_grid03" style="left:163px; top:0px; width:57px; height:17px; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var rst = datagrid1.rowStatus(datagrid1.row);
+						if(rst == 0){
+							datagrid1.addStatus(datagrid1.row,"delete");
+						}else if(rst == 1){
+							datagrid1.deleteRow(datagrid1.row, true);
+						}
+						//토탈카운트를 추가해주자. 잔여휴가일수 계산에서 필요
+						var total_count = model1.getValue("/root/reqData/searchData/tmp2");
+						model1.setValue("/root/reqData/searchData/tmp2",(parseInt(total_count)-1).toString());
+					]]>
+				</script>
+			</button>
+		</group>
+		<input id="input2" ref="/root/reqData/searchData/tmp1" visibility="hidden" style="left:635px; top:670px; width:25px; height:18px; "/>
+		<input id="input3" ref="/root/reqData/searchData/tmp2" visibility="hidden" style="left:550px; top:670px; width:25px; height:18px; "/>
+		<caption id="caption2" visibility="hidden" style="left:530px; top:645px; width:80px; height:20px; ">사용가능휴가</caption>
+		<caption id="caption4" visibility="hidden" style="left:620px; top:645px; width:55px; height:20px; ">사용휴가</caption>
+		<button id="button8" class="btn02" style="left:627px; top:38px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="caption5" class="tit01" style="left:10px; top:6px; width:170px; height:27px; font-weight:bold; ">지정 휴가 사용 계획</caption>
+		<button id="button9" class="btn02" navindex="-1" style="left:405px; top:38px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						model1.reset();
+				]]>
+			</script>
+		</button>
+		<caption id="rowCnt" style="left:109px; top:701px; width:125px; height:20px; text-align:right; "/>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" visibility="hidden" caption="회사코드^법정공휴일" colsep="^" colwidth="100, 100" mergecellsfixedrows="bycolrec" rowsep="|" style="left:255px; top:355px; width:200px; height:40px; ">
+			<col ref="cmpy_cd"/>
+			<col ref="clndr_dt"/>
+		</datagrid>
+		<script type="javascript" ev:event="onkeyup">
+			<![CDATA[
+				if(event.keyCode == 17){
+					buffDay.length = 0;
+				}
+			]]>
+		</script>
+		<button id="button10" class="btn02" style="left:516px; top:38px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						if(datagrid1.rowStatus(i) != 0 && datagrid1.rowStatus(i) != 5){
+							if(!commGridReqCheck("datagrid1")) return;
+						}
+					}
+					if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+					model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+					model1.send("hd_vaca_1203");
+					//model1.removeNode("/root/dataSet");
+					//model1.refresh();
+					if(submit_completed()) {
+						searchVacaData();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="btn02" style="left:571px; top:38px; width:52px; height:21px; ">
+			<caption>신청</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid1.rows == 1){
+						alert("신청할 데이터가 없습니다.");
+						return;
+					}
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						if(datagrid1.valueMatrix(i, datagrid1.colRef("db_status"))==""){
+							alert("모든 데이터를 저장후 신청해주세요.");
+							return;
+						}
+					}
+					if(window.alert("신청 하시겠습니까?", "확인", 1)!=1) return;
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						datagrid1.addStatus(i, "update");
+					}
+					model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+					model1.send("hd_vaca_1204");
+					//model1.removeNode("/root/dataSet");
+					//model1.refresh();
+					if(submit_completed()){
+						noticeSubmit();
+						searchVacaData();
+					}
+				]]>
+			</script>
+		</button>
+		<group id="group2" class="gro_sel" style="left:10px; top:70px; width:916px; height:26px; ">
+			<caption id="caption11" class="list_cap01" style="left:0px; top:0px; width:90px; height:26px; text-align:center; ">결재자</caption>
+			<caption id="caption12" class="list_cap02" style="left:89px; top:0px; width:306px; height:26px; text-align:center; "/>
+			<caption id="caption13" class="list_cap01" style="left:195px; top:0px; width:90px; height:26px; text-align:center; ">직책/직급</caption>
+			<input id="input4" inputtype="button" style="left:174px; top:4px; width:18px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no_tm");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+			</input>
+			<output id="output5" ref="/root/resData/resForm/emp_nm_tm" style="left:92px; top:4px; width:82px; height:18px; text-align:center; "/>
+			<output id="output6" ref="/root/resData/resForm/temp_tm" style="left:288px; top:4px; width:102px; height:18px; text-align:center; "/>
+		</group>
+		<caption id="caption7" style="left:315px; top:420px; width:432px; height:40px; font-weight:bold; ">
+			<![CDATA[지정휴가 사용계획 결재신청 순서 : 날짜 선택 -> 저장 -> 신청버튼 클릭]]>
+		</caption>
+		<caption id="caption8" style="left:310px; top:475px; width:430px; height:40px; font-weight:bold; ">날짜선택 방법  1) 달력에서 해당날짜 클릭</caption>
+		<caption id="caption9" style="left:310px; top:500px; width:498px; height:35px; font-weight:bold; ">날짜선택 방법  2) Ctrl 키 누른상태에서 시작일자와 종료일자 클릭</caption>
+	</xhtml:body>
+</xhtml:html>

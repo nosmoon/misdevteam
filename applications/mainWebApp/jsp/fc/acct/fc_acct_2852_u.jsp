@@ -1,0 +1,43 @@
+<%@	page contentType="text/xml; charset=EUC-KR" %>
+
+<%@	page import="
+		java.io.*
+	,	java.sql.*
+	,	java.util.*
+	,	kr.co.comsquare.rwXmlLib.*
+	,	kr.co.comsquare.db.*
+	,	kr.co.comsquare.util.Tokenizer
+	,	chosun.ciis.fc.acct.rec.*;
+	,	chosun.ciis.fc.acct.ds.*;
+	"
+%>
+
+<%
+	RwXml rx = new RwXml();
+	FC_ACCT_2852_UDataSet ds = (FC_ACCT_2852_UDataSet)request.getAttribute("ds");
+	int root = RwXml.rootNodeID;
+	int dataSet = 0;
+	int recordSet = 0;
+	String errcode = "";
+	String errmsg = "";
+
+	dataSet = rx.add(root, "resData", "");
+
+	errcode = ds.errcode;
+	errmsg = ds.errmsg;
+
+	try {
+	}
+	catch (Exception e) {
+		errcode += " JSP Error";
+		errmsg += " JSP Error Message = " + e.getMessage();
+	}
+	finally {
+		rx.add(dataSet, "errcode", errcode);
+		rx.add(dataSet, "errmsg", errmsg);
+		out.println(rx.xmlFlush());
+		out.println(rx.xmlEndFlush());
+	}
+%>
+
+<% /* 작성시간 : Wed Jan 21 14:54:55 KST 2009 */ %>

@@ -1,0 +1,628 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_1500.xrw
+* 기능 : 판매 - 발송관리 - 발송마스터
+* 작성일자 : 2009.02.04
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var code     = model.getValue("/root/reqData/searchData/bo_cd_send_plac_seq");
+					code         = code.replace("-", "");
+					if ( code == "" ) {
+						commAlert("발송처가 없습니다.");
+						return;
+					}
+				
+					datagrid1.clearStatus();
+					//발송처의 지국코드와 발송처 순번을 분리한다.
+					var bo_cd, send_plac_seq;
+					bo_cd         = code.substr(0, 5);
+					send_plac_seq = code.substr(5);
+
+					var root 		= "/root/reqData/searchData";
+					
+					model.setValue(root + "/bo_cd_req"			, bo_cd			);
+					model.setValue(root + "/send_plac_seq_req"	, send_plac_seq	);
+					
+					//노선상세정보, 노선정보, 수송업자 정보를 조회한다.
+					var action = "se_snd_1910_l";
+					model.send(action, false);
+					
+					//발송매체정보를 조회한다. 라이트그리드로 별도 조회한다.
+					var action = "se_snd_1920_l";
+					se_cleargrid("datagrid2");
+					model.send(action, false);
+					
+					//조회 결과가 없으면 수정할 수 없도록한다. 신규입력은 입력 버튼을 통해서 한다.
+					var tf;
+					if ( input1.value == "" ){
+						tf == true;
+					} else {
+						tf == false;
+					}
+					inputTf("R", false);
+
+					//저장시 조회 결과가 있는 경우는 수정의 상태값을 부여한다.
+					var flag		= "U";
+					model.makeNode("/root/resData/resform/flag");
+					model.setValue("/root/resData/resform/flag", flag);
+										
+					model.refresh();
+				}
+				
+				function inputTf(gubun, tf){
+					var send_plac_nm_yn;
+					//입력일 경우는 발송처순번을 입력할 수 있도록 한다. 지국코드는 직접 입력이 아니라 기존에 존재하는 지국이어야한다. 팝업으로 조회
+					if ( gubun == "C" ){
+						input2.disabled = false;
+						button3.disabled = false;
+					} else {
+						input2.disabled = true;
+						button3.disabled = true;
+						
+						//발송처 순번이 000인 경우는 발송처명을 수정할 수 없도록 한다.
+						if ( input2.value == "000" ){
+							send_plac_nm_yn = true;
+						} else {
+							send_plac_nm_yn = tf;
+						}
+					}
+
+					//input4.disabled    = send_plac_nm_yn;
+					combo1.disabled    = tf;
+					bool1.disabled     = tf;
+					input11.disabled   = tf;
+					bool2.disabled     = tf;
+					input12.disabled   = tf;
+					datagrid1.disabled = tf;
+					button3.disabled 	  = tf;
+					combo2.disabled    = tf;
+					combo3.disabled    = tf;
+				}
+				
+				//조회 결과의 발송처와 노선상세정보의 발송처 조회
+				function getSendPlacCode(){
+					/* 팝업을 위한 전역 변수를 사용하여 가져갈 코드값과 결과 값을 받을 경로를 지정한다. */
+					var root                      = "";
+					var req						= "";					
+					if ( event.currentTarget == "button4" ){
+						root						= "/root/reqData/searchData";
+						req						= "_req";
+					} else {
+						root						= "/root/resData/resform";
+					}
+					
+					var bo_cd_path				= root + "/bo_cd" + req;			//지국코드경로
+					var bo_seq_path				= root + "/bo_seq" + req;			//지국순번경로
+					var send_plac_seq_path		= root + "/send_plac_seq" + req;	//발송처순번경로
+					var send_plac_nm_path			= root + "/send_plac_nm" + req;	//발송처명경로
+					var area_cd_path				= root + "/area_cd" + req;		//지역코드경로
+					var area_nm_path				= root + "/area_nm" + req;		//지역명경로
+					
+					model.property("bo_cd"		) = "";
+					model.property("send_plac_seq") = "";
+					model.property("send_plac_nm"	) = "";
+					
+					model.property("bo_cd_path") 			= bo_cd_path;								
+					model.property("bo_seq_path")			= bo_seq_path;								
+					model.property("send_plac_seq_path") 	= send_plac_seq_path;
+					model.property("send_plac_nm_path") 	= send_plac_nm_path;
+					model.property("area_cd_path") 	    	= area_cd_path;
+					model.property("area_nm_path") 		= area_nm_path;
+					
+					window.load(
+							"/xrw/se/comm/SE_COMM_2000.xrw", 
+							"modal", 
+							"", 
+							"left:30px; top:200px; width:655px; height:520; align:center; caption:hidden;"
+							,""
+							,""
+						);
+					
+					var bo_cd 							= model.getValue(root + "/bo_cd" + req		);
+					var send_plac_seq						= model.getValue(root + "/send_plac_seq" + req);
+					
+					if ( event.currentTarget == "button4" ){
+						model.setValue(root + "/bo_cd_send_plac_seq"	, bo_cd + send_plac_seq		);
+					} else {
+						model.setValue(root + "/bo_cd"				, bo_cd	);
+						model.setValue(root + "/send_plac_seq"			, ""		);
+						model.setValue(root + "/send_plac_nm"			, ""		);
+					}
+					
+					model.refresh();
+				}
+
+				function goCodeSearch(){
+					var code     = model.getValue("/root/reqData/searchData/bo_cd_send_plac_seq");
+					
+					 var codecnt = 0;
+					 for ( var i=0; i<code.length; i++ ) {
+					  ch = code.charAt(i);
+						if (! isNaN(ch)) {
+						  	codecnt++;
+						 }
+					 }
+
+					
+					var bo_cd, send_plac_seq,send_plac_nm;
+					var root	= "/root/reqData/searchData";
+					if(codecnt ==8){
+						code         = code.replace("-", "");
+						bo_cd         = code.substr(0, 5);
+						send_plac_seq = code.substr(5);	
+						model.makeNode(root + "/bo_cd");
+						model.makeNode(root + "/send_plac_seq");
+						model.setValue(root + "/bo_cd", bo_cd);
+						model.setValue(root + "/send_plac_seq", send_plac_seq);
+					}else{	
+
+						model.makeNode(root + "/send_plac_nm");
+						model.setValue(root + "/send_plac_nm", code);
+					}
+
+					modelSendNoMake("se_comm_2020_s", "/se/comm/2020", "/root/reqData/searchData", "/root/resData/code");		
+					
+					var singleNode		= model.instances(0).selectSingleNode("/root/resData/code");
+					var lengthNode		= singleNode.getElementsByTagName("record");
+					
+					if(lengthNode.length>1){
+						var 	req						= "_req";
+						var bo_cd_path					= root + "/bo_cd" + req;			//지국코드경로
+						var bo_seq_path				= root + "/bo_seq" + req;			//지국순번경로
+						var send_plac_seq_path			= root + "/send_plac_seq" + req;	//발송처순번경로
+						var send_plac_nm_path			= root + "/send_plac_nm" + req;	//발송처명경로
+						var area_cd_path				= root + "/area_cd" + req;		//지역코드경로
+						var area_nm_path				= root + "/area_nm" + req;		//지역명경로
+						
+						var bo_cd_send_plac_seq			= root + "/bo_cd_send_plac_seq" ;		//지국코드+발송처순번 
+						
+						model.property("bo_cd"		) = "";
+						model.property("send_plac_seq") = "";
+						model.property("send_plac_nm"	) = model.getValue(root + "/send_plac_nm");
+						
+						model.property("bo_cd_path") 			= bo_cd_path;								
+						model.property("bo_seq_path")			= bo_seq_path;								
+						model.property("send_plac_seq_path") 	= send_plac_seq_path;
+						model.property("send_plac_cd_seq_path") 	= bo_cd_send_plac_seq;
+						
+						model.property("send_plac_nm_path") 	= send_plac_nm_path;
+						model.property("area_cd_path") 	    	= area_cd_path;
+						model.property("area_nm_path") 		= area_nm_path;
+						
+						window.load(
+								"/xrw/se/comm/SE_COMM_2000.xrw", 
+								"modal", 
+								"", 
+								"left:30px; top:200px; width:655px; height:520; align:center; caption:hidden;"
+								,""
+								,""
+							);
+						if(model.getValue("/root/resData/code/record/bo_cd_send_plac_seq")!="") {
+							  goSearch();
+						}
+						
+					}else{			
+						model.setValue(root + "/bo_cd_send_plac_seq", model.getValue("/root/resData/code/record/bo_cd_send_plac_seq"));					
+						model.setValue(root + "/send_plac_nm_req", model.getValue("/root/resData/code/record/send_plac_nm"));
+	
+						model.removenode(root + "/bo_cd");
+						model.removenode(root + "/send_plac_seq");					
+						model.removenode(root + "/send_plac_nm");
+						
+						
+						if(model.getValue("/root/resData/code/record/bo_cd_send_plac_seq")!="")	 {
+							  goSearch();
+						}
+					}
+					model.refresh();
+
+				}
+				
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<curlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+								<etclist>
+									<record>
+										<cd/>
+										<cdnm/>
+									</record>
+								</etclist>
+								<stetlist>
+									<record>
+										<cd/>
+										<cdnm/>
+									</record>
+								</stetlist>
+							</curlist>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<bo_cd_send_plac_seq/>
+							<send_plac_nm_req/>
+							<area_cd_req/>
+							<area_nm_req/>
+							<bo_cd_req/>
+							<send_plac_seq_req/>
+							<bo_seq_req/>
+						</searchData>
+						<reqform>
+							<bo_cd/>
+							<send_plac_seq/>
+							<send_plac_nm/>
+							<send_plac_feat_clas/>
+							<use_yn/>
+							<team_nm/>
+							<part_nm/>
+							<area_nm/>
+							<sido_nm/>
+							<bo_feat_clsf/>
+							<stetsell_clsf/>
+							<ariv_nomn/>
+							<clas_clsf/>
+							<band/>
+							<qty/>
+							<area_cd/>
+							<area_nm/>
+							<ddtotshet_qty/>
+							<bo_feat_nm/>
+							<flag/>
+							<bo_seq/>
+							<etc_area_clas/>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform>
+							<bo_cd/>
+							<send_plac_seq/>
+							<send_plac_nm/>
+							<send_plac_feat_clas/>
+							<use_yn/>
+							<team_nm/>
+							<part_nm/>
+							<area_nm/>
+							<sido_nm/>
+							<bo_feat_clsf/>
+							<stetsell_clsf/>
+							<ariv_nomn/>
+							<clas_clsf/>
+							<band/>
+							<qty/>
+							<area_cd/>
+							<area_nm/>
+							<ddtotshet_qty/>
+							<bo_feat_nm/>
+							<flag/>
+							<bo_seq/>
+							<etc_area_clas/>
+						</resform>
+						<gridData>
+							<routelist>
+								<record>
+									<route_clsf_nm/>
+									<route_cd/>
+									<route_nm/>
+									<route_rank/>
+									<send_rank/>
+									<cnsg_seqo/>
+									<use_yn/>
+									<route_clsf/>
+								</record>
+							</routelist>
+							<sendlist>
+								<record/>
+							</sendlist>
+							<tranlist>
+								<record/>
+							</tranlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action = "se_snd_1900_m";
+					model.send(action);
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_snd_1900_m" action="/se/snd/1900" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_snd_1910_l" action="/se/snd/1910" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="se_snd_1920_l" action="/se/snd/1920" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/sendlist/record"/>
+			<submission id="se_snd_1930_l" action="/se/snd/1930" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/routelist/record"/>
+			<submission id="se_snd_1940_a" action="/se/snd/1940" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData/MsgData"/>
+			<submission id="se_snd_1950_d" action="/se/snd/1950" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,937;2,63;2,70;2,725;2,121;2,102;2,292;2,560;" style="font-family:돋움; font-size:12px; border-style:solid; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" ref="/root/reqData/searchData/medi_cd" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; ">발송처</caption>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button4" navindex="2" crud="R" style="left:160px; top:74px; width:20px; height:18px; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+			<caption>...</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					getSendPlacCode();
+				]]>
+			</script>
+		</button>
+		<input id="input3" ref="/root/reqData/searchData/bo_cd_send_plac_seq" class="req" navindex="1" autonext="false" caption="발송처" style="left:86px; top:74px; width:70px; height:22px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					
+					if ( event.keyCode == 13 ){
+						var code = input3.currentText;		
+						model.setValue("/root/reqData/searchData/bo_cd_send_plac_seq", code);
+						if(code ==""){return;}
+						goCodeSearch();
+					
+						}
+				
+					
+				]]>
+			</script>
+		</input>
+		<output id="oupute2" ref="/root/reqData/searchData/send_plac_nm_req" class="output" navindex="3" style="left:183px; top:74px; width:100px; height:22px; "/>
+		<group id="group1" class="gro_tab1" style="left:10px; top:120px; width:926px; height:635px; background-color:transparent; border-color:#aec9e9!important; border-style:solid; ">
+			<caption id="caption3" class="tit02" style="left:0px; top:0px; width:130px; height:20px; ">노선상세정보</caption>
+			<caption id="caption70" class="list_cap02" style="left:0px; top:18px; width:890px; height:26px; "/>
+			<caption id="caption20" class="list_cap03" style="left:444px; top:18px; width:100px; height:26px; text-align:center; ">발송구분</caption>
+			<caption id="caption45" class="list_cap03" style="left:0px; top:18px; width:100px; height:26px; text-align:center; ">발송처코드</caption>
+			<caption id="caption13" class="list_cap03" style="left:222px; top:18px; width:100px; height:26px; text-align:center; ">발송처명</caption>
+			<input id="input1" ref="/root/resData/resform/bo_cd" class="req" disabled="true" navindex="4" format="99999" caption="지국코드" style="left:106px; top:22px; width:40px; height:22px; "/>
+			<input id="input2" ref="/root/resData/resform/send_plac_seq" class="req" disabled="true" navindex="5" caption="발송처순번" style="left:150px; top:22px; width:25px; height:22px; "/>
+			<caption id="caption1" class="list_cap03" style="left:666px; top:18px; width:100px; height:26px; text-align:center; ">사용여부</caption>
+			<caption id="caption2" class="list_cap02" style="left:0px; top:43px; width:890px; height:26px; "/>
+			<caption id="caption4" class="list_cap03" style="left:0px; top:43px; width:100px; height:26px; text-align:center; ">팀</caption>
+			<caption id="caption5" class="list_cap03" style="left:222px; top:43px; width:100px; height:26px; text-align:center; ">파트</caption>
+			<caption id="caption6" class="list_cap03" style="left:444px; top:43px; width:100px; height:26px; text-align:center; ">지역</caption>
+			<caption id="caption8" class="list_cap03" style="left:666px; top:43px; width:100px; height:26px; text-align:center; ">시도</caption>
+			<caption id="caption9" class="list_cap02" style="left:0px; top:68px; width:890px; height:26px; "/>
+			<caption id="caption10" class="list_cap03" style="left:0px; top:68px; width:100px; height:26px; text-align:center; ">지국특성</caption>
+			<caption id="caption11" class="list_cap03" style="left:222px; top:68px; width:100px; height:26px; text-align:center; ">가판구분</caption>
+			<caption id="caption12" class="list_cap03" style="left:444px; top:68px; width:100px; height:26px; text-align:center; ">착지명</caption>
+			<caption id="caption14" class="list_cap03" style="left:666px; top:68px; width:100px; height:26px; text-align:center; ">단수구분</caption>
+			<caption id="caption15" class="list_cap02" style="left:0px; top:93px; width:890px; height:26px; "/>
+			<caption id="caption16" class="list_cap03" style="left:0px; top:93px; width:100px; height:26px; text-align:center; ">띠지</caption>
+			<caption id="caption17" class="list_cap03" style="left:222px; top:93px; width:100px; height:26px; text-align:center; ">일계부수</caption>
+			<caption id="caption18" class="list_cap03" style="left:444px; top:93px; width:100px; height:26px; text-align:center; ">발송부수</caption>
+			<input id="input4" ref="/root/resData/resform/send_plac_nm" disabled="false" navindex="7" caption="발송처명" style="left:328px; top:22px; width:100px; height:22px; "/>
+			<select1 id="combo1" ref="/root/resData/resform/send_plac_feat_clas" disabled="true" appearance="minimal" caption="발송구분" style="left:550px; top:22px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<bool id="bool1" disabled="true" checkvalue="Y,N" ref="/root/resData/resform/use_yn" style="left:770px; top:24px; width:20px; height:15px; background-image:#uncheck; "/>
+			<input id="input5" ref="/root/resData/resform/team_nm" disabled="true" navindex="9" editable="true" style="left:106px; top:47px; width:100px; height:22px; "/>
+			<input id="input6" ref="/root/resData/resform/part_nm" disabled="true" navindex="10" editable="true" style="left:328px; top:47px; width:100px; height:22px; "/>
+			<input id="input7" ref="/root/resData/resform/area_nm" disabled="true" navindex="11" editable="true" style="left:550px; top:47px; width:100px; height:22px; "/>
+			<input id="input8" ref="/root/resData/resform/sido_nm" disabled="true" navindex="12" editable="true" style="left:772px; top:47px; width:100px; height:22px; "/>
+			<input id="input9" ref="/root/resData/resform/bo_feat_nm" disabled="true" navindex="13" editable="true" style="left:106px; top:72px; width:100px; height:22px; "/>
+			<input id="input11" ref="/root/resData/resform/ariv_nomn" disabled="true" navindex="15" editable="true" style="left:550px; top:72px; width:100px; height:22px; "/>
+			<bool id="bool2" disabled="true" checkvalue="9, 0" ref="/root/resData/resform/clas_clsf" style="left:770px; top:74px; width:20px; height:15px; background-image:#uncheck; "/>
+			<input id="input12" ref="/root/resData/resform/band" disabled="true" navindex="17" editable="true" format="#,###" style="left:106px; top:97px; width:100px; height:22px; text-align:right; "/>
+			<input id="input13" ref="/root/resData/resform/ddtotshet_qty" disabled="true" navindex="18" editable="true" format="#,###" style="left:328px; top:97px; width:100px; height:22px; text-align:right; "/>
+			<input id="input14" ref="/root/resData/resform/qty" disabled="true" navindex="19" editable="true" format="#,###" style="left:550px; top:97px; width:100px; height:22px; text-align:right; "/>
+			<button id="button3" disabled="true" navindex="20" style="left:179px; top:22px; width:20px; height:18px; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+				<caption>...</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						getSendPlacCode();
+					]]>
+				</script>
+			</button>
+			<caption id="caption19" class="tit02" style="left:0px; top:133px; width:130px; height:20px; ">노선정보</caption>
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/routelist/record" caption="노선구분^노선코드^노선명^노선순위^발송순위^탁송순서^사용여부" colsep="#" colwidth="130,130,130,120,120,120,120" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:0px; top:153px; width:890px; height:185px; ">
+				<col ref="route_clsf_nm" style="text-align:left; "/>
+				<col editable="false" ref="route_cd" type="inputbutton"/>
+				<col ref="route_nm" style="text-align:left; "/>
+				<col ref="route_rank" type="input" format="#,###" style="text-align:right; "/>
+				<col ref="send_rank" type="input" format="#,###" style="text-align:right; "/>
+				<col ref="cnsg_seqo" type="input" format="#,###" style="text-align:right; "/>
+				<col checkvalue="Y,N" ref="use_yn" type="checkbox"/>
+				<col ref="route_clsf" visibility="hidden"/>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var row = datagrid1.row;
+						var col  = datagrid1.col;
+						var root = "/root/resData/gridData/routelist/record";
+						
+						var rows = datagrid1.rows;
+						if ( rows > datagrid1.fixedRows + 1 ) {
+							root += "[" + row + "]"
+						}
+						
+						var nodenm = "/route_nm";
+						var nodecd  = "/route_cd";
+						
+						var route_clsf					= model.getValue(root + "/route_clsf");
+						model.property("route_clsf")		= route_clsf;
+						model.property("route_cd_path") 	= root + nodecd;
+						model.property("route_nm_path")	= root + nodenm;
+						model.property("route_rank_path")	= "";
+												
+						window.load(
+								"/xrw/se/comm/SE_COMM_1200.xrw", 
+								"modal", 
+								"", 
+								"left:30px; top:200px; width:420px; height:420; align:center; caption:hidden"
+								,""
+								,""
+							);
+							
+						datagrid1.addStatus(row, "update");
+
+					]]>
+				</script>
+			</datagrid>
+			<caption id="caption21" class="tit02" style="left:0px; top:352px; width:130px; height:20px; ">발송 매체정보</caption>
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData/sendlist/record" caption="매체^지방판명^판수^부수^본쇄^토,일섹션^조선경제^경제+특집^특집^행복플러스^대입" colsep="#" colwidth="100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" datatype="delimeter" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:0px; top:372px; width:890px; height:125px; ">
+				<col ref="medit_nm" style="text-align:left; "/>
+				<col ref="ledt_nm"/>
+				<col ref="ecnt_nm"/>
+				<col ref="qty"/>
+				<col ref="c1"/>
+				<col ref="c2"/>
+				<col ref="c3"/>
+				<col ref="c4"/>
+				<col ref="c5"/>
+				<col ref="c6"/>
+				<col ref="c7"/>
+			</datagrid>
+			<datagrid id="datagrid3" nodeset="/root/resData/gridData/tranlist/record" caption="노선구분^성명^일일수송료^전화번호^휴대폰^계약일^해약일" colsep="#" colwidth="130,130,130,120,120,120,120" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:0px; top:528px; width:890px; height:95px; ">
+				<col ref="route_clsf_nm"/>
+				<col ref="tran_cmpy_nm"/>
+				<col ref="tran_cost" style="text-align:right; "/>
+				<col ref="tel_no"/>
+				<col ref="ptph_no"/>
+				<col ref="cntr_dt"/>
+				<col ref="cctr_dt"/>
+			</datagrid>
+			<caption id="caption22" class="tit02" style="left:0px; top:508px; width:130px; height:20px; ">수송업자정보</caption>
+			<caption id="caption23" class="list_cap03" style="left:666px; top:93px; width:100px; height:26px; text-align:center; ">기타지역분류</caption>
+			<select1 id="combo2" ref="/root/resData/resform/etc_area_clas" disabled="true" appearance="minimal" caption="발송구분" style="left:772px; top:97px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/etclist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo3" ref="/root/resData/resform/stetsell_clsf" disabled="true" appearance="minimal" caption="발송구분" style="left:328px; top:72px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/stetlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<button id="button7" class="btn03" crud="R" style="left:602px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				    goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" crud="C" style="left:670px; top:44px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.resetInstanceNode("/root/resData");
+					model.resetInstanceNode("/root/reqData/reqform");
+					
+					model.removeNodeset("/root/resData/gridData/routelist/record");
+					model.removeNodeset("/root/resData/gridData/tranlist/record");
+					datagrid2.rows = datagrid2.fixedRows;
+					
+					model.copyNode("/root/resData/resform", "/root/reqData/reqform");
+					
+					var action = "se_snd_1930_l";
+					model.send(action);
+					
+					var flag		= "I";
+					model.setValue("/root/resData/resform/flag", flag);
+					
+					combo1.select(0);
+					combo2.select(0);
+					combo3.select(0);
+					
+					model.refresh();
+					inputTf("C", false);
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn03" crud="C" style="left:738px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					if ( !commReqCheck("group1") ){
+						return;
+					}
+					
+					model.copyNode("/root/reqData/reqform", "/root/resData/resform");					
+					
+					model.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					
+					var action = "se_snd_1940_a";
+					model.send(action);
+					var bo_cd 			= model.getValue("/root/resData/resform/bo_cd");
+					var send_plac_seq		= model.getValue("/root/resData/resform/send_plac_seq");
+					model.setValue("/root/reqData/searchData/bo_cd_send_plac_seq", bo_cd + send_plac_seq);
+					
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn03" crud="D" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var val = window.alert("삭제하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					model.copyNode("/root/reqData/reqform", "/root/resData/resform");	
+					var action = "se_snd_1950_d";
+					model.send(action);
+					var bo_cd 			= model.getValue("/root/resData/resform/bo_cd");
+					var send_plac_seq		= model.getValue("/root/resData/resform/send_plac_seq");
+					model.setValue("/root/reqData/searchData/bo_cd_send_plac_seq", bo_cd + send_plac_seq);
+					
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:20px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

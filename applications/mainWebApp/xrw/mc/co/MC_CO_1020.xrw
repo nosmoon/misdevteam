@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData/>
+						<searchData>
+							<cd/>
+							<cdnm/>
+							<msg/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+						</resForm>
+						<gridData>
+							<mc_co_1020>
+								<dataSet>
+									<CURLIST99>
+										<record>
+											<cd/>
+											<nm/>
+										</record>
+									</CURLIST99>
+								</dataSet>
+							</mc_co_1020>
+						</gridData>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<MsgData/>
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				//팝업 전용으로 사용하는 경우 메뉴에 등록된 데이터가 없기 때문에
+				//타이틀을 직접 설정해주어야 한다.
+				//팝업 호출시 타이틀을 지정하면 지정된 타이틀을 사용하고 아니면 기본으로 설정한다.
+				var title = model.getValue("/root/reqData/searchData/title").Trim();
+				if (title != "") {
+					//일반폼과 팝업폼을 동시에 사용하는 경우 메뉴의 데이터를 가져온다.
+					//타이틀 지정시 무시하고 사용자 지정 문자열을 제목으로 사용한다.
+					//변경하지 않으려면 호출시 "" 으로 지정하거나 하단 주석을 막으면 된다.
+					set_popup_title(title);
+				}
+				else {
+					//일반폼과 팝업폼을 동시에 사용하는 경우 메뉴의 데이터를 가져온다.
+					//일반폼&팝업폼 공용인경우 하단 주석처리
+					set_popup_title("조회");
+				}
+				
+				//팝업 호출시 자동 검색이 설정된 경우
+				if (g_is_autosearch) {
+					//조회를 위한 데이터가 있을 경우만 조회되도록 한다.
+					if (srch_cd.value != "" || srch_cdnm.value != "") {
+						btn_select.dispatch("onclick");
+					}
+					g_is_autosearch = false;
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init_controls();
+				get_popup_data();
+				set_column_visibility();
+				
+				switch(get_refvalue("/root/reqData/searchData/searchid")) {
+					case "1":			//예산코드조회
+						break;
+					case "2":			//부서별예산코드조회
+						break;
+					case "3":			//상세매체코드
+						break;
+					case "11":			//분류코드
+						srch_cd.attribute("maxlength") = "2";
+						break;
+					case "16":
+						break;
+					case "17":			//행사의 진행상황코드조회
+						break;
+					case "18":
+						break;
+					default:
+						break;
+				}
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="../../../js/TFCommon.js"/>
+		<script type="javascript" src="../../../js/CIISComm.js"/>
+		<script type="javascript" src="../../../js/fcmc_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			var g_popid = "mc_co_1020";
+			//일반 폼으로도 사용하고 팝업용으로도 사용하는 폼의 경우
+			//구분이 필요한데 opener로 판별 할 수 없기 때문에
+			//폼 로딩시 특정 이름의 프로퍼티가 있는지 확인해서 처리 하는 시점에서
+			//is_popup을 true로 설정해서 사용하도록 한다.
+			var g_is_popup = false;
+			//자동으로 폼 로드시 검색을 시작한다.
+			var g_is_autosearch = false;
+			//검색의 결과가 1건이라면 결과값을 자동 반환한다.
+			var g_is_autoclose = false;
+			//윈도우의 원래 위치 저장
+			var g_leftpx = 0;
+			var g_toppx = 0;
+			//자동검색시 검색을 종료하고 조건값을 삭제 할지 여부
+			var g_is_autoreset = false;
+
+			function init_controls() {
+				//control의 기본 설정 적용
+
+				//datagrid init
+				set_default(datagrid1);
+				
+				datagrid1.attribute("extendlastcol")	=	BOOLEAN_TRUE;
+				
+				//combo init
+				//set_default();
+				
+				//radio init
+				//set_default();
+				
+				//input init
+				set_default(srch_cd,srch_cdnm);
+				
+				//input date init
+				
+				//input button init
+				
+				//control format 설정 적용
+				set_format("CODE",datagrid1,"1",srch_cd);
+				set_format("STRING_L",datagrid1,"2",srch_cdnm);	
+			}
+			function get_popup_data() {
+				var mode = "";
+				var title = "";
+				var readonly = "0";
+				var datafilter = "";
+				var value_list = get_popup_send_property(g_popid);
+				var save_ref = "";
+				//현재 폼이 팝업용으로 열린 경우 처리
+				//일반 폼으로도 사용하고 팝업용으로도 사용하는 폼의 경우
+				//구분이 필요한데 opener로 판별 할 수 없기 때문에
+				//폼 로딩시 특정 이름의 프로퍼티가 있는지 확인해서 처리 하는 시점에서
+				//is_popup을 true로 설정해서 사용하도록 한다.
+				g_is_popup = false;
+				g_is_autosearch = false;
+				g_is_autoclose = false;
+				
+				if (value_list != "") {
+					g_is_popup = true;
+
+					set_popup_min(!g_is_popup);
+					set_popup_max(!g_is_popup);
+					set_popup_close(!g_is_popup);
+					
+					save_ref = "/root/reqData/searchData";
+					save_value_list(save_ref,value_list);
+					
+					mode	=	model.getValue(save_ref + "/mode").Trim().toUpperCase();
+					title		=	model.getValue(save_ref + "/title").Trim();
+					readonly	=	model.getValue(save_ref + "/readonly").Trim();
+					datafilter	=	model.getValue(save_ref + "/datafilter").Trim();
+					
+					//필터 문자가 전달된 경우 해당 datagrid의 nodeset에 추가
+					if (datafilter != "") {
+						//datagrid1.nodeset = datagrid1.nodeset + datafilter;
+					}
+
+					//여기서부터는 현재 폼에서만 필요한 코드
+					
+					//읽기모드의 설정은 폼 단위 개별 설정이고
+					//상황에 따라 호출하는 폼에서 넘긴 데이터를 수정하지 못하도록 설정하기 위한 옵션
+					if (readonly == "0") {
+						//읽기모드가 "0" 인 경우 처리
+						//읽기모드가 "0" 이면 읽기 전용으로 설정할 컨트롤이 없다고 가정하자.
+					}
+					else if (readonly == "1") {
+						//읽기모드가 "1" 인 경우 처리
+						
+					}
+					else if (readonly == "2") {
+						//읽기모드가 "2" 인 경우 처리
+						
+					}
+					else if (readonly == "3") {
+						//읽기모드가 "2" 인 경우 처리
+					}
+					//여기까지가 현재 폼에서만 필요한 코드
+					
+					//Search
+					if (mode.indexOf("S") >= 0) {
+						g_is_autosearch = true;
+					}
+					//Close
+					if (mode.indexOf("C") >= 0) {
+						g_is_autoclose = true;
+					}
+					//Reset
+					//자동검색인 경우에 한해서 검색후 조회용 값을 삭제할지 여부
+					if (mode.indexOf("R") >= 0) {
+						g_is_autoreset = true;
+					}
+				}
+				
+				//그냥 팝업만 띄워달란다 -_- 바꾼다.
+				g_is_autosearch = false;
+				set_refvalue(srch_cd,"");
+				set_refvalue(srch_cdnm,"");
+			}
+			
+			function check_search_values() {
+				//필수항목체크(검색)
+				if(!commReqCheck(group_scr)) {
+					return false;
+				}
+				
+				return true;
+			}
+			
+			function prepare_mc_co_1020() {
+				if(!check_search_values()) {
+					return false;
+				}
+				
+				return true;
+			}
+			function send_mc_co_1020() {
+				//조건에 문제가 없다면 처리
+				if (!prepare_mc_co_1020()) {
+					return;
+				}
+
+				var subid1 = "";
+				var cur1 = "";
+				var subref1 = "";
+				var subresultref1 = "";
+				var action1 = "";
+				var cur = "CURLIST99";
+
+				switch(get_refvalue("/root/reqData/searchData/searchid")) {
+					case "1":			//예산코드조회
+						//cd,cdnm
+						subid1 = "mc_co_1001_l";
+						cur1 = "CURLIST";
+						subref1 = "/root/reqData/searchData";
+						subresultref1 = "/root/resData/gridData/mc_co_1020/dataSet";
+						action1 = "/mc/co1000/1001";
+						break;
+					case "2":			//부서별예산코드조회
+						//cd,cdnm,dept_cd
+						subid1 = "mc_co_1002_l";
+						cur1 = "CURLIST";
+						subref1 = "/root/reqData/searchData";
+						subresultref1 = "/root/resData/gridData/mc_co_1020/dataSet";
+						action1 = "/mc/co1000/1002";
+						break;
+					case "3":			//상세매체코드
+						//cd,cdnm,medi_cd
+						subid1 = "mc_co_1003_l";
+						cur1 = "CURLIST";
+						subref1 = "/root/reqData/searchData";
+						subresultref1 = "/root/resData/gridData/mc_co_1020/dataSet";
+						action1 = "/mc/co1000/1003";
+						break;
+					case "11":			//분류코드
+						//cdnm,from_cd,to_cd,query(cd는 사용하지 않고 query의 조건으로 들어감)
+						subid1 = "mc_co_1004_l";
+						cur1 = "CURLIST";
+						subref1 = "/root/reqData/searchData";
+						subresultref1 = "/root/resData/gridData/mc_co_1020/dataSet";
+						action1 = "/mc/co1000/1004";
+						
+						var cdbak = get_refvalue(subref1 + "/" + "cd");
+						
+						var cd2 = get_refvalue(subref1 + "/" + "cd").substr(0,2);
+						var clas_clsf_cd = get_refvalue(subref1 + "/" + "clas_clsf_cd");
+						var clas_cd = get_refvalue(subref1 + "/" + "clas_cd");
+						
+						if (clas_clsf_cd != "") {	//분류구분코드 미지정
+							if (clas_clsf_cd == "1") {	//분류코드1
+								set_refvalue(subref1 + "/" + "query","__000000");
+								set_refvalue(subref1 + "/" + "from_cd",string_rpad(cd2,8,"0"));
+								set_refvalue(subref1 + "/" + "to_cd",string_rpad("99",8,"0"));
+							}
+							else {
+								set_refvalue(subref1 + "/" + "cd",get_refvalue(subref1 + "/" + "clas_cd") + cd2);
+								if (clas_clsf_cd == "2") {	//분류코드2
+									if(get_refvalue(subref1 + "/" + "cd").length == 2){
+										set_refvalue(subref1 + "/" + "from_cd",string_rpad(get_refvalue(subref1 + "/" + "cd"),7,"0") + "1");
+									}
+									else{
+										set_refvalue(subref1 + "/" + "from_cd",get_refvalue(subref1 + "/" + "cd") + "0001");
+									}
+									set_refvalue(subref1 + "/" + "to_cd",get_refvalue(subref1 + "/" + "cd").substr(0,2) + "990000");
+									set_refvalue(subref1 + "/" + "query","____0000");
+								}
+								else if (clas_clsf_cd == "3") {	//분류코드3
+									if(get_refvalue(subref1 + "/" + "cd").length == 4){
+										set_refvalue(subref1 + "/" + "from_cd",string_rpad(get_refvalue(subref1 + "/" + "cd"),7,"0")+"1");
+									}
+									else{
+										set_refvalue(subref1 + "/" + "from_cd",get_refvalue(subref1 + "/" + "cd") + "01");
+									}
+									set_refvalue(subref1 + "/" + "to_cd",get_refvalue(subref1 + "/" + "cd").substr(0,4) + "9900");
+									set_refvalue(subref1 + "/" + "query","______00");
+								}
+								else if (clas_clsf_cd == "4") {	//분류코드4
+									if(get_refvalue(subref1 + "/" + "cd").length == 6){
+										set_refvalue(subref1 + "/" + "from_cd",string_rpad(get_refvalue(subref1 + "/" + "cd"),7,"0")+"1");
+									}
+									else{
+										var cdv = "";
+										if (string_to_number(get_refvalue(subref1 + "/" + "cd")) <= 0) {
+											cdv = "01";
+										}
+										else {
+											cdv = get_refvalue(subref1 + "/" + "cd");
+										}
+										
+										set_refvalue(subref1 + "/" + "from_cd",cdv);
+									}
+									set_refvalue(subref1 + "/" + "to_cd",get_refvalue(subref1 + "/" + "cd").substr(0,6) + "99");
+									set_refvalue(subref1 + "/" + "query","%");
+								}
+							}
+						}
+						else {
+							set_refvalue(subref1 + "/" + "from_cd","00000000");
+							set_refvalue(subref1 + "/" + "to_cd","99999999");
+							set_refvalue(subref1 + "/" + "query",cdbak + "%");
+						}
+						
+						set_refvalue(subref1 + "/" + "cd",cdbak);
+						break;
+					case "16":
+						//dept_cd가 있는 경우, cd,cdnm,from_cd,to_cd,bgn_dt,last_dt
+						//dept_cd가 없는 경우, cd,cdnm
+						
+						//부서코드가 지정된 경우 해당 부서에 해당하는 행사코드만 조회한다.
+						if (get_refvalue("/root/reqData/searchData/dept_cd") != "") {
+							subid1 = "mc_co_1005_l";
+							cur1 = "CURLIST";
+							subref1 = "/root/reqData/searchData";
+							subresultref1 = "/root/resData/gridData/mc_co_1020/dataSet";
+							action1 = "/mc/co1000/1005";
+							
+							if (g_is_autosearch) {
+								set_refvalue(subref1 + "/" + "cd",get_refvalue(subref1 + "/" + "evnt_cd_tag") + get_refvalue(subref1 + "/" + "cd"),false);
+							}
+							
+							var codeheader = get_refvalue(subref1 + "/" + "dept_cd").substr(0,2);
+							set_refvalue(subref1 + "/" + "from_cd", codeheader + "0000");
+							set_refvalue(subref1 + "/" + "to_cd", codeheader + "9999");
+							set_refvalue(subref1 + "/" + "bgn_dt", "00000000");
+							set_refvalue(subref1 + "/" + "last_dt", "99999999");
+						}
+						else {
+							subid1 = "mc_co_1006_l";
+							cur1 = "CURLIST";
+							subref1 = "/root/reqData/searchData";
+							subresultref1 = "/root/resData/gridData/mc_co_1020/dataSet";
+							action1 = "/mc/co1000/1006";
+							
+							if (g_is_autosearch) {
+								set_refvalue(subref1 + "/" + "cd",get_refvalue(subref1 + "/" + "evnt_cd_tag") + get_refvalue(subref1 + "/" + "cd"),false);
+							}
+						}
+						break;
+					case "17":
+						//행사의 진행상황코드조회
+						subid1 = "mc_co_1013_l";
+						cur1 = "CURLIST";
+						subref1 = "/root/reqData/searchData";
+						subresultref1 = "/root/resData/gridData/mc_co_1020/dataSet";
+						action1 = "/mc/co1000/1013";
+						
+						var evnt_cd = get_refvalue(subref1 + "/" + "evnt_cd");
+												
+						break;
+					case "18":
+						//행사코드조회(사업부,예산)
+						subid1 = "mc_co_1007_l";
+						cur1 = "CURLIST";
+						subref1 = "/root/reqData/searchData";
+						subresultref1 = "/root/resData/gridData/mc_co_1020/dataSet";
+						action1 = "/mc/co1000/1007";
+						
+						var evnt_clsf_cd = get_refvalue(subref1 + "/" + "evnt_clsf_cd");
+
+						break;						
+					default:
+						//공통코드조회
+						//공통코드조회는 FC_CO_8010.xrw로 호출하면 된다.
+						//cd,cdnm,job_clsf,cd_clsf
+						//
+						break;
+				}
+				
+				//submission 이름 지정 및 관련 변수 설정
+				var totalcnt = 0;				
+				
+				send_submission(
+						"auto_" + subid1
+					,	subref1
+					,	subresultref1
+					,	action1
+					,	"urlencoded-post"
+					,	"application/x-www-form-urlencoded"
+				);
+				
+				copy_refnode(subresultref1 + "/" + cur,subresultref1 + "/" + cur1);
+				datagrid1.refresh();
+				
+				totalcnt = model.getValue(subresultref1 + "/" + cur + "/totalcnt");
+				
+				if (!g_is_autosearch && totalcnt == 0) {
+					show_message("검색결과가 없습니다.","확인");
+				}
+				
+				//결과값이 1건 이상 있는 경우에만 조회값 삭제를 수행한다.
+				if (totalcnt > 0 && g_is_autoreset && g_is_autosearch) {
+					set_refvalue(srch_cd,"");
+					set_refvalue(srch_cdnm,"");
+				}
+				g_is_autoreset = false;
+
+				//조회조건을 간접 입력하는 경우라면 자동 닫기 모드를 설정할 때
+				//선택해야할 값을 지정 할 수 있는데
+				//이런 경우 조회값에서 직접 데이터를 찾아서 findrow에 설정해준다.
+				//var findrow = datagrid1.findRow(get_refvalue("/root/reqData/searchData/leas_no"),datagrid1.fixedRows,datagrid1.colRef("leas_no"), true, true);
+				var findrow = -1;
+				
+				//자동닫기 모드이면서 데이터 건수가 1개 라면 데이터를 반환하고 종료한다.
+				if (g_is_autoclose && (totalcnt == 1 || findrow >= datagrid1.fixedRows)) {
+					//데이터그리드의 선택을 지정하고	
+					datagrid1.row =  (findrow == -1) ? 1 : findrow;
+					//데이터를 보낸다.
+					send_popup_data(true);
+				}
+				else if (g_is_autoclose) {
+					//검색된 데이터가 없거나 2건 이상이면 자동 닫기 모드를 해제한다.
+					g_is_autoclose = false;				
+				}
+			}
+			//팝업창을 종료한다. 팝업과 일반 폼 두 용도로 사용 할 경우도 이 함수를 만들어서
+			//상황에 따라서 처리되도록 한다.
+			function send_popup_data(p_send) {
+				var resultref = "";
+				
+				if (p_send && datagrid1.row > 0) {
+					resultref = datagrid1.nodeset + "[" + datagrid1.row + "]";
+				}
+
+				if (g_is_popup) {
+					//ref를 공백으로 넘기면 property가 공백 처리되면서 open_popup 함수에서 이를 인지해 결과가 없는 반환 즉 false라고 표시한다.
+					close_popupEx(g_popid,resultref);
+				}
+				else {
+					formClose();
+				}
+			}
+			function set_column_visibility() {
+				//모든 컬럼을 감춘다.
+				hide_all_columns(datagrid1);
+				//공통항목을 보여준다.
+				show_columns(datagrid1,"1,2");
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="640" pageheight="480" guideline="2,34;2,39;2,40;2,49;2,70;2,78;2,80;2,103;2,105;2,112;2,113;2,117;2,118;2,132;2,133;2,159;2,160;2,366;2,377;2,376;2,393;2,408;2,409;1,936;1,927;1,926;2,755;1,630;1,10;2,470;">
+		<group id="grp_buttons" class="gro_sel" style="left:10px; top:50px; width:620px; height:21px; ">
+			<button id="btn_select" class="btn02" navindex="3" style="left:457px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					send_mc_co_1020();
+					]]>
+				</script>
+			</button>
+			<button id="btn_cancle" class="btn02" navindex="5" style="left:568px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					send_popup_data(false);
+				]]>
+				</script>
+			</button>
+			<button id="btn_ok" class="btn02" navindex="4" style="left:513px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					send_popup_data(true);
+					]]>
+				</script>
+			</button>
+			<caption id="caption4" ref="/root/reqData/searchData/msg" style="left:0px; top:0px; width:450px; height:21px; "/>
+		</group>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:79px; width:620px; height:51px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:620px; height:26px; text-align:center; "/>
+			<caption id="caption3" class="list_cap01" style="left:0px; top:0px; width:120px; height:26px; text-align:center; ">코드명</caption>
+			<caption id="caption1" class="list_cap02" style="left:0px; top:25px; width:620px; height:26px; text-align:center; "/>
+			<caption id="caption2" class="list_cap01" style="left:0px; top:25px; width:120px; height:26px; text-align:center; ">코드</caption>
+			<input id="srch_cdnm" ref="/root/reqData/searchData/cdnm" navindex="1" caption="코드명" style="left:123px; top:4px; width:307px; height:18px; "/>
+			<input id="srch_cd" ref="/root/reqData/searchData/cd" navindex="2" caption="코드" style="left:123px; top:29px; width:107px; height:18px; "/>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:140px; width:620px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/mc_co_1020/dataSet/CURLIST99/record" caption="코드^코드명" colsep="^" colwidth="100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" navindex="6" style="left:10px; top:155px; width:620px; height:315px; ">
+			<col ref="cd" caption="코드"/>
+			<col ref="cdnm" caption="코드명"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					//그리드 스크롤바 클릭, 더블클릭 방지 소스
+					if (-1 != event.target.lastIndexOf("scroll.thumb")) {
+						return;
+					}
+					
+					if (datagrid1.mouseRow < 1) {
+						return;
+					}
+					
+					var grid = eval(event.currentTarget);
+					var rowid = grid.row;
+					var colid = grid.col;
+					
+					if (rowid < grid.fixedRows || colid < grid.fixedCols) {
+						return;
+					}
+				//팝업인 경우만 처리되도록
+				//팝업이 아닌 정상폼으로 동작시 닫히지 않아야 한다.
+				if (g_is_popup) {
+					send_popup_data(true);
+				}
+				]]>
+			</script>
+		</datagrid>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar_Pop640.xrw" style="left:10px; top:5px; width:620px; height:29px; "/>
+	</xhtml:body>
+</xhtml:html>

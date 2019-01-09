@@ -1,0 +1,934 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session>
+						</session>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<comboSet>
+							<outsd_elmt_clsf>
+								<item>
+								</item>
+							</outsd_elmt_clsf>
+							<outsd_elmt_cd>
+								<item/>
+							</outsd_elmt_cd>
+							<outsd_elmt_aply_clsf>
+								<item/>
+							</outsd_elmt_aply_clsf>
+							<ratio_yn>
+								<item/>
+							</ratio_yn>
+						</comboSet>
+					</initData>
+					<reqData>
+						<mang_cd_3/>
+						<searchData>
+							<matr_nm/>
+							<matr_cd/>
+							<occr_dt/>
+							<seq/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+							<occr_dt/>
+							<occr_seq/>
+						</fwdData>
+						<searchData2>
+							<outsd_elmt_clsf/>
+							<outsd_elmt_cd/>
+							<aply_clsf/>
+							<aply_yymm/>
+							<aply_dt/>
+						</searchData2>
+						<multiUpData/>
+						<reqForm>
+							<multiUpData/>
+							<matr_cd/>
+							<outsd_elmt_aply_clsf/>
+							<aply_dt/>
+							<aply_yymm/>
+							<matr_uprc/>
+							<ratio_yn/>
+							<fix_item_cost/>
+							<marjn_cost/>
+							<fix_item_ratio/>
+							<marjn_ratio/>
+							<matr_nm/>
+							<m_gubun/>
+							<occr_dt/>
+							<seq/>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData_main>
+							<record>
+								<matr_cd/>
+								<outsd_elmt_aply_clsf/>
+								<aply_dt/>
+								<matr_uprc/>
+								<cost_yn/>
+								<fix_cost/>
+								<matr_nm/>
+								<marjn_cost/>
+							</record>
+						</gridData_main>
+						<gridData_sub>
+							<record>
+								<outsd_elmt_clsf/>
+								<outsd_elmt_cd/>
+								<outsd_elmt_cd_nm/>
+								<cmps_cost/>
+								<cmps_calc/>
+								<chg_ratio_yn/>
+								<chg_cost/>
+								<occr_dt/>
+								<seq/>
+								<sub_seq/>
+							</record>
+						</gridData_sub>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript">
+				<![CDATA[
+					function fillzero(fNum, fLength){
+						var fStr = "";
+						var totalsize = 0;
+						totalsize = fLength - fNum.length;
+						for (var i=0; i<totalsize; i++){
+							fStr += "0";
+						}
+						fStr = fStr + fNum;
+						return fStr;
+					}
+					
+					//자재코드 팝업 리턴 함수
+					function setMatr_cd(matr_cd, matr_nm){
+						model1.setValue("/root/reqData/searchData/matr_cd", matr_cd);
+						model1.setValue("/root/reqData/searchData/matr_nm", matr_nm);
+						group2.refresh();
+					}
+					
+					//행입력
+					function addRow() {
+						var rowCnt      = 0;
+						var selectedIdx = datagrid2.rows-1;
+						
+						var outsd_elmt_clsf		= model1.getValue("/root/resData/gridData_sub/record[1]/outsd_elmt_clsf");
+						var outsd_elmt_aply_clsf	= model1.getValue("/root/reqData/reqForm/outsd_elmt_aply_clsf");
+						var aply_dt			= model1.getValue("/root/reqData/reqForm/aply_dt");
+						var aply_yymm			= model1.getValue("/root/reqData/reqForm/aply_yymm");
+						
+						if (outsd_elmt_aply_clsf == "1"){
+							if (aply_dt == ""){
+								alert("적용일자가 없기 때문에 외부요소를 추가할 수 없습니다.");
+								return false;
+							}
+						} else {
+							if (aply_yymm == ""){
+								alert("적용년월이 없기 때문에 외부요소를 추가할 수 없습니다.");
+								return false;
+							}
+						}
+						if (selectedIdx == 1){
+							model1.makeNode("/root/resData/gridData_sub/record[1]/outsd_elmt_clsf");
+						}
+						//alert(selectedIdx + "\n" + outsd_eltm_clsf);
+						if(outsd_elmt_clsf=="") {
+							rowCnt = datagrid2.rows;
+
+							if(rowCnt > 1) {
+								datagrid2.isReadOnly(1, 1, 1, 12)  =false;
+								datagrid2.addStatus(selectedIdx, "insert");
+								return false;
+							} else {
+								datagrid2.addRow(true, true);
+								return true;
+							}
+						}else{
+							datagrid2.addRow(true, true);
+							return true;
+						}
+					}
+					
+					//자재팝업에서 데이터 선택시
+					function setMatr_cd_2(matr_cd, matr_nm) {												
+						model1.setValue("/root/reqData/reqForm/matr_cd",matr_cd);
+						model1.setValue("/root/reqData/reqForm/matr_nm",matr_nm);
+						
+						model1.setValue("/root/reqData/searchData/matr_cd",matr_cd);
+						model.send("mt_outsdelmt_3003");
+						
+						if (model.getValue("/root/tempData/matr_uprc") == ""){
+							alert("단가정보가 없는 자재는 외부요소변동을 처리할 수 없습니다.");
+							model1.setValue("/root/reqData/reqForm/matr_cd","");
+							model1.setValue("/root/reqData/reqForm/matr_nm","");
+							input2.refresh();
+							input9.refresh();
+							return;
+						}
+						model.setValue("/root/reqData/reqForm/matr_uprc", model.getValue("/root/tempData/matr_uprc"));
+						model.refresh();
+						//group6.refresh();
+					}
+					
+					function makeVal(){
+						this.label = "";
+						this.value = "";
+						this.setMakeVal = setMakeVal;
+					}
+					
+					function setMakeVal(iLabel, iValue){
+						this.label = iLabel;
+						this.value = iValue;
+					}
+				
+					
+
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var outsd_elmt_aply_clsf_arr = new Array();
+					var ratio_yn_arr = new Array();
+					
+					outsd_elmt_aply_clsf_arr[0] = new makeVal();
+					outsd_elmt_aply_clsf_arr[0].setMakeVal("적용일자", "1");
+					outsd_elmt_aply_clsf_arr[1] = new makeVal();
+					outsd_elmt_aply_clsf_arr[1].setMakeVal("적용년월", "2");
+
+					
+					//ratio_yn_arr[0] = new makeVal();
+					//ratio_yn_arr[0].setMakeVal("비용", "1");
+					//ratio_yn_arr[1] = new makeVal();
+					//ratio_yn_arr[1].setMakeVal("비율", "2");
+					
+					for (var i=0; i<outsd_elmt_aply_clsf_arr.length; i++){
+						model.makeNode("/root/initData/comboSet/outsd_elmt_aply_clsf/item[" + (i + 1) + "]/label");
+						model.makeNode("/root/initData/comboSet/outsd_elmt_aply_clsf/item[" + (i + 1) + "]/value");
+						model1.setValue("/root/initData/comboSet/outsd_elmt_aply_clsf/item[" + (i + 1) + "]/label", outsd_elmt_aply_clsf_arr[i].label);
+						model1.setValue("/root/initData/comboSet/outsd_elmt_aply_clsf/item[" + (i + 1) + "]/value", outsd_elmt_aply_clsf_arr[i].value);
+					}
+					
+					//for (var i=0; i<ratio_yn_arr.length; i++){
+					//	model.makeNode("/root/initData/comboSet/ratio_yn/item[" + (i + 1) + "]/label");
+					//	model.makeNode("/root/initData/comboSet/ratio_yn/item[" + (i + 1) + "]/value");
+					//	model1.setValue("/root/initData/comboSet/ratio_yn/item[" + (i + 1) + "]/label", ratio_yn_arr[i].label);
+					//	model1.setValue("/root/initData/comboSet/ratio_yn/item[" + (i + 1) + "]/value", ratio_yn_arr[i].value);
+					//}
+					model1.setValue("/root/reqData/reqForm/m_gubun", 'I');
+					
+					model.send("mt_outsdelmt_1000");
+					combo1.refresh();
+					//		combo2.refresh();
+				]]>
+			</script>
+			<submission id="mt_outsdelmt_1000" action="/mt/outsdelmt/1000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/outsd_elmt_clsf"/>
+			<submission id="mt_outsdelmt_1001" action="/mt/outsdelmt/1001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/initData/comboSet/outsd_elmt_cd"/>
+			<submission id="mt_outsdelmt_3000" action="/mt/outsdelmt/3000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData_main"/>
+			<submission id="mt_outsdelmt_3001" action="/mt/outsdelmt/3001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData_sub"/>
+			<submission id="mt_outsdelmt_3003" action="/mt/outsdelmt/3003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_outsdelmt_3002" action="/mt/outsdelmt/3002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+			<submission id="mt_common_0003" action="/mt/common/0003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_common_0006" action="/mt/common/0006" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="1,956;2,115;1,935;1,635;1,464;">
+		<group id="group1" class="gro_sel" style="left:10px; top:42px; width:926px; height:27px; ">
+			<button id="button2" class="btn02" style="left:547px; top:3px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model.send("mt_outsdelmt_3000");
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:664px; top:3px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (model.getValue("/root/reqData/reqForm/matr_nm") == ""){
+							alert("삭제할 외부요소 변동현황 정보를 선택해주십시오.");
+							return;
+						}
+						model.setValue("/root/reqData/reqForm/m_gubun", "D");
+						model.setValue("/root/reqData/reqForm/multiUpData", 		datagrid2.getUpdateData());
+						model.send("mt_outsdelmt_3002");
+						
+						if(submit_completed()) {
+							var matr_cd_search = model.getValue("/root/reqData/searchData/matr_cd");
+							
+							model.reset();
+							if (matr_cd_search == ""){
+								model.setValue("/root/reqData/searchData/matr_cd", matr_cd);
+							} else {
+								model.setValue("/root/reqData/searchData/matr_cd", matr_cd_search);
+							}
+							
+							model.send("mt_outsdelmt_3000");
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:816px; top:3px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						model.setValue("/root/reqData/reqForm/m_gubun","I");
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:873px; top:3px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:605px; top:3px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model.setValue("/root/reqData/reqForm/multiUpData", 		datagrid2.getUpdateData());
+						var matr_cd			= model.getValue("/root/reqData/reqForm/matr_cd");
+						var matr_nm			= model.getValue("/root/reqData/reqForm/matr_nm");
+						var outsd_elmt_aply_clsf = model.getValue("/root/reqData/reqForm/outsd_elmt_aply_clsf");
+						var aply_dt			= model.getValue("/root/reqData/reqForm/aply_dt");
+						var aply_yymm			= model.getValue("/root/reqData/reqForm/aply_yymm");
+						var ratio_yn			= model.getValue("/root/reqData/reqForm/ratio_yn");
+						var matr_uprc			= model.getValue("/root/reqData/reqForm/matr_uprc");
+						var fix_cost			= model.getValue("/root/reqData/reqForm/fix_item_cost");
+						var marjn_cost			= model.getValue("/root/reqData/reqForm/marjn_cost");
+						var nodeList			= instance1.selectNodes("/root/resData/gridData_sub/record");
+						
+						//alert(fix_cost + "\n" + marjn_cost);
+						//return;
+						
+						var ret_aply_yymm		= "";
+						
+						if (matr_cd == ""){
+							alert("자재코드를 입력해주십시오.");
+							return;
+						}
+						if (outsd_elmt_aply_clsf == ""){
+							alert("외부요소적용구분을 입력해주십시오.");
+							return;
+						}
+						if (outsd_elmt_aply_clsf == "1" && aply_dt == ""){
+							alert("외부요소적용구분을 적용일자로 선택했습니다. 적용일자를 입력해주십시오.");
+							return;
+						}
+						if (outsd_elmt_aply_clsf == "2" && aply_yymm == ""){
+							alert("외부요소적용구분을 적용년월로 선택했습니다. 적용년월을 입력해주십시오.");
+							return;
+						}
+						//if (ratio_yn == ""){
+						//	alert("비용/금액 구분정보를 입력해주십시오.");
+						//	return;
+						//}
+						
+						var tot_amt = 0;
+						for (var i=0; i<nodeList.length; i++){
+							var outsd_elmt_cd	= nodeList.item(i).getElementsByTagName("outsd_elmt_cd").item(0).value;
+							tot_amt += eval(nodeList.item(i).getElementsByTagName("cmps_cost").item(0).value);
+							
+							for (var ii=0; ii<nodeList.length; ii++){
+								if (i != ii && 
+									outsd_elmt_cd == nodeList.item(ii).getElementsByTagName("outsd_elmt_cd").item(0).value
+								){
+									alert("하나의 자재코드에 외부요소가 중복된 부분이 있습니다. 저장할 수 없습니다.");
+									return;
+								}
+							}
+						}
+						tot_amt = tot_amt + eval(fix_cost) + eval(marjn_cost);
+						
+						if (tot_amt > eval(matr_uprc)){
+							alert("고정비와 마진값과 외부변동요인에 의한 구성비의 합계가 자재의 단가보다 큽니다. 시뮬레이션을 구성할 수 없습니다.");
+							return;
+						}
+						
+						model.send("mt_outsdelmt_3002");
+						
+						if(submit_completed()) {
+							var matr_cd_search = model.getValue("/root/reqData/searchData/matr_cd");
+							var matr_nm_search = model.getValue("/root/reqData/searchData/matr_nm");
+							
+							model.reset();
+							if (matr_cd_search == ""){
+								model.setValue("/root/reqData/searchData/matr_cd", matr_cd);
+							} else {
+								model.setValue("/root/reqData/searchData/matr_cd", matr_cd_search);
+								model.setValue("/root/reqData/searchData/matr_nm", matr_nm_search);
+							}
+							
+							model.send("mt_outsdelmt_3000");
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn04" style="left:721px; top:3px; width:90px; height:21px; ">
+				<caption>시뮬레이션</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//window.load("./MT_OUTSDELMT_3000.xrw");
+						model.setValue("/root/reqData/fwdData/occr_dt", model.getValue("/root/reqData/reqForm/occr_dt"));
+						model.setValue("/root/reqData/fwdData/occr_seq", model.getValue("/root/reqData/reqForm/seq"));
+						window.load("./MT_OUTSDELMT_5000.xrw","modal", "MT_OUTSDELMT_5000", "top:100px; left:200px; width:946px; height:728px;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group2" style="left:10px; top:75px; width:926px; height:24px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:0px; width:926px; height:24px; text-align:center; "/>
+			<caption id="caption3" class="list_cap01" style="left:0px; top:0px; width:100px; height:24px; text-align:center; ">자재코드</caption>
+			<input id="input8" ref="/root/reqData/searchData/matr_cd" style="left:105px; top:3px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/matr_cd", input8.currentText);
+						model.send("mt_common_0003");
+						
+						//model.setValue("/root/reqData/searchData/matr_nm", model.getValue("/root/tempData/cd") + " " + model.getValue("/root/tempData/cd_nm"));
+						model.setValue("/root/reqData/searchData/matr_nm", model.getValue("/root/tempData/cd_nm"));
+						input1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input1" ref="/root/reqData/searchData/matr_nm" inputtype="button" style="left:210px; top:3px; width:135px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model1.setValue("/root/reqData/fwdData/func_nm", "setMatr_cd");
+						window.load("/xrw/mt/common/MT_COMMON_0000.xrw","modal", "mt_commatr_1100", "top:100px; left:200px; width:450px; height:500px;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+			</input>
+		</group>
+		<group id="group3" style="left:10px; top:115px; width:925px; height:220px; ">
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData_main/record" scroll="auto" caption="자재^적용구분^일자/년월^일자/년월^단가^고정값^마진" colsep="#" colwidth="204, 123, 80, 80, 100, 100, 141, 100, 100, 100, 100, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:0px; top:0px; width:925px; height:220px; ">
+				<col ref="matr_nm"/>
+				<col ref="outsd_elmt_aply_nm"/>
+				<col ref="aply_dt" format="yyyy-mm-dd"/>
+				<col ref="aply_yymm" format="yyyy-mm"/>
+				<col ref="matr_uprc" format="#,###.##" style="text-align:right; padding-right:40; "/>
+				<col ref="fix_val" format="#,###.##"/>
+				<col ref="marjn_val" format="#,###.##"/>
+				<col ref="matr_cd" visibility="hidden"/>
+				<col ref="fix_item_cost" visibility="hidden"/>
+				<col ref="fix_item_ratio" visibility="hidden"/>
+				<col ref="marjn_cost" visibility="hidden"/>
+				<col ref="marjn_ratio" visibility="hidden"/>
+				<col ref="ratio_yn" visibility="hidden"/>
+				<col ref="outsd_elmt_aply_clsf" visibility="hidden"/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						if(datagrid1.row == 0) {
+							return;
+						}
+						var idx = 1;					
+						var occr_dt 	= "";
+						var seq		= "";
+						var matr_nm	= datagrid1.valueMatrix(datagrid1.row, 1);
+						
+						model.setValue("/root/reqData/reqForm/matr_nm", 				matr_nm.substring(matr_nm.indexOf(' ') + 1, matr_nm.length));
+						model.setValue("/root/reqData/reqForm/matr_cd", 				datagrid1.valueMatrix(datagrid1.row, 8));
+						model.setValue("/root/reqData/reqForm/aply_dt", 				datagrid1.valueMatrix(datagrid1.row, 3));
+						model.setValue("/root/reqData/reqForm/aply_yymm", 			datagrid1.valueMatrix(datagrid1.row, 4));
+						model.setValue("/root/reqData/reqForm/matr_uprc", 			datagrid1.valueMatrix(datagrid1.row, 5));
+						model.setValue("/root/reqData/reqForm/fix_item_cost", 			datagrid1.valueMatrix(datagrid1.row, 9));
+						model.setValue("/root/reqData/reqForm/fix_item_ratio",			datagrid1.valueMatrix(datagrid1.row, 12));
+						model.setValue("/root/reqData/reqForm/marjn_cost", 			datagrid1.valueMatrix(datagrid1.row, 11));
+						model.setValue("/root/reqData/reqForm/marjn_ratio",		 	datagrid1.valueMatrix(datagrid1.row, 13));
+						//model.setValue("/root/reqData/reqForm/ratio_yn",				datagrid1.valueMatrix(datagrid1.row, 14));
+						model.setValue("/root/reqData/reqForm/outsd_elmt_aply_clsf",	datagrid1.valueMatrix(datagrid1.row, 14));
+						model.setValue("/root/reqData/reqForm/occr_dt",				datagrid1.valueMatrix(datagrid1.row, 15));
+						model.setValue("/root/reqData/reqForm/seq",					datagrid1.valueMatrix(datagrid1.row, 16));
+						
+						if (datagrid1.valueMatrix(datagrid1.row, 15) == "1"){
+							input4.disabled = true;
+						} else {
+							input3.disabled = true;
+						}
+						
+						/*
+						if (datagrid1.valueMatrix(datagrid1.row, 14) == "1"){
+							//input9.visible = true;
+							input10.visible = false;
+							input7.visible = true;
+							input11.visible = false;
+							caption15.value = "";
+							caption16.value = "";
+						} else {
+							//input9.visible = false;
+							input10.visible = true;
+							input7.visible = false;
+							input11.visible = true;
+							caption15.value = "%";
+							caption16.value = "%";
+						}
+						*/
+						//alert(datagrid1.valueMatrix(datagrid1.row, 1) + "\n" + datagrid1.valueMatrix(datagrid1.row, 3));
+						occr_dt		= datagrid1.valueMatrix(datagrid1.row, 15);
+						seq			= datagrid1.valueMatrix(datagrid1.row, 16);
+						
+						model.setValue("/root/reqData/searchData/occr_dt", occr_dt);
+						model.setValue("/root/reqData/searchData/seq", seq);
+						model.setValue("/root/reqData/reqForm/m_gubun", "U");
+						
+						model.send("mt_outsdelmt_3001");
+						
+						model.refresh();
+						//datagrid2.refresh();
+					]]>
+				</script>
+			</datagrid>
+			<!--
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData_main/record" scroll="auto" caption="자재^적용구분^일자/년월^일자/년월^단가^비율구분^고정값^마진" colsep="#" colwidth="171, 123, 80, 80, 100, 100, 100, 141, 100, 100, 100, 100, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:0px; top:0px; width:925px; height:220px; ">
+				<col ref="matr_nm"/>
+				<col ref="outsd_elmt_aply_nm"/>
+				<col ref="aply_dt" format="yyyy-mm-dd"/>
+				<col ref="aply_yymm" format="yyyy-mm"/>
+				<col ref="matr_uprc" format="#,###.##" style="text-align:right; padding-right:40; "/>
+				<col ref="ratio_nm"/>
+				<col ref="fix_val" format="#,###.##"/>
+				<col ref="marjn_val" format="#,###.##"/>
+				<col ref="matr_cd" visibility="hidden"/>
+				<col ref="fix_item_cost" visibility="hidden"/>
+				<col ref="fix_item_ratio" visibility="hidden"/>
+				<col ref="marjn_cost" visibility="hidden"/>
+				<col ref="marjn_ratio" visibility="hidden"/>
+				<col ref="ratio_yn" visibility="hidden"/>
+				<col ref="outsd_elmt_aply_clsf" visibility="hidden"/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						if(datagrid1.row == 0) {
+							return;
+						}
+						var idx = 1;					
+						var occr_dt 	= "";
+						var seq		= "";
+						var matr_nm	= datagrid1.valueMatrix(datagrid1.row, 1);
+						
+						model.setValue("/root/reqData/reqForm/matr_nm", 				matr_nm.substring(matr_nm.indexOf(' ') + 1, matr_nm.length));
+						model.setValue("/root/reqData/reqForm/matr_cd", 				datagrid1.valueMatrix(datagrid1.row, 9));
+						model.setValue("/root/reqData/reqForm/aply_dt", 				datagrid1.valueMatrix(datagrid1.row, 3));
+						model.setValue("/root/reqData/reqForm/aply_yymm", 			datagrid1.valueMatrix(datagrid1.row, 4));
+						model.setValue("/root/reqData/reqForm/matr_uprc", 			datagrid1.valueMatrix(datagrid1.row, 5));
+						model.setValue("/root/reqData/reqForm/fix_item_cost", 			datagrid1.valueMatrix(datagrid1.row, 10));
+						model.setValue("/root/reqData/reqForm/fix_item_ratio",			datagrid1.valueMatrix(datagrid1.row, 11));
+						model.setValue("/root/reqData/reqForm/marjn_cost", 			datagrid1.valueMatrix(datagrid1.row, 12));
+						model.setValue("/root/reqData/reqForm/marjn_ratio",		 	datagrid1.valueMatrix(datagrid1.row, 13));
+						model.setValue("/root/reqData/reqForm/ratio_yn",				datagrid1.valueMatrix(datagrid1.row, 14));
+						model.setValue("/root/reqData/reqForm/outsd_elmt_aply_clsf",	datagrid1.valueMatrix(datagrid1.row, 15));
+						model.setValue("/root/reqData/reqForm/occr_dt",				datagrid1.valueMatrix(datagrid1.row, 16));
+						model.setValue("/root/reqData/reqForm/seq",					datagrid1.valueMatrix(datagrid1.row, 17));
+						
+						if (datagrid1.valueMatrix(datagrid1.row, 15) == "1"){
+							input4.disabled = true;
+						} else {
+							input3.disabled = true;
+						}
+						/*
+						if (datagrid1.valueMatrix(datagrid1.row, 14) == "1"){
+							//input9.visible = true;
+							input10.visible = false;
+							input7.visible = true;
+							input11.visible = false;
+							caption15.value = "";
+							caption16.value = "";
+						} else {
+							//input9.visible = false;
+							input10.visible = true;
+							input7.visible = false;
+							input11.visible = true;
+							caption15.value = "%";
+							caption16.value = "%";
+						}
+						*/
+						//alert(datagrid1.valueMatrix(datagrid1.row, 1) + "\n" + datagrid1.valueMatrix(datagrid1.row, 3));
+						occr_dt		= datagrid1.valueMatrix(datagrid1.row, 16);
+						seq			= datagrid1.valueMatrix(datagrid1.row, 17);
+						
+						model.setValue("/root/reqData/searchData/occr_dt", occr_dt);
+						model.setValue("/root/reqData/searchData/seq", seq);
+						model.setValue("/root/reqData/reqForm/m_gubun", "U");
+						
+						model.send("mt_outsdelmt_3001");
+						
+						model.refresh();
+						//datagrid2.refresh();
+					]]>
+				</script>
+			</datagrid>
+			-->
+		</group>
+		<group id="group4" style="left:10px; top:345px; width:925px; height:100px; ">
+			<caption id="caption4" class="list_cap02" style="left:0px; top:0px; width:925px; height:24px; text-align:center; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:120px; height:24px; text-align:center; ">자재코드</caption>
+			<caption id="caption5" class="list_cap02" style="left:0px; top:23px; width:925px; height:24px; text-align:center; "/>
+			<caption id="caption6" class="list_cap02" style="left:0px; top:46px; width:925px; height:24px; text-align:center; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:23px; width:120px; height:24px; text-align:center; ">적용일자</caption>
+			<caption id="caption8" class="list_cap01" style="left:0px; top:46px; width:120px; height:24px; text-align:center; ">단가</caption>
+			<caption id="caption9" class="list_cap01" style="left:454px; top:0px; width:120px; height:24px; text-align:center; ">외부요소적용구분</caption>
+			<caption id="caption10" class="list_cap01" style="left:454px; top:23px; width:120px; height:24px; text-align:center; ">적용년월</caption>
+			<!--
+			<caption id="caption11" class="list_cap01" style="left:454px; top:46px; width:120px; height:24px; text-align:center; ">비율/금액</caption>
+			-->
+			<caption id="caption12" class="list_cap02" style="left:0px; top:69px; width:925px; height:24px; text-align:center; "/>
+			<caption id="caption13" class="list_cap01" style="left:0px; top:69px; width:120px; height:24px; text-align:center; ">고정비</caption>
+			<caption id="caption14" class="list_cap01" style="left:454px; top:69px; width:120px; height:24px; text-align:center; ">마진</caption>
+			<input id="input2" ref="/root/reqData/reqForm/matr_nm" inputtype="button" style="left:235px; top:3px; width:135px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model1.setValue("/root/reqData/fwdData/func_nm", "setMatr_cd_2");
+						window.load("/xrw/mt/common/MT_COMMON_0000.xrw","modal", "mt_commatr_1100", "top:100px; left:200px; width:450px; height:500px;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+						
+					]]>
+				</script>
+			</input>
+			<select1 id="combo1" ref="/root/reqData/reqForm/outsd_elmt_aply_clsf" appearance="minimal" style="left:580px; top:3px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/outsd_elmt_aply_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if (combo1.value == "1"){
+							model.setValue("/root/reqData/reqForm/aply_yymm", "");
+							input4.refresh();
+							input3.disabled = false;
+							input4.disabled = true;
+						} else if (combo1.value == "2"){
+							model.setValue("/root/reqData/reqForm/aply_dt", "");
+							input3.refresh();
+							input3.disabled = true;
+							input4.disabled = false;
+						}
+					]]>
+				</script>
+			</select1>
+			<input id="input3" ref="/root/reqData/reqForm/aply_dt" format="yyyy-mm-dd" style="left:125px; top:26px; width:100px; height:18px; "/>
+			<input id="input4" ref="/root/reqData/reqForm/aply_yymm" format="yyyy-mm" style="left:580px; top:26px; width:100px; height:18px; "/>
+			<input id="input5" ref="/root/reqData/reqForm/matr_uprc" format="#,###" style="left:125px; top:49px; width:100px; height:18px; "/>
+			<!--
+			<select1 id="combo2" ref="/root/reqData/reqForm/ratio_yn" appearance="minimal" style="left:580px; top:49px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/ratio_yn/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					if (combo2.value == "1") {
+						input9.visible = true;
+						input10.visible = false;
+						input7.visible = true;
+						input11.visible = false;
+						caption15.value = "";
+						caption16.value = "";
+					} else {
+						input9.visible = false;
+						input10.visible = true;
+						input7.visible = false;
+						input11.visible = true;
+						caption15.value = "%";
+						caption16.value = "%";
+					}
+					
+					]]>
+				</script>
+			</select1>
+			-->
+			<input id="input6" ref="/root/reqData/reqForm/fix_item_cost" format="#,###" style="left:125px; top:72px; width:100px; height:18px; "/>
+			<input id="input10" ref="/root/reqData/reqForm/fix_item_ratio" visibility="hidden" format="##.##" style="left:125px; top:72px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var tmpVal = input10.currentText;
+						if (eval(tmpVal) > 99){
+							alert("비율은 100% 이상이 될 수 없습니다.");
+							input10.value = "";
+							return;
+						}
+					]]>
+				</script>
+			</input>
+			<!--
+			<caption id="caption15" style="left:235px; top:73px; width:20px; height:20px; ">%</caption>
+			<caption id="caption16" style="left:685px; top:73px; width:20px; height:20px; ">%</caption>
+			-->
+			<input id="input7" ref="/root/reqData/reqForm/marjn_cost" format="#,###" style="left:580px; top:72px; width:100px; height:18px; "/>
+			<input id="input11" ref="/root/reqData/reqForm/marjn_ratio" visibility="hidden" format="##.##" style="left:580px; top:72px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var tmpVal = input11.currentText;
+						alert(tmpVal);
+						if (eval(tmpVal) > 99){
+							alert("비율은 100% 이상이 될 수 없습니다.");
+							input11.value = "";
+							return;
+						}
+					]]>
+				</script>
+			</input>
+			<input id="input9" ref="/root/reqData/reqForm/matr_cd" style="left:125px; top:3px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model.setValue("/root/reqData/searchData/matr_cd", input9.currentText);
+						model.send("mt_common_0006");
+						
+						model.setValue("/root/reqData/reqForm/matr_nm", model.getValue("/root/tempData/gridData/record/matr_nm"));
+						model.setValue("/root/reqData/reqForm/matr_uprc", model.getValue("/root/tempData/gridData/record/purc_uprc"));
+						
+						input2.refresh();
+						input5.refresh();
+					]]>
+				</script>
+			</input>
+		</group>
+		<group id="group5" style="left:10px; top:480px; width:925px; height:205px; ">
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData_sub/record" caption="외부요소구분^외부요소코드^외부요소^외부요소^단가구성^구성비^변동내용" colsep="#" colwidth="122, 100, 145, 100, 150, 134, 157, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:0px; top:0px; width:925px; height:150px; ">
+				<col ref="outsd_elmt_clsf" type="combo">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/outsd_elmt_clsf/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="outsd_elmt_cd" visibility="hidden"/>
+				<col ref="outsd_elmt_cd_nm" type="inputbutton"/>
+				<col ref="outsd_elmt_amt" format="#,###"/>
+				<col ref="cmps_calc" type="input"/>
+				<col ref="cmps_cost" type="input"/>
+				<col ref="chg_cost" type="input" format="#,###"/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<col ref="sub_seq" visibility="hidden"/>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var cell			= datagrid2.selectedCells;
+						if(cell.length < 1){
+							alert("select a Cell");
+							return;
+						}
+						var col			= cell.item(0).col;
+						var row			= cell.item(0).row;
+						
+						if(datagrid2.col== 3) {
+							if (datagrid2.valueMatrix(row, 1) == ""){
+								model.alert("외부요소구분을 먼저 선택해주십시오.");
+								return;
+							}
+							
+							model.setValue("/root/reqData/searchData2/outsd_elmt_clsf", datagrid2.valueMatrix(row, 1));
+							model.setValue("/root/reqData/searchData2/aply_clsf", model.getValue("/root/reqData/reqForm/outsd_elmt_aply_clsf"));
+							model.setValue("/root/reqData/searchData2/aply_dt", model.getValue("/root/reqData/reqForm/aply_dt"));
+							model.setValue("/root/reqData/searchData2/aply_yymm", model.getValue("/root/reqData/reqForm/aply_yymm"));
+							
+							model.send("mt_outsdelmt_1001");
+							
+							
+							group7.visible = true;
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var cell			= datagrid2.selectedCells;
+						if(cell.length < 1){
+							alert("select a Cell");
+							return;
+						}
+						var col			= cell.item(0).col;
+						var row			= cell.item(0).row;
+						
+						if (col == "5"){
+							var calc = datagrid2.valueMatrix(row, 5);
+							datagrid2.valueMatrix(row, 6) = eval(calc);
+						}
+					]]>
+				</script>
+			</datagrid>
+			<!--
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData_sub/record" caption="외부요소구분^외부요소코드^외부요소^외부요소^단가구성^구성비^변동구분^변동내용" colsep="#" colwidth="122, 100, 145, 100, 150, 134, 101, 157, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:0px; top:0px; width:925px; height:150px; ">
+				<col ref="outsd_elmt_clsf" type="combo">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/outsd_elmt_clsf/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="outsd_elmt_cd" visibility="hidden"/>
+				<col ref="outsd_elmt_cd_nm" type="inputbutton"/>
+				<col ref="outsd_elmt_amt" format="#,###"/>
+				<col ref="cmps_calc" type="input"/>
+				<col ref="cmps_cost" type="input"/>
+				<col ref="chg_ratio_yn" type="combo">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/ratio_yn/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="chg_cost" type="input"/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<col ref="sub_seq" visibility="hidden"/>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var cell			= datagrid2.selectedCells;
+						if(cell.length < 1){
+							alert("select a Cell");
+							return;
+						}
+						var col			= cell.item(0).col;
+						var row			= cell.item(0).row;
+						
+						if(datagrid2.col== 3) {
+							if (datagrid2.valueMatrix(row, 1) == ""){
+								model.alert("외부요소구분을 먼저 선택해주십시오.");
+								return;
+							}
+							
+							model.setValue("/root/reqData/searchData2/outsd_elmt_clsf", datagrid2.valueMatrix(row, 1));
+							model.setValue("/root/reqData/searchData2/aply_clsf", model.getValue("/root/reqData/reqForm/outsd_elmt_aply_clsf"));
+							model.setValue("/root/reqData/searchData2/aply_dt", model.getValue("/root/reqData/reqForm/aply_dt"));
+							model.setValue("/root/reqData/searchData2/aply_yymm", model.getValue("/root/reqData/reqForm/aply_yymm"));
+							
+							model.send("mt_outsdelmt_1001");
+							
+							
+							group7.visible = true;
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var cell			= datagrid2.selectedCells;
+						if(cell.length < 1){
+							alert("select a Cell");
+							return;
+						}
+						var col			= cell.item(0).col;
+						var row			= cell.item(0).row;
+						
+						if (col == "5"){
+							var calc = datagrid2.valueMatrix(row, 5);
+							datagrid2.valueMatrix(row, 6) = eval(calc);
+						}
+					]]>
+				</script>
+			</datagrid>
+			-->
+		</group>
+		<group id="group6" style="left:10px; top:455px; width:925px; height:20px; ">
+			<button id="button9" class="btn_grid03" style="left:814px; top:0px; width:53px; height:17px; ">
+				<caption>행입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var iSelectedRow = 0;
+					
+					if(addRow()) {
+						iSelectedRow = datagrid2.selectedRow(0);
+					}
+ 					]]>
+				</script>
+			</button>
+			<button id="button10" class="btn_grid03" style="left:871px; top:0px; width:53px; height:17px; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var iSelectedRow = 0;
+					var sDelGubun = "";
+					
+					iSelectedRow = datagrid1.selectedRow(0);
+					
+					sDelGubun = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/rowCnt");
+					
+					if(sDelGubun != "") {
+						datagrid1.addStatus(datagrid1.row, "delete");
+					} else {
+						datagrid1.deleteRow(iSelectedRow,true);
+					}
+					
+				]]>
+				</script>
+			</button>
+		</group>
+		<group id="group7" visibility="hidden" style="left:150px; top:520px; width:180px; height:150px; ">
+			<datagrid id="datagrid3" nodeset="/root/initData/comboSet/outsd_elmt_cd/item" caption="외부요소" colsep="^" colwidth="150" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:0px; top:20px; width:180px; height:120px; ">
+				<col ref="label"/>
+				<col ref="value" visibility="hidden"/>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						var cell			= datagrid2.selectedCells;
+						var col			= cell.item(0).col;
+						var row			= cell.item(0).row;
+						
+						var targetcell		= datagrid2.selectedCells;
+						var sourcecell		= datagrid3.selectedCells;
+						
+						if(sourcecell.length < 1){
+							alert("select a Cell");
+							return;
+						}
+						var targetcol		= targetcell.item(0).col;
+						var targetrow		= targetcell.item(0).row;
+						var sourcecol		= sourcecell.item(0).col;
+						var sourcerow		= sourcecell.item(0).row;
+						
+						//model.setValue("/root/reqData/searchData2/outsd_elmt_cd", model.getValue("/root/initData/comboSet/outsd_elmt_cd/item[" + sourcerow + "]/value"));
+						//model.send("mt_outsdelmt_1004");
+						
+						//datagrid2.valueMatrix(targetrow, 5) = model.getValue("/root/tempData/unit");
+											
+						//alert(model.getValue("/root/initData/comboSet/outsd_elmt_cd/item[" + sourcerow + "]/value"));
+						datagrid2.valueMatrix(targetrow, 2) = model.getValue("/root/initData/comboSet/outsd_elmt_cd/item[" + sourcerow + "]/value");
+						datagrid2.valueMatrix(targetrow, 3) = model.getValue("/root/initData/comboSet/outsd_elmt_cd/item[" + sourcerow + "]/label");
+						datagrid2.valueMatrix(targetrow, 4) = model.getValue("/root/initData/comboSet/outsd_elmt_cd/item[" + sourcerow + "]/amt");
+						datagrid2.valueMatrix(targetrow, 5) = model.getValue("/root/initData/comboSet/outsd_elmt_cd/item[" + sourcerow + "]/amt");
+						
+						group7.visible = false;
+						if (group7.attribute("top") == "520px"){
+							group7.attribute("top") = eval(group7.attribute("top").substring(0, group7.attribute("top").indexOf("px"))) + (datagrid2.rowHeight(row) * (row-1));
+						} else {
+							group7.attribute("top") = eval(group7.attribute("top")) + datagrid2.rowHeight(row);
+						}
+					]]>
+				</script>
+			</datagrid>
+			<button id="button5" class="btn02" style="left:125px; top:0px; width:52px; height:21px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						group7.visible = false;
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

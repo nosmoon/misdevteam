@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo/>
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</fac_clsf>
+							<mesr_plac_clsf>
+								<item/>
+							</mesr_plac_clsf>
+							<prt_clsf>
+								<item/>
+							</prt_clsf>
+						</comboSet>
+						<uprc_yn/>
+					</initData>
+					<resData>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<duty_dt/>
+								<fac_clsf/>
+								<sub_seq/>
+								<prt_clsf/>
+								<mesr_plac_clsf/>
+								<tmpt/>
+								<hmdt/>
+								<cnfm_tm/>
+								<seq1/>
+							</record>
+						</gridData>
+					</resData>
+					<reqData>
+						<searchData>
+							<duty_dt/>
+							<fac_clsf/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<reqForm>
+							<multiUpData/>
+							<fac_clsf/>
+							<duty_dt/>
+							<clos_clsf/>
+						</reqForm>
+					</reqData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function pageInit(){
+						model.copyNode("/root/initData/comboSet/fac_clsf",parent.root.initData.comboSet.fac_clsf);
+						model1.refresh();
+					}
+					
+					function page_reset(){
+						model1.reset();
+						btnA2.disabled = true;
+						button1.disabled = true;
+						button12.disabled = true;
+						button13.disabled = true;
+					}
+					
+					function fac(){
+						model1.send("mt_submatrout_1101");
+						model1.copyNode("/root/initData/comboSet/fac_clsf", "/root/tempData/fac_clsf");  //공장 코드 셋팅
+						model1.copyNode("/root/initData/comboSet/medi_cd" , "/root/tempData/medi_cd");
+						model1.setValue("/root/initData/uprc_yn", model1.getValue("/root/tempData/uprc_yn"));
+						model1.refresh();
+					}
+				
+					function setData(){
+						model.removenode("/root/resData/gridData/record");
+						
+						datagrid1.refresh();
+						btnA2.disabled = false;
+						button1.disabled = false;
+						button12.disabled = false;
+						button13.disabled = false;
+						
+						//datagrid1.isReadOnly(1,1,1,7) = true;
+					}
+					
+					function loadData(duty_dt, fac_clsf, clos_clsf){
+						model.setValue("/root/reqData/searchData/duty_dt", duty_dt);
+						model.setValue("/root/reqData/searchData/fac_clsf", fac_clsf);
+						model.setValue("/root/reqData/reqForm/clos_clsf", clos_clsf);
+						
+						model.send("pr_papmake_1021");
+						model.copyNode("/root/resData/gridData","/root/tempData/gridData");
+						model.copyNode("/root/initData/comboSet/prt_clsf","/root/tempData/ecnt");
+						
+						datagrid1.refresh();
+						//alert(datagrid1.rows + "\n" + clos_clsf);
+						if (clos_clsf == "01"){
+							datagrid1.isReadOnly(1,1, datagrid1.rows, 7) = true;
+						} else {
+							datagrid1.isReadOnly(1,1, datagrid1.rows, 7) = false;
+						}
+						btnA2.disabled = false;
+						button1.disabled = false;
+						button12.disabled = false;
+						button13.disabled = false;
+					}
+					
+					//행입력
+					function addRow() {
+						var rowCnt      = 0;
+						var selectedIdx = datagrid1.rows-1;
+						var prt_clsf     = model1.getValue("/root/resData/gridData/record[1]/prt_clsf");	
+						
+						if (selectedIdx == 1){
+							model1.makeNode("/root/resData/gridData/record[1]/prt_clsf");
+						}
+						
+						if(prt_clsf=="") {
+							rowCnt = datagrid1.rows;
+							
+							if(rowCnt > 1) {
+								datagrid1.isReadOnly(1, 1, 1, 7)  =false;
+								datagrid1.addStatus(selectedIdx, "insert");
+								return false;
+							} else {
+								datagrid1.addRow(true, true);
+								return true;
+							}
+						}else{
+							datagrid1.addRow(true, true);
+							return true;
+						}
+					}
+					]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.copyNode("/root/initData/pageInfo",parent.root.initData.pageInfo);
+				model.removenode("/root/resData/gridData/record");
+				btnA2.disabled = true;
+				button1.disabled = true;
+				button12.disabled = true;
+				button13.disabled = true;
+			]]>
+			</script>
+			<submission id="mt_submatrout_1101" action="/mt/submatrout/1101" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="pr_papmake_1001" action="/mt/papmake/1001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="pr_papmake_1021" action="/mt/papmake/1021" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="pr_papmake_1020" action="/mt/papmake/1020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="905" pageheight="400">
+		<group id="group1" style="left:10px; top:10px; width:885px; height:270px; ">
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="caption5^caption1^인쇄구분^측정장소^온도('C)^습도(%)^확인시간" colsep="#" colwidth="100, 40, 138, 138, 100, 100, 201" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:50px; width:865px; height:165px; ">
+				<col ref="seq1" visibility="hidden"/>
+				<col ref="sub_seq" visibility="hidden" style="left:139px; top:20px; width:40px; height:20px; "/>
+				<col ref="prt_clsf" type="combo">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/prt_clsf/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="mesr_plac_clsf" type="combo">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/mesr_plac_clsf/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="tmpt" type="input" format="#,###.99" maxlength="3"/>
+				<col ref="hmdt" type="input" format="#,###.99" maxlength="3"/>
+				<col ref="cnfm_tm" type="input" format="hh:nn"/>
+			</datagrid>
+			<button id="btnA2" class="btn02" style="left:764px; top:1px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (model.getValue("/root/reqData/reqForm/duty_dt") == ""){
+						model.setValue("/root/reqData/reqForm/duty_dt", model.getValue("/root/reqData/searchData/duty_dt"));
+					}
+					if (model.getValue("/root/reqData/reqForm/fac_clsf") == ""){
+						model.setValue("/root/reqData/reqForm/fac_clsf", model.getValue("/root/reqData/searchData/fac_clsf"));
+					}
+					
+					if (model.getValue("/root/reqData/reqForm/clos_clsf") == "01"){
+						alert("마감된 정보는 수정할 수 없습니다.");
+						return;
+					}
+					if(!commGridReqCheck("datagrid1")) return;
+					
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					
+					model1.setValue("/root/reqData/reqForm/multiUpData", datagrid1.getUpdateData());
+					model1.send("pr_papmake_1020");
+						
+					if(submit_completed()) {
+						//alert("저장되었습니다.");
+						datagrid1.clearStatus();
+						
+						model.setValue(parent.root.reqData.searchData.duty_dt_fr, model.getValue("/root/reqData/reqForm/duty_dt"));
+						model.setValue(parent.root.reqData.searchData.duty_dt_to, model.getValue("/root/reqData/reqForm/duty_dt"));
+		        			model.setValue(parent.root.reqData.searchData.fac_clsf, model.getValue("/root/reqData/reqForm/fac_clsf"));
+		        						
+		        			window.opener.javascript.load_data();
+		       			model1.removenode("/root/reqData/reqForm/gubun");
+					}
+					
+				]]>
+				</script>
+			</button>
+			<button id="button12" class="btn_grid03" style="left:750px; top:30px; width:58px; height:17px; ">
+				<caption>행입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (model.getValue("/root/reqData/reqForm/clos_clsf") == "01"){
+							alert("마감된 정보는 수정할 수 없습니다.");
+							return;
+						}
+						var iSelectedRow = 0;
+						addRow();
+ 					]]>
+				</script>
+			</button>
+			<button id="button13" class="btn_grid03" style="left:815px; top:30px; width:58px; height:17px; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (model.getValue("/root/reqData/reqForm/clos_clsf") == "01"){
+							alert("마감된 정보는 수정할 수 없습니다.");
+							return;
+						}
+						model1.makeNode("/root/resData/resForm/temp");						
+						model1.setValue("/root/resData/resForm/temp", "1"); 
+						
+						var rowValue = datagrid1.valuematrix(datagrid1.row, 1);						
+						
+						if(rowValue != ""){ // 번호가 있으면 빨간색 표시
+							
+							datagrid1.addStatus(datagrid1.row, "delete");	
+							
+						}else{ // 번호가 없으면 행삭제
+							
+							datagrid1.deleteRow(datagrid1.row);
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var duty_dt = model.getValue("/root/reqData/searchData/duty_dt");
+					var fac_clsf = model.getValue("/root/reqData/searchData/fac_clsf");
+					var clos_clsf = model.getValue("/root/reqData/reqForm/clos_clsf");
+					
+					model.reset();
+					model.copyNode("/root/initData/comboSet/mesr_plac_clsf", parent.root.initData.comboSet.mesr_plac_clsf);
+					loadData(duty_dt, fac_clsf, clos_clsf);
+				]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

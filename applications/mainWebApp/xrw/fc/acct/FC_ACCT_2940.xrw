@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>지불명세서출력(FC_ACCT_2940)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<dataSet>
+								<CURLIST>
+									<record>
+										<cd/>
+										<cdnm/>
+										<cd_abrv_nm/>
+										<cdnm_cd/>
+										<cdabrvnm_cd/>
+									</record>
+								</CURLIST>
+							</dataSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData/>
+						<searchData>
+							<slip_occr_dt/>
+							<slip_clsf_cd/>
+							<slip_occr_seqo/>
+							<slip_occr_sub_seq/>
+						</searchData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<dataSet>
+								<CURLIST>
+									<record>
+										<setoff_reserv_dt/>
+										<pch_sgjbcnt/>
+										<pch_sgjbwrcnt/>
+									</record>
+								</CURLIST>
+							</dataSet>
+							<fc_acct_2942_s>
+								<dataSet>
+									<CURLIST>
+										<record>
+											<cnt/>
+										</record>
+									</CURLIST>
+								</dataSet>
+							</fc_acct_2942_s>
+						</resForm>
+						<gridData>
+						</gridData>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<MsgData/>
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.send("fc_acct_2940_m",true);	
+					makeComboGubun("","/root/initData/comboSet/dataSet/CURLIST","record","cdabrvnm_cd", "cd");
+					slip_clsf_cd.refresh();					
+
+					if (model.property("FC_ACCT_2940_popup_flag") == "Y") {
+						// 화면 셋팅
+						slip_occr_dt.value = model.property("FC_ACCT_2940_slip_occr_dt");	// 발생일자
+						slip_clsf_cd.value = model.property("FC_ACCT_2940_slip_clsf_cd");	// 전표구분
+						slip_seq.value = model.property("FC_ACCT_2940_slip_seq");		// 일련번호 
+
+						// 글로벌변수 초기화
+						model.property("FC_ACCT_2940_slip_occr_dt")  = "";				// 발생일자
+						model.property("FC_ACCT_2940_slip_clsf_cd")  = "";				// 전표구분
+						model.property("FC_ACCT_2940_slip_seq") = "";					// 일련번호 
+						model.property("FC_ACCT_2940_popup_flag") = "";
+					}
+				]]>
+			</script>
+			<submission id="fc_acct_2940_m" action="/fc/acct2000/2940" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/dataSet"/>
+			<submission id="fc_acct_2942_s" action="/fc/acct2000/2942" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resForm/fc_acct_2942_s/dataSet"/>
+		</model>
+		<script type="javascript" src="../../../js/TFCommon.js"/>
+		<script type="javascript" src="../../../js/CIISComm.js"/>
+		<script type="javascript" src="../../../js/fcmc_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function send_fc_acct_2941_p() {
+					if (!check_reqItem(slip_occr_dt,"trim","focus","전표일자는 필수 항목입니다."	)) { return false; }
+					if (!check_reqItem(slip_clsf_cd,"trim","focus","전표구분은 필수 항목입니다."	)) { return false; }
+					if (!check_reqItem(slip_seq,"trim","focus","일련번호는 필수 항목입니다.")) { return false; }
+
+					set_refvalue("/root/reqData/searchData/slip_occr_sub_seq","0");
+					
+					model.send("fc_acct_2942_s");
+					
+					var cnt = get_refvalue("/root/resData/resForm/fc_acct_2942_s/dataSet/CURLIST/record/cnt");
+
+					if(cnt == 0){
+						show_message("출력할 자료가 존재하지 않습니다.");
+						return false;
+					}
+					resetOznode();					
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)
+					makeNodeValue("/root/oz_data/ozrName","fcmc/SP_FC_ACCT_2941_P")
+					
+					// connection 파라미터 설정.
+//					makeNodeValue("/root/oz_data/conParam/sv_url","19110");
+//					makeNodeValue("/root/oz_data/conParam/sv_uid");
+//					makeNodeValue("/root/oz_data/conParam/sv_bonm");
+//					makeNodeValue("/root/oz_data/conParam/uv_line");
+//					makeNodeValue("/root/oz_data/conParam/uv_summary");
+					
+					// odi 파라미터 설정.
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", getProperty("ss_cmpycd"));
+					makeNodeValue("/root/oz_data/odiParam/iv_aprv_slip_occr_dt", slip_occr_dt.value);
+					makeNodeValue("/root/oz_data/odiParam/iv_aprv_slip_clsf",slip_clsf_cd.value);
+					makeNodeValue("/root/oz_data/odiParam/iv_aprv_slip_occr_seqo", slip_seq.value);
+					makeNodeValue("/root/oz_data/odiParam/iv_aprv_slip_occr_sub_seq", "0");
+					
+					//makeNodeValue("/root/oz_data/preview", "print");
+					
+					// 레포트뷰어 호출.
+					openOzwin("/root/oz_data");
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="640" pageheight="480" guideline="2,34;2,39;2,40;2,49;2,70;2,78;2,80;2,103;2,105;2,112;2,113;2,117;2,118;2,132;2,133;2,157;2,158;2,366;2,377;2,376;2,393;2,408;2,409;1,936;1,927;1,926;2,755;1,630;1,10;2,470;1,320;1,173;">
+		<caption id="caption4" class="list_cap02" style="left:100px; top:120px; width:440px; height:245px; text-align:center; "/>
+		<group id="group9" style="left:100px; top:120px; width:440px; height:244px; "/>
+		<caption id="caption6" class="list_cap02" style="left:0px; top:34px; width:926px; height:667px; text-align:center; "/>
+		<!--import id="iv_Title" src="/common/xrw/iv_TitleBar_Pop400.xrw" style="left:10px; top:5px; width:385px; height:29px; "/-->
+		<group id="group_tit" class="gro_tit" style="left:0px; top:0px; width:946px; height:39px; ">
+			<import id="iv_Title" src="../../../common/xrw/iv_TitleBar_Pop640.xrw" style="left:10px; top:5px; width:620px; height:29px; "/>
+		</group>
+		<caption id="caption8" class="list_cap02" style="left:85px; top:113px; width:460px; height:255px; text-align:center; "/>
+		<group id="group_scr" class="gro_sel" style="left:130px; top:198px; width:385px; height:80px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:385px; height:26px; text-align:center; "/>
+			<caption id="caption3" class="list_cap03" style="left:0px; top:0px; width:120px; height:26px; text-align:center; ">전표일자</caption>
+			<caption id="caption1" class="list_cap02" style="left:0px; top:25px; width:385px; height:26px; text-align:center; "/>
+			<caption id="caption2" class="list_cap03" style="left:0px; top:25px; width:120px; height:26px; text-align:center; ">전표구분</caption>
+			<input id="slip_occr_dt" ref="/root/reqData/searchData/slip_occr_dt" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" style="left:124px; top:5px; width:100px; height:18px; "/>
+			<caption id="caption7" class="list_cap02" style="left:0px; top:50px; width:385px; height:26px; text-align:center; "/>
+			<caption id="caption10" class="list_cap03" style="left:0px; top:50px; width:120px; height:26px; text-align:center; ">일련번호</caption>
+			<input id="slip_seq" ref="/root/reqData/searchData/slip_occr_seqo" class="req" navindex="3" maxlength="3" appearance="input" style="left:123px; top:54px; width:50px; height:18px; "/>
+			<select1 id="slip_clsf_cd" ref="/root/reqData/searchData/slip_clsf_cd" class="req" navindex="2" appearance="minimal" editmode="inputsearch" itemcount="10" style="left:124px; top:30px; width:140px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dataSet/CURLIST/record">
+						<label ref="cdabrvnm_cd"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if(combo_data_contains(slip_clsf_cd, slip_clsf_cd.value) == -1){
+							show_message("정확한 값을 선택해 주세요.");
+							set_refvalue(slip_clsf_cd,"");
+							return;
+						}
+					]]>
+				</script>
+			</select1>
+		</group>
+		<group id="group2" style="left:15px; top:45px; width:615px; height:25px; ">
+			<button id="btn_select" class="btn02" navindex="4" crud="R" style="left:505px; top:0px; width:52px; height:21px; ">
+				<caption>출력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						send_fc_acct_2941_p();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" navindex="6" style="left:559px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						formClose();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

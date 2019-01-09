@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<mcCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mcCombo>
+							<mcNoCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mcNoCombo>
+							<branchCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</branchCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<reqform>
+								<list_form>
+									<mediser_no/>
+									<senddt_cnfm/>
+									<resitypecd/>
+									<medicd/>
+									<mediser_no_cnfm/>
+									<bocd_cnfm/>
+									<sendroutedd/>
+									<chkcnfm_cnfm/>
+									<medicd_cnfm/>
+								</list_form>
+								<detail_form>
+									<cnfmbrchcd/>
+									<cnfmbrch/>
+									<mediser_no/>
+									<sendqty/>
+									<medinm/>
+									<medicd/>
+									<brchdt/>
+								</detail_form>
+								<send_form>
+									<checkbox/>
+									<mediser_no/>
+									<senddt_cnfm/>
+									<resitypecd/>
+									<medicd/>
+									<mediser_no_cnfm/>
+									<bocd_cnfm/>
+									<chkcnfm/>
+									<sendroutedd/>
+									<chkcnfm_cnfm/>
+									<medicd_cnfm/>
+								</send_form>
+							</reqform>
+						</searchData>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<infoGrid>
+								<record>
+									<bocd/>
+									<bonm/>
+									<medicd/>
+									<senddt/>
+									<medinm/>
+									<mediser_no/>
+									<sendqty/>
+									<hdqtesendyn/>
+									<hdqtesenddt/>
+								</record>
+							</infoGrid>
+							<detailGrid>
+								<record>
+									<cicdnm/>
+									<paty/>
+									<gnr/>
+									<total/>
+								</record>
+							</detailGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1101subInit" action="/ps/send/1101" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1121search" action="/ps/send/1121" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/list_form" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1106search" action="/ps/send/1106" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/list_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1111save" action="/ps/send/1111" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/list_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1116search" action="/ps/send/1116" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/detail_form" resultref="/root/tempData/dataTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					model.send("PID1101subInit", false);
+
+					//model.setValue("/root/reqData/searchData/detailSearch/records_per_page", model.getValue("/root/tempData/initTemp/recordPerPage"));
+					//model.setValue("/root/reqData/searchData/detailSearch/js_fn_nm", model.getValue("/root/tempData/initTemp/js_fn_nm"));
+					
+					PID1101datagrid1.fixedcellcheckbox(0, PID1101datagrid1.colRef("check"), true) = true;
+					PID1101datagrid1.fixedcellcheckbox(0, PID1101datagrid1.colRef("hdqtesendyn"), true) = true;
+					
+					model.copyNode("/root/initData/comboSet/mcCombo", "/root/tempData/initTemp/mcCombo");
+					model.copyNode("/root/initData/comboSet/branchCombo", "/root/tempData/initTemp/branchCombo");
+
+					model.removenode("/root/tempData/initTemp");
+					
+					model.refresh();
+					PID1101combo1.select(0);
+					PID1101combo3.select(0);
+				}
+				
+				function search()
+				{
+					if(!commValidate(PID1101group_scr))
+						return;
+						
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID1106search", false);
+					
+				       model.copyNode("/root/resData/gridData/infoGrid", "/root/tempData/dataTemp/infoGrid");
+				 	PID1101caption18.text = model.getValue("/root/tempData/dataTemp/totalCount");      
+				 	
+				 	if(instance1.selectNodes("/root/resData/gridData/infoGrid/record/bonm").length == 0)
+						model.alert("검색결과가 없습니다.");
+
+					model.removenode("/root/tempData/dataTemp");
+					
+					PID1101datagrid1.rebuild();
+					
+					for(var i=0; i<PID1101datagrid1.rows; i++) {
+							PID1101datagrid1.isReadOnly(i, PID1101datagrid1.colRef("check")) = false;
+							PID1101datagrid1.isReadOnly(i, PID1101datagrid1.colRef("hdqtesendyn")) = false;
+					}
+					
+					for(var i=0; i<PID1101datagrid1.rows; i++) {
+						if(PID1101datagrid1.valuematrix( i, 5) == 0) {
+							PID1101datagrid1.isReadOnly(i, PID1101datagrid1.colRef("check")) = true;														
+							PID1101datagrid1.isReadOnly(i, PID1101datagrid1.colRef("hdqtesendyn")) = true;
+						}
+						
+						if(PID1101datagrid1.valuematrix( i, 3) == "") {						
+							PID1101datagrid1.valuematrix(i,3) = "미마감";
+							PID1101datagrid1.cellStyle("color",i,3,i,3) = "#ff0000";
+						}
+					}
+					
+					// 하단 그리드 처리
+					resetChildControl("PID1101group4", true, false);
+										
+					model.setValue("/root/reqData/searchData/reqform/detail_form/cnfmbrchcd",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("bocd")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/cnfmbrch",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("bonm")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/mediser_no",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("mediser_no")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/sendqty",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("sendqty")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/medinm",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("medinm")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/medicd",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("medicd")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/brchdt",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("senddt")));
+								
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID1116search", false);
+	
+				       model.copyNode("/root/resData/gridData/detailGrid", "/root/tempData/dataTemp/detailGrid");
+	
+					model.removenode("/root/tempData/dataTemp");
+	
+					PID1101datagrid2.rebuild();
+					
+					// 그리드 하단 합계
+					PID1101datagrid2.subtotalposition="below"; 				
+					PID1101datagrid2.subtotal("sum", -1, 1, "format:#,###;", "background-color:#e0e2f0; font-weight:bold;", 1, "계", true); 
+					PID1101datagrid2.subtotal("sum", -1, 2, "format:#,###;", "background-color:#e0e2f0; font-weight:bold;", 1, "계", true); 
+					PID1101datagrid2.subtotal("sum", -1, 3, "format:#,###;", "background-color:#e0e2f0; font-weight:bold;", 1, "계", true); 
+					PID1101datagrid2.subtotal("sum", -1, 4, "format:#,###;", "background-color:#e0e2f0; font-weight:bold;", 1, "계", true); 
+					PID1101datagrid2.multitotals=true; 
+				}
+							
+				function getSelectList()
+				{
+					remakeNode("/root/tempData/initTemp");
+			
+					model.send("PID1121search", false);
+					model.copyNode("/root/initData/comboSet/mcNoCombo", "/root/tempData/initTemp/mcNoCombo");
+					model.removenode("/root/tempData/initTemp");
+					model.refresh();
+					
+					PID1101combo2.select(0);
+				}
+				
+				function gridClick()
+				{
+					if( PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("senddt")) == "" )
+					{
+						return;
+					}
+					
+					// 하단 inputbox 세팅
+					PID1101input3.value= PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("bonm"));
+					PID1101input4.value= PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("senddt"));
+					PID1101input5.value= PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("medinm"));
+					PID1101input6.value= PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("mediser_no"));
+					PID1101input7.value= PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("sendqty"));
+					
+					// 파라미터 세팅
+					model.setValue("/root/reqData/searchData/reqform/detail_form/cnfmbrchcd",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("bocd")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/cnfmbrch",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("bonm")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/mediser_no",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("mediser_no")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/sendqty",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("sendqty")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/medinm",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("medinm")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/medicd",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("medicd")));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/brchdt",  PID1101datagrid1.textMatrix(PID1101datagrid1.row, PID1101datagrid1.colRef("senddt")));
+								
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID1116search", false);
+	
+				       model.copyNode("/root/resData/gridData/detailGrid", "/root/tempData/dataTemp/detailGrid");
+	
+					model.removenode("/root/tempData/dataTemp");
+	
+					model.refresh();
+					PID1101datagrid2.rebuild();
+					
+					// 그리드 하단 합계
+					PID1101datagrid2.subtotalposition="below"; 				
+					PID1101datagrid2.subtotal("sum", -1, 1, "format:#,###;", "background-color:#e0e2f0; font-weight:bold;", 1, "계", true); 
+					PID1101datagrid2.subtotal("sum", -1, 2, "format:#,###;", "background-color:#e0e2f0; font-weight:bold;", 1, "계", true); 
+					PID1101datagrid2.subtotal("sum", -1, 3, "format:#,###;", "background-color:#e0e2f0; font-weight:bold;", 1, "계", true); 
+					PID1101datagrid2.subtotal("sum", -1, 4, "format:#,###;", "background-color:#e0e2f0; font-weight:bold;", 1, "계", true); 
+					PID1101datagrid2.multitotals=true; 
+				}
+				
+				function confirm()
+				{
+					makeNodesetToAppendForm("/root/resData/gridData/infoGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+					
+					model.setValue("/root/reqData/searchData/reqform/list_form/bocd_cnfm", model.getValue("/root/tempData/gridTemp/bocd"));
+					
+					if (model.getValue("/root/reqData/searchData/reqform/list_form/bocd_cnfm") == '') {
+						alert("확인대상 목록을 선택하세요.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData/reqform/list_form/senddt_cnfm", model.getValue("/root/tempData/gridTemp/senddt"));
+					model.setValue("/root/reqData/searchData/reqform/list_form/medicd_cnfm", model.getValue("/root/tempData/gridTemp/medicd"));
+					model.setValue("/root/reqData/searchData/reqform/list_form/mediser_no_cnfm", model.getValue("/root/tempData/gridTemp/mediser_no"));
+					model.setValue("/root/reqData/searchData/reqform/list_form/chkcnfm_cnfm", model.getValue("/root/tempData/gridTemp/hdqtesendyn"));
+					
+					model.send("PID1111save", false);
+					if(!submit_completed())
+						return;
+
+					search();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1101" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="grpCommonBtn" class="gro_btn" style="left:10px; top:50px; width:926px; height:21px; ">
+			<button id="btnCommonSearch" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="btnCommonClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1101group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:25px; ">
+			<caption id="PID1101caption14" class="list_cap01" style="left:258px; top:0px; width:80px; height:25px; ">매체호수</caption>
+			<caption id="PID1101caption15" class="list_cap01" style="left:0px; top:0px; width:80px; height:25px; ">매체코드</caption>
+			<caption id="PID1101caption20" class="list_cap02" style="left:79px; top:0px; width:180px; height:25px; "/>
+			<caption id="PID1101caption8" class="list_cap01" style="left:476px; top:0px; width:80px; height:25px; ">확인지사</caption>
+			<caption id="PID1101caption1" class="list_cap02" style="left:337px; top:0px; width:140px; height:25px; "/>
+			<caption id="PID1101caption5" class="list_cap02" style="left:555px; top:0px; width:371px; height:25px; "/>
+			<select1 id="PID1101combo1" ref="/root/reqData/searchData/reqform/list_form/medicd" class="req" appearance="minimal" caption="매체코드" style="left:84px; top:4px; width:120px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mcCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						getSelectList();										
+					]]>
+				</script>
+			</select1>
+			<select1 id="PID1101combo2" ref="/root/reqData/searchData/reqform/list_form/mediser_no" class="req" appearance="minimal" caption="매체호수" style="left:341px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mcNoCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="PID1101combo3" ref="/root/reqData/searchData/reqform/list_form/resitypecd" appearance="minimal" style="left:559px; top:4px; width:120px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/branchCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="PID1101group1" style="left:10px; top:424px; width:926px; height:25px; ">
+			<caption id="PID1101caption45" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">발송방법별 상세</caption>
+		</group>
+		<group id="PID1101group3" style="left:10px; top:105px; width:926px; height:25px; ">
+			<caption id="PID1101caption57" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">지사별확인</caption>
+			<button id="PID1101button7" class="btn_grid04" style="left:858px; top:4px; width:64px; height:17px; ">
+				<caption>확인처리</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						confirm();
+					]]>
+				</script>
+			</button>
+			<caption id="PID1101caption10" style="left:710px; top:5px; width:40px; height:18px; ">합계</caption>
+			<caption id="PID1101caption17" style="left:800px; top:5px; width:20px; height:18px; ">부</caption>
+			<caption id="PID1101caption18" style="left:740px; top:5px; width:60px; height:18px; text-align:right; "/>
+		</group>
+		<group id="PID1101group4" class="gro_sel" style="left:10px; top:452px; width:926px; height:25px; ">
+			<caption id="PID1101caption3" class="list_cap01" style="left:0px; top:0px; width:70px; height:25px; ">확인지사</caption>
+			<caption id="PID1101caption2" class="list_cap02" style="left:69px; top:0px; width:150px; height:25px; "/>
+			<caption id="PID1101caption4" class="list_cap01" style="left:218px; top:0px; width:90px; height:25px; ">지사처리일자</caption>
+			<caption id="PID1101caption6" class="list_cap02" style="left:307px; top:0px; width:120px; height:25px; "/>
+			<caption id="PID1101caption7" class="list_cap01" style="left:426px; top:0px; width:40px; height:25px; ">매체</caption>
+			<caption id="PID1101caption9" class="list_cap02" style="left:465px; top:0px; width:150px; height:25px; "/>
+			<caption id="PID1101caption11" class="list_cap01" style="left:614px; top:0px; width:40px; height:25px; ">호수</caption>
+			<caption id="PID1101caption12" class="list_cap02" style="left:653px; top:0px; width:80px; height:25px; "/>
+			<caption id="PID1101caption13" class="list_cap01" style="left:732px; top:0px; width:70px; height:25px; ">발송부수</caption>
+			<caption id="PID1101caption16" class="list_cap02" style="left:801px; top:0px; width:125px; height:25px; "/>
+			<input id="PID1101input3" ref="/root/reqData/searchData/reqform/detail_form/cnfmbrch" editable="false" style="left:73px; top:4px; width:140px; height:18px; "/>
+			<input id="PID1101input4" ref="/root/reqData/searchData/reqform/detail_form/brchdt" editable="false" format="yyyy-mm-dd" style="left:311px; top:4px; width:100px; height:18px; "/>
+			<input id="PID1101input5" ref="/root/reqData/searchData/reqform/detail_form/medinm" editable="false" style="left:469px; top:4px; width:120px; height:18px; "/>
+			<input id="PID1101input6" ref="/root/reqData/searchData/reqform/detail_form/mediser_no" editable="false" style="left:657px; top:4px; width:70px; height:18px; "/>
+			<input id="PID1101input7" ref="/root/reqData/searchData/reqform/detail_form/sendqty" editable="false" format="#,###" style="left:805px; top:4px; width:80px; height:18px; "/>
+		</group>
+		<datagrid id="PID1101datagrid1" nodeset="/root/resData/gridData/infoGrid/record" caption="^확인지사^지사처리일자^매체^호수^발송부수^발송확인^발송확인일자" colsep="^" colwidth="60, 142, 120, 140, 100, 100, 100, 123, 0, 0" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:130px; width:925px; height:290px; ">
+			<col checkvalue="Y,N" ref="check" type="checkbox"/>
+			<col ref="bonm" style="cursor:hand; "/>
+			<col ref="senddt" format="yyyy-mm-dd"/>
+			<col ref="medinm"/>
+			<col ref="mediser_no"/>
+			<col ref="sendqty" format="#,###" style="text-align:right; "/>
+			<col checkvalue="Y,N" ref="hdqtesendyn" type="checkbox"/>
+			<col ref="hdqtesenddt" format="yyyy-mm-dd"/>
+			<col ref="bocd" visibility="hidden"/>
+			<col ref="medicd" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if(PID1101datagrid1.col == 1 && PID1101datagrid1.row == 0) {
+						for(var i=1; i<PID1101datagrid1.rows; i++) {
+							if(PID1101datagrid1.valuematrix( i, 6) != 0) {
+								PID1101datagrid1.valueMatrix(i,1) = "Y";
+							}
+						}
+					}
+					
+					if(PID1101datagrid1.col == 7 && PID1101datagrid1.row == 0) {
+						for(var i=1; i<PID1101datagrid1.rows; i++) {
+							if(PID1101datagrid1.valuematrix( i, 6) != 0) {
+								PID1101datagrid1.valueMatrix(i,7) = "Y";
+							}
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-deselect">
+				<![CDATA[
+					if(PID1101datagrid1.col == 1 && PID1101datagrid1.row == 0) {
+						for(var i=1; i<PID1101datagrid1.rows; i++) {
+							if(PID1101datagrid1.valuematrix( i, 6) != 0) {
+								PID1101datagrid1.valueMatrix(i,1) = "N";
+							}
+						}
+					}
+					
+					if(PID1101datagrid1.col == 7 && PID1101datagrid1.row == 0) {
+						for(var i=1; i<PID1101datagrid1.rows; i++) {
+							if(PID1101datagrid1.valuematrix( i, 6) != 0) {
+								PID1101datagrid1.valueMatrix(i,7) = "N";
+							}
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1101datagrid1.mouseCol>PID1101datagrid1.fixedCols-1 && PID1101datagrid1.mouseRow>PID1101datagrid1.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}				
+					]]>
+			</script>
+		</datagrid>
+		<datagrid id="PID1101datagrid2" nodeset="/root/resData/gridData/detailGrid/record" caption="발송방법^일반발송^단체발송^계" colsep="^" colwidth="245, 245, 212, 201" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:480px; width:925px; height:220px; ">
+			<col ref="cicdnm"/>
+			<col ref="paty" format="#,###" style="text-align:right; "/>
+			<col ref="gnr" format="#,###" style="text-align:right; "/>
+			<col ref="total" format="#,###" style="text-align:right; "/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

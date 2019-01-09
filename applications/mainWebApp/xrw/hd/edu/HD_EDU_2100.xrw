@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>직무파트승인(부서장)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_edu_2101_m>
+							<dataSet>
+								<xx_emp_no_010/>
+							</dataSet>
+						</hd_edu_2101_m>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+							<epView_seq/>
+							<emp_no/>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpData/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<send/>
+								<retu/>
+								<emp_no/>
+								<flnm/>
+								<rptv_posi_nm/>
+								<cour_yyyymm/>
+								<cour_lng_cd_nm/>
+								<cour_obj_cd_nm/>
+								<cour_tm_cd_nm/>
+								<lv_cd_nm/>
+								<lv_test_req_cd_nm/>
+								<occr_dt/>
+								<seq/>
+							</record>
+							<!-- datagrid1 -->
+							<!-- datagrid3 -->
+						</gridData>
+						<totcnt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setStatus(){
+						for(i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+							var send_data = datagrid1.valueMatrix(i,datagrid1.colRef("send"));
+							var retu_data = datagrid1.valueMatrix(i,datagrid1.colRef("retu"));
+							if( (send_data == "1") || (retu_data == "1")){
+								datagrid1.rowStatus(i) = 2;
+							}else{
+								datagrid1.rowStatus(i) = 0;
+							}
+						}
+					}
+					function loadSearch(){
+						model1.send("hd_edu_2100_l");
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+						
+						rowCnt.value = "총 "+ (parseInt(datagrid1.rows - datagrid1.fixedRows)) + " 건";
+						datagrid1.refresh();
+					}
+					function sendChk(grid){
+						var value = false;
+						for(i = grid.fixedRows;i<=grid.rows;i++){
+							var tmp = grid.valueMatrix(i,grid.colRef("send"))
+							if(tmp == "1"){
+								value = true;
+								break;
+							}
+						}
+						return value
+					}
+					function retuChk(grid){
+						var value = false;
+						for(i = grid.fixedRows;i<=grid.rows;i++){
+							var tmp = grid.valueMatrix(i,grid.colRef("retu"))
+							if(tmp == "1"){
+								value = true;
+								break;
+							}
+						}
+						return value
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("hd_edu_2101_m");
+					//alert(model1.getValue("/root/initData/hd_edu_2101_m/dataSet/xx_emp_no_010"));
+					model.refresh();
+					
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "사내어학과정승인(부서장)";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					var obj = htmldocument.SessionInfo;
+    	 			if(obj.emp_no.value == ""){
+    	 				alert("세션 정보가 없습니다. 다시 ESS 로그인 후 사용해주세요.");
+    	 				button4.dispatch("onclick");
+    	 			}
+    	 			model1.send("hd_duty_1205");
+    	 			//if(obj.emp_no.value != model1.getValue("/root/dataSet/CURLIST1/record/emp_no") 
+				//	   && obj.emp_no.value != "202029" && obj.emp_no.value != "206010" 
+				//	   && obj.emp_no.value != "it0022" && obj.emp_no.value != "it0014"
+				//	   && obj.emp_no.value != "209043"   ){
+				//var pattern = ","+obj.emp_no.value+",";
+				var pattern = obj.emp_no.value;
+				//var pattern = ","+"it0022"+",";
+				//var validation2 =  model1.getValue("/root/dataSet/CURLIST1/record/emp_no") ;
+				var validation  = model1.getValue("/root/initData/hd_edu_2101_m/dataSet/xx_emp_no_010").indexOf(pattern)==-1;
+				//alert(validation);
+	//			alert(obj.emp_no.value);
+	//			alert(model1.getValue("/root/dataSet/CURLIST1/record/emp_no"));
+	//			alert(validation);
+	//			alert(model1.getValue("/root/initData/hd_edu_2101_m/dataSet/xx_emp_no_010"));
+				if(obj.emp_no.value != model1.getValue("/root/dataSet/CURLIST1/record/emp_no") && validation ){
+    	 				alert("사용 권한이 없습니다.");
+    	 				button4.dispatch("onclick");
+    	 		}else{
+    	 				model1.removenode("/root/dataSet");
+						datagrid1.fixedcellcheckbox(0, datagrid1.colRef("send"), false  ) = true;
+						datagrid1.fixedcellcheckbox(0, datagrid1.colRef("retu"), false  ) = true;
+						loadSearch();
+						model1.refresh();
+    	 		}
+				]]>
+			</script>
+			<submission id="hd_duty_1302" action="/hd/duty/1302" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+			<submission id="hd_duty_1205" action="/hd/duty/1205" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_co_1003" action="/hd/co/1003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+			<submission id="hd_edu_2100_l" action="/hd/edu/2100" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_edu_2110_u" action="/hd/edu/2110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+			<submission id="hd_edu_2101_m" action="/hd/edu/2101" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/hd_edu_2101_m/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="2,70;2,80;2,80;2,680;1,936;1,926;1,926;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA2" class="btn02" style="left:700px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						datagrid1.clearStatus();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:865px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+							viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn02" style="left:810px; top:0px; width:52px; height:21px; ">
+				<caption>결재</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if( (!sendChk(datagrid1)) && (!retuChk(datagrid1)) ){
+							alert("결재 할 데이터가 없습니다!");
+							return;
+						}
+						
+						if (window.alert("결재하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						var rows = datagrid1.rows;
+						for(var i = 1; i < rows; i++){
+							if((model1.getValue("/root/resData/gridData/record["+i+"]/send") == "" || model1.getValue("/root/resData/gridData/record["+i+"]/send") == "0")
+							&& (model1.getValue("/root/resData/gridData/record["+i+"]/retu") == "" || model1.getValue("/root/resData/gridData/record["+i+"]/retu") == "0")){
+								datagrid1.rowStatus(i) = 0;
+							}
+						}
+						model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+						model1.send("hd_edu_2110_u");
+						
+						if(submit_completed()) {
+							model1.reset();
+							loadSearch();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:755px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						loadSearch();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" style="left:10px; top:80px; width:926px; height:30px; ">
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:90px; height:26px; text-align:center; ">신청상태</caption>
+			<caption id="caption10" class="list_cap02" style="left:89px; top:0px; width:837px; height:26px; text-align:center; "/>
+			<output id="output1" style="left:94px; top:4px; width:116px; height:18px; "/>
+			<caption id="caption11" style="left:95px; top:6px; width:115px; height:15px; text-align:center; ">결재신청</caption>
+		</group>
+		<group id="group2" style="left:10px; top:120px; width:926px; height:580px; ">
+			<caption id="caption9" class="tit02" style="left:0px; top:0px; width:205px; height:20px; font-weight:bold; ">직무/파트정보 승인</caption>
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" autoresize="true" caption="승인^반려^사번^성명^직급^수강월^신청언어^신청과목^교육시간^레벨^레벨테스트신청^caption2^caption1" colsep="#" colwidth="45, 45, 80, 80, 80, 90, 100, 110, 80, 80, 100, 100, 100" extendlastcol="scroll" frozencols="4" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" tooltip="true" style="left:0px; top:20px; width:926px; height:555px; ">
+				<col checkvalue="1,0" ref="send" type="checkbox"/>
+				<col checkvalue="1,0" ref="retu" type="checkbox"/>
+				<col ref="emp_no"/>
+				<col ref="flnm"/>
+				<col ref="rptv_posi_nm"/>
+				<col ref="cour_yyyymm" format="yyyy-mm"/>
+				<col ref="cour_lng_cd_nm"/>
+				<col ref="cour_obj_cd_nm"/>
+				<col ref="cour_tm_cd_nm"/>
+				<col ref="lv_cd_nm"/>
+				<col ref="lv_test_req_cd_nm" visibility="visible"/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<script type="javascript" ev:event="xforms-select">
+					<![CDATA[
+						var col = datagrid1.col;
+						var row = datagrid1.row;
+						if(col == datagrid1.colRef("send")){//승인부분
+							if(row == datagrid1.fixedRows-1){ //헤더부분 클릭시.
+								for(i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+									datagrid1.fixedcellischeck(i-datagrid1.fixedrows, datagrid1.colRef("retu")) = false; //반려부분 체크 해재
+								}
+							}else{ //그 이외부분.. 하나씩 선택 할 경우..
+								datagrid1.valueMatrix(row, datagrid1.colRef("retu")) =false;//반려부분 체크 해재
+							}
+						}else if(col == datagrid1.colRef("retu")){//반려부분
+							if(row == datagrid1.fixedRows-1){ //헤더부분 클릭시.
+								for(i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+									datagrid1.fixedcellischeck(i-datagrid1.fixedrows, datagrid1.colRef("send")) = false; //승인부분 체크 해재
+								}
+							}else{ //그 이외부분.. 하나씩 선택 할 경우..
+								datagrid1.valueMatrix(row, datagrid1.colRef("send")) =false;//승인부분 체크 해재
+							}
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-deselect">
+					<![CDATA[
+						setStatus();
+					]]>
+				</script>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var col = datagrid1.col;
+						var row = datagrid1.row;
+						if(col == datagrid1.colRef("send") || col == datagrid1.colRef("retu")){//승인부분
+							setStatus();
+						}
+					]]>
+				</script>
+			</datagrid>
+		</group>
+		<caption id="rowCnt" style="left:807px; top:700px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

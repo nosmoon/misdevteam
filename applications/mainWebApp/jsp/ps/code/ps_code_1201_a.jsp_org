@@ -1,0 +1,454 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_code_1101_a.jsp
+* 기능 : 매체단가 초기화면
+* 작성일자 : 2004-02-20
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    // 페이지당 보여줄 라인수
+    String records_per_page = "15";
+    int li_per = Integer.parseInt(records_per_page) ;
+    //	dataset 인스턴스 선언부분
+    PS_S_MEDI_UPRCDataSet ds = (PS_S_MEDI_UPRCDataSet)request.getAttribute("ds");  // request dataset
+%>
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"-->
+<html>
+<head>
+
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+	setInputBackgroundColor();
+}
+
+// 매체단가 내역 조회처리
+function list_search(curr_page_no){
+    var lo_form1 = list_form;
+	var lo_from2 = detail_form;
+
+    if(curr_page_no!=null) {
+        lo_form1.curr_page_no.value = curr_page_no;
+    }
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+    lo_form1.action = "/ps/code/1206";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// navigator선택시 페이지 move처리
+function page_move(curr_page_no) {
+    var lo_form = document.list_form;
+
+    if(!curr_page_no) {
+        lo_form.curr_page_no.value = '1';
+    } else {
+        lo_form.curr_page_no.value = curr_page_no;
+    }
+
+    list_search(curr_page_no);
+}
+
+//화면초기화
+function detail_reset() {
+    var lo_form1 = document.detail_form;
+
+    // 처리 구분 flag를 초기화시킨다
+    lo_form1.accflag.value = '';
+
+    // 변경불가 항목을 초기화한다.
+    lo_form1.bocd.disabled = false;
+    lo_form1.medicd.disabled = false;
+    lo_form1.acpnclsf.disabled = false;
+    lo_form1.acpntype.disabled = false;
+    lo_form1.natnareaclsf.readOnly = false;
+    lo_form1.extn_cnt.readOnly = false;
+
+    lo_form1.cntryys.readOnly = false;
+    lo_form1.aplydt.readOnly = false;
+    lo_form1.extn_cnt.readOnly = false;
+
+    // Background 색상을 지정한다
+    lo_form1.natnareaclsf.className = "readonly_box";
+    lo_form1.natnareaclsf.style.backgroundColor ="#ffffff";
+    lo_form1.cntryys.style.backgroundColor ="#ffffff";
+    lo_form1.aplydt.style.backgroundColor ="#ffffff";
+    lo_form1.extn_cnt.style.backgroundColor ="#ffffff";
+
+    lo_form1.reset();
+
+	setEventHandler();
+    return;
+}
+
+// 상세정보를 표기한다
+function detail_view(str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,str15,str17) {
+    var lo_form1 = document.detail_form;
+
+    lo_form1.medicd.value = str1;			//매체코드
+    lo_form1.acpntype.value = str2;			//접수형태
+    lo_form1.acpnclsf.value = str3;			//접수구분
+
+    lo_form1.bocd_u.value = str15;           //지국지사코드
+    lo_form1.medicd_u.value = str1;         //매체코드
+    lo_form1.acpntype_u.value = str2;       //접수형태
+    lo_form1.acpnclsf_u.value = str3;       //접수구분
+
+    lo_form1.natnareaclsf.value = str4;		//국가지역구분
+    lo_form1.cntryys.value = str5;			//계약년수
+    lo_form1.aplydt.value = str6;			//적용일자
+    lo_form1.sell_amt.value = str7;			//판매가
+    lo_form1.busnalon.value = str8;			//영업수당
+    lo_form1.uprc.value = str9;				//단가
+    lo_form1.extn_cnt.value = str17;		//확장부수
+
+    lo_form1.remk.value = str10;			//비고
+
+    //처리구분 flag를 'U'로 설정한다.
+    lo_form1.accflag.value = 'U';
+    // 변경불가 항목을 지정한다.
+    lo_form1.bocd.disabled  =  true;
+    lo_form1.medicd.disabled  =  true;
+    lo_form1.acpnclsf.disabled = true;
+    lo_form1.acpntype.disabled = true;
+
+    lo_form1.natnareaclsf.readOnly = true;
+    lo_form1.cntryys.readOnly = true;
+    lo_form1.aplydt.readOnly = true;
+    lo_form1.extn_cnt.readOnly = true;
+    // Background 색상을 지정한다
+    lo_form1.natnareaclsf.style.backgroundColor ="#E8E8E8";
+    lo_form1.cntryys.style.backgroundColor ="#E8E8E8";
+    lo_form1.aplydt.style.backgroundColor ="#E8E8E8";
+    lo_form1.extn_cnt.style.backgroundColor ="#E8E8E8";
+
+	setEventHandler();
+}
+
+// 상세정보를 신규등록 처리한다
+function detail_insert() {
+    var lo_form1 = document.detail_form;
+    var ls_cntryys      =   trim(lo_form1.cntryys.value);              //계약년수
+
+    // 처리구분 flag가 신규대상인지 check한다.
+    if(lo_form1.accflag.value == 'U'){
+            alert("신규등록 대상이 아닙니다. 수정버튼을 선택하세요.");
+            return;
+    }
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+
+    //계약년수 체크
+    if (ls_cntryys == null || ls_cntryys == '' || ls_cntryys.length == 0 || ls_cntryys == '0') {
+        alert('계약년수는 필수입력항목이며 0보다 커야합니다.');
+        lo_form1.cntryys.focus();
+        return;
+    }
+
+    // 2005/08/17 계약년수 6개월(H) 추가
+    if (!isNumber(ls_cntryys) && ls_cntryys !='H') {
+        alert('계약년수가 입력 규칙에 맞지 않습니다.');
+        lo_form1.cntryys.focus();
+        return;
+    }
+
+    var ls_check = confirm("저장 하시겠습니까?");
+    if(!ls_check) return ;
+
+    lo_form1.method = "post";
+    lo_form1.action = "/ps/code/1211";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+
+    // 상세화면을 초기화 시킨다.
+        detail_reset();
+}
+
+// 기존 상세정보를 수정등록 처리한다
+function detail_update() {
+    var lo_form1 = document.detail_form;
+    // 처리구분 flag가 신규대상인지 check한다.
+    if(lo_form1.accflag.value != 'U' ){
+            alert("수정등록 대상이 아닙니다. 저장버튼을 선택하세요.");
+            return;
+    }
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+
+    var ls_check = confirm("수정 하시겠습니까?");
+
+    if(!ls_check) return ;
+
+    lo_form1.method = "post";
+    lo_form1.action = "/ps/code/1216";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+
+    // 상세화면을 초기화 시킨다.
+    detail_reset();
+}
+
+// 기존 상세정보를 삭제 처리한다
+function detail_delete() {
+    var lo_form1 = document.detail_form;
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+    // 처리구분 flag가 신규대상인지 check한다.
+    if(lo_form1.accflag.value != 'U' ){
+            alert("삭제처리 대상이 아닙니다. 리스트목록에서 확인하세요.");
+            return;
+    }
+    var ls_check = confirm("삭제 하시겠습니까?");
+        if(!ls_check) return ;
+    lo_form1.method = "post";
+    lo_form1.action = "/ps/code/1221";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+
+    // 상세화면을 초기화 시킨다.
+        detail_reset();
+}
+</script>
+
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onload="init()">
+
+      <table width="100%" border="0" cellspacing="0"  cellpadding="0">
+        <tr>
+          <td bgcolor="#797777" height="25" class="home"><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" onload="init()"><b>코드
+            &gt; </b>매체단가등록</td>
+        </tr>
+        <tr>
+          <td height="10">
+            <!--내용을 위한 여백-->
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0" align="center"  cellspacing="0" cellpadding="2">
+        <tr>
+          <td bgcolor="#EBE9DC" class="title"><b>매체단가관리</b></td>
+          <td bgcolor="#EBE9DC" class="title" align="right" width="250">
+            <img src="/html/comm_img/bu1_reset.gif" width="73" align="absmiddle" border="0" style="cursor:hand" onclick="detail_reset();window.event.returnValue=false;">
+            <img src="/html/comm_img/bu_save.gif" width="39"   align="absmiddle" border="0" style="cursor:hand" onclick="detail_insert();window.event.returnValue=false;">
+            <img src="/html/comm_img/bu_edit.gif" width="36"   align="absmiddle" border="0" style="cursor:hand" onclick="detail_update();window.event.returnValue=false;">
+            <img src="/html/comm_img/bu_del.gif" width="39"    align="absmiddle" border="0" style="cursor:hand" onclick="detail_delete();window.event.returnValue=false;">
+          </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<form name="detail_form" method="post" action="">
+<input type="hidden" name="accflag"    value="">
+<input type="hidden" name="bocd_u"   value="">
+<input type="hidden" name="medicd_u"   value="">
+<input type="hidden" name="acpnclsf_u" value="">
+<input type="hidden" name="acpntype_u" value="">
+  <tr>
+    <td valign="top" align="center">
+      <table width="830" border="0"  cellpadding="1" cellspacing="0" bgcolor="#FFFFFF" class="gray">
+        <tr>
+          <td  width="80" bgcolor="#dddddd" class="gray">매체 <font color="red">*</font></td>
+          <td class="gray" >
+            <select name="medicd" class="sel_all" tabIndex="1" style="width:125;">
+				<%= ds.medicdcurOptHtml("") %>
+            </select>
+          </td>
+          <td  width="80" bgcolor="#dddddd" class="gray">지국지사명<font color="red">*</font></td>
+          <td class="gray" >
+            <select name="bocd" class="sel_all" tabIndex="2" style="width:125;">
+				<%= ds.bocdOptHtml("") %>
+            </select>
+          </td>
+          <td width="85" bgcolor="#dddddd" class="gray">접수형태 <font color="red">*</font></td>
+          <td class="gray" width="80">
+            <select name="acpntype" class="sel_all" tabIndex="3">
+				<%= ds.acpntypeOptHtml("") %>
+            </select>
+          </td>
+          <td width="85" bgcolor="#dddddd" class="gray">접수구분 <font color="red">*</font></td>
+          <td class="gray" width="120">
+            <select name="acpnclsf" class="sel_all" tabIndex="4">
+				<%= ds.acpnclsfOptHtml("") %>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td  width="80" bgcolor="#dddddd" class="gray">단가<font color="red">*</font></td>
+          <td class="gray">
+            <input name="uprc" type="text" size="8" tabIndex="5" style='text-align:right;' class="text_box" caption="단가" dataType="number" comma notEmpty>
+          </td>
+          <td width="85" bgcolor="#dddddd" class="gray">계약년수<font color="red">*</font></td>
+          <td class="gray" width="120">
+            <input name="cntryys" type="text" size="3" maxlength="3" tabIndex="6" style='text-align:right;' class="text_box" caption="계약년수" notEmpty> <!-- dataType="number" caption="계약년수" notEmpty>-->
+          </td>
+          <td width="85" bgcolor="#dddddd" class="gray">영업수당<font color="red">*</font></td>
+          <td class="gray">
+            <input name="busnalon" type="text" size="8" tabIndex="7" style='text-align:right;' class="text_box" caption="영업수당" dataType="number" comma notEmpty >
+          </td>
+          <td width="85" bgcolor="#dddddd" class="gray">판매가<font color="red">*</font></td>
+          <td class="gray">
+            <input name="sell_amt" type="text" size="8" tabIndex="8" style='text-align:right;' class="text_box" caption="판매가" dataType="number" comma notEmpty>
+          </td>
+        </tr>
+        <tr>
+          <td  width="80" bgcolor="#dddddd" class="gray">적용일자 <font color="red">*</font></td>
+          <td class="gray">
+            <input name="aplydt" type="text" size="11" tabIndex="9" class="text_box" caption="적용일자" value="<%=Util.getDate()%>" dataType="date" notEmpty>
+          </td>
+          <td width="85" bgcolor="#dddddd" class="gray" >국가지역구분<font color="red">*</font></td>
+          <td class="gray">
+            <input name="natnareaclsf" type="text" size="8" maxlength="11"  tabIndex="10" class="text_box" caption="국가지역구분" notEmpty value ="5101">
+          </td>
+          <td width="85" bgcolor="#dddddd" class="gray" >확장부수<font color="red">*</font></td>
+          <td class="gray">
+            <input name="extn_cnt" type="text" size="8"  maxlength="11"  tabIndex="11" class="text_box" caption="확장부수" dataType="number" comma notEmpty>
+          </td>
+          <td width="85" bgcolor="#dddddd" class="gray">비고</td>
+          <td class="gray">
+            <input name="remk" type="text" size="20" tabIndex="12" class="text_box">
+          </td>
+        </tr>
+      </table>
+    </td>
+    </tr>
+    </form>
+        <tr>
+            <td height="10" colspan="2">
+            <!--여백-->
+            </td>
+        </tr>
+      <!--search -->
+    <form name="list_form" method="post" action="">
+      <input name="curr_page_no" type="hidden" value ="1"><!--//현재페이지-->
+      <input name="records_per_page" type="hidden" value ="<%=records_per_page%>"> <!--//화면에 보여줄  ROW수-->
+      <input name="js_fn_nm" type="hidden" value ="page_move">
+     <tr><td>
+      <table width="830" border="0" cellspacing="0" align="center" cellpadding="2">
+        <tr bgcolor="#EBE9DC">
+          <td  class="title" width="50"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">매체<font color="red">*</font></td>
+          <td  class="title" width="100">
+            <select name="medicd" class="sel_all" >
+            <%= ds.medicdcurOptHtml("") %>
+            </select>
+          </td>
+          <td  class="title" width="80"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">지국지사명<font color="red">*</font></td>
+          <td  class="title" width="200">
+            <select name="bocd" class="sel_all" >
+            <%= ds.bocdOptHtml("") %>
+            </select>
+          </td>
+          <td  class="title" width="80"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">적용일자 <font color="red">*</font></td>
+          <td  class="title" bgcolor="#EBE9DC">
+            <input name="aplydtbgn" type="text" size="10" class="text_box" caption="적용일자 시작일" value="00000101" dataType="date" notEmpty>
+            -
+            <input name="aplydtend" type="text" size="10" class="text_box" caption="적용일자 종료일" value="99991231" dataType="date" notEmpty>
+            <input type="image" src="/html/comm_img/bu_search.gif" width="36"  align="absmiddle" border="0" style="cursor:hand"
+				 onclick="list_search(1);window.event.returnValue=false;">
+          </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="4">
+            <!--여백-->
+          </td>
+        </tr>
+
+      </table>
+      <!--list -->
+      <table width="830" border="0"  cellpadding="1" align="center"  cellspacing="0" bgcolor="#FFFFFF" class="gray" id="list_info">
+        <tr align="center" bgcolor="#dddddd" >
+          <td width="60" class="gray">지국지사명</td>
+          <td width="60" class="gray">접수구분</td>
+          <td width="60" class="gray">접수형태</td>
+          <td width="60" class="gray">계약년수</td>
+          <td width="60" class="gray">확장부수</td>
+          <td width="50" class="gray">단가</td>
+          <td width="60" class="gray">판매가</td>
+          <td width="60" class="gray">지급수당</td>
+          <td width="80" class="gray">적용일자</td>
+          <td width="80" class="gray">해지일자</td>
+          <td class="gray">비고</td>
+        </tr>
+<%
+	for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+        <tr>
+          <td width="60" class="gray">&nbsp;</td>
+          <td width="60" class="gray">&nbsp;</td>
+          <td width="60" class="gray">&nbsp;</td>
+          <td width="60" class="gray">&nbsp;</td>
+          <td width="60" class="gray">&nbsp;</td>
+          <td width="50" class="gray">&nbsp;</td>
+          <td width="60" class="gray">&nbsp;</td>
+          <td width="60" class="gray">&nbsp;</td>
+          <td width="80" class="gray">&nbsp;</td>
+          <td width="80" class="gray">&nbsp;</td>
+          <td class="gray">&nbsp;</td>
+        </tr>
+<%
+	}
+%>
+
+      </table>
+      <!---button-->
+     <table width="830" border="0" cellspacing="0" align="center"  cellpadding="0" class="title2" id="navi">
+      <tr>
+        <td align="center" height="2">
+          <!--여백-->
+        </td>
+      </tr>
+      <tr>
+         <td colspan=5 align="center" bgcolor="#E8E8E8">
+                  <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+                  <jsp:param name = "curr_page_no" 		    value="0"/>
+                  <jsp:param name = "total_records" 		value="0"/>
+                  <jsp:param name = "js_fn_nm" 			    value=""/>
+                  <jsp:param name = "records_per_page" 	    value="15"/>
+                  <jsp:param name = "page_set_gubun" 		value="0"/>
+                  </jsp:include>
+                  <!--JSP PAGE END------------------------------------------------------------------------------------>
+          </td>
+      </tr>
+    </table>
+    </td>
+  </tr>
+ </form>
+</table>
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="iframe" width=0 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+</body>
+</html>

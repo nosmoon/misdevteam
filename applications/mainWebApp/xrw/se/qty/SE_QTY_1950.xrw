@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<area_cd>
+								<item/>
+								<value/>
+							</area_cd>
+						</comboSet>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<team_cd/>
+							<part_cd/>
+							<area_cd/>
+							<issu_dt/>
+							<callgb/>
+						</searchData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<resForm>
+						</resForm>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<closyn_cap/>
+						<gridData>
+							<curlist/>
+							<record>
+								<team_cd/>
+								<team_nm/>
+								<part_cd/>
+								<part_nm/>
+								<area_cd/>
+								<area_nm/>
+								<bo_nm/>
+								<bo_cd/>
+								<qty/>
+								<thmmqty/>
+							</record>
+						</gridData>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CRMComm.js"/>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript" src="/js/se_comm.js"/>
+			<script type="javascript">
+				<![CDATA[
+					function loadData(){
+						model.send("se_qty_1950_l");	
+						var rows = datagrid1.rows;
+						
+						for(var i=1; i <rows;  i++){
+							qty		=	se_eval(datagrid1.valueMatrix(i,datagrid1.colRef("qty")));			//부수합
+							thmmqty	=	se_eval(datagrid1.valueMatrix(i,datagrid1.colRef("thmmqty")));			//기증부수
+
+							if(thmmqty > qty){
+								datagrid1.rowstyle(i, "all", "background-color") = "#ffcc99";
+							}else{
+								datagrid1.rowstyle(i, "all", "background-color") = "#ffffff";
+							}
+						}
+						model.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[		
+					makeTeamSearch(
+						   "se_qty_1900_m"
+						  , "/se/qty/1900"
+						  , "/root/reqData"  
+						  , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+					model.copyNode("/root/reqData/searchData", parent.root.reqData.searchData);    
+					model.setValue("/root/reqData/searchData/callgb","1");
+					loadData();
+				]]>
+			</script>
+			<submission id="se_qty_1950_l" action="/se/qty/1950" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="800" pageheight="600" guideline="2,61;2,38;2,40;2,50;2,73;2,85;2,83;2,84;2,111;2,83;2,121;2,705;1,935;1,820;" style="font-family:굴림; ">
+		<caption id="caption13" class="tit01" navindex="1" style="left:8px; top:10px; width:785px; height:27px; vertical-align:middle; ">부수 검증</caption>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" overflow="scroll" scroll="auto" caption="팀^팀명^파트^파트명^지역^지역명^센터명^센터코드^실독자부수^발송부수" colsep="#" colwidth="10, 100, 10, 100, 10, 100, 90, 90, 127, 127" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="listbox" style="left:10px; top:130px; width:780px; height:401px; ">
+			<col ref="team_cd" visibility="hidden"/>
+			<col ref="team_nm"/>
+			<col ref="part_cd" visibility="hidden"/>
+			<col ref="part_nm"/>
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="area_nm"/>
+			<col ref="bo_nm"/>
+			<col ref="bo_cd"/>
+			<col ref="thmmqty" format="#,###" style="text-align:right; "/>
+			<col ref="qty" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<group id="group_btnA" class="gro_btn" style="left:490px; top:52px; width:301px; height:21px; ">
+			<button id="button1" class="btn02" style="left:191px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						loadData();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:249px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if(window.type == "mdi"){
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:81px; width:780px; height:31px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:716px; height:26px; "/>
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:780px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area_cd" appearance="minimal" style="left:369px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption2" class="list_cap01" style="left:147px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<caption id="caption6" class="list_cap01" style="left:320px; top:0px; width:45px; height:26px; ">지역</caption>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part_cd" appearance="minimal" style="left:221px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption8" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption9" class="list_cap01" style="left:470px; top:0px; width:65px; height:26px; ">발송일자</caption>
+			<input id="input24" ref="/root/reqData/searchData/issu_dt" inputtype="date" style="left:539px; top:4px; width:90px; height:18px; "/>
+			<caption id="cap_clos_yn" ref="/root/resData/closyn_cap" style="left:645px; top:3px; width:60px; height:20px; ">마감완료</caption>
+			<caption id="caption1" class="list_cap01" style="left:635px; top:0px; width:65px; height:26px; ">전체조회</caption>
+			<select id="checkbox1" ref="/root/reqData/searchData/callgb" overflow="visible" appearance="full" style="left:704px; top:5px; width:20px; height:16px; border-style:none; ">
+				<choices>
+					<item>
+						<label/>
+						<value>2</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						loadData();
+					]]>
+				</script>
+			</select>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:112px; width:780px; height:5px; "/>
+		<button id="button3" class="btn02" visibility="hidden" crud="R" style="left:625px; top:52px; width:52px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+						datagrid1.saveExcel(dir);
+
+					commAlert("엑셀 저장이 완료되었습니다.");
+					return;
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

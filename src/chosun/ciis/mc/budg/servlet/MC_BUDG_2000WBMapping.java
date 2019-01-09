@@ -1,0 +1,78 @@
+package chosun.ciis.mc.budg.servlet;
+
+public class MC_BUDG_2000WBMapping {
+	public static final int MC_BUDG_9999 = 9999;
+	public static final int MC_BUDG_2010 = 2010;
+	public static final int MC_BUDG_2011 = 2011;
+	public static final int MC_BUDG_2020 = 2020;
+	public static final int MC_BUDG_2021 = 2021;
+	public static final int MC_BUDG_2022 = 2022;
+	public static final int MC_BUDG_2030 = 2030;
+	public static final int MC_BUDG_2031 = 2031;
+	public static final int MC_BUDG_2070 = 2070;
+	public static final int MC_BUDG_2071 = 2071;
+	public static final int MC_BUDG_2072 = 2072;
+	public static final int MC_BUDG_2073 = 2073;
+	public static final int MC_BUDG_2076 = 2076;
+	public static final int MC_BUDG_2077 = 2077;
+	public static final int MC_BUDG_2080 = 2080;
+	public static final int MC_BUDG_2081 = 2081;
+	public static final int MC_BUDG_2082 = 2082;
+	public static final int MC_BUDG_2083 = 2083;
+	public static final int MC_BUDG_2084 = 2084;
+	public static final int MC_BUDG_2085 = 2085;
+	public static final int MC_BUDG_2090 = 2090;
+	public static final int MC_BUDG_2091 = 2091;
+	public static final int MC_BUDG_2092 = 2092;
+	public static final int MC_BUDG_2093 = 2093;
+	public static final int MC_BUDG_2094 = 2094;
+	public static final int MC_BUDG_2095 = 2095;
+	public static final int MC_BUDG_2096 = 2096;
+	public static final int MC_BUDG_2097 = 2097;
+	public static final int MC_BUDG_2100 = 2100;
+	public static final int MC_BUDG_2101 = 2101;
+	public static final int MC_BUDG_2102 = 2102;
+	public static final int MC_BUDG_2103 = 2103;
+	public static final int MC_BUDG_2104 = 2104;
+	public static final int MC_BUDG_2105 = 2105;
+	public static final int MC_BUDG_2106 = 2106;
+	public static final int MC_BUDG_2107 = 2107;
+	public static final int MC_BUDG_2111 = 2111;
+	public static final int MC_BUDG_2112 = 2112;
+	public static final int MC_BUDG_2113 = 2113;
+	public static final int MC_BUDG_2114 = 2114;
+	public static final int MC_BUDG_2115 = 2115;
+	public static final int MC_BUDG_2116 = 2116;
+	public static final int MC_BUDG_2117 = 2117;
+	public static final int MC_BUDG_2118 = 2118;
+	public static final int MC_BUDG_2121 = 2121;
+	public static final int MC_BUDG_2122 = 2122;
+	public static final int MC_BUDG_2123 = 2123;
+	public static final int MC_BUDG_2124 = 2124;
+	public static final int MC_BUDG_2125 = 2125;
+	public static final int MC_BUDG_2126 = 2126;
+	public static final int MC_BUDG_2127 = 2127;	
+	public static final int MC_BUDG_2240 = 2240;	
+	public static final int MC_BUDG_2241 = 2241;
+	public static final int MC_BUDG_2242 = 2242;
+	public static final int MC_BUDG_2243 = 2243;
+	public static final int MC_BUDG_2244 = 2244;
+	public static final int MC_BUDG_2251 = 2251;
+	public static final int MC_BUDG_2252 = 2252;
+	public static final int MC_BUDG_2253 = 2253;
+	public static final int MC_BUDG_2254 = 2254;
+	public static final int MC_BUDG_2255 = 2255;
+	public static final int MC_BUDG_2256 = 2256;
+	public static final int MC_BUDG_2257 = 2257;
+	public static final int MC_BUDG_2258 = 2258;
+	public static final int MC_BUDG_2259 = 2259;
+	public static final int MC_BUDG_2281 = 2281;	
+	public static final int MC_BUDG_2290 = 2290;
+	public static final int MC_BUDG_2291 = 2291;
+	public static final int MC_BUDG_2162 = 2162;
+	
+	
+	public static final int MC_BUDG_2061 = 2061;
+	
+	public static final int MC_BUDG_2128 = 2128;
+}

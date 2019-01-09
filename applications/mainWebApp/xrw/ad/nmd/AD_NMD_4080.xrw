@@ -1,0 +1,627 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo/>
+					</initData>
+					<codeData>
+						<medi_clsf>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</medi_clsf>
+					</codeData>
+					<reqData>
+						<searchData>
+							<medi_cd/>
+							<frdt/>
+							<todt/>
+							<agn/>
+							<agn_nm/>
+						</searchData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<clos_stat/>
+								<make_dt/>
+								<semuro_no/>
+								<agn/>
+								<agn_nm/>
+								<fee/>
+								<fee_vat/>
+								<tot_fee/>
+								<tax_item/>
+								<medi_cd/>
+								<seq/>
+							</record>
+						</gridData>
+						<resForm>
+							<clos_stat/>
+							<medi_cd>355</medi_cd>
+							<make_dt/>
+							<tot_fee/>
+							<fee/>
+							<semuro_no/>
+							<agn/>
+							<agn_nm/>
+							<tax_item>초판결제대행수수료</tax_item>
+							<fee_vat/>
+							<flag/>
+							<seq/>
+							<occr_dt/>
+							<tax_stmt_no/>
+						</resForm>
+					</resData>
+					<msgData/>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				var currentmt = getCurrentMonth();
+				var currentdt = getCurrentDate();
+							
+				model.setValue("/root/reqData/searchData/frdt",currentdt);	//게재기간
+				model.setValue("/root/reqData/searchData/todt",currentdt);	                      //게재기간
+	 				
+				model.send("ad_nmd_4080_m");	
+				model.copyNode("/root/codeData/medi_clsf", "/root/tempData/medi_clsf");
+
+
+				model.removeNodeset("/root/resData/gridData/curlist/record");
+				
+				model.refresh();
+					
+				initPage();		
+				
+				switch1.selectedIndex = 0;
+					
+				]]>
+			</script>
+			<submission id="ad_nmd_4080_m" action="/ad/nmd/4080" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="ad_nmd_4081_l" action="/ad/nmd/4081" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData/gridData"/>
+			<submission id="ad_nmd_4082_a" action="/ad/nmd/4082" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm" resultref="/root/msgData"/>
+			<submission id="ad_nmd_4083_a" action="/ad/nmd/4083" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm" resultref="/root/msgData"/>
+			<submission id="ad_nmd_4084_a" action="/ad/nmd/4084" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+			function initPage(){
+					cb_medi_cd.select(0);
+			}	
+
+			function loadList(){
+
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){
+					model1.send("ad_nmd_4081_l");							
+				}				
+			}
+			function slipnoSetForm(){
+				if(datagrid.row == 0) {
+					return;
+				}
+				var idx = 1;					
+				var selectValue = "";
+				//마감
+				model1.removenode("/root/resData/resForm");
+				model1.makeNode("/root/resData/resForm/clos_stat");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/clos_stat", selectValue);
+				if(selectValue == "Y"){
+					//마감된 상태면 resForm 비활성화시킴
+					cmb_medi_cd.disabled= true;
+					inp_make_dt.disabled= true;
+					inp_dlco_no2.disabled= true;
+					inp_dlco_nm2.disabled= true;
+					inp_fee.disabled= true;
+					inp_fee_vat.disabled= true;
+					inp_tot_fee.disabled= true;
+					inp_semuro_no.disabled= true;
+					inp_tax_item.disabled= true;
+					inp_tax_stmt_no.disabled = true;
+				}else
+				{
+					//마감안된 상태면 resForm 활성화시킴
+					cmb_medi_cd.disabled= false;
+					inp_make_dt.disabled= false;
+					inp_dlco_no2.disabled= false;
+					inp_dlco_nm2.disabled= false;
+					inp_fee.disabled= false;
+					inp_fee_vat.disabled= false;
+					inp_tot_fee.disabled= false;
+					inp_semuro_no.disabled= false;
+					inp_tax_item.disabled= false;
+					inp_tax_stmt_no.disabled = false;
+				}
+				//작성일자
+				model1.makeNode("/root/resData/resForm/make_dt");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/make_dt", selectValue);
+				//승인번호 ==> 초판전표번호로 변경
+				model1.makeNode("/root/resData/resForm/semuro_no");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/semuro_no", selectValue);
+				//매입세금계산서 번호
+				model1.makeNode("/root/resData/resForm/tax_stmt_no");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/tax_stmt_no", selectValue);
+				//거래처코드
+				model1.makeNode("/root/resData/resForm/agn");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/agn", selectValue);
+				//거래처명
+				model1.makeNode("/root/resData/resForm/agn_nm");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/agn_nm", selectValue);
+				//대행료
+				model1.makeNode("/root/resData/resForm/fee");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/fee", selectValue);
+				//부가세
+				model1.makeNode("/root/resData/resForm/fee_vat");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/fee_vat", selectValue);
+				//미지급비용
+				model1.makeNode("/root/resData/resForm/tot_fee");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/tot_fee", selectValue);
+				//품목명
+				model1.makeNode("/root/resData/resForm/tax_item");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				if(selectValue == ""){
+					selectValue = "초판결제대행수수료";
+				}
+				model1.setValue("/root/resData/resForm/tax_item", selectValue);
+				//매체코드
+				model1.makeNode("/root/resData/resForm/medi_cd");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/medi_cd", selectValue);
+				//전표일자
+				model1.makeNode("/root/resData/resForm/occr_dt");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/occr_dt", selectValue);
+				//전표순번
+				model1.makeNode("/root/resData/resForm/seq");
+				selectValue = datagrid.valueMatrix(datagrid.row, idx++);
+				model1.setValue("/root/resData/resForm/seq", selectValue);
+				//FLAG
+				model1.makeNode("/root/resData/resForm/flag");
+
+				model.refresh();
+			}
+			function setDlcoInfo(dlco_no, dlco_nm){
+				model.setValue("/root/resData/resForm/agn"		, dlco_no);
+				model.setValue("/root/resData/resForm/agn_nm"	, dlco_nm);					
+				inp_dlco_no2.refresh();
+				inp_dlco_nm2.refresh();							
+			}			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,11;1,935;2,60;2,70;2,98;2,105;2,110;2,120;2,143;" style="font-family:굴림; ">
+		<switch id="switch1" class="gro_sel" style="left:11px; top:127px; width:927px; height:598px; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid" nodeset="/root/resData/gridData/record" caption="마감^작성일자^초판전표번호^매입계산서번호^대행사^대행사^대행료^부가세^미지급비용^품목명^MEDI_CD^OCCR_DT^SEQ|마감^작성일자^초판전표번호^매입계산서번호^거래처코드^거래처명^대행료^부가세^미지급비용^품목명^MEDI_CD^OCCR_DT^SEQ" colsep="^" colwidth="40,80, 100, 100, 80, 100, 90, 90, 90, 90, 30, 30, 30" datatype="xml" explorerbar="sort" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:5px; top:5px; width:916px; height:434px; ">
+					<col ref="clos_stat"/>
+					<col ref="make_dt" format="yyyy-mm-dd"/>
+					<col ref="semuro_no" type="output" style="text-align:left; word-wrap:none; "/>
+					<col ref="tax_stmt_no" type="output" style="text-align:left; word-wrap:none; "/>
+					<col ref="agn" type="output" style="text-align:left; word-wrap:none; "/>
+					<col ref="agn_nm" type="output" style="text-align:left; word-wrap:none; "/>
+					<col ref="fee" type="output" format="(-)#,###" style="text-align:right; "/>
+					<col ref="fee_vat" type="output" format="(-)#,###" style="text-align:right; "/>
+					<col ref="tot_fee" type="output" format="(-)#,###" style="text-align:right; "/>
+					<col ref="tax_item" type="output" style="text-align:left; "/>
+					<col ref="medi_cd" visibility="hidden"/>
+					<col ref="occr_dt" visibility="hidden"/>
+					<col ref="seq" visibility="hidden"/>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						//클릭시 resForm에 set해줌
+						slipnoSetForm();
+						]]>
+					</script>
+				</datagrid>
+				<group id="group1" style="left:5px; top:461px; width:916px; height:89px; ">
+					<caption id="caption5" class="list_cap02" style="left:0px; top:25px; width:916px; height:26px; "/>
+					<caption id="caption8" class="list_cap02" style="left:0px; top:0px; width:916px; height:26px; "/>
+					<input id="inp_fee_vat" ref="/root/resData/resForm/fee_vat" class="req" navindex="14" format="(-)#,###" caption="부가세" style="left:371px; top:29px; width:100px; height:18px; text-align:right; ">
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+							var fee      = Number(model.getValue("/root/resData/resForm/fee"));
+							var fee_vat = Number(model.getValue("/root/resData/resForm/fee_vat"));	
+							model.setValue("/root/resData/resForm/tot_fee", fee+fee_vat);
+							inp_tot_fee.refresh();							
+							]]>
+						</script>
+					</input>
+					<input id="inp_dlco_nm2" ref="/root/resData/resForm/agn_nm" class="req" navindex="12" inputtype="button" caption="광고주" style="left:730px; top:4px; width:150px; height:18px; ">
+						<script type="javascript" ev:event="onbuttonclick">
+							<![CDATA[
+							model.property("pop_seq") =  "4";
+							model.property("pop_chrg") =  "1";
+							showAdvcsSearchPopup("Y", "Y", "", "", "", inp_dlco_nm2.currentText); 
+							]]>
+						</script>
+						<script type="javascript" ev:event="onkeypress">
+							<![CDATA[							
+							if(event.keyCode== "13"){
+								model.property("pop_seq")  =  "4";
+								model.property("pop_chrg") =  "1";
+								findDlcoNoByName("1", inp_dlco_nm2.currentText, inp_dlco_no2, inp_dlco_nm2);
+							}							
+							]]>
+						</script>
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[							
+							model.property("pop_seq") =  "4";
+							model.property("pop_chrg") =  "1";
+							findDlcoNoByName("1", inp_dlco_nm2.currentText, inp_dlco_no2, inp_dlco_nm2);
+							]]>
+						</script>
+					</input>
+					<caption id="caption11" class="list_cap03" style="left:0px; top:0px; width:95px; height:26px; ">매체코드</caption>
+					<caption id="caption13" class="list_cap03" style="left:270px; top:0px; width:95px; height:26px; ">작성일자</caption>
+					<select1 id="cmb_medi_cd" ref="/root/resData/resForm/medi_cd" class="req" navindex="8" appearance="minimal" caption="매체구분" style="left:100px; top:4px; width:100px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/codeData/medi_clsf/item">
+								<label ref="label"/>
+								<value ref="value"/>
+							</itemset>
+						</choices>
+					</select1>
+					<caption id="caption15" class="list_cap02" style="left:0px; top:50px; width:916px; height:26px; "/>
+					<caption id="caption16" class="list_cap03" style="left:0px; top:50px; width:95px; height:26px; ">초판전표번호</caption>
+					<input id="inp_semuro_no" ref="/root/resData/resForm/semuro_no" navindex="25" style="left:100px; top:55px; width:160px; height:18px; "/>
+					<input id="inp_fee" ref="/root/resData/resForm/fee" class="req" navindex="13" format="(-)#,###" caption="월광고료" style="left:100px; top:29px; width:100px; height:18px; text-align:right; ">
+						<script type="javascript" ev:event="DOMFocusOut">
+							<![CDATA[
+							var 	fee = Number(model.getValue("/root/resData/resForm/fee"));	
+							model.setValue("/root/resData/resForm/fee_vat", Math.round(fee/10));
+							model.setValue("/root/resData/resForm/tot_fee", fee+Math.round(fee/10));
+							inp_fee_vat.refresh();
+							inp_tot_fee.refresh();
+							]]>
+						</script>
+					</input>
+					<caption id="caption9" class="list_cap03" style="left:560px; top:0px; width:95px; height:26px; ">대행사</caption>
+					<caption id="caption18" class="list_cap03" style="left:0px; top:25px; width:95px; height:26px; ">대행료</caption>
+					<input id="inp_dlco_no2" ref="/root/resData/resForm/agn" class="req" navindex="11" caption="광고주" style="left:660px; top:4px; width:65px; height:18px; ">
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+							var dlco_no = inp_dlco_no2.currentText;
+							model.setValue("/root/resData/resForm/agn", lpad(dlco_no, 8, "0"));
+							inp_dlco_no2.refresh();
+							
+							model.property("pop_chrg") =  "1";
+							commonSubmission("9004",  inp_dlco_no2.currentText,  inp_dlco_no2, inp_dlco_nm2);
+							]]>
+						</script>
+						<script type="javascript" ev:event="onkeypress">
+							<![CDATA[
+							if(event.keyCode== "13"){
+								var dlco_no = inp_dlco_no2.currentText;
+								model.setValue("/root/resData/resForm/agn", lpad(dlco_no, 8, "0"));
+								inp_dlco_no2.refresh();
+								
+								model.property("pop_chrg") =  "1";
+								commonSubmission("9004",  inp_dlco_no2.currentText,  inp_dlco_no2, inp_dlco_nm2);	
+							}
+							]]>
+						</script>
+					</input>
+					<caption id="caption19" class="list_cap03" style="left:270px; top:25px; width:95px; height:26px; ">부가세</caption>
+					<input id="inp_make_dt" ref="/root/resData/resForm/make_dt" class="req" navindex="9" inputtype="date" format="yyyy-mm-dd" caption="계약기간" crud="R" style="left:371px; top:4px; width:100px; height:18px; "/>
+					<input id="inp_tot_fee" ref="/root/resData/resForm/tot_fee" class="req" navindex="14" editable="false" format="(-)#,###" caption="부가세" style="left:661px; top:30px; width:100px; height:18px; text-align:right; "/>
+					<caption id="caption2" class="list_cap03" style="left:560px; top:25px; width:95px; height:26px; ">미지급비용</caption>
+					<input id="inp_tax_item" ref="/root/resData/resForm/tax_item" navindex="25" style="left:660px; top:55px; width:250px; height:18px; "/>
+					<caption id="caption7" class="list_cap03" style="left:560px; top:50px; width:95px; height:26px; ">폼목명</caption>
+					<caption id="caption14" class="list_cap03" style="left:270px; top:50px; width:95px; height:26px; ">매입계산서번호</caption>
+					<input id="inp_tax_stmt_no" ref="/root/resData/resForm/tax_stmt_no" navindex="25" style="left:370px; top:55px; width:160px; height:18px; "/>
+				</group>
+			</case>
+		</switch>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption12" class="list_cap02" style="left:10px; top:70px; width:927px; height:28px; "/>
+		<caption id="caption4" class="list_cap01" style="left:10px; top:70px; width:75px; height:28px; ">매체구분</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:105px; width:927px; height:5px; "/>
+		<button id="button1" class="btn02" crud="D" style="left:631px; top:40px; width:52px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){
+					if(commReqCheck("group1")){
+						var clos_stat = model.getValue("/root/resData/resForm/clos_stat");
+						var seq = model.getValue("/root/resData/resForm/seq");
+						
+						if(clos_stat != "Y"){
+							if(seq != ""){
+								if(windowConfirm("삭제하시겠습니까?")){
+									model.setValue("/root/resData/resForm/flag","D");
+									model.send("ad_nmd_4082_a");
+									if(submit_completed()){
+										loadList();
+									}
+								}
+							}
+							else{
+								alert("계산서 등록(저장) 해주세요.");
+								return;
+							}
+						}
+						else{
+							alert("마감된 계산서는 삭제할 수 없습니다.");
+							return;
+						}
+					}else{
+						alert("계산서를 선택해주세요");
+						return;
+					}
+
+				}
+									
+				]]>
+			</script>
+		</button>
+		<button id="button17" class="btn02" crud="R" style="left:430px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(validateReq()){
+					loadList();
+				}
+									
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn03" crud="C" style="left:490px; top:40px; width:65px; height:21px; ">
+			<caption>마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){	
+					if(commReqCheck("group1")){
+						var clos_stat = model.getValue("/root/resData/resForm/clos_stat");
+						var seq = model.getValue("/root/resData/resForm/seq");
+						if(seq != ""){
+							if(clos_stat != "Y"){						
+								if(windowConfirm("마감하시겠습니까?")){
+									model.send("ad_nmd_4083_a");
+									if(submit_completed()){
+										loadList();
+									}
+								}
+							}else{
+								alert("이미 마감된 계산서입니다.");
+								return;
+							}
+						}
+						else
+						{
+							alert("계산서 등록(저장) 해주세요.");
+							return;
+						}
+					}else{
+						alert("계산서를 선택해주세요");
+						return;
+					}
+				}	
+					
+				]]>
+			</script>
+		</button>
+		<button id="button19" class="btn03" crud="U" style="left:691px; top:40px; width:65px; height:21px; ">
+			<caption>저장/수정</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					
+				var iSel = switch1.selectedIndex;
+													
+				if(iSel == 0){
+					if(commReqCheck("group1")){
+						var seq = model.getValue("/root/resData/resForm/seq");
+						var clos_stat = model.getValue("/root/resData/resForm/clos_stat");
+						
+						if(clos_stat != "Y"){
+							if(seq != ""){
+//								var tax_stmt_no = model.getValue("/root/resData/resForm/tax_stmt_no");
+//								if(tax_stmt_no == ""){
+//									alert("매입세금계산서번호는 필수 항목입니다.");
+//									return;
+//								}								
+								if(windowConfirm("수정하시겠습니까?")){
+									model.setValue("/root/resData/resForm/flag","U");
+									model.send("ad_nmd_4082_a");
+									if(submit_completed()){
+										loadList();
+									}
+								}
+							}else{
+								var occr_dt = model.getValue("/root/resData/resForm/occr_dt");
+								if(occr_dt == ""){
+									var make_dt = model.getValue("/root/resData/resForm/make_dt");
+									model.setValue("/root/resData/resForm/occr_dt",make_dt);
+								}
+								var tax_stmt_no = model.getValue("/root/resData/resForm/tax_stmt_no");
+//								if(tax_stmt_no == ""){
+//									alert("매입세금계산서번호는 필수 항목입니다.");
+//									return;
+//								}
+								if(windowConfirm("저장하시겠습니까?")){
+									model.setValue("/root/resData/resForm/flag","I");
+									model.send("ad_nmd_4082_a");
+									if(submit_completed()){
+										loadList();
+									}
+								}							
+							}
+						}else{
+							alert("마감된 계산서는 저장/수정할 수 없습니다.");
+							return;
+						}
+					}else{
+						alert("계산서를 선택해주세요");
+						return;
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn02" crud="R" style="left:764px; top:40px; width:52px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				
+				var iSel = switch1.selectedIndex;
+				
+				var sheet = "";
+				
+				if(iSel == 0){
+					sheet = "미지급비용";
+				}
+								
+				var filename = window.fileDialog("save", ",", false, "미지급비용입력_"+sheet, "xls", "Excel File(*.xls)|*.xls");
+				
+				if(filename!=""){
+					if(iSel == 0){
+						datagrid.saveExcel(filename, "sheetname: 미지급비용;");
+					}
+				}
+				
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:288px; top:70px; width:75px; height:28px; ">기간</caption>
+		<caption id="caption3" class="list_cap01" style="left:635px; top:70px; width:75px; height:28px; ">대행사</caption>
+		<input id="input8" ref="/root/reqData/searchData/todt" class="req" navindex="3" inputtype="date" format="yyyy-mm-dd" caption="게재기간" style="left:497px; top:75px; width:90px; height:18px; "/>
+		<select1 id="cb_medi_cd" ref="/root/reqData/searchData/medi_cd" navindex="1" appearance="minimal" style="left:118px; top:75px; width:115px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/medi_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption10" style="left:478px; top:76px; width:15px; height:20px; ">~</caption>
+		<input id="inp_dlco_nm" ref="/root/reqData/searchData/agn_nm" navindex="7" inputtype="button" style="left:790px; top:75px; width:115px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				model.property("pop_seq") =  "1";				
+				showAdvcsSearchPopup("Y", "Y", "", "", "", inp_dlco_nm.currentText); 
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					model.property("pop_seq") =  "1";
+					findDlcoNoByName("1", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);					
+				}	
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				model.property("pop_seq") =  "1";
+				findDlcoNoByName("1", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);	
+				]]>
+			</script>
+		</input>
+		<input id="input9" ref="/root/reqData/searchData/frdt" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" caption="게재기간" style="left:382px; top:75px; width:90px; height:18px; "/>
+		<input id="inp_dlco_no" ref="/root/reqData/searchData/agn" navindex="6" style="left:725px; top:75px; width:60px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var dlco_no = inp_dlco_no.currentText;
+				model.setValue("/root/reqData/searchData/agn", lpad(dlco_no, 8, "0"));
+				inp_dlco_no.refresh();
+				
+				commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);		
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					var dlco_no = inp_dlco_no.currentText;
+					model.setValue("/root/reqData/searchData/agn", lpad(dlco_no, 8, "0"));
+					inp_dlco_no.refresh();
+					
+					commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);					
+				}
+				]]>
+			</script>
+		</input>
+		<button id="btnClose" class="btn02" style="left:884px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[					
+ 				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));					
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" crud="R" style="left:824px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn03" crud="C" style="left:560px; top:40px; width:65px; height:21px; ">
+			<caption>마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){	
+					if(commReqCheck("group1")){
+						var clos_stat = model.getValue("/root/resData/resForm/clos_stat");
+						var seq = model.getValue("/root/resData/resForm/seq");
+						if(seq != ""){
+							if(clos_stat == "Y"){						
+								if(windowConfirm("마감 취소하시겠습니까?")){
+									model.send("ad_nmd_4084_a");
+									if(submit_completed()){
+										loadList();
+									}
+								}
+							}else{
+								alert("해당 계산서가 마감되지 않았습니다.");
+								return;
+							}
+						}
+						else
+						{
+							alert("계산서 등록(저장) 해주세요");
+							return;
+						}
+					}else{
+						alert("계산서를 선택해주세요");
+						return;
+					}
+				}	
+					
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

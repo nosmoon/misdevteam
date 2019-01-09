@@ -1,0 +1,98 @@
+<%@ page language="java" contentType="text/html; charset=KSC5601"%>
+<%@include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_rdr_1856_l.jsp
+* 기능 :  독자 리스트 가져오기
+* 작성일자 : 2007-03-29
+* 작성자 : 전현표
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+
+<%
+    String pagesize = request.getParameter("pagesize");
+    // dataset 인스턴스 선언부분
+    PS_L_BO_READER_SEARCHDataSet ds = (PS_L_BO_READER_SEARCHDataSet)request.getAttribute("ds");  // request dataset
+    // 공란으로 화면을 구성할 Row수
+
+    int records_non_page = Integer.parseInt(pagesize) - ds.readerlistcur.size();
+%>
+    <table width="830" border="0" align="center" cellpadding="1" cellspacing="0" class="gray" bgcolor="#FFFFFF" id="list_info">
+      <tr align="center" bgcolor="#dddddd">
+        <td class="gray" width="80">수취명</td>
+        <td class="gray" width="90" >전화번호</td>
+        <td class="gray" width="350">주소</td>
+        <td class="gray" width="150">관리지국</td>
+        <td class="gray" width="60" >확인여부</td>
+        <td class="gray" width="90" >확인일자</td>
+      </tr>
+    <%
+     // 코드리스트 가져 오는 부분
+     for(int i=0 ; i< ds.readerlistcur.size(); i++) {
+         PS_L_BO_READER_SEARCHREADERLISTCURRecord   rec = (PS_L_BO_READER_SEARCHREADERLISTCURRecord)ds.readerlistcur.get(i);
+    %>
+        <tr   onmouseover="this.style.backgroundColor='#EDFFF1'" onmouseout="this.style.backgroundColor=''" style="cursor:hand"
+          onclick="search_rdr('<%=rec.rdr_no%>','<%=rec.medicd%>','<%=rec.termsubsno%>')">
+          <td  class="gray" align="center" ><%=rec.getAcqnm()%></td>
+          <td  class="gray" align="center" ><%=rec.getRdrtel_no1()%>-<%=rec.getRdrtel_no2()%>-<%=rec.getRdrtel_no3()%></td>
+          <td  class="gray" align="left" ><%=rec.getDlvaddr()%> <%=rec.getDlvdtlsaddr() %></td>
+          <td  class="gray" align="center" ><%=rec.getAcq_bonm() %></td>
+          <td  class="gray" align="center" ><%=rec.getBoprocyn()%></td>
+          <td  class="gray" align="center" ><%=rec.getBoprocdt()%>&nbsp;</td>
+        </tr>
+
+     <%
+    }
+	 for(int i=0 ; i< records_non_page ; i++) {
+     %>
+        <tr>
+         <td  class="gray" >&nbsp;</td>
+          <td  class="gray" >&nbsp;</td>
+          <td  class="gray" >&nbsp;</td>
+          <td  class="gray" >&nbsp;</td>
+          <td  class="gray" >&nbsp;</td>
+          <td  class="gray" >&nbsp;</td>
+        </tr>
+        <%
+	}
+        %>
+</table>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" id="navi" align="center">
+        <tr>
+          <td align="center" height="2">
+            <!--여백-->
+          </td>
+        </tr>
+        <tr>
+        <td width="100" valign="top" height="24" bgcolor="#E8E8E8"> &nbsp; </td>
+
+        <td colspan=6 valign="top" height="24" bgcolor="#E8E8E8">
+            <div align="center">
+            <!--JSP PAGE START---------------------------------------------------------------------------------->
+            <%
+                String pageno        = request.getParameter("pageno");
+                String total_records = String.valueOf(ds.getTotalcnt());
+                String js_fn_nm = request.getParameter("js_fn_nm"); // 페이지이동 Script
+            %>
+            <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+            <jsp:param name = "curr_page_no" 		value="<%=pageno%>"/>
+            <jsp:param name = "total_records" 		value="<%=total_records%>"/>
+            <jsp:param name = "js_fn_nm" 		    value="<%=js_fn_nm%>"/>
+            <jsp:param name = "records_per_page" 	value="<%=pagesize%>"/>
+            <jsp:param name = "page_set_gubun" 		value="0"/>
+            </jsp:include>
+            <!--JSP PAGE END------------------------------------------------------------------------------------>
+            </div>
+        </td>
+        <td width="100" align="right" valign="top" height="24" bgcolor="#E8E8E8" > <b>총건수 : <%=Util.comma(ds.getTotalcnt())%></b></td>
+        </tr>
+      </table>
+<script>
+    parent.document.all.list_info.outerHTML = list_info.outerHTML;
+    parent.document.all.navi.outerHTML = navi.outerHTML;
+    parent.init();
+</script>

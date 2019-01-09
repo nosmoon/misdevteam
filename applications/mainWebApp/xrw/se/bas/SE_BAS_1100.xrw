@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_BAS_1100.xrw
+* 기능 : 판매 - 기준정보 - 지역관리
+* 작성일자 : 2009.01.15
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				//action명을 받아서 model.send한 후 에러 메세지를 처리
+				function modelSend(action){
+					model.send(action);
+					
+					if(model1.getValue("/root/errData/errcode") != ""){
+						showErrorMsgBox(model1.getValue("/root/errData/errcode"), model1.getValue("/root/errData/errmsg"));
+					} else {
+						if ( action == "se_bas_1130_a" ){
+							modelSend("se_bas_1110_l");
+						}
+					}
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageTitle/>
+							<pageID/>
+							<pageUrl/>
+							<statusMsg/>
+						</pageInfo>
+					</initData>
+					<formData>
+						<teamCombo/>
+						<partCombo/>
+						<areaCombo/>
+					</formData>
+					<codeData>
+						<teamlist/>
+						<partlist/>
+						<arealist/>
+					</codeData>
+					<resData/>
+					<reqData>
+						<sub>
+							<cmpy_cd/>
+							<area_cd/>
+						</sub>
+						<team_cd_combo/>
+						<bo_cd_combo/>
+						<area_cd_combo/>
+					</reqData>
+					<fwdData/>
+					<rcvData/>
+					<tempData/>
+					<gridData>
+						<main>
+							<record>
+								<area_cd/>
+								<area_nm/>
+								<sido_cd/>
+								<sido_nm/>
+								<chrg_pers/>
+								<flnm/>
+								<dept_nm/>
+							</record>
+						</main>
+						<sub>
+							<cd/>
+							<cdnm/>
+						</sub>
+					</gridData>
+					<gridData2>
+						<sub>
+							<record>
+								<supr_dept_nm/>
+								<dept_nm/>
+								<area_nm/>
+								<aply_yymm/>
+								<chrg_pers/>
+								<flnm/>
+								<chg_dt_tm/>
+							</record>
+						</sub>
+					</gridData2>
+					<multiUpdateData/>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//datagrid1.disabled = true;
+					makeTeamSearch(
+												"se_bas_1100_m"
+											  , "/se/bas/1100"
+											  , "/root/reqData"  
+					                          , "/root/codeData"
+											  , "team_combo"
+											  , "part_combo"
+											  , "area_combo"
+											  );
+				
+				]]>
+			</script>
+			<submission id="se_bas_1110_l" action="/se/bas/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/gridData"/>
+			<submission id="se_bas_1120_l" action="/se/bas/1120" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/sub" resultref="/root/gridData2"/>
+			<submission id="se_bas_1130_a" action="/se/bas/1130" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/multiUpdateData" resultref="/root/resData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,11;1,935;2,65;2,70;2,725;" style="font-family:돋움; font-size:12px; background-image:/html/images/bg_946.gif; ">
+		<button id="button7" class="btn03" crud="R" style="left:807; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				    //datagrid1.disabled = false;
+					
+					model.setValue("/root/reqData/team_cd_combo", model.getValue("/root/formData/teamCombo"));
+					model.setValue("/root/reqData/bo_cd_combo"   , model.getValue("/root/formData/partCombo"));
+					model.setValue("/root/reqData/area_cd_combo", model.getValue("/root/formData/areaCombo"));
+					
+					var action = "se_bas_1110_l";
+					modelSend(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					//조회된 지역코드는 수정불가
+					var rows 	= datagrid1.rows;
+					var value 	= "";
+					for ( var i = 1 ; i <= rows ; i++ ){
+						value 	= datagrid1.valueMatrix(i, 1);
+						if ( value != "" ){
+							datagrid1.isReadOnly(i, 1, i, 1) = true;
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" visibility="hidden" crud="C" style="left:671px; top:19px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					datagrid1.disabled = false;
+					
+					var dept_cd = part_combo.value;
+					var dept_nm = part_combo.label;
+					
+					if ( dept_cd == "" || dept_cd == "ALL" ){
+						commAlert("파트/지사를 선택하여야 합니다.");
+						return;
+					}
+					
+					var rows	= datagrid1.rows;
+					var status;
+
+					if ( rows == datagrid1.fixedRows + 1 ){
+						status = datagrid1.rowStatus(rows - 1);
+						if ( status == 0  && datagrid1.valueMatrix(1, 1) == "" ){
+							model.removeNodeset("/root/gridData/main/record");
+							datagrid1.refresh();
+						}
+					}
+					datagrid1.addRow();
+					
+					var rownum = datagrid1.bottomRow;
+					
+					datagrid1.valueMatrix(rownum, 9) = dept_cd;
+					datagrid1.valueMatrix(rownum, 7) = dept_nm;
+					
+					model.refresh();
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn03" visibility="hidden" crud="C" style="left:739px; top:19px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					/*
+					//저장 대상을 체크한다.
+					if ( datagrid1.rows == datagrid1.fixedRows ) {
+						alert("저장할 대상이 없습니다.");
+						return;
+					}
+					*/
+					//저장할 데이터의 키값을 체크한다.
+					var area_cd = "";
+					for ( var i = 1 ; i < datagrid1.rows ; i++ ){
+						area_cd = datagrid1.valueMatrix(i, 1);
+						if ( area_cd == "" ){
+							commAlert(i + "행의 지역코드가 없습니다.");
+							return;
+						}
+					}
+					
+					model.setValue("/root/multiUpdateData", datagrid1.getUpdateData());
+					
+					var action = "se_bas_1130_a";
+					modelSend(action);
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn03" visibility="hidden" crud="D" style="left:807px; top:19px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					se_grid_delete("datagrid1");
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button1" style="left:246px; top:75px; width:20px; height:19px; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+			<caption>...</caption>
+		</button>
+		<button id="button2" style="left:268px; top:75px; width:20px; height:19px; color:#ff0000; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+			<caption>...</caption>
+		</button>
+		<caption id="caption74" class="list_cap02" style="left:10px; top:70px; width:926px; height:28px; "/>
+		<datagrid id="datagrid1" nodeset="/root/gridData/main/record" caption="지역코드^지역명^사번^담당자명^파트/지사^시도코드^시도명^경리시도코드^경리시도명^판매시도코드^판매시도코드명^판매정렬^사용구분" colsep="#" colwidth="115, 115, 100, 100, 100, 78, 115, 110, 115, 115, 115, 115, 115, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:124px; width:926px; height:320px; ">
+			<col ref="area_cd" style="text-align:center; "/>
+			<col ref="area_nm" style="text-align:center; "/>
+			<col ref="chrg_pers" style="text-align:center; "/>
+			<col ref="flnm" style="text-align:center; "/>
+			<col ref="dept_nm" style="text-align:center; "/>
+			<col disabled="true" ref="sido_cd" type="combo" style="text-align:center; ">
+				<choices>
+					<itemset nodeset="/root/codeData2/codelist/sub/record">
+						<label ref="cd"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="sido_nm" style="text-align:left; "/>
+			<col disabled="true" ref="acct_sido_cd" type="combo">
+				<choices>
+					<itemset nodeset="/root/codeData2/acctlist/record">
+						<label ref="cd"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="acct_sido_nm" style="text-align:left; "/>
+			<col disabled="true" ref="sell_sido_cd" type="combo" style="background-image:/html/images/btn_combo.gif; ">
+				<choices>
+					<itemset nodeset="/root/codeData2/selllist/record">
+						<label ref="cd"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="sell_sido_nm" style="text-align:left; "/>
+			<col ref="sell_srt_col" style="text-align:left; "/>
+			<col checkvalue="Y,N" disabled="true" ref="use_yn" type="checkbox"/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="area_cd_key" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					var rownum = datagrid1.row;
+
+				    /* 타이틀을 클릭한 경우 그냥 리턴 */
+					if ( rownum < 0 ) {
+						return;
+					}
+					
+					/* 조회할 지역의 파라메터를 그리드에서 세팅 */
+					var cmpy_cd = model.getValue("/root/gridData/main/record[" + rownum + "]/cmpy_cd");
+					var area_cd = model.getValue("/root/gridData/main/record[" + rownum + "]/area_cd");;
+					
+					/* 조회할 키값이 존재하지 않으면 조회하지 않는다 */
+					if ( cmpy_cd == "" || area_cd == "" ){
+						return;
+					}
+					
+					/* 전송 파라메터를 세팅 */
+					model.setValue("/root/reqData/sub/cmpy_cd", cmpy_cd);
+					model.setValue("/root/reqData/sub/area_cd", area_cd);
+					
+					/* 조회 */
+					var action = "se_bas_1120_l";
+					modelSend(action);
+					
+					se_chkGridCnt("datagrid2");
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					/*  시도코드가 변경되었을 경우 이벤트가 일어난 로우와 시도코드를 얻는다. */
+					var rownum = datagrid1.selectedRow(0);
+					var key       = datagrid1.valueMatrix(rownum, 3);
+					
+					/* 선택 시도 코드의 배열 위치를 얻어서 시도코드 조회 노드에서 시도명을 얻는다 */
+					var index    = 0;
+					var arr        = instance1.selectSingleNode("/root/codeData2/codelist/sub/record"); 
+					var len        = arr.length;
+					var val        = "";
+					for ( var i = 1 ; i <= len ; i++ ){
+						val          = model.getValue("/root/codeData2/codelist/sub/record[" + i + "]/cd");
+						if ( key == val ){
+							index = i;
+							break;
+						}
+					}
+					/* 시도명을 그리드에 반영한다. */
+					var sido_cdnm = model.getValue("/root/codeData2/codelist/sub/record[" + index + "]/cdnm");
+					datagrid1.valueMatrix(rownum, 4) = sido_cdnm;
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				se_getCdCdnm_p("1"
+					        ,"/root/gridData/main/record"
+					        ,"chrg_pers"
+					        ,"flnm"
+					        ,"G"
+					        ,"datagrid1");
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_line" class="gro_line" style="left:10px; top:104px; width:926px; height:5px; background-image:/html/images/line_03.gif; "/>
+		<select1 id="team_combo" ref="/root/formData/teamCombo" appearance="minimal" style="left:59px; top:75px; width:90px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/teamlist/record">
+					<label ref="dept_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption3" class="list_cap01" style="left:157px; top:70px; width:70px; height:28px; ">파트/지사</caption>
+		<select1 id="area_combo" ref="/root/formData/areaCombo" appearance="minimal" style="left:379px; top:75px; width:90px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/arealist/record">
+					<label ref="area_nm"/>
+					<value ref="area_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<select1 id="part_combo" ref="/root/formData/partCombo" appearance="minimal" style="left:231px; top:75px; width:90px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/partlist/record">
+					<label ref="dept_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption4" class="list_cap01" style="left:330px; top:70px; width:45px; height:28px; ">지역</caption>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:70px; width:45px; height:28px; ">팀</caption>
+		<datagrid id="datagrid2" nodeset="/root/gridData2/sub/record" caption="팀^파트/지사^지역명^변경월^사번^담당자명^등록일자" colsep="^" colwidth="100, 100, 180, 91, 149, 142, 180" mergecellsfixedrows="bycolrec" rowheader="seq" rowheight="25" rowsep="|" selectionmode="free" style="left:9px; top:472px; width:926px; height:253px; ">
+			<col ref="supr_dept_nm"/>
+			<col ref="dept_nm"/>
+			<col ref="area_nm"/>
+			<col ref="aply_yymm"/>
+			<col ref="chrg_pers"/>
+			<col ref="flnm"/>
+			<col ref="chg_dt_tm"/>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:10px; top:454px; width:130px; height:20px; ">담당자 변경이력</caption>
+		<button id="btnClose" class="btn03" style="left:875px; top:44px; width:63px; height:20px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

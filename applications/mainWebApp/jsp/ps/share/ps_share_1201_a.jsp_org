@@ -1,0 +1,305 @@
+<%@ page contentType="text/html; charset=KSC5601" %>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_share_1201_a.jsp
+* 기능 : 정보공유 게시판 공지사항 초기화면
+* 작성일자 : 2004-02-23
+* 작성자 : 전현표
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+
+<%-- dataset 인스턴스 선언부분--%>
+<%
+    PS_L_INFOEXG_INITDataSet ds = (PS_L_INFOEXG_INITDataSet)request.getAttribute("ds");    // request dataset
+
+    String js_fn_nm = request.getParameter("js_fn_nm");
+    if(js_fn_nm == null) {js_fn_nm = "page_move";}
+
+    String curr_page_no = request.getParameter("curr_page_no");
+    if(curr_page_no == null) {curr_page_no = "1";}
+
+    String records_per_page = (String)request.getAttribute("records_per_page");
+    if(records_per_page == null) {records_per_page = "20";}
+
+    int no_data_page = Integer.parseInt(records_per_page) -ds.infoexglist.size();
+%>
+
+
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+<!--
+// 이벤트 핸들러 초기화
+function jsInit(){
+    setEventHandler();
+	setInputBackgroundColor();
+	document.infoexg_form.search_word.focus();
+}
+
+// form 단위로 유효성을 검증한 예제
+function check_all(form){
+    if(!validate(form)) return false;
+    else{
+        makeValue(form);
+        return true;
+    }
+}
+
+// 게시판 공지사항 쓰기화면
+function annc_write(){
+    var lo_form1 = document.infoexg_form;
+
+    // 액션을 "/ps/share/1211" 서블릿으로 보낸다
+    lo_form1.target = "_self";
+    lo_form1.action = "/ps/share/1211";
+    lo_form1.submit();
+
+}
+
+// page 이동
+function page_move(curr_page_no) {
+    var lo_form1 = document.infoexg_form;
+
+    if(!curr_page_no) {
+        lo_form1.curr_page_no.value = '1';
+    } else {
+        lo_form1.curr_page_no.value = curr_page_no;
+    }
+
+    list_search(curr_page_no);
+}
+
+// 게시판 공지사항 리스트 검색
+function list_search(curr_page_no){
+    var lo_form1 = document.infoexg_form;
+
+    lo_form1.curr_page_no.value = curr_page_no;
+    // 부서 또는 검색조건을 "/ps/share/1206" 서블릿으로 보낸다
+    lo_form1.target = "_self";
+    lo_form1.action = "/ps/share/1206";
+    lo_form1.submit();
+
+}
+
+// 게시판 공지사항 초기 리스트
+function list_init(){
+    var lo_form1 = document.infoexg_form;
+
+	lo_form1.target = "_self";
+    lo_form1.action = "/ps/share/1201";
+    lo_form1.submit();
+
+}
+
+// 게시판 공지사항 상세보기
+function infoexg_view(seq,brwscnt) {
+    var lo_form1 = document.infoexg_form;
+
+    // 시퀀스값을 "/ps/share/1221" 서블릿으로 보낸다
+    lo_form1.seq.value = seq;
+    lo_form1.brwscnt.value = brwscnt;
+    lo_form1.target = "_self";
+    lo_form1.action = "/ps/share/1221";
+    lo_form1.submit();
+}
+
+//게시판 공지사항 다운로드
+function infoexg_dwload(seq,dwloadcnt) {
+    var lo_form1 = document.infoexg_form;
+
+    // 시퀀스값을 "/ps/share/1241" 서블릿으로 보낸다
+    lo_form1.seq.value = seq;
+    lo_form1.dwloadcnt.value = dwloadcnt;
+
+    lo_form1.action = "/ps/share/1241";
+    lo_form1.submit();
+}
+
+// 검색 조건 선택시
+function select_search() {
+	var lo_form1= document.infoexg_form;
+    if(lo_form1.search_word_kind.value == null || lo_form1.search_word_kind.value =="") {
+        lo_form1.search_word.value ="";
+        lo_form1.search_word.readOnly = true;
+		lo_form1.search_word.className='readonly_box';
+
+    } else {
+        lo_form1.search_word.readOnly = false;
+		lo_form1.search_word.className='text_box';
+    }
+}
+-->
+</script>
+</head>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" margin marginheight="0" class="scroll1" onload="jsInit()">
+
+<!--INFOEXG_FORM START--------------------------------------------------------------------------------->
+<form name="infoexg_form" method="post" action="">
+	<input type="hidden" name="seq" value="">
+	<input type="hidden" name="brwscnt" value="">
+	<input type="hidden" name="dwloadcnt" value="">  <!--다운로드수-->
+    <input type="hidden" name="curr_page_no" value ="<%=curr_page_no%>">
+    <input type="hidden" name="records_per_page" value ="<%=records_per_page%>">
+    <input type="hidden" name="js_fn_nm" value ="<%=js_fn_nm%>">
+
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >정보공유
+      &gt; </b> 공지사항</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<!--검색 -->
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr>
+    <td bgcolor="#EBE9DC" width="100" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">수신범위</td>
+    <td bgcolor="#EBE9DC" class="title">
+      <select name="rmsgexttcd" class="sel_all">
+        <option value="">전체</option>
+		<%=ds.exttlistOptHtml("")%>
+      </select>
+    </td>
+
+    <td bgcolor="#EBE9DC" width="100" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">검색조건</td>
+    <td bgcolor="#EBE9DC" class="title">
+      <select name="search_word_kind" class="sel_all" onchange="select_search()">
+        <option value="">전체</option>
+        <option value="titl">제목</option>
+        <option value="makepersnm">작성자</option>
+        <option value="cont">내용</option>
+      </select>
+      <input name="search_word" type="text" size="12" class="readonly_box" readonly>
+      <input type="image" id="search_id" border="0" src="/html/comm_img/bu_search.gif" width="36" height="19" align="absmiddle" class="sel_all" onclick="javascript:list_search(1)">
+    </td>
+  </tr>
+  <tr>
+    <td height="3" colspan="2">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--타이틀 -->
+
+<table width="830" border="0"  cellpadding="1" cellspacing="0" align="center">
+  <tr>
+    <td  height="27" bgcolor="#EBE9DC" class="title"><b>출판 공지사항 목록</b></td>
+    <td  height="27" bgcolor="#EBE9DC" class="title" width="40" align="right">
+    	<input type="image" id="insert_id" border="0" src="/html/comm_img/bu_write.gif" width="36" height="19" align="absmiddle" border="0" onclick="javascript:annc_write()">
+    </td>
+  </tr>
+  <tr>
+    <td height="3" colspan="2">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<table width="830" border="0" cellspacing="0" cellpadding="1" align="center" bgcolor="#FFFFFF" class="gray">
+  <tr bgcolor="#dddddd" align="center">
+    <td width="40" class="gray"  > 번호 </td>
+    <td class="gray"  width="250"> 제목 </td>
+    <td width="75" class="gray" > 수신범위 </td>
+    <td width="75" class="gray" > 작성자 </td>
+    <td width="70" class="gray" > 작성일자 </td>
+    <td class="gray" > 조회수 </td>
+    <td class="gray" > 첨부파일 </td>
+    <td width="70" class="gray" > 다운로드수 </td>
+    <td width="40" class="gray" > 추천 </td>
+  </tr>
+	<%-- 정보공유 리스트 가져 오는 부분--%>
+	<%
+    long total_page = Util.ceilL(ds.getTotalcnt() / Long.parseLong(records_per_page),10);
+    long id = ( total_page - Long.parseLong(curr_page_no) +1 ) * Long.parseLong(records_per_page)
+                    - ( total_page * Long.parseLong(records_per_page) - ds.getTotalcnt()) ;
+
+    for(int i=0 ; i< ds.infoexglist.size(); i++) {
+        PS_L_INFOEXG_INITINFOEXGLISTRecord rec = (PS_L_INFOEXG_INITINFOEXGLISTRecord)ds.infoexglist.get(i);
+    %>
+  <tr onmouseover="this.style.backgroundColor='#EDFFF1'" onmouseout="this.style.backgroundColor=''" >
+    <td width="40" class="gray" align="center">&nbsp;<%=id%></td>
+    <td class="gray" width="250" style="cursor:hand;" onClick="infoexg_view('<%=rec.getSeq()%>','<%=rec.brwscnt%>');" >
+    	<font color="blue">&nbsp;<%= Util.checkString(rec.titl)%> </font>
+    </td>
+    <td width="75" class="gray" >&nbsp;<%= Util.checkString(rec.rmsgexttnm)%></td>
+    <td width="75" class="gray" >&nbsp;<%= Util.checkString(rec.incmgpersnm)%></td>
+    <td width="70" align="center" class="gray" >&nbsp;<%= Util.Timestamp2Str(rec.incmgdt)%></td>
+    <td align="right" class="gray" >&nbsp;<%= rec.brwscnt%></td>
+    <td class="gray" >&nbsp;
+<%
+    if(!"".equals(Util.checkString(rec.filenm))) {
+%>
+    	<a onClick="infoexg_dwload('<%=rec.getSeq()%>','<%=rec.dwloadcnt%>');" style="cursor:hand;">
+    	<font color="blue">&nbsp;<%= Util.checkString(rec.filenm)%> </font>
+    	</a>
+<%
+    }
+%>
+    </td>
+    <td align="right" width="70" class="gray" >&nbsp;<%= rec.dwloadcnt%></td>
+    <td align="right" width="40" class="gray" >&nbsp;<%= rec.recomcnt%></td>
+  </tr>
+    <%
+        id--;
+     }
+    %>
+    <%
+    for(int i=0 ; i< no_data_page; i++) {
+    %>
+  <tr align="center">
+    <td width="40"  class="gray">&nbsp;</td>
+    <td width="250" class="gray">&nbsp;</td>
+    <td width="75"  class="gray">&nbsp;</td>
+    <td width="75"  class="gray">&nbsp;</td>
+    <td width="75"  class="gray">&nbsp;</td>
+    <td width="50"  class="gray">&nbsp;</td>
+    <td width="*"   class="gray">&nbsp;</td>
+    <td width="70"  class="gray">&nbsp;</td>
+    <td width="40"  class="gray">&nbsp;</td>
+  </tr>
+    <%
+     }
+    %>
+</table>
+<!---button-->
+<table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center">
+  <tr>
+    <td align="center" height="2">
+      <!--여백-->
+    </td>
+  </tr>
+  <tr>
+    <td align="center" height="24" bgcolor="#E8E8E8">
+	    <!--JSP PAGE START---------------------------------------------------------------------------------->
+	    <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+	    <jsp:param name = "curr_page_no" 		value="<%=curr_page_no%>"/>
+	    <jsp:param name = "total_records" 		value="<%=ds.getTotalcnt()%>"/>
+	    <jsp:param name = "js_fn_nm" 			value="<%=js_fn_nm%>"/>
+	    <jsp:param name = "records_per_page" 	value="20"/>
+	    <jsp:param name = "page_set_gubun" 		value="0"/>
+	    </jsp:include>
+	    <!--JSP PAGE END------------------------------------------------------------------------------------>
+
+	</td>
+  </tr>
+</table>
+<br>
+<br>
+</form>
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="ifrm" width=0 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+</body>
+</html>

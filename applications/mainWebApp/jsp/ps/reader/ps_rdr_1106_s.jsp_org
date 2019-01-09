@@ -1,0 +1,452 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+
+<%---------------------------------------------------------------------------------------------------
+* 파일명   : ps_rdr_1106_s.jsp
+* 기능     : 확장독자관리 확장독자 상세 Link
+* 작성일자 : 2004-02-26
+* 작성자   : 김상옥
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자   :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+
+<%
+    //오늘날짜
+    String toDate      = Util.getDate2();
+
+    //dataset 인스턴스 선언부분
+	PS_S_RDR_EXTNDataSet ds = (PS_S_RDR_EXTNDataSet)request.getAttribute("ds");
+
+    //확장독자정보 dataset
+    PS_S_RDR_EXTNRDREXTNINFOCURRecord rdrextninfocurRec = null;
+    boolean  rdrChk = false;            //확장독자 데이타 유무체크
+
+    if (ds.rdrextninfocur.size() > 0) {
+        rdrextninfocurRec = (PS_S_RDR_EXTNRDREXTNINFOCURRecord)ds.rdrextninfocur.get(0);
+        rdrChk  =  true;
+    }
+%>
+
+            <table width="830" border="0" cellspacing="0" cellpadding="2" id="initDtl">
+              <tr>
+                <td valign="top">
+                  <!--기본정보-->
+                  <table width="830" border="0" cellspacing="0" cellpadding="2" class="gray" bgcolor="#ffffff">
+                    <tr>
+                      <td bgcolor="#dddddd" class="gray" width="60"><b><font color="#0b0033">확장번호</font></b></td>
+                      <td class="gray" width="120">
+                        <input type="text" name="rdr_extndt" size="8" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdr_extndt); %>" class="readonly_box" readonly >
+                        <input type="text" name="rdr_extnno" size="6" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdr_extnno); %>" class="readonly_box" readonly >
+                      </td>
+                      <td bgcolor="#dddddd" class="gray" width="60"><b><font color="#0b0033">신청경로</font></b></td>
+                      <td class="gray" width="75">
+                        <input type="hidden" name="aplcpathcd" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcpathcd); %>" >
+                        <input type="text"   name="aplcpathnm" size="10" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcpathnm); else out.print("출판업무"); %>" class="readonly_box" readonly >
+                      </td>
+                      <td bgcolor="#dddddd" class="gray" width="60"><b><font color="#0b0033">신청유형</font></b></td>
+                      <td class="gray" width="75">
+                        <input type="hidden" name="aplcpathcd" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdr_extntypecd); %>" >
+                        <input type="text"   name="aplcpathnm" size="10" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdr_extntypenm); else out.print("자진신청"); %>" class="readonly_box" readonly >
+                      </td>
+                      <td bgcolor="#dddddd" class="gray" width="60">신청일자<font color="red">*</font></td>
+                      <td class="gray" width="75">
+                        <input type="text" name="aplcdt" size="10" maxlength="10" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcdt); else out.print(toDate); %>" class="text_box" caption="신청일자" dataType="date" notEmpty >
+                      </td>
+                      <td bgcolor="#dddddd" class="gray" width="60">신청매체<font color="red">*</font></td>
+                      <td class="gray" width="75">
+                        <select name="medicd" size="1" class="sel_all" style="width:70;" caption="신청매체" notEmpty >
+                          <option value='' <% if (true) {%> selected <%} else { }%> >선택</option>
+<%-- 신청매체 콤보박스 구성--%>
+<%
+	for(int i=0; i<ds.medicdcur.size(); i++){
+		PS_S_RDR_EXTNMEDICDCURRecord medicdcurRec = (PS_S_RDR_EXTNMEDICDCURRecord)ds.medicdcur.get(i);
+%>
+                          <option value="<%=medicdcurRec.getCicodeval()%>"
+                        <%
+                            if (ds.rdrextninfocur.size() > 0) {
+                                if ((rdrextninfocurRec.medicd).equals(medicdcurRec.getCicodeval())) {
+                                    out.print("selected");
+                                }
+                            }
+                        %>
+                          ><%=medicdcurRec.getCicdnm()%></option>
+<%
+    }
+%>
+                        </select>
+                      </td>
+                      <td bgcolor="#dddddd" class="gray" width="60">신청부수<font color="red">*</font></td>
+                      <td class="gray" width="30">
+                        <input type="text" name="qty" size="3" maxlength="5" value="<% if (rdrChk) out.print(rdrextninfocurRec.qty); else out.print("1"); %>" class="numb_box" caption="신청부수" dataType="number" comma notEmpty >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td height="3" colspan="12">
+                        <!--여백-->
+                      </td>
+                    </tr>
+                  </table>
+                  <!--기본정보 끝-->
+                  <!--수취인정보 -->
+                  <table width="830" border="0" cellspacing="0" cellpadding="2" class="gray" bgcolor="#FFFFFF">
+                    <tr bgcolor="#E8E8E8" >
+                      <td colspan="8" class="gray"><b>수취인정보</b></td>
+                    </tr>
+                    <tr>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">성명<font color="red">*</font></td>
+                      <td class="gray" width="150">
+                        <input type="text" name="rdrnm" size="20" maxlength="20" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrnm); %>" class="text_box" caption="성명" notEmpty >
+                      </td>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">주민번호</td>
+                      <td class="gray" width="180">
+                        <input type="hidden" name="rdrprn" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrprn); %>">
+                        <input type="text"   name="rdrprn1" size="6" maxlength="6" value="<% if (rdrChk) { if (rdrextninfocurRec.rdrprn.length()==13) out.print(rdrextninfocurRec.rdrprn.substring(0,6));  } %>" class="text_box" caption="주민번호" dataType="number" >
+                        -
+                        <input type="text"   name="rdrprn2" size="7" maxlength="7" value="<% if (rdrChk) { if (rdrextninfocurRec.rdrprn.length()==13) out.print(rdrextninfocurRec.rdrprn.substring(6,13)); } %>" class="text_box" caption="주민번호" dataType="number" >
+                      </td>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">전화번호<font color="blue">*</font></td>
+                      <td class="gray" width="125">
+                        <input type="text" name="rdrtel_no1" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrtel_no1); %>" class="text_box" caption="전화번호" dataType="number" >
+                        <input type="text" name="rdrtel_no2" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrtel_no2); %>" class="text_box" caption="전화번호" dataType="number" >
+                        <input type="text" name="rdrtel_no3" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrtel_no3); %>" class="text_box" caption="전화번호" dataType="number" >
+                      </td>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">휴대폰<font color="blue">*</font></td>
+                      <td class="gray" width="125">
+                        <input type="text" name="rdrptph_no1" size="3" maxlength="3" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrptph_no1); %>" class="text_box" caption="휴대폰" dataType="number" >
+                        <input type="text" name="rdrptph_no2" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrptph_no2); %>" class="text_box" caption="휴대폰" dataType="number" >
+                        <input type="text" name="rdrptph_no3" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrptph_no3); %>" class="text_box" caption="휴대폰" dataType="number" >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">주소<font color="red">*</font></td>
+                      <td colspan="7" class="gray">
+                        <input type="hidden" name="dlvzip" value="<% if (rdrChk) out.print(rdrextninfocurRec.dlvzip); %>">
+                        <input type="text"   name="dlvzip1" size="3" value="<% if (rdrChk) { if (rdrextninfocurRec.dlvzip.length()==6)  out.print(rdrextninfocurRec.dlvzip.substring(0,3)); } %>" class="text_box" maxlength="3" caption="우편번호" dataType="number" notEmpty >
+                        -
+                        <input type="text"   name="dlvzip2" size="3" value="<% if (rdrChk) { if (rdrextninfocurRec.dlvzip.length()==6)  out.print(rdrextninfocurRec.dlvzip.substring(3,6)); } %>" class="text_box" maxlength="3" caption="우편번호" dataType="number" notEmpty onkeydown="zip_enter_search(1);">
+                        <img src="/html/comm_img/bu_search02.gif" width="36" height="19" border="0" align="absmiddle" onclick="zip_search(1);window.event.returnValue=false;" style="cursor:hand">
+                        <input type="text"   name="dlvaddr"     size="40"  maxlength="50" value="<% if (rdrChk) out.print(rdrextninfocurRec.dlvaddr); %>" class="readonly_box" caption="주소" notEmpty readonly >
+                        <input type="text"   name="dlvdtlsaddr" size="40"  maxlength="50" value="<% if (rdrChk) out.print(rdrextninfocurRec.dlvdtlsaddr); %>" class="text_box" caption="상세주소" notEmpty >
+                      </td>
+                    </tr>
+                  </table>
+                  <table width="830" border="0" cellspacing="0" cellpadding="2" class="gray1" bgcolor="#FFFFFF">
+                    <tr>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">수취구분</td>
+                      <td class="gray" width="60">
+                        <select name="acqclsf" size="1" class="sel_all" style="width:50;" >
+                          <option value='' <% if (true) {%> selected <%} else { }%> >선택</option>
+<%-- 수취구분 콤보박스 구성--%>
+<%
+	for(int i=0; i<ds.acqclsfcur.size(); i++){
+		PS_S_RDR_EXTNACQCLSFCURRecord acqclsfcurRec = (PS_S_RDR_EXTNACQCLSFCURRecord)ds.acqclsfcur.get(i);
+%>
+                          <option value="<%=acqclsfcurRec.getCicodeval()%>"
+                        <%
+                            if (ds.rdrextninfocur.size() > 0) {
+                                if ((rdrextninfocurRec.acqclsf).equals(acqclsfcurRec.getCicodeval())) {
+                                    out.print("selected");
+                                }
+                            }
+                        %>
+                          ><%=acqclsfcurRec.getCicdnm()%></option>
+<%
+    }
+%>
+                        </select>
+                      </td>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">납부방법</td>
+                      <td class="gray" width="110">
+                        <select name="rcpmmthd" class="sel_all" style="width:100;" caption="납부방법" >
+                          <option value='' <% if (true) {%> selected <%} else { }%> >선택</option>
+<%-- 납부방법 콤보박스 구성--%>
+<%
+	for(int i=0; i<ds.rcpmmthdcur.size(); i++){
+		PS_S_RDR_EXTNRCPMMTHDCURRecord rcpmmthdcurRec = (PS_S_RDR_EXTNRCPMMTHDCURRecord)ds.rcpmmthdcur.get(i);
+%>
+                          <option value="<%=rcpmmthdcurRec.getCicodeval()%>"
+                        <%
+                            if (ds.rdrextninfocur.size() > 0) {
+                                if ((rdrextninfocurRec.rcpmmthd).equals(rcpmmthdcurRec.getCicodeval())) {
+                                    out.print("selected");
+                                }
+                            }
+                        %>
+                          ><%=rcpmmthdcurRec.getCicdnm()%></option>
+<%
+    }
+%>
+                        </select>
+                      </td>
+                      <td class="gray" bgcolor="#DDDDDD" width="80">직장명</td>
+                      <td class="gray" width="114">
+                        <input type="text" name="rdroffinm" size="14" maxlength="20" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdroffinm); %>" class="text_box" >
+                      </td>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">직책</td>
+                      <td class="gray" width="74">
+                        <input type="text" name="rdrposi" size="6" maxlength="8" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdrposi); %>" class="text_box" >
+                      </td>
+                      <td class="gray" width="60" bgcolor="#dddddd">직장전화<font color="blue">*</font></td>
+                      <td class="gray" width="125">
+                        <input type="text" name="rdroffitel_no1" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdroffitel_no1); %>" class="text_box" caption="직장전화" dataType="number" >
+                        <input type="text" name="rdroffitel_no2" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdroffitel_no2); %>" class="text_box" caption="직장전화" dataType="number" >
+                        <input type="text" name="rdroffitel_no3" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdroffitel_no3); %>" class="text_box" caption="직장전화" dataType="number" >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">이메일</td>
+                      <td class="gray" colspan="3">
+                        <input type="text" name="email" size="35" maxlength="30" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdremail); %>" class="text_box" caption="이메일" dataType="email" >
+                      </td>
+                      <td class="gray" bgcolor="#DDDDDD" width="80">신청인과관계 </td>
+                      <td class="gray" width="114">
+                        <select name="rshpclsfcd" size="1"  class="sel_all">
+                          <option value='' <% if (true) {%> selected <%} else { }%> >선택</option>
+<%-- 청구인과관계 콤보박스 구성--%>
+<%
+	for(int i=0; i<ds.rshpclsfcdcur.size(); i++){
+		PS_S_RDR_EXTNRSHPCLSFCDCURRecord rshpclsfcdcurRec = (PS_S_RDR_EXTNRSHPCLSFCDCURRecord)ds.rshpclsfcdcur.get(i);
+%>
+                          <option value="<%=rshpclsfcdcurRec.getCicodeval()%>"
+                        <%
+                            if (ds.rdrextninfocur.size() > 0) {
+                                if ((rdrextninfocurRec.rshpclsfcd).equals(rshpclsfcdcurRec.getCicodeval())) {
+                                    out.print("selected");
+                                }
+                            }
+                        %>
+                          ><%=rshpclsfcdcurRec.getCicdnm()%></option>
+<%
+    }
+%>
+                        </select>
+                      </td>
+                      <td class="gray" bgcolor="#DDDDDD" width="60">주거구분</td>
+                      <td class="gray" width="74">
+                        <select name="resiclsfcd" size="1"  class="sel_all">
+                          <option value='' <% if (true) {%> selected <%} else { }%> >선택</option>
+<%-- 주거구분 콤보박스 구성--%>
+<%
+	for(int i=0; i<ds.resiclsfcdcur.size(); i++){
+		PS_S_RDR_EXTNRESICLSFCDCURRecord resiclsfcdcurRec = (PS_S_RDR_EXTNRESICLSFCDCURRecord)ds.resiclsfcdcur.get(i);
+%>
+                          <option value="<%=resiclsfcdcurRec.getCicodeval()%>"
+                        <%
+                            if (ds.rdrextninfocur.size() > 0) {
+                                if ((rdrextninfocurRec.resiclsfcd).equals(resiclsfcdcurRec.getCicodeval())) {
+                                    out.print("selected");
+                                }
+                            }
+                        %>
+                          ><%=resiclsfcdcurRec.getCicdnm()%></option>
+<%
+    }
+%>
+                        </select>
+                      </td>
+                      <td class="gray" width="60" bgcolor="#dddddd">주거형태</td>
+                      <td class="gray" width="125">
+                        <select name="resitypecd" size="1"  class="sel_all">
+                          <option value='' <% if (true) {%> selected <%} else { }%> >선택</option>
+<%-- 주거형태 콤보박스 구성--%>
+<%
+	for(int i=0; i<ds.resitypecdcur.size(); i++){
+		PS_S_RDR_EXTNRESITYPECDCURRecord resitypecdcurRec = (PS_S_RDR_EXTNRESITYPECDCURRecord)ds.resitypecdcur.get(i);
+%>
+                          <option value="<%=resitypecdcurRec.getCicodeval()%>"
+                        <%
+                            if (ds.rdrextninfocur.size() > 0) {
+                                if ((rdrextninfocurRec.resitypecd).equals(resitypecdcurRec.getCicodeval())) {
+                                    out.print("selected");
+                                }
+                            }
+                        %>
+                          ><%=resitypecdcurRec.getCicdnm()%></option>
+<%
+    }
+%>
+                        </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td height="3" colspan="10">
+                        <!--여백-->
+                      </td>
+                    </tr>
+                  </table>
+                  <!--수취인 정보 끝-->
+                  <!--신청인 정보내용 시작 -->
+                  <table width="830" border="0" cellspacing="0" cellpadding="2" class="gray" bgcolor="#FFFFFF">
+                    <tr bgcolor="#E8E8E8">
+                      <td colspan="10" class="gray"><b>신청인정보</b>&nbsp;&nbsp;
+                        <img src="/html/comm_img/bu_same01.gif" width="87" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="jsAcqPer_Same(1);window.event.returnValue=false;">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">성명<font color="red">*</font></td>
+                      <td width="100" class="gray">
+                        <input type="text" name="aplcpersnm" size="13" maxlength="20" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcpersnm); %>" class="text_box" caption="성명" notEmpty >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">직장명</td>
+                      <td width="100" class="gray">
+                        <input type="text" name="aplcpersoffinm" size="13" maxlength="20" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcpersoffinm); %>" class="text_box" >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">직책</td>
+                      <td width="60" class="gray">
+                        <input type="text" name="aplcpersposi" size="6" maxlength="8" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcpersposi); %>" class="text_box" >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">전화번호<font color="blue">*</font></td>
+                      <td width="125" class="gray">
+                        <input type="text" name="aplcperstel_no1" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcperstel_no1); %>" class="text_box" caption="전화번호" dataType="number" >
+                        <input type="text" name="aplcperstel_no2" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcperstel_no2); %>" class="text_box" caption="전화번호" dataType="number" >
+                        <input type="text" name="aplcperstel_no3" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcperstel_no3); %>" class="text_box" caption="전화번호" dataType="number" >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">휴대폰<font color="blue">*</font></td>
+                      <td class="gray" width="125">
+                        <input type="text" name="aplcpersptph_no1" size="3" maxlength="3" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcpersptph_no1); %>" class="text_box" caption="휴대폰" dataType="number" >
+                        <input type="text" name="aplcpersptph_no2" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcpersptph_no2); %>" class="text_box" caption="휴대폰" dataType="number" >
+                        <input type="text" name="aplcpersptph_no3" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.aplcpersptph_no3); %>" class="text_box" caption="휴대폰" dataType="number" >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td height="3" colspan="10">
+                        <!--여백-->
+                      </td>
+                    </tr>
+                  </table>
+                  <!--신청인 정보 끝 -->
+                  <!--청구지정보 시작 -->
+                  <table width="830" border="0" cellspacing="0" cellpadding="2" class="gray" bgcolor="#FFFFFF">
+                    <tr bgcolor="#E8E8E8">
+                      <td colspan="10" class="gray"><b>청구지정보</b>&nbsp;&nbsp;
+                        <img src="/html/comm_img/bu_same01.gif" width="87" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="jsAcqPer_Same(2);window.event.returnValue=false;">
+                        <img src="/html/comm_img/bu_same02.gif" width="87" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="jsAplcPer_Same();window.event.returnValue=false;">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">성명<font color="red">*</font></td>
+                      <td width="100" class="gray">
+                        <input type="text" name="pymtflnm" size="13" maxleㄹngth="20" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtflnm); %>" class="text_box" caption="성명" notEmpty >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">직장명</td>
+                      <td width="100" class="gray">
+                        <input type="text" name="pymtoffinm" size="13" maxlength="20" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtoffinm); %>" class="text_box" >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">직책</td>
+                      <td width="60" class="gray">
+                        <input type="text" name="pymtposi" size="6" maxlength="8" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtposi); %>" class="text_box" >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">전화번호<font color="blue">*</font></td>
+                      <td width="125" class="gray">
+                        <input type="text" name="pymttel_no1" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymttel_no1); %>" class="text_box" caption="전화번호" dataType="number" >
+                        <input type="text" name="pymttel_no2" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymttel_no2); %>" class="text_box" caption="전화번호" dataType="number" >
+                        <input type="text" name="pymttel_no3" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymttel_no3); %>" class="text_box" caption="전화번호" dataType="number" >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">휴대폰<font color="blue">*</font></td>
+                      <td  class="gray" width="125">
+                        <input type="text" name="pymtptph_no1" size="3" maxlength="3" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtptph_no1); %>" class="text_box" caption="휴대폰" dataType="number" >
+                        <input type="text" name="pymtptph_no2" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtptph_no2); %>" class="text_box" caption="휴대폰" dataType="number" >
+                        <input type="text" name="pymtptph_no3" size="4" maxlength="4" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtptph_no3); %>" class="text_box" caption="휴대폰" dataType="number" >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">주소<font color="red">*</font></td>
+                      <td colspan="9" class="gray">
+                        <input type="hidden" name="pymtzip"  value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtzip); %>">
+                        <input type="text"   name="pymtzip1" size="3" maxlength="3" value="<% if (rdrChk) { if (rdrextninfocurRec.pymtzip.length()==6)  out.print(rdrextninfocurRec.pymtzip.substring(0,3)); } %>" class="text_box" caption="우편번호" dataType="number" notEmpty >
+                        -
+                        <input type="text"   name="pymtzip2" size="3" maxlength="3" value="<% if (rdrChk) { if (rdrextninfocurRec.pymtzip.length()==6)  out.print(rdrextninfocurRec.pymtzip.substring(3,6)); } %>" class="text_box" caption="우편번호" dataType="number" notEmpty onkeydown="zip_enter_search(2);">
+                        <img src="/html/comm_img/bu_search02.gif" width="36" height="19" border="0" align="absmiddle" onclick="zip_search(2);window.event.returnValue=false;" style="cursor:hand">
+                        <input type="text"   name="pymtaddr"     size="40"  maxlength="50" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtaddr); %>" class="readonly_box" caption="주소" notEmpty readonly >
+                        <input type="text"   name="pymtdtlsaddr" size="40"  maxlength="50" value="<% if (rdrChk) out.print(rdrextninfocurRec.pymtdtlsaddr); %>" class="text_box" caption="상세주소" notEmpty >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td height="3" colspan="10">
+                        <!--여백-->
+                      </td>
+                    </tr>
+                  </table>
+                  <!--청구지정보 끝 -->
+                  <!--기타정보 시작 -->
+                  <table width="830" border="0" cellspacing="0" cellpadding="2"  class="gray" bgcolor="#FFFFFF">
+                    <tr bgcolor="#E8E8E8">
+                      <td colspan="8" class="gray"><b>기타정보</b></td>
+                    </tr>
+                    <tr>
+                      <td width="60"  class="gray" bgcolor="#DDDDDD">확장자</td>
+                      <td width="280" class="gray" colspan="3">
+                        <input type="text" name="extnflnm"   size="6" value="<% if (rdrChk) out.print(rdrextninfocurRec.extnflnm); %>"   class="readonly_box" readonly >
+                        <input type="text" name="empdeptnm"  size="15" value="<% if (rdrChk) out.print(rdrextninfocurRec.empdeptnm); %>"  class="readonly_box" readonly >
+                        <input type="text" name="extnblngnm" size="15" value="<% if (rdrChk) out.print(rdrextninfocurRec.extnblngnm); %>" class="readonly_box" readonly >
+                      </td>
+                      <td width="60"  class="gray" bgcolor="#DDDDDD">배정지사</td>
+                      <td width="125" class="gray">
+                        <input type="text" name="asinbonm"   size="15" value="<% if (rdrChk) out.print(rdrextninfocurRec.asinbonm); %>"   class="readonly_box" readonly >
+                      </td>
+                      <td width="60" class="gray" bgcolor="#DDDDDD">지국정보</td>
+                      <td  class="gray" width="245">
+                        <input type="text" name="rdr_extn_info" size="30" value="<% if (rdrChk) out.print(rdrextninfocurRec.rdr_extn_info); %>"  class="readonly_box" readonly>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="60"  class="gray" bgcolor="#DDDDDD">메모</td>
+                      <td colspan="7" class="gray">
+                        <input type="text" name="remk" size="100" maxlength="100" value="<% if (rdrChk) out.print(rdrextninfocurRec.remk); %>" class="text_box" >
+                      </td>
+                    </tr>
+                    <tr>
+                        <td width="60"  class="gray" bgcolor="#DDDDDD">확장구분</td>
+                        <td class="gray" width="90"  align="left">
+                        <select name="rdr_extnclsfcd" size="1"  class="sel_all" caption="확장구분" notEmpty >
+                          <option value='' <% if (true) {%> selected <%} else { }%> >선택</option>
+<%-- 확장구분 콤보박스 구성--%>
+<%
+	for(int i=0; i<ds.rdr_extnclsfcdcur.size(); i++){
+		PS_S_RDR_EXTNRDR_EXTNCLSFCDCURRecord rdr_extnclsfcdcurRec = (PS_S_RDR_EXTNRDR_EXTNCLSFCDCURRecord)ds.rdr_extnclsfcdcur.get(i);
+%>
+                          <option value="<%=rdr_extnclsfcdcurRec.getCicodeval()%>"
+                        <%
+                            if (ds.rdrextninfocur.size() > 0) {
+                                if ((rdrextninfocurRec.rdr_extnclsfcd).equals(rdr_extnclsfcdcurRec.getCicodeval())) {
+                                    out.print("selected");
+                                }
+                            }
+                        %>
+                          ><%=rdr_extnclsfcdcurRec.getCicdnm()%></option>
+<%
+    }
+%>
+                        </select>
+                        </td>
+                        <td width="60"  class="gray" bgcolor="#DDDDDD">배본여부</td>
+                        <td class="gray" width="90"  align="left">
+                          <input type="text" name="deliproccd" size="5" value="<% if (rdrChk) out.print(rdrextninfocurRec.deliproccd); %>"  class="readonly_box" readonly>
+                        </td>
+                        <td width="60"  class="gray" bgcolor="#DDDDDD">등록여부</td>
+                        <td class="gray" width="90"  align="left">
+                          <input type="text" name="bouseyn" size="5" value="<% if (rdrChk) out.print(rdrextninfocurRec.bouseyn); %>"  class="readonly_box" readonly>
+                        </td>
+                        <td width="60"  class="gray" bgcolor="#DDDDDD">처리내용</td>
+                        <td class="gray" width="*"   align="left"  >
+                          <input type="text" name="prcmsg" size="30" value="<% if (rdrChk) out.print(rdrextninfocurRec.prcmsg); %>"  class="readonly_box" readonly>
+                        </td>
+                    </tr>
+
+                  </table>
+                  <!--기타정보 끝-->
+                </td>
+              </tr>
+            </table>
+
+	<script>
+		var lo_form1  =  parent.document.rdr_extn_form;
+
+		parent.document.all.initDtl.outerHTML = initDtl.outerHTML;
+		lo_form1.aplcdt.focus();
+		parent.jsInit();
+	</script>

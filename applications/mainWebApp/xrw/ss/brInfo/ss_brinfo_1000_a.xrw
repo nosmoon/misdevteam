@@ -1,0 +1,470 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<codeData/>
+							<useData/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<naviInfo>
+							<pageno>0</pageno>
+							<totalcnt>0</totalcnt>
+							<js_fn_nm>page_move</js_fn_nm>
+							<pagesize/>
+							<page_set_gubun>0</page_set_gubun>
+						</naviInfo>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<bo_srch_search_form>
+								<applySession/>
+								<flag>1</flag>
+								<addr3/>
+								<pageno/>
+								<deptcd/>
+								<pagesize/>
+								<accflag/>
+								<bolist/>
+								<common_deptcd/>
+								<common_areacd/>
+								<js_fn_nm/>
+								<areacd/>
+								<bocd/>
+								<bonm/>
+								<zipcd/>
+								<partcd/>
+							</bo_srch_search_form>
+							<zipForm>
+								<bocd/>
+								<zip/>
+								<pageno/>
+								<pagesize/>
+								<job_flag/>
+								<addr/>
+							</zipForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<bocd/>
+									<bonm/>
+									<deptnm/>
+									<areanm/>
+									<tel_no11/>
+									<tel_no12/>
+									<tel_no13/>
+									<fax1/>
+									<fax2/>
+									<fax3/>
+									<bo_headnm/>
+									<htel_no1/>
+									<htel_no2/>
+									<htel_no3/>
+									<hptph_no1/>
+									<hptph_no2/>
+									<hptph_no3/>
+									<hemail/>
+									<boaddr/>
+									<bodtlsaddr/>
+									<hboaddr/>
+									<hbodtlsaddr/>
+									<oprenvclsfcd/>
+									<oprenvclsfnm/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1010search" ref="/root/reqData/reqform/bo_srch_search_form" action="/ss/brinfo/1010" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				makeTeamSearch("getTeamInit", "/ss/brinfo/1000", "", "/root/initData/comboSet/codeData", "cmbCommonTeamN", "cmbCommonPartN", "cmbCommonAreaN");
+				//makeTeamEvent("getAreaList", "/ss/common/1190", "/root/reqData/reqform/bo_srch_search_form", "/root/initData/comboSet/codeData", "cmbCommonTeamN", "cmbCommonAreaN", "preActionTeam();");
+				
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/pageno", "1");
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/js_fn_nm", "page_move");
+				//model.setValue("/root/reqData/reqform/bo_srch_search_form/pagesize", "20");
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/pagesize", "5000");
+				
+				//modelCopyValue("/root/reqData/reqform/bo_srch_search_form/applySession",	"/root/initData/comboSet/codeData/applySession");
+				
+				PID1000input1.disabled = true;
+				PID1000input3.disabled = false;
+				grpCommonSelectN.disabled = true;
+				PID1000input4.disabled = true;
+					
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/accflag", "1");
+				
+				model.refresh();
+			}
+			
+			function preActionTeam()
+			{				
+				modelCopyValue("/root/reqData/reqform/bo_srch_search_form/common_deptcd", "/root/reqData/reqform/bo_srch_search_form/deptcd");
+				search();
+			}
+			
+			function onChangeArea()
+			{
+				if(cmbCommonAreaN.value == "")
+				{
+					clearSelectCombo(cmbCommonmBranchN, "전체", "", false);
+					PID1000group_scr.refresh();
+					cmbCommonmBranchN.select(0);
+				
+					initSub();
+					return;
+				}
+				
+				modelSendNoMake("getBranchList", "/ss/common/1116", "/root/reqData/reqform/bo_srch_search_form", "/root/initData/comboSet/codeData/codelist");
+				cmbCommonmBranchN.refresh();
+				cmbCommonmBranchN.select(0);
+				
+				search();
+				initSub();
+			}
+						
+			function initSub()
+			{
+				//화면 reset.
+			}								
+			
+			//기존의 list_search
+			function search()
+			{	
+				var accflag = model.getValue("/root/reqData/reqform/bo_srch_search_form/accflag");
+				
+				if( accflag == "1" ){
+					
+				} else if( accflag == "2" ){
+					
+					model.setValue("/root/reqData/reqform/bo_srch_search_form/bonm", model.getValue("/root/reqData/reqform/bo_srch_search_form/zipcd"));
+					
+				} else if( accflag == "3" ){
+					
+				} else if( accflag == "4" ){
+					
+				}
+				
+				//조회
+				remakeNode("/root/tempData/resTemp");
+
+				model.send("PID1010search", false);
+				
+				if(!submit_completed())
+					return;
+				
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+				//PID1000caption4.value = "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + "건";					
+									
+				PID1000multilinegrid1.refresh();
+												
+				if(instance1.selectNodes("/root/resData/gridData/listGrid/record/bocd").length == 0)
+					model.alert("검색결과가 없습니다.");
+					
+				model.removenode("/root/tempData/resTemp");
+			}
+			
+			function setSearchCondition()
+			{
+				var gubun = PID1000radio1.value;
+				
+				if( gubun == "2") {
+					
+					PID1000input1.disabled = false;
+					PID1000input3.disabled = true;
+					grpCommonSelectN.disabled = true;
+					PID1000input4.disabled = true;
+																			
+				} else if( gubun == "1") {
+					
+					PID1000input1.disabled = true;
+					PID1000input3.disabled = false;
+					grpCommonSelectN.disabled = true;
+					PID1000input4.disabled = true;
+					
+				} else if( gubun == "0") {
+					
+					PID1000input1.disabled = true;
+					PID1000input3.disabled = true;
+					grpCommonSelectN.disabled = false;
+					PID1000input4.disabled = true;
+					
+				} else if( gubun == "3") {
+					
+					PID1000input1.disabled = true;
+					PID1000input3.disabled = true;
+					grpCommonSelectN.disabled = true;
+					PID1000input4.disabled = false;
+					
+				}
+				
+				clearChildNodes("/root/reqData/reqform/bo_srch_search_form");
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/pageno", "1");
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/pagesize", "5000");
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/accflag", gubun);
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/flag", gubun);
+				PID1000group_scr.refresh();
+			}
+			
+			function onClickZipPopup()
+			{
+				model.setValue("/root/reqData/reqform/zipForm/job_flag", "A");
+				model.setValue("/root/reqData/reqform/zipForm/zip", PID1000input3.value);	//"/root/reqData/reqform/detailForm/vaca_areazip"
+				//model.setValue("/root/reqData/reqform/zipForm/addr", PID1000input3.value);	//"/root/reqData/reqform/detailForm/vaca_areazip"
+				
+				//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+				openZip("/root/reqData/reqform/zipForm", "/root/tempData/tempZip", "old");
+				
+				if(model.getValue("/root/tempData/tempZip/addr") == "")
+					return;
+				
+				//PID1500input3.value = model.getValue("/root/tempData/tempZip/zip");
+				//PID1000input3.value = model.getValue("/root/tempData/tempZip/addr");				
+				model.setValue("/root/reqData/reqform/bo_srch_search_form/bocd", model.getValue("/root/tempData/tempZip/bocd"));
+				
+				search();
+			}
+			
+			function onZipKeyDown(pageNo)
+			{
+				//if(event.keyCode == 13)
+				//{
+				var accflag = model.getValue("/root/reqData/reqform/bo_srch_search_form/accflag");
+				
+				if( accflag == "1" ){
+									
+					model.setFocus("PID1000radio1");
+					
+					//우편번호 패턴이 아니라면 zip_search 함수를 call 한다.
+					if(!validate_zip(PID1000input3.value))
+						onClickZipPopup();
+					else
+					{
+						model.setValue("/root/reqData/reqform/zipForm/zip", PID1000input3.value);
+						//model.setValue("/root/reqData/reqform/zipForm/addr", PID1000input3.value);
+						model.setValue("/root/reqData/reqform/zipForm/pageno", pageNo);
+						model.setValue("/root/reqData/reqform/zipForm/pagesize", "10000");
+						
+						searchZip("/root/reqData/reqform/zipForm", "/root/tempData/resTemp/zipGrid");
+						
+						if((instance1.selectNodes("/root/tempData/resTemp/zipGrid/record/zip")).length == 1)
+						{
+							//PID1500input3.value = model.getValue("/root/tempData/resTemp/zipGrid/record/zip");
+							//PID1000input3.value = model.getValue("/root/tempData/resTemp/zipGrid/record/addr");							
+							model.setValue("/root/reqData/reqform/bo_srch_search_form/bocd", model.getValue("/root/tempData/tempZip/bocd"));
+							
+							search();
+						}
+						else
+							onClickZipPopup();
+					}
+				//}
+				} else if( accflag == "2" ){
+					search();
+				} else if( accflag == "3" ){
+					search();
+				} else if( accflag == "4" ){
+					search();
+				}
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1000" style="font-family:굴림; ">
+		<!--group id="PID1000group_tab" class="gro_tab1" style="left:10px; top:715px; width:926px; height:25px; ">
+			<caption id="PID1000caption4" style="left:770px; top:0px; width:155px; height:20px; text-align:right; vertical-align:middle; ">총건수  건</caption>
+		</group-->
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//search();
+						onZipKeyDown(1);		
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1000group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:97px; ">
+			<caption id="PID1000caption2" class="list_cap02" style="left:0px; top:0px; width:86px; height:97px; "/>
+			<caption id="PID1000caption6" class="list_cap02" style="left:85px; top:72px; width:841px; height:25px; "/>
+			<caption id="PID1000caption5" class="list_cap02" style="left:85px; top:24px; width:841px; height:25px; "/>
+			<caption id="PID1000caption3" class="list_cap02" style="left:85px; top:0px; width:841px; height:25px; "/>
+			<select1 id="PID1000radio1" ref="/root/reqData/reqform/bo_srch_search_form/flag" class="radio" overflow="visible" appearance="full" vcellspacing="7" style="left:9px; top:2px; width:73px; height:90px; border-style:none; ">
+				<choices>
+					<item>
+						<label>우편번호</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>지명</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>조직</label>
+						<value>0</value>
+					</item>
+					<item>
+						<label>지국명</label>
+						<value>3</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					setSearchCondition();
+					]]>
+				</script>
+			</select1>
+			<input id="PID1000input1" ref="/root/reqData/reqform/bo_srch_search_form/zipcd" class="req_100" format="999999" autonext="false" style="left:89px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID1000radio1");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<input id="PID1000input3" ref="/root/reqData/reqform/bo_srch_search_form/addr3" class="req_100" imemode="hangul" style="left:89px; top:28px; width:100px; height:18px; ">
+				<!--<script type="javascript" ev:event="onkeydown">-->
+				<script type="javascript" ev:event="onclick">
+					onZipKeyDown(1);							
+				</script>
+			</input>
+			<caption id="PID1000caption1" style="left:193px; top:27px; width:497px; height:20px; vertical-align:middle; ">
+				<![CDATA[텍스트박스 클릭시 주소검색창으로 넘어갑니다.]]>
+			</caption>
+			<input id="PID1000input4" ref="/root/reqData/reqform/bo_srch_search_form/bonm" class="req_100" imemode="hangul" style="left:89px; top:76px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID1000radio1");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<group id="grpCommonSelectN" class="gro_sel" style="left:85px; top:48px; width:592px; height:25px; ">
+				<caption id="capCommonTeamN" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">팀</caption>
+				<caption id="capCommonTeamNB" class="list_cap02" style="left:49px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonTeamN" ref="/root/reqData/reqform/bo_srch_search_form/deptcd" class="req_100" appearance="minimal" style="left:54px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/teamlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonPartN" class="list_cap01" style="left:158px; top:0px; width:50px; height:25px; ">파트</caption>
+				<caption id="capCommonPartNB" class="list_cap02" style="left:207px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonPartN" ref="/root/reqData/reqform/bo_srch_search_form/partcd" class="req_100" appearance="minimal" style="left:212px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/partlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[				
+						search();
+					]]>
+					</script>
+				</select1>
+				<caption id="capCommonAreaN" class="list_cap01" style="left:316px; top:0px; width:50px; height:25px; ">지역</caption>
+				<caption id="capCommonAreaNB" class="list_cap02" style="left:365px; top:0px; width:70px; height:25px; "/>
+				<select1 id="cmbCommonAreaN" ref="/root/reqData/reqform/bo_srch_search_form/areacd" class="req_60" appearance="minimal" style="left:369px; top:3px; width:60px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/arealist/record">
+							<label ref="area_nm"/>
+							<value ref="area_cd"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						onChangeArea();
+						]]>
+					</script>
+				</select1>
+				<caption id="capCommonmBranchN" class="list_cap01" style="left:434px; top:0px; width:50px; height:25px; ">지국</caption>
+				<caption id="capCommonmBranchNB" class="list_cap02" style="left:483px; top:0px; width:109px; height:25px; "/>
+				<select1 id="cmbCommonmBranchN" ref="/root/reqData/reqform/bo_srch_search_form/bocd" class="req_100" appearance="minimal" style="left:488px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/codelist/record">
+							<label ref="cdnm"/>
+							<value ref="cd"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[				
+						search();
+					]]>
+					</script>
+				</select1>
+			</group>
+			<caption id="PID1000caption7" class="list_cap02" style="left:676px; top:48px; width:250px; height:25px; "/>
+		</group>
+		<group id="PID1000group_line" class="gro_line" style="left:10px; top:185px; width:926px; height:5px; "/>
+		<!--<group id="PID1000group2" style="left:10px; top:565px; width:926px; height:25px; ">
+			<iviewer id="PID1000paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<multilinegrid id="PID1000multilinegrid1" nodeset="/root/resData/gridData/listGrid/record" caption="지국명^지국장^지국전화^휴대폰^지국주소|지국명^이메일^팩스^자택전화^자택주소" colwidth="113, 146, 143, 142, 360" rowheader="seq" rowsep="|" colsep="^" ellipsis="true" selectionmode="free" tooltip="true" mergecellsfixedrows="bycolrec" style="left:10px; top:195px; width:926px; height:545px; ">
+			<row>
+				<col ref="bo_detail" rowspan="2"/>
+				<col ref="bo_headnm"/>
+				<col ref="tel_detail"/>
+				<col ref="pht_detail"/>
+				<col ref="addr_detail"/>
+			</row>
+			<row>
+				<col ref="hemail"/>
+				<col ref="fax_detail"/>
+				<col ref="htel_detail"/>
+				<col ref="haddr_detail"/>
+			</row>
+		</multilinegrid>
+	</xhtml:body>
+</xhtml:html>

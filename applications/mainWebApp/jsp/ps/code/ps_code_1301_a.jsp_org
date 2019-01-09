@@ -1,0 +1,377 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_code_1101_a.jsp
+* 기능 : 보너스북 초기화면
+* 작성일자 : 2004-02-20
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    // 페이지당 보여줄 라인수
+    String records_per_page = "13";
+    int li_per = Integer.parseInt(records_per_page) ;
+    //	dataset 인스턴스 선언부분
+    PS_S_BNSBK_CDDataSet ds = (PS_S_BNSBK_CDDataSet)request.getAttribute("ds");  // request dataset
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+	setInputBackgroundColor();
+}
+
+// 매체단가 내역 조회처리
+function list_search(startpage){
+    var lo_form1 = list_form;
+	var lo_from2 = detail_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+
+    lo_form1.curr_page_no.value = startpage;
+    lo_form1.action = "/ps/code/1306";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// navigator선택시 페이지 move처리
+function page_move(curr_page_no) {
+    var lo_form = document.list_form;
+
+    if(!curr_page_no) {
+        lo_form.curr_page_no.value = '1';
+    } else {
+        lo_form.curr_page_no.value = curr_page_no;
+    }
+
+    list_search(lo_form.curr_page_no.value);
+}
+// 상세정보를 신규등록 처리한다
+function detail_insert() {
+    var lo_form1 = document.detail_form;
+
+    // 처리구분 flag가 신규대상인지 check한다.
+    if(lo_form1.accflag.value == 'U'){
+            alert("신규등록 대상이 아닙니다. 수정버튼을 선택하세요.");
+            return;
+    }
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+    var ls_check = confirm("등록 하시겠습니까?");
+
+    if(!ls_check) return ;
+
+    lo_form1.method = "post";
+    lo_form1.action = "/ps/code/1311";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+
+    // 상세화면을 초기화 시킨다.
+    lo_form1.reset();
+}
+//화면초기화
+function detail_reset() {
+    var lo_form1 = document.detail_form;
+
+    // 처리 구분 flag를 초기화시킨다
+    lo_form1.accflag.value = '';
+
+    lo_form1.action = "/ps/code/1301";
+    lo_form1.target = "iframe";
+    lo_form1.method = "post";
+    lo_form1.submit();
+
+    lo_form1.reset();
+
+	setEventHandler();
+    return;
+
+}
+
+// 상세정보를 표기한다
+function detail_view(str1,str2,str3,str4,str5,str6,str7,str8) {
+    var lo_form1 = document.detail_form;
+
+    //처리구분 flag를 'U'로 설정한다.
+    lo_form1.accflag.value = 'U';
+
+    lo_form1.bns_bookcd.value = str1;		//보너스북코드
+    lo_form1.bns_booknm.value = str2;		//보너스북명
+    lo_form1.bgnvdtydt.value = str4;		//유효기간From
+    lo_form1.endvdtydt.value = str5;		//유효기간to
+
+      var resultStr = "";
+      var idx = -1;
+      while((idx = str6.indexOf('@@')) != -1) {
+              resultStr += str6.substring(0, idx) + '\r\n';
+              str6 = str6.substring(idx + 2);
+      }
+      resultStr += str6;
+
+    lo_form1.vipcont.value = resultStr;			//주요내용
+
+    lo_form1.remk.value = str7;		        //비고
+    lo_form1.medicd.value = str8;		    //매체코드
+
+	setEventHandler();
+}
+// 기존 상세정보를 수정등록 처리한다
+function detail_update() {
+    var lo_form1 = document.detail_form;
+
+    // 처리구분 flag가 신규대상인지 check한다.
+    if(lo_form1.accflag.value != 'U' ){
+            alert("수정등록 대상이 아닙니다. 저장버튼을 선택하세요.");
+            return;
+    }
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+    var ls_check = confirm("수정 하시겠습니까?");
+
+    if(!ls_check) return ;
+
+    lo_form1.method = "post";
+    lo_form1.action = "/ps/code/1316";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+
+}
+// 기존 상세정보를 삭제 처리한다
+function detail_delete() {
+    var lo_form1 = document.detail_form;
+
+    // 처리구분 flag가 신규대상인지 check한다.
+    if(lo_form1.accflag.value != 'U' ){
+        alert("삭제처리 대상이 아닙니다. 리스트목록에서 확인하세요.");
+        return;
+    }
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+
+    var ls_check = confirm("삭제 하시겠습니까?");
+
+    if(!ls_check) return ;
+
+    lo_form1.method = "post";
+    lo_form1.action = "/ps/code/1321";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+
+    // 상세화면을 초기화 시킨다.
+    lo_form1.reset();
+}
+
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray" onload="init()">
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >코드
+      &gt; </b> 보너스북등록</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+<!--등록?-->
+<form name="detail_form" method="post" action="">
+<input type="hidden" name="accflag" value="">
+<input type="hidden" name="bns_bookcd" value="">
+<tr>
+   <td valign="top" align="center">
+    <table width="829" border="0" cellspacing="0" cellpadding="2" align="center">
+      <tr>
+        <td bgcolor="#EBE9DC" class="title" width="742" height="27"><b>보너스북 등록</b> </td>
+              <td bgcolor="#EBE9DC" class="title" align="right" width="250">
+                <img src="/html/comm_img/bu_reset.gif"   align="absmiddle" border="0" style="cursor:hand"
+             onclick="detail_reset();">
+                <img src="/html/comm_img/bu_save.gif" width="39"  align="absmiddle" border="0" style="cursor:hand"
+             onclick="detail_insert();window.event.returnValue=false;">
+                <img src="/html/comm_img/bu_edit.gif" width="36"  align="absmiddle" border="0" style="cursor:hand"
+             onclick="detail_update();window.event.returnValue=false;">
+                <img src="/html/comm_img/bu_del.gif" width="39"  align="absmiddle" border="0" style="cursor:hand"
+             onclick="detail_delete();window.event.returnValue=false;"></td>
+      </tr>
+      <tr>
+        <td height="3" colspan="2">
+          <!--여백-->
+        </td>
+      </tr>
+    </table>
+<table width="830" border="0" cellpadding="1" cellspacing="0" align="center" bgcolor="#FFFFFF" class="gray">
+  <tr>
+    <td class="gray" bgcolor="#dddddd" width="100">발행처<font color="red">*</font></td>
+    <td class="gray" width="180">
+      <input type="text" name="cmpynm" size="25" class="readonly_box" value="<%=ds.cmpynm%>" readonly >
+    </td>
+    <td  width="80" bgcolor="#dddddd" class="gray">매체 <font color="red">*</font></td>
+    <td class="gray" width="150">
+        <select name="medicd" class="sel_all" tabIndex="1" style="width:145;">
+            <%= ds.medicdcurOptHtml("") %>
+        </select>
+    </td>
+    <td width="70" bgcolor="#dddddd" class="gray">보너스북명<font color="red">*</font></td>
+    <td class="gray" width="200">
+      <input type="text" size="28" name="bns_booknm" class="text_box" caption="보너스북명" notEmpty>
+    </td>
+  </tr>
+  <tr>
+    <td width="100" bgcolor="#dddddd" class="gray">유효기간From<font color="red">*</font></td>
+    <td class="gray" width="180">
+      <input name="bgnvdtydt" type="text" value="<%=ds.sysdate%>" caption="유효기간From" dataType="date" size="12" class="text_box" notEmpty>
+    </td>
+    <td class="gray" bgcolor="#dddddd" width="80">유효기간To<font color="red">*</font></td>
+    <td class="gray" width="*" colspan="3">
+      <input name="endvdtydt" type="text" value="<%=ds.sysdate%>" caption="유효기간To" dataType="date" size="12" class="text_box" notEmpty>
+    </td>
+  </tr>
+  <tr>
+    <td width="100" bgcolor="#dddddd" class="gray">주요내용 </td>
+    <td colspan="5" class="gray">
+      <textarea name="vipcont" cols="80" rows="3" ></textarea>
+    </td>
+  </tr>
+  <tr>
+    <td width="100" bgcolor="#dddddd" class="gray">비고</td>
+    <td colspan="5" class="gray">
+      <input type="text" name="remk" class="text_box" size="95">
+    </td>
+  </tr>
+</table>
+</td>
+</tr>
+</form>
+  <tr>
+    <td height="10">
+      <!------여백--- -->
+    </td>
+  </tr>
+<form name="list_form" method="post" action="">
+<input name="curr_page_no" type="hidden" value ="1"><!--//현재페이지-->
+<input name="records_per_page" type="hidden" value ="<%=records_per_page%>"> <!--//화면에 보여줄  ROW수-->
+<input name="js_fn_nm" type="hidden" value ="page_move">
+<!--검색 -->
+<table width="829" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr bgcolor="#EBE9DC">
+    <td  class="title" width="80"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">매체</td>
+    <td  class="title" width="150">
+        <select name="medicd" class="sel_all" tabIndex="1" style="width:145;">
+            <option value="">전체</option>
+            <%= ds.medicdcurOptHtml("") %>
+        </select>
+    </td>
+    <td  class="title" width="80"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">보너스북명</td>
+    <td  class="title" width="200">
+        <input type="text" name="bns_booknm" class="text_box" >
+    </td>
+    <td  class="title" width="80"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">유효기간<!--<font color="red">*</font>--></td>
+    <td  class="title" bgcolor="#EBE9DC">
+        <input name="bgnvdtydt" type="text" size="10" class="text_box" caption="유효기간 시작일" value="" dataType="date" >
+        -
+        <input name="endvdtydt" type="text" size="10" class="text_box" caption="유효기간 종료일" value="" dataType="date" >
+        <input type="image" src="/html/comm_img/bu_search.gif" width="36"  align="absmiddle" border="0" style="cursor:hand"
+             onclick="list_search(1);window.event.returnValue=false;">
+    </td>
+    </tr>
+  <tr>
+    <td height="3">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--list start -->
+<table width="830" border="0" cellpadding="1" cellspacing="0" align="center" bgcolor="#FFFFFF" class="gray" id="list_info" >
+  <tr align="center">
+    <td width="110" class="gray" bgcolor="#dddddd">매체명</td>
+    <td width="40"  class="gray" bgcolor="#dddddd">보너스북코드</td>
+    <td width="170" class="gray" bgcolor="#dddddd">보너스북명</td>
+    <td width="150" class="gray" bgcolor="#dddddd">발행처</td>
+<!--
+    <td width="80" class="gray" bgcolor="#dddddd">유효기간From</td>
+    <td width="80" class="gray" bgcolor="#dddddd">유효기간To</td>
+-->
+    <td width="220" class="gray" bgcolor="#dddddd">주요내용</td>
+    <td width="140" class="gray" bgcolor="#dddddd">비고</td>
+  </tr>
+<%
+	for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+  <tr>
+    <td class="gray" >&nbsp;</td>
+    <td class="gray" >&nbsp;</td>
+    <td class="gray" >&nbsp;</td>
+    <td class="gray" >&nbsp;</td>
+<!--
+    <td class="gray"   align="center">&nbsp;</td>
+    <td class="gray"   align="center">&nbsp;</td>
+-->
+    <td class="gray" >&nbsp;</td>
+    <td class="gray" >&nbsp;</td>
+  </tr>
+<%
+	}
+%>
+
+</table>
+    <!---button-->
+    <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center" id="navi">
+      <tr>
+        <td align="center" height="2">
+          <!--여백-->
+        </td>
+      </tr>
+      <tr>
+          <td colspan=5 align="center" bgcolor="#E8E8E8">
+          <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+          <jsp:param name = "curr_page_no" 		    value="0"/>
+          <jsp:param name = "total_records" 		value="0"/>
+          <jsp:param name = "js_fn_nm" 			    value=""/>
+          <jsp:param name = "records_per_page" 	    value="15"/>
+          <jsp:param name = "page_set_gubun" 		value="0"/>
+          </jsp:include>
+          <!--JSP PAGE END------------------------------------------------------------------------------------>
+          </td>
+      </tr>
+    </table>
+    </td>
+  </tr>
+</form>
+</table>
+
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="iframe" width=0 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+</body>
+</html>

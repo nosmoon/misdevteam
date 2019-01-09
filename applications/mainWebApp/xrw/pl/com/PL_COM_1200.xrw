@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_COM_1200.xrw
+* 기능 : 공통관리-사내판매출고처리
+* 작성일자 :2009-04-06
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>사내판매출고처리(PL_COM_1200)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<medi_clsf/>
+								<ordr_dt/>
+								<ordr_grp_seq/>
+							</searchTop>
+						</searchData>
+						<reqForm>
+							<acc_flag/>
+							<formdata/>
+						</reqForm>
+						<multiUpdate>
+						</multiUpdate>
+					</reqData>
+					<resData>
+						<comboSet/>
+						<resform>
+							<medi_clsf/>
+							<basi_yymm/>
+							<basi_dt/>
+							<dlco_cd/>
+							<dlco_seq/>
+							<dlco_nm/>
+							<send_plac_seq/>
+							<send_plac_nm/>
+							<remk/>
+							<ordr_dt/>
+							<ordr_grp_seq/>
+							<deal_dt/>
+							<deal_grp_seq/>
+							<clos_yn/>
+							<rcpm_yn/>
+						</resform>
+						<gridData>
+						</gridData>
+						<resultData/>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<btState/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="pl_com_1210_s" action="/pl/com/1210" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/resform"/>
+			<submission id="pl_com_1220_a" action="/pl/com/1220" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					model.setValue("/root/reqData/searchData/searchTop/medi_clsf",model.property("medi_clsf"));			//매체구분 Set
+					model.setValue("/root/reqData/searchData/searchTop/ordr_dt",model.property("ordr_dt"));				//주문일자 Set
+					model.setValue("/root/reqData/searchData/searchTop/ordr_grp_seq",model.property("ordr_grp_seq"));		//주문그룹순번 Set
+
+					model.send("pl_com_1210_s");
+
+					var deal_dt = model.getValue("/root/resData/resform/deal_dt");			//거래일자
+					var clos_yn = model.getValue("/root/resData/resform/clos_yn");		//마감여부
+					var rcpm_yn = model.getValue("/root/resData/resform/rcpm_yn");		//입금여부
+
+					//결과체크
+					if(submit_completed()){
+						group_scr.refresh();
+
+						if(deal_dt == ""){
+							model.setValue("/root/resData/resform/ordr_dt",model.property("ordr_dt"));				//주문일자 Set
+							model.setValue("/root/resData/resform/ordr_grp_seq",model.property("ordr_grp_seq"));		//주문그룹순번 Set
+							model.setValue("/root/resData/resform/medi_clsf",model.property("medi_clsf"));			//매체구분 Set
+							model.setValue("/root/resData/resform/dlco_cd",model.property("dlco_cd"));				//거래처코드 Set
+							model.setValue("/root/resData/resform/dlco_seq",model.property("dlco_seq"));			//거래처순번 Set
+							model.setValue("/root/resData/resform/dlco_nm",model.property("dlco_nm"));				//거래처명 Set
+							model.setValue("/root/resData/resform/send_plac_seq",model.property("send_plac_seq"));	//발송처순번 Set
+							model.setValue("/root/resData/resform/send_plac_nm",model.property("send_plac_nm"));	//발송처명 Set
+							model.setValue("/root/resData/resform/remk",model.property("remk"));					//비고 Set
+						}
+
+						group_scr.refresh();
+					}
+
+					//버튼제어
+					if(deal_dt == ""){
+						btnSave.disabled = false;
+						btnDelete.disabled = true;
+					}else{
+						btnSave.disabled = true;
+						btnDelete.disabled = false;
+					}
+
+					if(clos_yn == "Y" || rcpm_yn == "Y"){
+						btnSave.disabled = true;
+						btnDelete.disabled = true;
+					}
+
+					model.setFocus("input1",true);
+				}
+
+				//저장처리
+				function saveProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 Get
+					
+					//Confirm체크
+					if(!commConfirmBox("저장 하시겠습니까?", "저장")){
+						return;
+					}
+
+					//필수체크
+					if(!commReqCheck(group_scr)) {
+						return;
+					}
+					
+					model.setValue("/root/reqData/reqForm/acc_flag","S");								//저장 플래그 Set
+					model.copyNode("/root/reqData/reqForm/formdata","/root/resData/resform");				//Request 노드카피
+					
+					model.send("pl_com_1220_a");						//Submission
+
+					//에러체크
+					if(submit_completed()){
+						setReady();								//Submission(조회)
+
+						model.refresh();
+
+						model.setValue("/root/tempData/btState","SA");		//버튼제어상태 (SA:저장)
+						model.property("processflag")		=	"P";
+						model.close();				
+					}
+				}
+
+				//삭제처리
+				function deleteProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 Get
+					
+					//Confirm체크
+					if(!commConfirmBox("삭제 하시겠습니까?", "삭제")){
+						return;
+					}
+
+					//필수체크
+					if(!commReqCheck(group_scr)) {
+						return;
+					}
+					
+					model.setValue("/root/reqData/reqForm/acc_flag","D");								//저장 플래그 Set
+					model.copyNode("/root/reqData/reqForm/formdata","/root/resData/resform");				//Request 노드카피
+					
+					model.send("pl_com_1220_a");						//Submission
+
+					//에러체크
+					if(submit_completed()){
+						setReady();								//Submission(조회)
+
+						model.refresh();
+
+						model.setValue("/root/tempData/btState","DE");		//버튼제어상태 (DE:삭제)
+						model.property("processflag")		=	"P";
+						model.close();				
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop400" pagewidth="400" pageheight="300" guideline="2,64;1,936;1,927;1,926;2,71;2,290;1,10;1,390;" style="font-family:굴림; border-style:solid; ">
+		<caption id="iv_Title" class="tit01" style="left:10px; top:5px; width:380px; height:29px; ">사내판매출고처리</caption>
+		<button id="btnSave" class="btn03" style="left:187px; top:45px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					saveProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnDelete" class="btn03" style="left:256px; top:45px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					deleteProcess()
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:325px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<close ev:event="onclick"/>
+		</button>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:71px; width:380px; height:219px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:0px; width:380px; height:26px; "/>
+			<caption id="caption3" class="list_cap02" style="left:0px; top:25px; width:380px; height:26px; "/>
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:100px; height:26px; ">기준년월</caption>
+			<caption id="caption25" class="list_cap03" style="left:0px; top:25px; width:100px; height:26px; ">기준일자</caption>
+			<caption id="caption4" class="list_cap02" style="left:0px; top:100px; width:380px; height:26px; "/>
+			<caption id="caption8" class="list_cap02" style="left:0px; top:50px; width:380px; height:26px; "/>
+			<caption id="caption9" class="list_cap03" style="left:0px; top:50px; width:100px; height:26px; ">고객명</caption>
+			<caption id="caption10" class="list_cap02" style="left:0px; top:75px; width:380px; height:26px; "/>
+			<caption id="caption11" class="list_cap03" style="left:0px; top:75px; width:100px; height:26px; ">거래처코드</caption>
+			<caption id="caption5" class="list_cap02" style="left:0px; top:125px; width:380px; height:26px; "/>
+			<caption id="caption6" class="list_cap03" style="left:0px; top:100px; width:100px; height:26px; ">거래처명</caption>
+			<caption id="caption7" class="list_cap03" style="left:0px; top:125px; width:100px; height:26px; ">비고</caption>
+			<input id="input1" ref="/root/resData/resform/basi_yymm" class="req" inputtype="date" format="yyyy-mm" style="left:103px; top:4px; width:100px; height:18px; text-align:left; "/>
+			<input id="input2" ref="/root/resData/resform/basi_dt" class="req" inputtype="date" format="yyyy-mm-dd" style="left:103px; top:29px; width:125px; height:18px; text-align:left; "/>
+			<output id="input4" ref="/root/resData/resform/dlco_nm" appearance="output" style="left:103px; top:104px; width:268px; height:18px; text-align:left; "/>
+			<input id="input5" ref="/root/resData/resform/remk" style="left:103px; top:129px; width:268px; height:18px; text-align:left; "/>
+			<output id="input6" ref="/root/resData/resform/send_plac_nm" inputtype="date" appearance="output" style="left:103px; top:54px; width:125px; height:18px; text-align:left; "/>
+			<output id="output1" ref="/root/resData/resform/dlco_cd" inputtype="date" appearance="output" style="left:103px; top:79px; width:60px; height:18px; text-align:center; "/>
+			<output id="output2" ref="/root/resData/resform/dlco_seq" inputtype="date" appearance="output" style="left:165px; top:79px; width:50px; height:18px; text-align:center; "/>
+			<output id="output3" ref="/root/resData/resform/send_plac_seq" visibility="hidden" style="left:20px; top:160px; width:80px; height:18px; "/>
+			<output id="output4" ref="/root/resData/resform/ordr_dt" visibility="hidden" style="left:105px; top:160px; width:80px; height:18px; "/>
+			<output id="output5" ref="/root/resData/resform/ordr_grp_seq" visibility="hidden" style="left:190px; top:160px; width:80px; height:18px; "/>
+			<output id="output6" ref="/root/resData/resform/deal_dt" visibility="hidden" style="left:275px; top:160px; width:80px; height:18px; "/>
+			<output id="output7" ref="/root/resData/resform/deal_grp_seq" visibility="hidden" style="left:20px; top:185px; width:80px; height:18px; "/>
+			<output id="output8" ref="/root/resData/resform/clos_yn" visibility="hidden" style="left:105px; top:185px; width:80px; height:18px; "/>
+			<output id="output9" ref="/root/resData/resform/rcpm_yn" visibility="hidden" style="left:190px; top:185px; width:80px; height:18px; "/>
+			<output id="output10" ref="/root/resData/resform/medi_clsf" visibility="hidden" style="left:275px; top:185px; width:80px; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

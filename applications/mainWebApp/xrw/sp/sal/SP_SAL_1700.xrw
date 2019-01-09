@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>매출마감</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<sale_yymm/>
+						</fwdData>
+						<searchData>
+							<fr_sale_yymm/>
+							<to_sale_yymm/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+								<sale_yymm/>
+								<cnt/>
+								<sale_amt/>
+								<vat_amt/>
+								<stot_amt/>
+								<clos_yn/>
+								<clos_proc_dt/>
+								<actu_slip_no/>
+								<clos_pers_emp_nm/>
+							</record>
+						</gridData1>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="sp_sal_1710_l" action="/sp/sal/1710" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1/record"/>
+			<submission id="sp_sal_1720_a" action="/sp/sal/1720" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<submission id="sp_sal_1730_a" action="/sp/sal/1730" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[					
+				var currentDate = getCurrentDate();
+				
+				var frdt = dateAdd("m", -3, currentDate+"01");	//전전전월
+				var pre_month = frdt.substring(0,6);
+				
+				var todt = dateAdd("m", -1, currentDate+"01");	//전월
+				var pre_month2 = todt.substring(0,6);
+				
+				
+				model.setValue("/root/reqData/searchData/fr_sale_yymm", pre_month);
+				model.setValue("/root/reqData/searchData/to_sale_yymm", pre_month2);
+				
+				
+				model.refresh();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function dg_sum(){
+				if(datagrid1.rows > datagrid1.fixedRows){ 
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("cnt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("sale_amt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("vat_amt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("stot_amt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+				}	
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,936;2,60;2,70;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btn_close" class="btn02" style="left:882px; top:39px; width:53px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" crud="C" style="left:669px; top:39px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.send("sp_sal_1710_l");
+				
+				dg_sum();
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" crud="C" style="left:723px; top:39px; width:50px; height:21px; ">
+			<caption>마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				var sale_yymm = datagrid1.valueMatrix(datagrid1.row, 1);
+				
+				model.setValue("/root/reqData/fwdData/sale_yymm", sale_yymm);
+				
+				model.send("sp_sal_1720_a");
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" crud="C" style="left:776px; top:39px; width:50px; height:21px; ">
+			<caption>마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				var sale_yymm = datagrid1.valueMatrix(datagrid1.row, 1);
+				
+				model.setValue("/root/reqData/fwdData/sale_yymm", sale_yymm);
+				
+				model.send("sp_sal_1730_a");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" crud="C" style="left:829px; top:39px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			
+				]]>
+			</script>
+		</button>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">매출월</caption>
+		<caption id="caption1" style="left:189px; top:77px; width:15px; height:17px; ">~</caption>
+		<input id="input2" ref="/root/reqData/searchData/to_sale_yymm" navindex="2" inputtype="date" format="yyyy-mm" style="left:205px; top:76px; width:85px; height:18px; "/>
+		<input id="input4" ref="/root/reqData/searchData/fr_sale_yymm" navindex="1" inputtype="date" format="yyyy-mm" style="left:100px; top:76px; width:85px; height:18px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:108px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" class="nobg" caption="매출월^건수^공급가액^부가세액^합계금액^마감여부^마감일자^전표번호^마감자" colsep="^" colwidth="100, 100, 100, 100, 100, 100, 100, 100, 100" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" subtotalposition="below" style="left:10px; top:126px; width:925px; height:543px; ">
+			<col ref="sale_yymm" format="yyyy-mm"/>
+			<col ref="cnt" format="#,###" style="text-align:right; "/>
+			<col ref="sale_amt" format="#,###" style="text-align:right; "/>
+			<col ref="vat_amt" format="#,###" style="text-align:right; "/>
+			<col ref="stot_amt" format="#,###" style="text-align:right; "/>
+			<col ref="clos_yn"/>
+			<col ref="clos_proc_dt" format="yyyy-mm-dd"/>
+			<col ref="actu_slip_no"/>
+			<col ref="clos_pers_emp_nm"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

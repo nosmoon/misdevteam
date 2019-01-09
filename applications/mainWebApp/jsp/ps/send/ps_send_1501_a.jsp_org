@@ -1,0 +1,404 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<!--JSP COMMENT START------------------------------------------------------------------------------->
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_send_1501_a.jsp
+* 기능 : 매체 추가발송확인 초기화면
+* 작성일자 : 2004-03-08
+* 작성자 : 장수환
+---------------------------------------------------------------------------------------------------%>
+
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<!--JSP COMMENT END--------------------------------------------------------------------------------->
+<%
+    //	dataset 인스턴스 선언부분
+    PS_S_SEND_LUMP_CNFMDataSet ds = (PS_S_SEND_LUMP_CNFMDataSet)request.getAttribute("ds");  // request dataset
+
+    // 화면당 보여줄 Row수
+    int li_per = 10;
+%>
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"-->
+<html>
+<head>
+
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+    setInputBackgroundColor();
+}
+
+// 지사별 확인내역 조회처리
+function list_search(){
+    var lo_form1 = document.list_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+    lo_form1.action = "/ps/send/1506";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+	setEventHandler();
+
+	//발송방법별 상세테이블을 초기화한다
+	document.detail_form.reset();
+}
+
+// 추가발송확인 발송방법별 상세조회
+function detail_list(str1,str2,str3,str4,str5,str6,str7) {
+    var lo_form1 = document.detail_form;
+
+    // 업무구분값과 코드구분값을 "/bookservlet/1116" 서블릿으로 보낸다
+    lo_form1.cnfmbrch.value = str1;			//확인지사
+    lo_form1.brchdt.value = str2;			//지사처리일자
+    //lo_form1.medinm.value = str3;			//매체명
+    //lo_form1.mediser_no.value = str4;		//호수
+	lo_form1.sendqty.value = str5;			//발송부수
+	lo_form1.cnfmbrchcd.value = str6;		//확인지사코드
+	lo_form1.medicd.value = str7;			//매체코드
+    lo_form1.action = "/ps/send/1516";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// check box head선택 처리
+function checkAll()
+{
+    var size = document.list_form.chkhead.checked;
+    var len  = document.list_form.checkbox.length;
+
+    if(document.list_form.checkbox == null) {						// 선택된 건이 없는 경우
+		return;
+    } else if (document.list_form.checkbox.type == "checkbox"){		// 한건인 경우
+		list_form.checkbox.checked = size;
+    } else {
+      for(var i=0; i<len; i++) {								// 여러건인 경우
+		if(!document.list_form.checkbox[i].disabled){
+          list_form.checkbox[i].checked = size;
+		}
+      }
+    }
+}
+
+// list의 checkbox가 선택된경우 checkbox header의 상태를 변경시킨다
+function checkOne()
+{
+    var len  = document.list_form.checkbox.length;
+    var check = true;
+	for (var i=0; i<len; i++){
+		if((!list_form.checkbox[i].checked) && (!list_form.checkbox[i].disabled) ) {
+        	check = false;
+		}
+	}
+
+	document.list_form.chkhead.checked = check;
+}
+
+// check box head선택 처리
+function checkAll_cnfm()
+{
+    var size = document.list_form.chkhead_cnfm.checked;
+    var len  = document.list_form.chkcnfm.length;
+
+    if(document.list_form.chkcnfm == null) {						// 선택된 건이 없는 경우
+		return;
+    } else if (document.list_form.chkcnfm.type == "checkbox"){		// 한건인 경우
+		list_form.chkcnfm.checked = size;
+    } else {
+      for(var i=0; i<len; i++) {								    // 여러건인 경우
+		if(!document.list_form.chkcnfm[i].disabled){
+          list_form.chkcnfm[i].checked = size;
+		}
+      }
+    }
+}
+
+// list의 checkbox가 선택된경우 checkbox header의 상태를 변경시킨다
+function checkOne_cnfm()
+{
+    var len  = document.list_form.chkcnfm.length;
+    var check = true;
+	for (var i=0; i<len; i++){
+		if((!list_form.chkcnfm[i].checked) && (!list_form.chkcnfm[i].disabled) ) {
+        	check = false;
+		}
+	}
+
+	document.list_form.chkhead_cnfm.checked = check;
+}
+
+// 지사별 발송확인처리
+function sendCnfm() {
+	var lo_form = document.list_form;
+	var bocd="";
+	var senddt="";
+	var medicd="";
+    var mediser_no="";
+	var chkcnfm="";
+
+	var len  = document.list_form.checkbox.length;
+
+	var chk = document.list_form.checkbox;
+	var checked = document.list_form.checkbox.checked;
+    var type = document.list_form.checkbox.type;
+
+    for(var i = 0; i < len; i++){
+        if(lo_form.checkbox[i].checked){
+            var temp=lo_form.checkbox[i].value;
+            var ss = temp.split("##");
+            if(ss[1].length <= 0) {
+                alert(i+"번째 선택한 데이타는 삭제대상이 아닙니다 .");
+                return false;
+            } else {
+                bocd += "##"+ss[0];
+                senddt += "##"+ss[1];
+                medicd +="##"+ss[2];
+                mediser_no += "##"+ss[3];
+				if(lo_form.chkcnfm[i].checked){
+					chkcnfm +="##Y"
+				}else{
+					chkcnfm +="##N"
+				}
+            }
+        }
+    }
+
+    if(bocd != ""){
+        bocd = bocd.substr(2);
+        senddt = senddt.substr(2);
+        medicd = medicd.substr(2);
+        mediser_no = mediser_no.substr(2);
+        chkcnfm = chkcnfm.substr(2);
+	} else {
+		alert("확인대상 목록을 선택하세요.");
+		return false;
+	}
+
+    lo_form.bocd_cnfm.value=bocd;
+    lo_form.senddt_cnfm.value=senddt;
+    lo_form.medicd_cnfm.value=medicd;
+	lo_form.mediser_no_cnfm.value= mediser_no;
+    lo_form.chkcnfm_cnfm.value=chkcnfm;
+
+    lo_form.action = "/ps/send/1511";
+    lo_form.target = "ifrm";
+    lo_form.submit();
+	setEventHandler();
+}
+
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray" onload="init()">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >발송
+      &gt; </b> 추가발송 &gt; 확인처리 </td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <form name="list_form" method="post" action="">
+  <!-- 확인지사코드 -->
+  <input name="bocd_cnfm" type="hidden" value ="">
+  <!-- 매체코드 -->
+  <input name="medicd_cnfm" type="hidden" value ="">
+  <!-- 지사처리일자 -->
+  <input name="senddt_cnfm" type="hidden" value ="">
+  <!-- 호수 -->
+  <input name="mediser_no_cnfm" type="hidden" value ="">
+  <!-- 발송확인여부 -->
+  <input name="chkcnfm_cnfm" type="hidden" value ="">
+  <tr>
+    <td>
+      <table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+        <tr>
+          <td width="95"  bgcolor="#EBE9DC" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">발송일자<font color="red">*</font></td>
+          <td width="100" bgcolor="#EBE9DC" class="title">
+            <select name="senddt" size="1" class="sel_all" style="width:80;" notEmpty id="senddt_view" caption="발송일자">
+              <%= ds.hdqtsenddtcurOptHtml("") %>
+            </select>
+            <!--input type="text" name="senddt" size="12" class="text_box" caption="발송일자" dataType="date" notEmpty-->
+          </td>
+          <td width="95"  bgcolor="#EBE9DC" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">확인지사</td>
+          <td width="100" bgcolor="#EBE9DC" class="title">
+            <select name="resitypecd" size="1"  class="sel_all">
+              <option value=''  selected  >전체</option>
+              <%= ds.bocdcurOptHtml("") %>
+            </select>
+          </td>
+          <td width="95"  bgcolor="#EBE9DC" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">발송노선</td>
+          <td width="100" bgcolor="#EBE9DC" class="title">
+              <input type="text" name="sendroutedd" size="10" class="text_box" caption="발송노선일자" dataType="date" value="">
+          </td>
+          <td width="*"   bgcolor="#EBE9DC" class="title" align="right">
+            <input type="image" src="/html/comm_img/bu_search.gif" width="36" height="19" border="0" align="absmiddle" onclick="javascript:list_search();window.event.returnValue=false;" style="cursor:hand">
+          </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="5">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--검색끝-->
+      <table width="830" border="0" cellspacing="0" cellpadding="2" align="center" id="total_info">
+        <tr>
+          <td width="420" bgcolor="#EBE9DC" class="title"><b>지사별확인</b></td>
+          <td width="200" bgcolor="#EBE9DC" class="title" align="right">
+            <img src="/html/comm_img/ic_arr06.gif" width="7" height="7" align="absmiddle"> 합계 <b> &nbsp;&nbsp;&nbsp; </b> 부
+          </td>
+          <td width="200" bgcolor="#EBE9DC" class="title" align="right">
+            <img src="/html/comm_img/bu_save01.gif" width="90" height="19" align="absmiddle" border="0" onclick="javascript:sendCnfm();window.event.returnValue=false;" style="cursor:hand">
+          </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list start -->
+      <table width="830" border="0" align="center" cellpadding="1" cellspacing="0" bgcolor="#FFFFFF" class="gray" id="list_info">
+        <tr bgcolor="#dddddd" align="center">
+          <td width="50"  class="gray">
+            <input type="checkbox" name="chkhead" value="checkbox">
+          </td>
+          <td width="130" class="gray">확인지사</td>
+          <td width="100" class="gray">지사처리일자</td>
+          <td width="130" class="gray">매체</td>
+          <td width="130" class="gray">호수</td>
+          <td width="70"  class="gray">발송부수</td>
+          <td width="80"  class="gray">발송확인
+            <input type="checkbox" name="chkhead_cnfm" value="checkbox">
+		  </td>
+          <td width="130" class="gray">발송확인일자</td>
+        </tr>
+<%
+	for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+        <tr>
+          <td width="50"  class="gray" align="center">
+            <input type="checkbox" name="checkbox" value="checkbox" disabled>
+          </td>
+          <td width="130" class="gray" align="center">&nbsp;</td>
+          <td width="100" class="gray" align="center">&nbsp;</td>
+          <td width="130" class="gray" align="center">&nbsp;</td>
+          <td width="130" class="gray" align="center">&nbsp;</td>
+          <td width="70"  class="gray" align="right" >&nbsp;</td>
+          <td width="80"  class="gray" align="center">
+            <input type="checkbox" name="chkcnfm" value="checkbox" disabled>
+          </td>
+          <td width="130" class="gray" align="center">&nbsp;</td>
+        </tr>
+<%
+	}
+%>
+      </table>
+    </td>
+  </tr>
+  </form>
+
+  <tr>
+    <td height="10">
+      <!--여백-->
+    </td>
+  </tr>
+
+  <!--발송방법별 상세-->
+  <form name="detail_form" method="post" action="">
+  <!-- 확인지사코드 -->
+  <input name="cnfmbrchcd" type="hidden" value ="">
+  <!-- 매체코드 -->
+  <input name="medicd" type="hidden" value ="">
+  <tr>
+    <td>
+      <table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+        <tr>
+          <td width="830" bgcolor="#EBE9DC" class="title" height="27"><b>발송방법별 상세</b></td>
+        </tr>
+        <tr>
+          <td height="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0" align="center" cellpadding="1" cellspacing="0" class="gray">
+        <tr bgcolor="#EBE9DC" class="gray">
+          <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">확인지사</td>
+          <td width="120">
+            <input type="text" name="cnfmbrch" size="17" value="" class="text_box" readonly >
+          </td>
+          <td width="100"><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">지사처리일자</td>
+          <td width="120">
+            <input type="text" name="brchdt" size="10" value="" class="text_box" dataType="date" readonly >
+          </td>
+          <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송부수</td>
+          <td width="100">
+            <input type="text" name="sendqty" size="8"  value="" class="numb_box" dataType="number" comma readonly >
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" align="center" class="gray">
+        <tr>
+          <td height="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--상세내역끝-->
+      <!--list start-->
+      <table width="830" border="0" align="center" cellpadding="1" cellspacing="0" bgcolor="#ffffff" class="gray" id="detail_info">
+        <tr bgcolor="#dddddd" align="center">
+          <td width="415" class="gray" >발송방법</td>
+          <td width="415" class="gray" >발송부수</td>
+        </tr>
+        <tr>
+          <td width="415" class="gray" align="center">&nbsp;</td>
+          <td width="415" class="gray" align="right" >&nbsp;</td>
+        </tr>
+        <tr>
+          <td width="415" class="gray" align="center">&nbsp;</td>
+          <td width="415" class="gray" align="right" >&nbsp;</td>
+        </tr>
+        <tr>
+          <td width="415" class="gray" align="center">&nbsp;</td>
+          <td width="415" class="gray" align="right" >&nbsp;</td>
+        </tr>
+        <tr>
+          <td width="415" class="gray" align="center">&nbsp;</td>
+          <td width="415" class="gray" align="right" >&nbsp;</td>
+        </tr>
+        <tr>
+          <td width="415" class="gray" align="center">&nbsp;</td>
+          <td width="415" class="gray" align="right" >&nbsp;</td>
+        </tr>
+        <tr bgcolor="#dddddd">
+          <td width="415" class="gray" align="center">계</td>
+          <td width="415" class="gray" align="right" >&nbsp;</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  </form>
+</table>
+<iframe name="ifrm" width=800 height=0></iframe>
+</body>
+</html>

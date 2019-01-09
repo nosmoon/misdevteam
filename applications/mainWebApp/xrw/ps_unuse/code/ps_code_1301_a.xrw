@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<mcCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mcCombo>
+							<mcCombo2>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mcCombo2>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<reqform>
+								<list_form>
+									<js_fn_nm/>
+									<medicd/>
+									<curr_page_no/>
+									<bgnvdtydt/>
+									<bns_booknm/>
+									<records_per_page/>
+									<endvdtydt/>
+								</list_form>
+								<detail_form>
+									<vipcont/>
+									<cmpynm/>
+									<medicd/>
+									<bgnvdtydt/>
+									<bns_bookcd/>
+									<bns_booknm/>
+									<remk/>
+									<endvdtydt/>
+									<accflag/>
+								</detail_form>
+								<temp_form>
+									<yyyymmdd/>
+								</temp_form>
+							</reqform>
+						</searchData>
+						<reqform/>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<infoGrid>
+								<record>
+									<cmpynm/>
+									<bns_bookcd/>
+									<bns_booknm/>
+									<medicd/>
+									<medinm/>
+									<bgnvdtydt>
+									</bgnvdtydt>
+									<endvdtydt/>
+									<remk/>
+									<vipcont/>
+								</record>
+							</infoGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();			
+				]]>
+			</script>
+			<submission id="PID1301subInit" action="/ps/code/1301" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1306search" action="/ps/code/1306" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/list_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1311save" action="/ps/code/1311" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/detail_form" resultref="/root/resData/MsgData"/>
+			<submission id="PID1316save" action="/ps/code/1316" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/detail_form" resultref="/root/resData/MsgData"/>
+			<submission id="PID1321save" action="/ps/code/1321" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/detail_form" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					model.send("PID1301subInit", false);
+
+					//model.setValue("/root/reqData/searchData/reqform/list_form/records_per_page", model.getValue("/root/tempData/initTemp/recordPerPage"));
+					model.setValue("/root/reqData/searchData/reqform/list_form/records_per_page", "5000");
+					model.setValue("/root/reqData/searchData/reqform/list_form/curr_page_no", "1");
+					model.setValue("/root/reqData/searchData/reqform/list_form/js_fn_nm", model.getValue("/root/tempData/initTemp/js_fn_nm"));
+					
+					model.setValue("/root/reqData/searchData/reqform/detail_form/cmpynm", model.getValue("/root/tempData/initTemp/cmpynm"));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/bgnvdtydt", model.getValue("/root/tempData/initTemp/today"));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/endvdtydt", model.getValue("/root/tempData/initTemp/today"));
+					
+					model.setValue("/root/reqData/searchData/reqform/temp_form/yyyymmdd", model.getValue("/root/tempData/initTemp/today"));
+
+					model.copyNode("/root/initData/comboSet/mcCombo", "/root/tempData/initTemp/mcCombo");
+					model.copyNode("/root/initData/comboSet/mcCombo2", "/root/tempData/initTemp/mcCombo2");
+
+					model.removenode("/root/tempData/initTemp");
+					
+					model.refresh();
+					PID1301combo1.select(0);
+					PID1301combo2.select(0);
+				}
+				
+				function search()
+				{
+					if(!commValidate(PID1301group3))
+						return;
+						
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID1306search", false);
+					
+				       model.copyNode("/root/resData/gridData/infoGrid", "/root/tempData/dataTemp/infoGrid");
+				       
+					model.removenode("/root/tempData/dataTemp");
+					
+					if(instance1.selectNodes("/root/resData/gridData/infoGrid/record/medinm").length == 0)
+						model.alert("검색결과가 없습니다.");
+
+					PID1301datagrid1.rebuild();
+					initControl();
+				}
+								
+				function initControl()
+				{
+					PID1301input3.value= "";
+					PID1301input4.value= "";
+					PID1301textarea1.value= "";
+					
+                                     PID1301combo1.select(0);
+                                     model.setValue("/root/reqData/searchData/reqform/detail_form/bgnvdtydt", model.getValue("/root/reqData/searchData/reqform/temp_form/yyyymmdd"));
+                                     model.setValue("/root/reqData/searchData/reqform/detail_form/endvdtydt", model.getValue("/root/reqData/searchData/reqform/temp_form/yyyymmdd"));
+                                     model.setValue("/root/reqData/searchData/reqform/detail_form/accflag", "");
+                                     
+                                     model.refresh();
+				}
+								
+				function add()
+				{
+					var flag = model.getValue("/root/reqData/searchData/reqform/detail_form/accflag");
+					if(flag == 'U') {
+						
+						alert("신규등록 대상이 아닙니다. 수정버튼을 선택하세요.");
+				  	        return;
+					}			
+					
+					if(!commValidate(PID1301group_scr))
+						return;
+						
+					if(model.alert("등록하시겠습니까?", "", 4) == "6") {						
+						model.setValue("/root/reqData/searchData/reqform/detail_form/accflag", "I");
+						model.send("PID1311save", false);
+						
+						if(!submit_completed())
+							return;		
+							
+						initControl();
+						search();		
+					}
+				}				
+				
+				function save()
+				{
+					var flag = model.getValue("/root/reqData/searchData/reqform/detail_form/accflag");
+					if(flag != 'U') {
+						
+						alert("수정등록 대상이 아닙니다. 저장버튼을 선택하세요.");
+				  	        return;
+					}
+					
+					if(!commValidate(PID1301group_scr))
+						return;
+						
+					if(model.alert("수정하시겠습니까?", "", 4) == "6") {
+						model.send("PID1316save", false);
+						
+						if(!submit_completed())
+							return;		
+						
+						search();
+						initControl();
+					}
+				}
+				
+				function delete1()
+				{
+					var flag = model.getValue("/root/reqData/searchData/reqform/detail_form/accflag");
+					if(flag != 'U') {
+						
+						alert("삭제 대상이 아닙니다. 저장버튼을 선택하세요.");
+				  	        return;
+					}
+					
+					if(!commValidate(PID1301group_scr))
+						return;
+						
+					if(model.alert("삭제하시겠습니까?", "", 4) == "6") {						
+						model.send("PID1321save", false);
+						
+						if(!submit_completed())
+							return;		
+						
+						initControl();
+						search();
+					}
+				}
+				
+				function gridClick() 
+				{
+					if( PID1301datagrid1.textMatrix(PID1301datagrid1.row, PID1301datagrid1.colRef("medicd")) == "" )
+					{
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData/reqform/detail_form/accflag", "U");
+					PID1301combo1.value= PID1301datagrid1.textMatrix(PID1301datagrid1.row, PID1301datagrid1.colRef("medicd"));
+					PID1301input1.value= PID1301datagrid1.textMatrix(PID1301datagrid1.row, PID1301datagrid1.colRef("bgnvdtydt"));
+					PID1301input7.value= PID1301datagrid1.textMatrix(PID1301datagrid1.row, PID1301datagrid1.colRef("endvdtydt"));
+
+					model.setValue("/root/reqData/searchData/reqform/detail_form/bns_bookcd",PID1301datagrid1.textMatrix(PID1301datagrid1.row, PID1301datagrid1.colRef("bns_bookcd")));
+					PID1301input3.value= PID1301datagrid1.textMatrix(PID1301datagrid1.row, PID1301datagrid1.colRef("bns_booknm"));
+					PID1301input4.value= PID1301datagrid1.textMatrix(PID1301datagrid1.row, PID1301datagrid1.colRef("remk"));
+					PID1301textarea1.value= PID1301datagrid1.textMatrix(PID1301datagrid1.row, PID1301datagrid1.colRef("vipcont"));					
+
+				}			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1301" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="grpCommonBtn" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnReset" class="btn02" style="left:662px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						initControl();
+					]]>
+				</script>
+			</button>
+			<button id="btnCommonSearch" class="btn02" crud="C" style="left:715px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						add();
+					]]>
+				</script>
+			</button>
+			<button id="PID1301button2" class="btn02" crud="U" style="left:768px; top:0px; width:52px; height:21px; ">
+				<caption>수정</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						save();
+					]]>
+				</script>
+			</button>
+			<button id="btnCommonDelete" class="btn02" crud="D" style="left:821px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						delete1();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1301group_scr" class="gro_sel" style="left:10px; top:105px; width:926px; height:147px; ">
+			<caption id="PID1301caption3" class="list_cap02" style="left:89px; top:122px; width:837px; height:25px; "/>
+			<caption id="PID1301caption14" class="list_cap01" style="left:298px; top:0px; width:90px; height:25px; text-align:left; ">매체</caption>
+			<caption id="PID1301caption15" class="list_cap01" style="left:0px; top:0px; width:90px; height:25px; text-align:left; ">발행처</caption>
+			<caption id="PID1301caption20" class="list_cap02" style="left:89px; top:0px; width:210px; height:25px; "/>
+			<caption id="PID1301caption8" class="list_cap01" style="left:596px; top:0px; width:90px; height:25px; text-align:left; ">보너스북명</caption>
+			<caption id="PID1301caption1" class="list_cap02" style="left:387px; top:0px; width:210px; height:25px; "/>
+			<caption id="PID1301caption5" class="list_cap02" style="left:685px; top:0px; width:241px; height:25px; "/>
+			<caption id="PID1301caption10" class="list_cap02" style="left:89px; top:24px; width:210px; height:25px; "/>
+			<caption id="PID1301caption17" class="list_cap02" style="left:387px; top:24px; width:539px; height:25px; "/>
+			<caption id="PID1301caption19" class="list_cap01" style="left:298px; top:24px; width:90px; height:25px; text-align:left; ">유효기간To</caption>
+			<caption id="PID1301caption21" class="list_cap01" style="left:0px; top:24px; width:90px; height:25px; text-align:left; ">유효기간From</caption>
+			<caption id="PID1301caption23" class="list_cap02" style="left:89px; top:48px; width:837px; height:75px; "/>
+			<caption id="PID1301caption24" class="list_cap01" style="left:0px; top:48px; width:90px; height:75px; text-align:left; ">주요내용</caption>
+			<input id="PID1301input2" ref="/root/reqData/searchData/reqform/detail_form/cmpynm" disabled="true" style="left:92px; top:4px; width:200px; height:18px; "/>
+			<select1 id="PID1301combo1" ref="/root/reqData/searchData/reqform/detail_form/medicd" appearance="minimal" style="left:390px; top:4px; width:150px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mcCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="PID1301input3" ref="/root/reqData/searchData/reqform/detail_form/bns_booknm" class="req" caption="보너스북명" style="left:688px; top:4px; width:232px; height:18px; "/>
+			<input id="PID1301input1" ref="/root/reqData/searchData/reqform/detail_form/bgnvdtydt" class="req" inputtype="date" caption="유효기간" style="left:92px; top:28px; width:100px; height:18px; "/>
+			<input id="PID1301input7" ref="/root/reqData/searchData/reqform/detail_form/endvdtydt" class="req" inputtype="date" caption="유효기간" style="left:390px; top:28px; width:100px; height:18px; "/>
+			<textarea id="PID1301textarea1" ref="/root/reqData/searchData/reqform/detail_form/vipcont" style="left:92px; top:52px; width:828px; height:67px; vertical-align:top; "/>
+			<input id="PID1301input4" ref="/root/reqData/searchData/reqform/detail_form/remk" style="left:92px; top:126px; width:828px; height:18px; "/>
+			<caption id="PID1301caption2" class="list_cap01" style="left:0px; top:122px; width:90px; height:25px; text-align:left; ">비고</caption>
+		</group>
+		<group id="PID1301group3" style="left:10px; top:260px; width:926px; height:25px; ">
+			<caption id="PID1301caption57" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; "/>
+			<button id="PID1301button7" class="btn_grid02" style="left:770px; top:4px; width:42px; height:17px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<select1 id="PID1301combo2" ref="/root/reqData/searchData/reqform/list_form/medicd" appearance="minimal" style="left:33px; top:4px; width:150px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mcCombo2/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="PID1301input5" ref="/root/reqData/searchData/reqform/list_form/bns_booknm" style="left:261px; top:4px; width:200px; height:18px; "/>
+			<input id="PID1301input18" ref="/root/reqData/searchData/reqform/list_form/bgnvdtydt" inputtype="date" dataType="datefrom" caption="유효기간" setHandler="true" relid="PID1301input21" style="left:552px; top:4px; width:100px; height:18px; "/>
+			<input id="PID1301input21" ref="/root/reqData/searchData/reqform/list_form/endvdtydt" inputtype="date" dataType="dateto" caption="유효기간" setHandler="true" relid="PID1301input18" style="left:668px; top:4px; width:100px; height:18px; "/>
+			<caption id="PID1301caption53" style="left:499px; top:4px; width:55px; height:20px; ">유효기간</caption>
+			<caption id="PID1301caption11" style="left:649px; top:4px; width:20px; height:20px; text-align:center; ">-</caption>
+			<caption id="PID1301caption12" style="left:3px; top:4px; width:35px; height:20px; ">매체</caption>
+			<caption id="PID1301caption13" style="left:195px; top:5px; width:62px; height:20px; ">보너스북명</caption>
+		</group>
+		<datagrid id="PID1301datagrid1" nodeset="/root/resData/gridData/infoGrid/record" caption="매체명^보너스북코드^보너스북명^발행처^주요내용^비고" colsep="^" colwidth="120, 80, 166, 150, 216, 171, 0, 0, 0, 0, 0" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" tooltip="true" style="left:10px; top:290px; width:926px; height:425px; ">
+			<col ref="medinm"/>
+			<col ref="bns_bookcd"/>
+			<col ref="bns_booknm" style="text-align:left; "/>
+			<col ref="cmpynm"/>
+			<col ref="vipcont_detail" style="text-align:left; "/>
+			<col ref="remk_detail" style="text-align:left; "/>
+			<col ref="vipcont" visibility="hidden"/>
+			<col ref="remk" visibility="hidden"/>
+			<col ref="medicd" visibility="hidden"/>
+			<col ref="bgnvdtydt" visibility="hidden"/>
+			<col ref="endvdtydt" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1301datagrid1.mouseCol>PID1301datagrid1.fixedCols-1 && PID1301datagrid1.mouseRow>PID1301datagrid1.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}														
+				]]>
+			</script>
+		</datagrid>
+		<!--<group id="PID1301group2" style="left:10px; top:685px; width:926px; height:25px; ">
+			<iviewer id="PID1301paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<group id="PID1301group1" style="left:10px; top:75px; width:926px; height:25px; ">
+			<caption id="PID1301caption55" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">보너스북 등록</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

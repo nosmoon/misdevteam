@@ -1,0 +1,398 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_send_1701_s.jsp
+* 기능 : 보너스북 발송 초기화면
+* 작성일자 : 2004-02-20
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    // 페이지당 보여줄 라인수
+    String records_per_page = "10";
+    int li_per = Integer.parseInt(records_per_page) ;
+    //	dataset 인스턴스 선언부분
+    PS_S_SEND_BNSBKDataSet ds = (PS_S_SEND_BNSBKDataSet)request.getAttribute("ds");  // request dataset
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+	setInputBackgroundColor();
+}
+
+// 보너스북발송 내역 조회처리
+function list_search(){
+    var lo_form1 = list_form;
+
+    //밸류값을 check한다.
+    if(window.event) window.event.returnValue = false;
+    if(!validate(lo_form1)){
+    	return;
+    }
+    makeValue(list_form)
+    lo_form1.detail_bocd.value = "" ;
+    lo_form1.detail_senddt.value = "" ;
+    lo_form1.detail_qty.value = "" ;
+
+    lo_form1.action = "/ps/send/1706";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// check box head선택 처리
+function checkAll()
+{
+var size = document.list_form.chkhead.checked;
+var len  = document.list_form.checkbox.length;
+
+    if(document.list_form.checkbox == null) {						// 선택된 건이 없는 경우
+		return;
+    } else if (document.list_form.checkbox.type == "checkbox"){		// 한건인 경우
+		list_form.checkbox.checked = size;
+    } else {
+      for(var i=0; i<len; i++) {								// 여러건인 경우
+		if(!document.list_form.checkbox[i].disabled){
+          list_form.checkbox[i].checked = size;
+		}
+      }
+    }
+}
+
+// list의 checkbox가 선택된경우 checkbox header의 상태를 변경시킨다
+function checkOne()
+{
+var len  = document.list_form.checkbox.length;
+var check = true;
+	for (var i=0; i<len; i++){
+		if((!list_form.checkbox[i].checked) && (!list_form.checkbox[i].disabled) ) {
+        	check = false;
+		}
+	}
+
+	document.list_form.chkhead.checked = check;
+}
+
+// navigator선택시 페이지 move처리
+function page_move(curr_page_no) {
+    var lo_form = list_form;
+
+    if(!curr_page_no) {
+        lo_form.curr_page_no.value = '1';
+    } else {
+        lo_form.curr_page_no.value = curr_page_no;
+    }
+
+    list_search();
+}
+
+// 보너스북발송 상세내역내역 조회처리
+function detail_list(bocd,bonm,senddt,qty){
+    var lo_form1 = list_form;
+
+    //밸류값을 check한다.
+    if(window.event) window.event.returnValue = false;
+    if(!validate(lo_form1)){
+    	return;
+    }
+    makeValue(list_form)
+    lo_form1.asinbocd.value = bocd ;
+    lo_form1.detail_bocd.value = bonm ;
+    lo_form1.detail_senddt.value = senddt ;
+    lo_form1.detail_qty.value = qty ;
+
+    lo_form1.action = "/ps/send/1711";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// 선택된 보너스확인내역을 저장한다
+function save_bnsbk(){
+    var lo_form = list_form ;
+    var len  = "";
+    if(!lo_form.checkbox){
+        alert("확인 대상건이 없습니다!");
+        return;
+    }else{
+        len =     lo_form.checkbox.length;
+    }
+    makeValue(lo_form)
+    //var ls_check = confirm("발송확인 하시겠습니까?");
+    //if (!ls_check)  return;
+    var ls_bocd = "";     // 선택된 키값을 담는다  321321##321321##4324324
+    var ls_senddt = ""; // 선택된 키값을 담는다  321321##321321##4324324
+    var ls_chkcnfm = ""; // 선택된 키값을 담는다  321321##321321##4324324
+    var ls_hdqtsend_dt = ""; // 선택된 키값을 담는다  321321##321321##4324324
+    var count = 0;
+   if (!lo_form.checkbox.length ) { // 하나의 check박스가 선택된경우
+            if(lo_form.checkbox.checked) { // check된건에 한하여 데이타 입력
+                ls_bocd   = ls_bocd   + lo_form.add_bocd.value;
+                ls_senddt = ls_senddt + lo_form.add_senddt.value ;
+                if(lo_form.chkcnfm.checked){
+					ls_chkcnfm +="Y"
+				}else{
+					ls_chkcnfm +="N"
+				}
+                ls_hdqtsend_dt = ls_hdqtsend_dt + lo_form.hdqtsend_dt.value ;
+                count++;
+            }
+   } else{  // 여러개의 check 박스가 선택된경우
+        for (var i=0; i<len; i++){
+            if(lo_form.checkbox[i].checked) { // check된건에 한하여 데이타 입력
+
+                if(ls_bocd == "" ) {  // 최초입력시 구분자 제외한다
+
+                    ls_bocd = ls_bocd + lo_form.add_bocd[i].value ;
+                    ls_senddt = ls_senddt + lo_form.add_senddt[i].value ;
+                    if(lo_form.chkcnfm[i].checked){
+                        ls_chkcnfm +="Y"
+                    }else{
+                        ls_chkcnfm +="N"
+                    }
+                    ls_hdqtsend_dt = ls_hdqtsend_dt + lo_form.hdqtsend_dt[i].value ;
+                    count++;
+                } else {  // 두번째 이후부터 구분값을 넣는다
+                    ls_bocd = ls_bocd + '##' + lo_form.add_bocd[i].value ;
+                    ls_senddt = ls_senddt + '##' + lo_form.add_senddt[i].value ;
+                    if(lo_form.chkcnfm[i].checked){
+                        ls_chkcnfm +="##Y"
+                    }else{
+                        ls_chkcnfm +="##N"
+                    }
+                    ls_hdqtsend_dt = ls_hdqtsend_dt + '##' + lo_form.hdqtsend_dt[i].value ;
+                    count++
+                }
+            }
+        }
+   }
+    lo_form.all_bocd.value = ls_bocd ;
+    lo_form.all_senddt.value = ls_senddt ;
+    lo_form.all_chkcnfm.value = ls_chkcnfm ;
+    lo_form.all_hdqtsend_dt.value = ls_hdqtsend_dt ;
+
+    if(count ==0) { // 저장 처리대상에 한건도 없을 때
+        alert("확인 대상건을 선택하세요.");
+        return;
+    }
+
+    lo_form.action = "/ps/send/1716";
+    lo_form.target = "iframe";
+
+    lo_form.submit();
+}
+// 비교대상독자 상세내역 팝업
+/*
+function rdr_detail(rdr_no,medicd,termsubsno){
+
+    var lo_form1 = rdr_form;
+    lo_form1.rdr_no.value = rdr_no ;
+    lo_form1.medicd.value = medicd ;
+    lo_form1.termsubsno.value = termsubsno ;
+    var ls_win = "scrollbars=no, toolbar=no,location=no,directories=no,width=700, height=730 resizable=no,mebar=no,left=200,top=10";
+    window.open("about:blank" , "rdr_detail", ls_win);
+    lo_form1.target = "rdr_detail";
+    lo_form1.action = "/ps/reader/1321";
+    lo_form1.submit();
+}
+*/
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray"  onload="init()">
+<form name="list_form" method="post" action="" onsubmit="list_search()">
+<input name="curr_page_no" type="hidden" value ="1"><!--//현재페이지-->
+<input name="records_per_page" type="hidden" value ="<%=records_per_page%>"> <!--//화면에 보여줄  ROW수-->
+<input name="js_fn_nm" type="hidden" value ="page_move">
+<input name="asinbocd" type="hidden" value ="">
+<input name="all_bocd" type="hidden" value ="">
+<input name="all_senddt" type="hidden" value ="">
+<input name="all_chkcnfm" type="hidden" value ="">
+<input name="all_hdqtsend_dt" type="hidden" value ="">
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >발송
+      &gt; </b> 보너스북발송 &gt; 확인처리 </td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<!--검색시작-->
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr>
+    <td width="65"  bgcolor="#EBE9DC" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">발송일자<font color="red">*</font></td>
+    <td width="200" bgcolor="#EBE9DC" class="title"title="">
+      <!--input type="text" name="slt_senddt" size="12" class="text_box" notEmpty caption="발송일자" dataType="date" value="< %=ds.sysdate%>" -->
+        <select name="slt_senddt" size="1" class="sel_all" style="width:80;" notEmpty  caption="발송일자">
+          <%= ds.bnsbksenddtcurOptHtml("") %>
+        </select>
+    </td>
+    <td width="65"  bgcolor="#EBE9DC" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">지사코드</td>
+    <td width="200" bgcolor="#EBE9DC" class="title">
+      <select name="slt_asinbocd" class="sel_all">
+       <option value="">전체</option>
+        <%=ds.asinbocdcurOptHtml("")%>
+      </select>
+    </td>
+    <td width="*"   bgcolor="#EBE9DC" class="title" align="right">
+      <input type="image" src="/html/comm_img/bu_search.gif" width="36"  align="absmiddle" border="0" style="cursor:hand"
+				 onclick="list_search();window.event.returnValue=false;">
+    </td>
+  </tr>
+  <tr>
+    <td height="3" colspan="6">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--검색끝-->
+<table width="829" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr>
+    <td bgcolor="#EBE9DC" class="title" width="742" height="28"><b>보너스북 일괄확인 목록</b></td>
+    <td bgcolor="#EBE9DC" width="180" class="title" align="right" height="28">
+      <img src="/html/comm_img/bu_save01.gif" width="90" height="19" align="absmiddle" border="0"  style="cursor:hand"  onclick="save_bnsbk();window.event.returnValue=false;">
+    </td>
+  </tr>
+  <tr>
+    <td height="3" colspan="2">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--list start -->
+<table width="830" border="0" align="center" cellpadding="1" cellspacing="0" bgcolor="#FFFFFF" class="gray" id="list_info">
+  <tr bgcolor="#dddddd" align="center">
+    <td class="gray" bgcolor="#dddddd" width="40">
+    <input type="checkbox" name="checkbox" value="checkbox">
+    </td>
+    <td class="gray" width="150">확인지사</td>
+    <td class="gray" width="150">지사처리일자</td>
+    <td class="gray" width="150">발송부수</td>
+    <td class="gray" width="150">발송확인</td>
+    <td class="gray"  >발송확인일자</td>
+  </tr>
+<%
+	for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+  <tr>
+    <td class="gray" align="center" width="40">
+      <input type="checkbox" name="checkbox222" value="checkbox" disabled>
+    </td>
+    <td class="gray"  >&nbsp;</td>
+    <td class="gray">&nbsp;</td>
+    <td class="gray"   align="right">&nbsp;</td>
+    <td class="gray"   align="center">
+      <input type="checkbox" name="chkcnfm222" value="checkbox" disabled>
+    </td>
+    <td class="gray"  align="center">
+      &nbsp;
+      <!-- <input type="hidden" name="hdqtsend_dt" value=""> -->
+    </td>
+  </tr>
+<%
+	}
+%>
+
+
+  <tr bgcolor="#dddddd" align="right">
+    <td class="gray" height="25" colspan="6"><img src="/html/comm_img/ic_arr06.gif" width="7" height="7" align="absmiddle">합계
+      <b>0</b> 부</td>
+  </tr>
+</table>
+
+<br>
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr>
+    <td width="830" bgcolor="#EBE9DC" class="title" height="27"><b>발송방법별 상세</b></td>
+  </tr>
+  <tr>
+    <td height="3">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--발송방법별 상세-->
+<!--상세내역-->
+<table width="830" border="0" align="center" cellpadding="1" cellspacing="0" class="gray">
+  <tr bgcolor="#EBE9DC" class="gray">
+    <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">확인지사</td>
+    <td width="120">
+      <input type="text" name="detail_bocd" size="17" value="" class="text_box" readonly >
+    </td>
+    <td width="100"><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">지사처리일자</td>
+    <td width="120">
+      <input type="text" name="detail_senddt" size="10" value="" class="text_box" readonly dataType="date" >
+    </td>
+    <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송부수</td>
+    <td width="100">
+      <input type="text" name="detail_qty" size="8"  value="" class="numb_box" readonly align="right">
+    </td>
+  </tr>
+</table>
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center" class="gray">
+  <tr>
+    <td height="3">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--상세내역끝-->
+<!--list start-->
+<table width="830" border="0" align="center" cellpadding="1" cellspacing="0" bgcolor="#ffffff" class="gray" id="detail_list">
+  <tr bgcolor="#dddddd" align="center">
+    <td width="375" class="gray" >보너스북</td>
+    <td width="80" class="gray" >직배</td>
+    <td width="80" class="gray" >우편</td>
+    <td width="80" class="gray" >등기</td>
+    <td width="80" class="gray" >사내직배</td>
+    <td width="80" class="gray" >미우송</td>
+    <td width="80" class="gray" >택배</td>
+    <td width="155" class="gray" >계</td>
+  </tr>
+  <tr >
+    <td   class="gray" align="center">&nbsp;</td>
+    <td   class="gray" align="right" >&nbsp;</td>
+    <td   class="gray" align="right" >&nbsp;</td>
+    <td   class="gray" align="right" >&nbsp;</td>
+    <td   class="gray" align="right" >&nbsp;</td>
+    <td   class="gray" align="right" >&nbsp;</td>
+    <td   class="gray" align="right" >&nbsp;</td>
+    <td   class="gray" align="right" >&nbsp;</td>
+  </tr>
+  <tr bgcolor="#dddddd" >
+    <td   class="gray" align="center">합계</td>
+    <td   class="gray" align="right" >0&nbsp;</td>
+    <td   class="gray" align="right" >0&nbsp;</td>
+    <td   class="gray" align="right" >0&nbsp;</td>
+    <td   class="gray" align="right" >0&nbsp;</td>
+    <td   class="gray" align="right" >0&nbsp;</td>
+    <td   class="gray" align="right" >0&nbsp;</td>
+    <td   class="gray" align="right" >0&nbsp;</td>
+  </tr>
+</table>
+<br>
+</form>
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="iframe" width=0 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+</body>
+</html>

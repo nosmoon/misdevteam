@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<pageInfo/>
+						<comboSet>
+						</comboSet>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<dept_cd/>
+							<dept_nm/>
+							<sply_strt_yymm_ft/>
+							<sply_strt_yymm_to/>
+						</searchData>
+						<multiUpData/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<reqForm>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record/>
+						</gridData>
+						<resForm>
+							<temp/>
+						</resForm>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//model1.send("hd_affr_1720");
+ 					model1.copyNode("/root/resData/gridData", "");				
+					datagrid2.visible = true;
+					model1.refresh();
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					String.prototype.trim = function()
+					 {
+					   return this.replace(/(^\s*)|(\s*$)/gi, "");
+					 }
+					 String.prototype.replaceAll = function(str1, str2)
+					 {
+					   var temp_str = "";
+					   if (this.trim() != "" && str1 != str2)
+					   {
+					     temp_str = this.trim();
+					     while (temp_str.indexOf(str1) > -1)
+					     {
+					       temp_str = temp_str.replace(str1, str2);
+					     }
+					   }
+					   return temp_str;
+					  }
+ 
+					
+						//오늘 날짜
+						function todaydate(val){
+							var e_date = new Date();
+							var year = e_date.getFullYear(); 
+							var month = e_date.getMonth() + 1;
+							var day = e_date.getDate();
+							if (("" + month).length==1){month = "0"+month;}
+							if (("" + day).length==1){day = "0"+day;}
+							if(val == '-'){
+								e_date = year+""+month+""+day;
+							}
+							else{
+								e_date = year+"-"+month+"-"+day;
+							}
+							return e_date;
+						}			
+						//한달후 날짜	
+						function monthdate(val){
+						 m = 1+parseInt(val);
+						 var f_date = "";
+						 var cDate=new Date();
+						 var year=cDate.getYear();
+						 var month=(cDate.getMonth()+ (parseInt(m))).toString();
+						 month = month.length==1?"0"+month:month;
+						 if (month=="00"){
+						  month="12";
+						  year--;
+						 }
+						 var day=cDate.getDate().toString();
+						 day = day.length==1?"0"+day:day;
+						 f_date = year+month+day;
+						 return f_date;  
+						}	
+						     	
+					function setDept_cd(dept_cd, dept_nm) {
+						model1.setValue("/root/reqData/searchData/dept_cd", dept_cd);
+						model1.setValue("/root/reqData/searchData/dept_nm", dept_nm);
+						model1.refresh(); 
+					} 									
+				]]>
+			</script>
+			<submission id="hd_affr_2020" action="/hd/affr/2020/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_com_1103" action="/hd/com/1103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/dept_cd" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="940" pageheight="1400">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:0px; top:5px; width:0px; height:0px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:10px; width:905px; height:21px; ">
+			<button id="button6" class="btn02" style="left:766px; top:0px; width:53px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (!commReqCheck(group1))
+						return;
+						
+					model1.send("hd_affr_2020");
+ 					model1.copyNode("/root/resData/gridData", "/root/tempData");	
+ 					datagrid2.refresh();
+					gridrowcnt.value = "총 "+ (parseInt(datagrid2.rows)- 1) + "건";
+ 					model1.refresh();			
+
+				]]>
+				</script>
+			</button>
+			<button id="button3" class="btn04" style="left:819px; top:0px; width:86px; height:21px; ">
+				<caption>엑셀다운로드</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+					//excel 파일로 저장한다
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+					if(filePath != "") {
+						datagrid2.saveExcel(filePath);
+						window.exec(filePath);
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" visibility="hidden" caption="부서^사번^성명^직책^직급^자녀명^자녀순서^생년월일^지원금액^지원개시년월^지원회차^지원년월^진행상태" colsep="#" colwidth="100, 100, 120, 100, 100, 142, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:75px; width:905px; height:550px; ">
+			<col ref="dept_nm"/>
+			<col ref="emp_no"/>
+			<col ref="flnm"/>
+			<col ref="dty_nm"/>
+			<col ref="posi_nm"/>
+			<col ref="child_flnm"/>
+			<col ref="child_seqo"/>
+			<col ref="child_bidt" format="yyyy-mm-dd"/>
+			<col ref="sply_amt" format="#,###" maxlength="10" style="text-align:right; "/>
+			<col ref="sply_strt_yymm" format="yyyy-mm"/>
+			<col ref="sply_tms"/>
+			<col ref="sply_yymm" format="yyyy-mm"/>
+			<col ref="proc_stat_nm"/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="dty_cd" visibility="hidden"/>
+			<col ref="posi_cd" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+		</datagrid>
+		<caption id="gridrowcnt" style="left:815px; top:625px; width:100px; height:20px; font-weight:bold; text-align:right; "/>
+		<group id="group1" style="left:10px; top:40px; width:905px; height:26px; ">
+			<caption id="caption19" class="list_cap02" style="left:70px; top:0px; width:835px; height:26px; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:108px; height:26px; ">지급개시년월</caption>
+			<caption id="caption3" class="list_cap01" style="left:335px; top:0px; width:108px; height:26px; ">부서명</caption>
+			<caption id="caption14" style="left:203px; top:7px; width:15px; height:15px; ">~</caption>
+			<input id="input1" ref="/root/reqData/searchData/sply_strt_yymm_to" class="req" navindex="2" inputtype="date" maxlength="6" format="yyyy-mm" caption="지급개시년월(To)" malength="4" style="left:222px; top:4px; width:85px; height:18px; "/>
+			<output id="input2" ref="/root/reqData/searchData/dept_nm" inputtype="button" appearance="output" style="left:522px; top:4px; width:130px; height:18px; text-align:center; ">
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.setValue("/root/reqData/fwdData/func_nm", "setDept_cd");
+     				window.load("/xrw/hd/com/HD_COM_1100.xrw","mdichild", "hd_com_1100", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData"); 
+			]]>
+				</script>
+			</output>
+			<input id="input5" ref="/root/reqData/searchData/sply_strt_yymm_ft" class="req" navindex="1" inputtype="date" maxlength="6" format="yyyy-mm" caption="지급개시년월(From)" malength="4" style="left:112px; top:4px; width:85px; height:18px; "/>
+			<input id="input6" ref="/root/reqData/searchData/dept_cd" inputtype="button" maxlength="6" style="left:447px; top:4px; width:70px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					model1.setValue("/root/reqData/fwdData/func_nm", "setDept_cd");
+					window.load("/xrw/hd/com/HD_COM_1100.xrw","mdichild", "hd_com_1100", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");				
+				]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						model1.setValue("/root/reqData/searchData/dept_cd", input6.currentText);
+						model1.send("hd_com_1103");
+						if(model1.getValue("/root/dataSet/CURLIST/record/cnt") != "1"){
+							alert("없는 부서이거나 사용중이 아닌 부서 입니다.");
+							model1.setValue("/root/reqData/searchData/dept_cd", "");
+							model1.setValue("/root/reqData/searchData/dept_nm", "");
+							model1.removenode("/root/dataSet");
+							model1.refresh();
+							return;
+						}
+						model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/dataSet/CURLIST/record/dept_cd"));
+						model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/dataSet/CURLIST/record/abrv_nm"));
+						model1.removenode("/root/dataSet");
+						model1.refresh();		
+					]]>
+				</script>
+			</input>
+		</group>
+	</xhtml:body>
+</xhtml:html>

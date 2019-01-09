@@ -1,0 +1,706 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<fac_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</fac_clsf>
+							<matr_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</matr_cd>
+							<paper_cmpy>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</paper_cmpy>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+							<pageID/>
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<fac_clsf/>
+							<issu_dt/>
+							<clos/>
+							<dpcn_chk/>
+							<clos_clsf_nm/>
+							<oth_div_clsf/>
+						</searchData>
+						<reqRoll>
+							<roll/>
+							<fac_clsf/>
+							<matr_cd/>
+						</reqRoll>
+						<readOnly>
+							<value/>
+						</readOnly>
+						<login_info>
+							<use_yn/>
+						</login_info>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<rowCnt/>
+								<pap_cmpy/>
+								<paper_clsf_cd/>
+								<matr_cd/>
+								<fr_roll/>
+								<fr_wt/>
+								<ewh_roll_cnt/>
+								<ewh_wgt/>
+								<ewh_roll_cnt_to/>
+								<ewh_wgt_to/>
+								<somo_roll/>
+								<somo_wgt/>
+								<rem_qunt_cnt/>
+								<rem_qunt_wgt/>
+								<cnsm_qunt/>
+								<wht_pj_retngod_wgt/>
+								<occr_dt/>
+								<seq/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+						<resForm>
+							<temp/>
+						</resForm>
+						<multi>
+							<multiUpData/>
+							<clos/>
+						</multi>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function CurTab(fID, fName, fBool){
+						this.id = fID;
+						this.name = fName;
+						this.status = fBool;
+					}
+					
+					function getCurTab_id(){
+						return this.id;
+					}
+					
+					function addRow() {
+						var rowCnt      = 0;
+						var selectedIdx = datagrid1.rows - 1;
+						
+						if(datagrid1.isReadOnly(2,1) == true) {
+							datagrid1.isReadOnly(2,1,2, datagrid1.cols-1) = false;
+							datagrid1.addStatus(selectedIdx, "insert");
+						} else {
+							datagrid1.addRow(true, true);
+						}
+					}
+					
+					function funbtnSearch(gubun ) {
+						var resMsg = "";
+						if(  commReqCheck(group_scr) == false ) return;
+						
+						var issu_dt  = model1.getValue("/root/reqData/searchData/issu_dt");
+						var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+						
+						resMsg = funcMagamChk(issu_dt, fac_clsf)  ;
+						if ( resMsg != '' ) {
+							if( resMsg == 'ERR' ){
+								return ;
+							}
+							if( gubun == 1 ){   // 1 메인 페이지에서의 조회  // 2 상세 TAB화면에서의 저장 후 조회 
+									if(window.alert(resMsg + "\n등록 하시겠습니까?", "확인", 1 ) != 1 ){
+											return ;
+									}
+							}
+						}
+						
+						// 탭 초기화 
+						model1.send("mt_prnpap_3006");
+						
+   					       model1.copyNode(iv1.root.resData.resForm.temp, "/root/tempData/gridData");
+ 						model1.copyNode(iv2.root.resData.resForm.temp, "/root/tempData/gridData1");
+ 						model1.copyNode(iv2.root.resData.resForm.temp2, "/root/tempData/gridData3");
+ 						model1.copyNode(iv3.root.resData.resForm.temp, "/root/tempData/gridData2");
+ 						model1.copyNode(iv3.root.resData.resForm.temp2, "/root/tempData/gridData3");
+ 						model1.copyNode(iv4.root.resData.resForm.temp.temp1, "/root/tempData/gridData4");
+ 					       model1.copyNode(iv4.root.resData.resForm.temp.temp2, "/root/tempData/gridData5");
+ 						model1.copyNode(iv4.root.resData.resForm.temp.temp3, "/root/tempData/gridData6");
+ 						model1.setValue(iv4.root.resData.resForm.temp.stat_flag, model1.getValue("/root/tempData/stat_flag"));
+ 						model1.setValue(iv4.root.resData.resForm.temp.wgt_clsf, model1.getValue("/root/tempData/wgt_clsf"));
+				
+						 iv1.window.javascript.setInitData( issu_dt , fac_clsf , model1.getValue("/root/reqData/searchData/clos" ));
+						 iv2.window.javascript.setInitData( issu_dt , fac_clsf , model1.getValue("/root/reqData/searchData/clos" ));
+						 iv3.window.javascript.setInitData( issu_dt , fac_clsf , model1.getValue("/root/reqData/searchData/clos" ));
+						 iv4.window.javascript.setInitData( issu_dt , fac_clsf , model1.getValue("/root/reqData/searchData/clos" ));
+						
+						 funMainSearch(resMsg);
+					}
+					
+					function setPapcmpy(){
+						var nodeList = instance1.selectNodes("/root/resData/gridData/record");
+						iv1.window.javascript.setPapcmpy(nodeList);
+					}
+					
+					function funMainSearch(resMsg){
+						
+						//datagrid1.isReadOnly(2,1,2, datagrid1.cols-1) = false;
+						model1.send("mt_prnpap_3001_L");
+						model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+						//setPapcmpy();
+						datagrid1.refresh();
+						subTotal();
+						
+						var magam = model1.getValue("/root/reqData/searchData/clos");
+ 						 
+ 						 if( magam == '00' ){  // 마감 안된 데이터 
+ 						 //	  if( resMsg != '' ) {
+ 						 //	  		datagrid1.isReadOnly(1, 1, datagrid1.rows-1 , datagrid1.cols-1) = true;
+ 						// 	  }
+ 						//	  else {
+ 							  	        datagrid1.isReadOnly(1, 1, datagrid1.rows-1 , datagrid1.cols-1) = false;  //상시입력 
+ 						//	  }
+ 						 }
+ 						 else { // 01 공장 마감  02 자재 마감 처리 
+ 							  datagrid1.isReadOnly(1, 1, datagrid1.rows-1 , datagrid1.cols-1) = true;
+ 						 }
+					}
+					function    funcMagamChk(issu_dt, fac_clsf) {
+						var strAlert = "";
+						
+						//STEP 1 현재 진행 상태 체크 
+						model1.send("mt_prnpap_3000");
+						
+						model1.setValue("/root/reqData/searchData/clos" ,  model1.getValue("/root/tempData/clos_clsf"));
+						model1.setValue("/root/reqData/searchData/clos_clsf_nm" ,  model1.getValue("/root/tempData/clos_clsf_nm"));
+						model1.setValue("/root/reqData/searchData/oth_div_clsf" ,  model1.getValue("/root/tempData/oth_div_clsf"));
+						
+						if (model1.getValue("/root/reqData/searchData/clos") == '00') {  // 신규 입력 또는 미입력 된 상태 
+							// 1. 전체 발행 내역 존재 여부 
+							model1.setValue("/root/reqData/searchData/dpcn_chk", model1.getValue("/root/tempData/dpcn_clsf"));
+							//model1.setValue("/root/reqData/searchData/dpcn_chk", "Y");
+							if( model1.getValue("/root/reqData/searchData/dpcn_chk") == 'N') {
+								alert(issu_dt + "일자에 " + fac_clsf + "공장의 전체 발행내역이 등록 마감 되어있지 않습니다\n 전체발행내역 마감 처리 후 작업 해주십시오.");
+								strAlert = 'ERR';
+								return strAlert;
+							}
+							
+							if( model1.getValue("/root/reqData/searchData/oth_div_clsf") == 'N') {
+								alert(issu_dt + "일자에 " + fac_clsf + "공장에서 발행한 외간 중에서 제지사별 자재구분 정보가 없는 정보가 있습니다.\n 전체발행내역의 외간분리 작업을 해주십시오.");
+								strAlert = 'ERR';
+								return strAlert;
+							}
+							
+							if( model1.getValue("/root/tempData/stokwh_clsf") == 'N') {
+								strAlert = strAlert + ( (strAlert == '') ? "" : ",") + "지고 재고량 " ;
+ 							}
+//							if( model1.getValue("/root/tempData/stokmidl_clsf") == 'N') {
+//								strAlert = strAlert + ( (strAlert == '') ? "" : ",") + "중잔지 재고량 " ;
+//					 		}
+							if( model1.getValue("/root/tempData/stokmach_clsf") == 'N') {
+								strAlert = strAlert + ( (strAlert == '') ? "" : ",") + "윤전기 재고량 " ;
+							}
+							if( model1.getValue("/root/tempData/paji_clsf") == 'N') {
+								strAlert = strAlert + ( (strAlert == '') ? "" : ",") + "파지량 " ;
+							}
+							if (strAlert != '' ){
+								strAlert = issu_dt + "일자에 " + fac_clsf + "공장의 " +strAlert+ "이 등록 되어있지 않습니다";
+								
+							}
+							return strAlert;
+						}
+						return strAlert;
+					}	
+					function    subTotal() {
+						
+						datagrid1.subtotalPosition = "below";
+						datagrid1.subtotal("clear", -1,8);
+						
+						datagrid1.subtotal("sum", -1, 4, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 5, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 6, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 7, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 8, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 9, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 10, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 11, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 12, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 13, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 14, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 15, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						datagrid1.subtotal("sum", -1, 18, "(-)#,###", "background-color:#DDDDDD; font-weight:normal; color:#000000;", 1, "합계");
+						
+					}
+				]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					datagrid1.isReadOnly(2,1,2, datagrid1.cols -1 ) = true;
+					
+					model1.setValue("/root/reqData/searchData/issu_dt", getCurrentDate());
+					model1.send("mt_prnpap_3004_L");
+					model1.copyNode("/root/initData/comboSet/fac_clsf", "/root/tempData/fac_clsf");  // 공장구분
+					model.setValue("/root/reqData/login_info/use_yn" , model1.getValue("/root/tempData/use_yn"));
+					combo1.refresh();
+					if ( model1.getValue("/root/reqData/login_info/use_yn") == 'N' ) {
+						  combo1.select(0);
+						  combo1.disabled = true;
+					}
+					 
+					iv1.window.javascript.load();
+					iv2.window.javascript.load();
+					iv3.window.javascript.load();
+					//iv4.window.javascript.load();
+					//iv5.window.javascript.load();
+					
+				]]>
+			</script>
+			<submission id="mt_prnpap_3000" action="/mt/prnpap/3000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3001_L" action="/mt/prnpap/3001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3002_A" action="/mt/prnpap/3002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3003_M" action="/mt/prnpap/3003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqRoll" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3004_L" action="/mt/prnpap/3004" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3006" action="/mt/prnpap/3006" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3007" action="/mt/prnpap/3007" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3008" action="/mt/prnpap/3008" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_prnpap_3011" action="/mt/prnpap/3011" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/sendData" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="740" guideline="2,744;1,1070;1,1053;1,5;2,83;2,-6;2,0;2,251;1,935;" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:7px; top:34px; width:928px; height:51px; ">
+			<caption id="caption3" class="list_cap02" style="left:1px; top:24px; width:927px; height:25px; text-align:center; "/>
+			<caption id="caption4" class="list_cap01" style="left:315px; top:24px; width:80px; height:25px; text-align:center; ">공장구분</caption>
+			<caption id="caption18" class="list_cap01" style="left:1px; top:24px; width:86px; height:25px; text-align:center; ">발행일자</caption>
+			<caption id="caption2" style="left:199px; top:17px; width:8px; height:10px; ">~</caption>
+			<button id="button2" class="btn02" navindex="6" style="left:822px; top:2px; width:55px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						iv1.window.javascript.funReset();	
+						iv2.window.javascript.funReset();
+						iv3.window.javascript.funReset();
+						iv4.window.javascript.funReset(); 
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" navindex="7" style="left:873px; top:2px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button10" class="btn02" navindex="5" style="left:771px; top:2px; width:52px; height:21px; ">
+				<caption>인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						
+					]]>
+				</script>
+			</button>
+			<input id="input2" ref="/root/reqData/searchData/issu_dt" class="req" navindex="1" inputtype="date" caption="발행일자" style="left:93px; top:28px; width:100px; height:18px; "/>
+			<select1 id="combo1" ref="/root/reqData/searchData/fac_clsf" class="req" navindex="2" appearance="minimal" caption="공장구분" style="left:405px; top:27px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<button id="button12" class="btn02" navindex="3" style="left:666px; top:2px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						 funbtnSearch(1);
+					]]>
+				</script>
+			</button>
+			<button id="button13" class="btn02" navindex="4" style="left:719px; top:2px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var issu_dt  = model1.getValue("/root/reqData/searchData/issu_dt");
+						var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+						
+						resMsg = funcMagamChk(issu_dt, fac_clsf)  ;
+						//if(resMsg != '' ) {
+						//	alert(resMsg + "\n 등록 후 저장이 가능 합니다.");
+						//	return;
+						//}
+						if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+							alert("마감 된 데이터 입니다 . \n수정 하실수 없습니다.");
+							return;
+						}
+						
+						if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}					
+						datagrid1.subtotal("clear", -1,8);
+						
+						var mulitUpdata = "gubun#occr_dt#seq#matr_cd#ewh_roll_cnt#ewh_wgt#wht_pj_retngod_wgt";
+						
+						for( var i = 2 ; i < datagrid1.rows; i++){
+							var gubun = ( datagrid1.valueMatrix( i ,  16) == '') ? 'i' : 'u' ;
+							var occr_dt = datagrid1.valueMatrix( i ,  16);
+							var seq = datagrid1.valueMatrix( i ,  17);
+							var matr_cd = datagrid1.valueMatrix( i ,  3 );
+							var ewh_roll_cnt = datagrid1.valueMatrix(i , 8);
+							var ewh_wgt  = datagrid1.valueMatrix(i, 9 );
+							var wht_pj_retngod_wgt = datagrid1.valueMatrix(i , 15);
+							
+							var mulitUpdataRow = "|" + gubun + "#" + occr_dt + "#" + seq + "#" + matr_cd + "#" + ewh_roll_cnt + "#" + ewh_wgt + "#" + wht_pj_retngod_wgt;
+							
+							mulitUpdata = mulitUpdata + mulitUpdataRow;
+							
+						}	
+						model1.makeNode("/root/reqData/searchData/mulitUpdata");
+						
+						model1.setValue("/root/reqData/searchData/mulitUpdata" , mulitUpdata);
+						model1.send("mt_prnpap_3002_A");
+						
+						if(submit_completed()) {							
+							alert("저장 완료되었습니다.");	
+							var issu_dt = model1.getValue("/root/reqData/searchData/issu_dt");
+							var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+							
+							button2.dispatch("onclick");
+							model1.setValue("/root/reqData/searchData/issu_dt" , issu_dt);
+						        model1.setValue("/root/reqData/searchData/fac_clsf" , fac_clsf);
+							
+							button12.dispatch("onclick");
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" navindex="8" style="left:561px; top:2px; width:52px; height:21px; ">
+				<caption>마감</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+							alert("이미 마감처리된 데이터 입니다");
+							return;
+						}
+						var occr_dt = datagrid1.valueMatrix( 2, 16 );
+						
+						if( occr_dt == ''){
+							alert("마감 처리할 데이터가 없습니다.");
+							return;
+						}
+						
+						if (window.alert("마감하시겠습니까?", "확인", 1) != 1) {
+								return;
+						}	
+						
+						model1.send("mt_prnpap_3007");
+						
+						if(submit_completed()) {							
+								alert("마감 완료되었습니다.");	
+								var issu_dt = model1.getValue("/root/reqData/searchData/issu_dt");
+								var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+								
+								button2.dispatch("onclick");
+								model1.setValue("/root/reqData/searchData/issu_dt" , issu_dt);
+							        model1.setValue("/root/reqData/searchData/fac_clsf" , fac_clsf);
+								 
+								button12.dispatch("onclick"); 
+							 
+						}
+						
+					]]>
+				</script>
+			</button>
+			<button id="button9" class="btn02" navindex="8" style="left:614px; top:2px; width:52px; height:21px; ">
+				<caption>마감 취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (model1.getValue("/root/reqData/searchData/clos") == "00"){ 
+							alert("마감 처리 되지 않은 데이터 입니다.");
+							return;
+						}
+						if (model1.getValue("/root/reqData/searchData/clos") == "02"){ 
+							alert("자재 마감이 발생한 데이터 입니다.\n 자재 마감 취소 후 마감 취소 하실수 있습니다.");
+							return;
+						}
+						 
+						
+						if (window.alert("마감 취소 하시겠습니까?", "확인", 1) != 1) {
+								return;
+						}	
+						
+						model1.send("mt_prnpap_3008");
+						
+						if(submit_completed()) {							
+								alert("마감 취소 완료되었습니다.");	
+								var issu_dt = model1.getValue("/root/reqData/searchData/issu_dt");
+								var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+								
+								button2.dispatch("onclick");
+								model1.setValue("/root/reqData/searchData/issu_dt" , issu_dt);
+							        model1.setValue("/root/reqData/searchData/fac_clsf" , fac_clsf);
+								
+								button12.dispatch("onclick"); 
+							 
+						}
+						
+					]]>
+				</script>
+			</button>
+			<caption id="caption1" class="list_cap01" style="left:595px; top:24px; width:80px; height:25px; text-align:center; ">마감상태</caption>
+			<output id="output1" ref="/root/reqData/searchData/clos_clsf_nm" style="left:684px; top:27px; width:100px; height:18px; "/>
+			<output id="output2" ref="/root/reqData/searchData/issu_dt" format="yyyy-mm-dd" style="left:790px; top:27px; width:100px; height:18px; "/>
+			<button id="button8" class="btn05" navindex="6" style="left:440px; top:2px; width:121px; height:21px; ">
+				<caption>백파반품중량 정산취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					      var row = datagrid1.row;
+					      
+					      if ( row < 2 ) {
+					      		alert("정산취소할 데이터를 선택해주세요");
+					      		return;
+					      } 
+					      
+					      if( datagrid1.valueMatrix( row , 0 ) == '' ) {
+					      		alert("정산취소할 데이터를 선택해주세요");
+					      		return;
+					      } 
+					      
+					      if( datagrid1.valueMatrix( row , 16 ) == '' ) {
+	 				      	        alert("백파 반품 중량 정산취소은 용지 재고를 입력 후 가능 합니다");
+					      	        return;
+					      } 
+					      
+					      if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+							alert("마감 된 데이터 입니다 . \n수정 하실수 없습니다.");
+							return;
+					      }
+					     
+					     
+					     if( window.alert(datagrid1.valueMatrix(row, 1) + " " + datagrid1.valueMatrix(row, 2) + "권\n 백파 반품 중량 정산취소 하시겠습니까? (  " +  datagrid1.valueMatrix(row, 18) + ")" , "확인", 1) != 1){
+					     	return;
+					     }
+					     model1.makeNode("/root/reqData/searchData/sendData");
+					     model1.makeNode("/root/reqData/searchData/sendData/occr_dt");
+					     model1.makeNode("/root/reqData/searchData/sendData/seq");
+					     model1.makeNode("/root/reqData/searchData/sendData/gubun");
+					     
+					     model1.setValue("/root/reqData/searchData/sendData/occr_dt", datagrid1.valueMatrix(row, 16) );
+					     model1.setValue("/root/reqData/searchData/sendData/seq", datagrid1.valueMatrix(row, 17) );
+					     model1.setValue("/root/reqData/searchData/sendData/gubun", "D" ); 
+					     
+					     model1.send("mt_prnpap_3011");
+					     
+					     model1.destroy("/root/reqData/searchData/sendData");
+					
+					     if(submit_completed()) {							
+								var issu_dt = model1.getValue("/root/reqData/searchData/issu_dt");
+								var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+								
+								button2.dispatch("onclick");
+								model1.setValue("/root/reqData/searchData/issu_dt" , issu_dt);
+							        model1.setValue("/root/reqData/searchData/fac_clsf" , fac_clsf);
+								 
+								button12.dispatch("onclick"); 
+							 
+						}
+					       
+					]]>
+				</script>
+			</button>
+			<button id="button11" class="btn05" navindex="6" style="left:334px; top:2px; width:104px; height:21px; ">
+				<caption>백파반품중량 정산</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					      var row = datagrid1.row;
+					      
+					      if ( row < 2 ) {
+					      		alert("정산할 데이터를 선택해주세요");
+					      		return;
+					      } 
+					      
+					      if( datagrid1.valueMatrix( row , 0 ) == '' ) {
+					      		alert("정산할 데이터를 선택해주세요");
+					      		return;
+					      } 
+					      
+					      if( datagrid1.valueMatrix( row , 16 ) == '' ) {
+	 				      	        alert("백파 반품 중량 정산은 용지 재고를 입력 후 가능 합니다");
+					      	        return;
+					      } 
+				      
+					      if (model1.getValue("/root/reqData/searchData/clos") != "00"){//  마감된 데이터
+							alert("마감 된 데이터 입니다 . \n수정 하실수 없습니다.");
+							return;
+					     }
+					     
+					     
+					     if( window.alert(datagrid1.valueMatrix(row, 1) + " " + datagrid1.valueMatrix(row, 2) + "권\n 백파 반품 중량 정산 하시겠습니까? (  " +  datagrid1.valueMatrix(row, 18) + ")" , "확인", 1) != 1){
+					     	return;
+					     }
+					     model1.makeNode("/root/reqData/searchData/sendData");
+					     model1.makeNode("/root/reqData/searchData/sendData/occr_dt");
+					     model1.makeNode("/root/reqData/searchData/sendData/seq");
+					     model1.makeNode("/root/reqData/searchData/sendData/gubun");
+					     
+					     model1.setValue("/root/reqData/searchData/sendData/occr_dt", datagrid1.valueMatrix(row, 16) );
+					     model1.setValue("/root/reqData/searchData/sendData/seq", datagrid1.valueMatrix(row, 17) );
+					     model1.setValue("/root/reqData/searchData/sendData/gubun", "U" ); 
+					     
+					     model1.send("mt_prnpap_3011");
+					     
+					     model1.destroy("/root/reqData/searchData/sendData");
+					
+					     if(submit_completed()) {							
+								var issu_dt = model1.getValue("/root/reqData/searchData/issu_dt");
+								var fac_clsf = model1.getValue("/root/reqData/searchData/fac_clsf");
+								
+								button2.dispatch("onclick");
+								model1.setValue("/root/reqData/searchData/issu_dt" , issu_dt);
+							        model1.setValue("/root/reqData/searchData/fac_clsf" , fac_clsf);
+								 
+								button12.dispatch("onclick"); 
+							 
+						}
+					       
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" scroll="auto" caption="No^제지사^용지구분^자재코드^전일재고^전일재고^전일입고^전일입고^금일입고^금일입고^소모^소모^금일재고^금일재고^선인쇄사용량^백파반품중량^occr_dt^seq^누적백파반품중량|No^제지사^용지구분^자재코드^롤^중량^롤^중량^롤^중량^롤^중량^롤^중량^선인쇄사용량^백파반품중량^occr_dt^seq^누적백파반품중량" colsep="#" colwidth="25, 86, 60, 2, 60, 56, 52, 55, 60, 50, 49, 60, 60, 80, 50, 50, 2, 2, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="free" navindex="9" style="left:7px; top:86px; width:928px; height:165px; ">
+			<col ref="rowCnt"/>
+			<col ref="pap_cmpy" style="text-align:left; "/>
+			<col ref="paper_clsf_cd" style="text-align:left; "/>
+			<col class="req" ref="matr_cd" visibility="hidden" caption="자재코드" style="text-align:left; "/>
+			<col ref="fr_roll" format="(-)#,###"/>
+			<col ref="fr_wt" format="(-)#,###"/>
+			<col ref="ewh_roll_cnt" format="(-)#,###" style="text-align:center; "/>
+			<col ref="ewh_wgt" format="(-)#,###"/>
+			<col ref="ewh_roll_cnt_to" type="input" format="(-)#,###"/>
+			<col ref="ewh_wgt_to" format="(-)#,###"/>
+			<col ref="somo_roll" format="(-)#,###"/>
+			<col ref="somo_wgt" format="(-)#,###"/>
+			<col ref="rem_qunt_cnt" format="(-)#,###"/>
+			<col ref="rem_qunt_wgt" format="(-)#,###"/>
+			<col ref="cnsm_qunt" format="(-)#,###"/>
+			<col ref="wht_pj_retngod_wgt" type="input" format="(-)#,###"/>
+			<col ref="occr_dt" visibility="hidden" style="text-align:left; "/>
+			<col ref="seq" visibility="hidden" style="text-align:left; "/>
+			<col ref="sum_wht_pj_retngod_wgt" type="output" format="(-)#,###"/>
+			<script type="javascript" ev:event="onendedit">
+				<![CDATA[
+					var iSelectedCol = datagrid1.col;
+					var iSelectedRow = datagrid1.row;
+					var sValue = "";					
+					
+					// 금일입고 롤 입력시 
+					if(iSelectedCol == 8){
+				
+						sValue = datagrid1.valueMatrix(iSelectedRow, iSelectedCol);
+
+						model1.setValue("/root/reqData/reqRoll/roll",sValue);
+						model1.setValue("/root/reqData/reqRoll/fac_clsf",  model1.getValue("/root/reqData/searchData/fac_clsf"));
+						model1.setValue("/root/reqData/reqRoll/matr_cd",  datagrid1.valueMatrix(iSelectedRow, 3) );
+					
+						model1.send("mt_prnpap_3003_M");
+						datagrid1.valueMatrix(iSelectedRow, 9) =  model1.getValue("/root/tempData/roll_wgt/roll_wgt") ;  // 금일입고 중량 
+						
+						subTotal();
+						 
+					}
+				]]>
+			</script>
+		</datagrid>
+		<button id="button3" class="tab05" group="tab" selected="true" style="left:8px; top:257px; width:92px; height:23px; text-align:center; ">
+			<caption>지고재고량</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[				
+					model.toggle("case1");
+					CurTab("iv1", "case1", true);
+					model1.refresh();		
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="tab05" group="tab" style="left:105px; top:257px; width:92px; height:23px; ">
+			<caption>중잔지재고량</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case2");
+					CurTab("iv2", "case2", true);
+					model1.refresh();
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="tab07" group="tab" style="left:202px; top:257px; width:118px; height:23px; ">
+			<caption>윤전기재고량</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case3");
+					CurTab("iv3", "case3", true);
+					model1.refresh();
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" style="left:9px; top:280px; width:926px; height:435px; ">
+			<case id="case1" scroll="none" selected="true">
+				<iviewer id="iv1" src="MT_PRNPAP_3100.xrw" overflow="hidden" scroll="none" style="left:0px; top:0px; width:924px; height:534px; "/>
+			</case>
+			<case id="case2" scroll="none">
+				<iviewer id="iv2" src="MT_PRNPAP_3200.xrw" overflow="hidden" scroll="none" style="left:0px; top:1px; width:924px; height:503px; "/>
+			</case>
+			<case id="case3" scroll="none">
+				<iviewer id="iv3" src="MT_PRNPAP_3300.xrw" overflow="hidden" scroll="none" style="left:0px; top:1px; width:924px; height:503px; "/>
+			</case>
+			<case id="case4" scroll="none">
+				<iviewer id="iv4" src="MT_PRNPAP_3400.xrw" overflow="hidden" scroll="none" style="left:0px; top:0px; width:924px; height:534px; "/>
+			</case>
+		</switch>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button7" class="tab07" group="tab" style="left:325px; top:257px; width:118px; height:23px; ">
+			<caption>파지량</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case4");
+					CurTab("iv4", "case4", true);
+					model1.refresh();	
+					iv4.window.javascript.ligthgridCreat();				
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

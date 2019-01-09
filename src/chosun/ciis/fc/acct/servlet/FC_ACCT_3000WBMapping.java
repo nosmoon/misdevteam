@@ -1,0 +1,67 @@
+package chosun.ciis.fc.acct.servlet;
+
+public class FC_ACCT_3000WBMapping {
+	public static final int FC_ACCT_9999 = 9999;
+	public static final int FC_ACCT_3000 = 3000;
+	public static final int FC_ACCT_3001 = 3001;
+	public static final int FC_ACCT_3002 = 3002;
+	public static final int FC_ACCT_3003 = 3003;
+	public static final int FC_ACCT_3004 = 3004;
+	public static final int FC_ACCT_3005 = 3005;
+	public static final int FC_ACCT_3006 = 3006;
+	public static final int FC_ACCT_3010 = 3010;
+	public static final int FC_ACCT_3011 = 3011;
+	public static final int FC_ACCT_3012 = 3012;
+	public static final int FC_ACCT_3013 = 3013;
+	public static final int FC_ACCT_3014 = 3014;
+	public static final int FC_ACCT_3015 = 3015;
+	public static final int FC_ACCT_3016 = 3016;
+	public static final int FC_ACCT_3020 = 3020;
+	public static final int FC_ACCT_3021 = 3021;
+	public static final int FC_ACCT_3022 = 3022;
+	public static final int FC_ACCT_3023 = 3023;
+	public static final int FC_ACCT_3024 = 3024;
+	public static final int FC_ACCT_3025 = 3025;
+	public static final int FC_ACCT_3026 = 3026;
+	public static final int FC_ACCT_3030 = 3030;
+	public static final int FC_ACCT_3031 = 3031;
+	public static final int FC_ACCT_3032 = 3032;
+	public static final int FC_ACCT_3033 = 3033;
+	public static final int FC_ACCT_3034 = 3034;
+	public static final int FC_ACCT_3035 = 3035;
+	public static final int FC_ACCT_3040 = 3040;
+	public static final int FC_ACCT_3041 = 3041;
+	public static final int FC_ACCT_3042 = 3042;
+	public static final int FC_ACCT_3043 = 3043;
+	public static final int FC_ACCT_3044 = 3044;	
+	public static final int FC_ACCT_3045 = 3045;
+	public static final int FC_ACCT_3046 = 3046;
+	public static final int FC_ACCT_3050 = 3050;
+	public static final int FC_ACCT_3051 = 3051;
+	public static final int FC_ACCT_3052 = 3052;
+	public static final int FC_ACCT_3053 = 3053;
+	public static final int FC_ACCT_3054 = 3054;
+	public static final int FC_ACCT_3055 = 3055;	
+	public static final int FC_ACCT_3056 = 3056;
+	public static final int FC_ACCT_3070 = 3070;
+	public static final int FC_ACCT_3071 = 3071;
+	public static final int FC_ACCT_3072 = 3072;
+	public static final int FC_ACCT_3073 = 3073;
+	public static final int FC_ACCT_3074 = 3074;
+	public static final int FC_ACCT_3075 = 3075;
+	public static final int FC_ACCT_3076 = 3076;
+	public static final int FC_ACCT_3150 = 3150;
+	public static final int FC_ACCT_3151 = 3151;
+	public static final int FC_ACCT_3152 = 3152;
+	public static final int FC_ACCT_3153 = 3153;
+	public static final int FC_ACCT_3154 = 3154;
+	
+	public static final int FC_ACCT_3250 = 3250;
+	public static final int FC_ACCT_3251 = 3251;
+	public static final int FC_ACCT_3253 = 3253;
+	public static final int FC_ACCT_3254 = 3254;
+	public static final int FC_ACCT_3255 = 3255;
+	public static final int FC_ACCT_3256 = 3256;
+	public static final int FC_ACCT_3257 = 3257;
+	
+}

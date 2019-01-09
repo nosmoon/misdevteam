@@ -1,0 +1,33 @@
+<%@ page contentType="text/xml; charset=KSC5601" %>
+<%@ include file="/jsp/ss/comm_jsp/ss_common_x.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ss_extn_1530_a.jsp
+* 기능 : 확장현황-조선IS확장-마감(MC)-초기화면
+* 작성일자 : 2005-02-19
+* 작성자 : 김대섭
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역	: TrustForm 대응
+* 수정자	: 권정윤
+* 수정일자	: 2009-03-18
+* 백업파일명: ss_extn_1530_a.jsp.bak
+---------------------------------------------------------------------------------------------------%>
+<%
+    SS_L_RDR_EXTN_MCCLOS_INITDataSet ds = (SS_L_RDR_EXTN_MCCLOS_INITDataSet)request.getAttribute("ds");
+	//int servListCount = 20;
+    //int mediListCount = 13;
+    int servListCount = 5000;
+    int mediListCount = 5000;
+	String paramGbn = "##";
+    applySession = true;	// 세션 적용 여부
+    
+    RwXmlWrapper rxw = new RwXmlWrapper();
+	int root = RwXmlWrapper.rootNodeID;
+	int initData = rxw.add(root, "initTemp", "");
+	
+	rxw.add(initData, "defalutDate", Util.getDate());
+	rxw.makeDataToList(ds, "curmedicd", "cicdnm", "cicodeval", "선택", "", initData, "mcCombo"); // 매체
+	rxw.makeDataToList(ds, "curdeptcd", "boksnm", "deptcd", "선택", "", initData, "deptCombo"); // 부서
+	
+	rxw.flush(out);
+%>   

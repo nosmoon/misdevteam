@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_RCP_5000.xrw
+* 기능 : 판매 - 입금관리 - 결재관리 - 일입금결재
+* 작성일자 : 2009.05.20
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goTeamClos(){
+					var dt		= model.getValue("/root/reqData/searchData/dt"		);
+					var team		= model.getValue("/root/reqData/searchData/team"	);
+					var part		= model.getValue("/root/reqData/searchData/part"	);
+					var area		= model.getValue("/root/reqData/searchData/area"	);
+					
+					if ( dt == "" || (team == "" && part == "" && area == "") ){
+						output2.value = "";
+						return;
+					}
+					
+					var gubun, index;
+					index		= switch1.selectedIndex;
+
+					if ( index == 0 ){
+						gubun 	= "010";
+					} else if ( index == 1 ) {
+						gubun 	= "020";
+					} else if ( index == 2 ) {
+						gubun 	= "030";
+					} else {
+						gubun 	= "035";
+					}
+					model.setValue("/root/reqData/searchData/gubun", gubun);
+					
+					var action 	= "se_rcp_5010_s";
+					model.send(action);
+					var closInfo = model.getValue("/root/initData/closInfo/clos_yn");
+					output2.value = closInfo;
+					output2.refresh();
+				}
+				
+				function setClosUnit(){
+					var team		= model.getValue("/root/reqData/searchData/team");
+					var part		= model.getValue("/root/reqData/searchData/part");
+					var area		= model.getValue("/root/reqData/searchData/area");
+					var value	= "";
+					
+					if ( area == "" ){
+						combo4.value	= "1";
+					} else {
+						combo4.value	= "2";
+					}
+					
+					if ( team != "" ){
+						value	= "1";
+					} 
+
+					if ( part != "" ){
+						value	= "2";
+					}
+					
+					if ( area != "" ){
+						value	= "3";
+					}
+					
+					if ( value != "" ){
+						combo1.value	= value;
+					} else {
+						combo1.value	= "1";
+					}
+				}
+			
+				function goSearch(){
+					var dt		= model.getValue("/root/reqData/searchData/dt");
+					
+					if ( dt == ""  ){
+						commAlert("입금일자가 없습니다");
+						return;
+					}
+					
+					var index	= switch1.selectedIndex;
+					var grid, tarRef;
+					model.setValue("/root/reqData/searchData/gubun", index + 1);					
+
+					if ( index == 0 ){
+						tarRef	= "/root/resData/gridData/curlist";
+						grid		= "datagrid1";
+					} else if ( index == 1 ){
+						tarRef	= "/root/resData/gridData/bnslist";
+						grid		= "datagrid2";
+					} else if ( index == 2 ){
+						tarRef	= "/root/resData/gridData/spolist";
+						grid		= "datagrid3";
+					} else if ( index == 3 ){
+						tarRef	= "/root/resData/gridData/chalist";
+						grid		= "datagrid4";
+					}
+
+					var searchgubun	= model.getValue("/root/reqData/searchData/searchgubun");
+					var width;
+					
+					if ( index == 0 || index == 1 || index == 3 ){
+						if ( searchgubun == "1" ){
+							eval(grid + ".colHidden(6) = true");
+							//width = new Array(90, 90, 90, 80, 80, 0, 90, 90, 90, 90, 90);
+						} else if ( searchgubun == "2" ){
+							eval(grid + ".colHidden(6) = false");
+							//width = new Array(80, 80, 80, 80, 80, 70, 80, 80, 80, 80, 90);
+						} 
+					} else if ( index == 2 ) {
+						if ( searchgubun == "1" ){
+							eval(grid + ".colHidden(6) = true");
+							//width = new Array(100, 100, 100, 90, 90, 0, 100, 100, 100, 100);
+						} else if ( searchgubun == "2" ){
+							eval(grid + ".colHidden(6) = false");
+							//width = new Array(90, 90, 90, 80, 80, 90, 90, 90, 90, 90);
+						} 
+					}
+
+/*					
+					for ( var i = 0 ; i < width.length ; i++ ){
+						eval(grid + ".colWidth(i + 1) = width[i]");
+					}
+*/
+					
+					var dt			= model.getValue("/root/reqData/searchData/dt");
+					var team			= model.getValue("/root/reqData/searchData/team");
+					var part			= model.getValue("/root/reqData/searchData/part");
+					var area			= model.getValue("/root/reqData/searchData/area");
+					var clos_yn		= model.getValue("/root/reqData/searchData/clos_yn");
+					
+					var root;
+					var index		= switch1.selectedIndex;
+					
+					if ( index == 0 ){
+						root			= "/root/reqData/searchData3";
+					} else if ( index == 1 ){
+						root			= "/root/reqData/searchData4";
+					} else if ( index == 2 ){
+						root			= "/root/reqData/searchData5";
+					} else if ( index == 3){
+						root			= "/root/reqData/searchData6";
+					}
+					
+					model.setValue(root + "/dt"		, dt			);
+					model.setValue(root + "/team"		, team		);
+					model.setValue(root + "/part"		, part		);
+					model.setValue(root + "/area"		, area		);
+					model.setValue(root + "/clos_yn"	, clos_yn	);
+					
+					var action = "se_rcp_5020_l";
+					model.send(action);
+
+					model.copyNode(tarRef, "/root/resData/gridData2/curlist");
+					
+					eval(grid + ".refresh()");
+					
+					se_chkGridCnt(grid);
+					
+					var rows = eval(grid + ".rows");
+					if ( rows > eval(grid + ".fixedRows") ){
+						eval(grid + ".mergeByFree(rows - 1, 1, rows - 1, 6)");
+					}
+
+					model.refresh();
+				}
+				
+				function goClos(yn){
+					var msg		= "";
+					if ( yn == "" ){
+						commAlert("결재/취소 구분이 없습니다.");
+						return;
+					}
+					
+					if ( yn == "Y" ){
+						msg		= "결재";
+					} else if ( yn == "N" ){
+						msg		= "결재취소";
+					}
+					
+					var val = window.alert(msg + "하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var root, grid;
+					var index		= switch1.selectedIndex;
+
+					if ( index == 0 ){
+						root			= "/root/reqData/searchData3";
+						grid			= "datagrid1";
+					} else if ( index == 1 ){
+						root			= "/root/reqData/searchData4";
+						grid			= "datagrid2";
+					} else if ( index == 2 ){
+						root			= "/root/reqData/searchData5";
+						grid			= "datagrid3";
+				      } else if ( index == 3 ){
+						root			= "/root/reqData/searchData6";
+						grid			= "datagrid4";
+					}
+
+					var clos_gubun	= model.getValue("/root/reqData/searchData/clos_gubun"	);					
+					var clos_yn		= model.getValue(root + "/clos_yn"		);
+					var dt			= model.getValue(root + "/dt"			);
+					var team			= model.getValue(root + "/team"		);
+					var part			= model.getValue(root + "/part"		);
+					var area			= model.getValue(root + "/area"		);
+					
+					if ( dt == "" ){
+						commAlert("입금일자가 없습니다.");
+						return;
+					}
+					
+					if ( clos_gubun == "" ){
+						commAlert("결재단위가 없습니다.");
+						return;
+					}
+					
+					if ( clos_gubun == "1" ){
+						if ( team == "" ){
+							commAlert("팀 결재는 팀을 선택하여야 합니다.");
+							return;
+						}
+					} else if ( clos_gubun == "2" ){
+						if ( part == "" ){
+							commAlert("파트 결재는 파트를 선택하여야 합니다.");
+							return;
+						}
+					} else if ( clos_gubun == "3" ){
+						if ( area == "" ){
+							commAlert("지역 결재는 지역을 선택하여야 합니다.");
+							return;
+						}
+						var rows		= eval(grid + ".rows");
+						if(rows <3){
+							commAlert("결재할 지역이 존재 하지 않습니다.");
+							return;
+						}
+						
+					}
+
+					clos_yn			= clos_yn.substr(0, 1);
+					if ( clos_gubun == "1" ){
+						if ( yn == "Y" ){
+							if ( clos_yn == "Y" ){
+								commAlert("이미 팀 결재가 되었습니다.");
+								return;
+							}
+						} else if ( yn == "N" ){
+							if ( clos_yn == "N" ){
+								commAlert("결재된 내역이 아닙니다.");
+								return;
+							}
+						}
+					} else if ( clos_gubun == "2"){
+						if ( clos_yn == "Y" ){
+							commAlert("이미 팀 결재가 되었습니다.");
+							return;
+						}
+
+						var rows		= eval(grid + ".rows");
+						var val;
+						for ( var i = 1 ; i < rows ; i++ ){
+							val		= eval(grid + ".valueMatrix(" + i + ", 4)");
+							val		= val.substr(0, 1);
+							if ( yn == "Y" && val == "Y" ){
+								commAlert("이미 " + (i - 1) + "행의 파트 결재가 되었습니다.");
+								return;
+							} else if ( yn == "N" && val == "N" ){
+								commAlert((i - 1) + "행의 파트 결재가 되지 않아 취소할 수 없습니다.");
+								return;
+							}
+						}
+					} else if ( clos_gubun == "3" ){
+						if ( clos_yn == "Y" ){
+							commAlert("이미 팀 결재가 되었습니다.");
+							return;
+						}
+
+						var rows		= eval(grid + ".rows");
+						var val;
+
+						for ( var i = 1 ; i < rows ; i++ ){
+							val		= eval(grid + ".valueMatrix(" + i + ", 4)");
+							val		= val.substr(0, 1);
+							if ( val == "Y" ){
+								commAlert("이미 " + (i - 1) + "행의 파트 결재가 되었습니다.");
+								return;
+							}
+							
+							val		= eval(grid + ".valueMatrix(" + i + ", 5)");
+							val		= val.substr(0, 1);
+							if ( yn == "Y" && val == "Y" ){
+								commAlert("이미 " + (i - 1) + "행의 지역 결재가 되었습니다.");
+								return;
+							} else if ( yn == "N" && val == "N" ){
+								commAlert((i - 1) + "행의 지역 결재가 되지 않아 취소할 수 없습니다.");
+								return;
+							}
+						}
+						
+					}
+
+					model.setValue("/root/reqData/searchData2/clos_yn"		, yn			);
+					model.setValue("/root/reqData/searchData2/dt"			, dt			);
+					model.setValue("/root/reqData/searchData2/clos_gubun"	, clos_gubun	);
+					model.setValue("/root/reqData/searchData2/team"			, team		);
+					model.setValue("/root/reqData/searchData2/part"			, part		);
+					model.setValue("/root/reqData/searchData2/area"			, area		);
+					model.setValue("/root/reqData/searchData2/gubun"		, index + 1	);					
+					
+					var action 	= "se_rcp_5030_a";
+					model.send(action);
+					
+					if ( clos_gubun == "1" ){
+						goTeamClos();
+					}
+					goSearch();
+				}
+				
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<closInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<dt/>
+							<team/>
+							<part/>
+							<area/>
+							<searchgubun>1</searchgubun>
+							<clos_yn/>
+							<clos_gubun>1</clos_gubun>
+							<gubun/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData2>
+							<dt/>
+							<team/>
+							<part/>
+							<area/>
+							<clos_gubun/>
+							<clos_yn/>
+							<gubun/>
+						</searchData2>
+						<searchData3>
+							<dt/>
+							<team/>
+							<part/>
+							<area/>
+							<clos_gubun/>
+							<clos_yn/>
+						</searchData3>
+						<searchData4>
+							<dt/>
+							<team/>
+							<part/>
+							<area/>
+							<clos_gubun/>
+							<clos_yn/>
+						</searchData4>
+						<searchData5>
+							<dt/>
+							<team/>
+							<part/>
+							<area/>
+							<clos_gubun/>
+							<clos_yn/>
+						</searchData5>
+						<searchData6>
+							<dt/>
+							<team/>
+							<part/>
+							<area/>
+							<clos_gubun/>
+							<clos_yn/>
+						</searchData6>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<dept_cd/>
+									<dept_nm/>
+									<part_cd/>
+									<part_nm/>
+									<area_cd/>
+									<area_nm/>
+									<bo_nm/>
+									<part_clos_yn/>
+									<aera_clos_yn/>
+									<amt_1/>
+									<amt_2/>
+									<amt_3/>
+									<amt/>
+									<amt_etc/>
+								</record>
+							</curlist>
+							<spolist>
+								<record>
+									<dept_cd/>
+									<dept_nm/>
+									<part_cd/>
+									<part_nm/>
+									<area_cd/>
+									<area_nm/>
+									<bo_nm/>
+									<part_clos_yn/>
+									<aera_clos_yn/>
+									<amt_1/>
+									<amt_2/>
+									<amt_3/>
+									<amt/>
+								</record>
+							</spolist>
+							<bnslist>
+								<record>
+									<dept_cd/>
+									<dept_nm/>
+									<part_cd/>
+									<part_nm/>
+									<area_cd/>
+									<area_nm/>
+									<bo_nm/>
+									<part_clos_yn/>
+									<aera_clos_yn/>
+									<amt_1/>
+									<amt_2/>
+									<amt_3/>
+									<amt/>
+									<amt_etc/>
+								</record>
+							</bnslist>
+							<chalist>
+								<record>
+									<dept_cd/>
+									<dept_nm/>
+									<part_cd/>
+									<part_nm/>
+									<area_cd/>
+									<area_nm/>
+									<bo_nm/>
+									<part_clos_yn/>
+									<aera_clos_yn/>
+									<amt_1/>
+									<amt_2/>
+									<amt_3/>
+									<amt_etc/>
+									<amt/>
+								</record>
+							</chalist>
+						</gridData>
+						<MsgData/>
+						<gridData2>
+							<curlist/>
+						</gridData2>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					makeTeamSearch(
+									"se_rcp_5000_m"
+								  , "/se/rcp/5000"
+								  , "/root/reqData"  
+		                            , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  , "area_combo"
+								  );
+					var dt		= model.getValue("/root/initData/dt");			  
+					model.setValue("/root/reqData/searchData/dt", dt);
+					
+					model.toggle("case1");
+					
+					model.refresh();
+					
+				]]>
+			</script>
+			<submission id="se_rcp_5000_m" action="/se/rcp/5000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_rcp_5010_s" action="/se/rcp/5010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/initData/closInfo"/>
+			<submission id="se_rcp_5020_l" action="/se/rcp/5020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData2"/>
+			<submission id="se_rcp_5030_a" action="/se/rcp/5030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,726;2,120;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:127px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:51px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">입금일자</caption>
+			<input id="input3" ref="/root/reqData/searchData/dt" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" caption="지급시작일자" style="left:87px; top:4px; width:110px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/dt", value);
+						goSearch();
+					}
+				]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						goTeamClos();
+					]]>
+				</script>
+			</input>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team" appearance="minimal" style="left:294px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						goTeamClos();
+						setClosUnit();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:207px; top:0px; width:80px; height:26px; ">팀</caption>
+			<caption id="caption2" class="list_cap01" style="left:414px; top:0px; width:80px; height:26px; ">파트</caption>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part" appearance="minimal" style="left:501px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						goTeamClos();
+						setClosUnit();		
+					]]>
+				</script>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:621px; top:0px; width:80px; height:26px; ">지역</caption>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area" appearance="minimal" style="left:708px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						goTeamClos();
+						setClosUnit();
+					]]>
+				</script>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:25px; width:80px; height:26px; ">조회형태</caption>
+			<select1 id="combo4" ref="/root/reqData/searchData/searchgubun" appearance="minimal" style="left:87px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<item>
+						<label>지역</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>지국</label>
+						<value>2</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption6" class="list_cap01" style="left:207px; top:25px; width:80px; height:26px; ">결재단위</caption>
+			<caption id="caption8" class="list_cap01" style="left:414px; top:25px; width:80px; height:26px; ">팀결재여부</caption>
+			<output id="output2" ref="/root/reqData/searchData/clos_yn" style="left:501px; top:29px; width:200px; height:22px; text-align:left; "/>
+			<select1 id="combo1" ref="/root/reqData/searchData/clos_gubun" appearance="minimal" style="left:294px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<item>
+						<label>팀</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>파트</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>지역</label>
+						<value>3</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:670px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn03" crud="C" style="left:737px; top:44px; width:63px; height:21px; ">
+			<caption>결재</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goClos("Y");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn03" crud="C" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>결재취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goClos("N");
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" class="gro_sel" style="left:10px; top:167px; width:926px; height:560px; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="팀^파트^지역^결재상태^결재상태^지국^외상매출금^보증금지국^예수금스포츠^기타^계|팀^파트^지역^파트^지역^지국^외상매출금^보증금지국^예수금스포츠^기타^계" colsep="#" colwidth="90, 90, 90, 150, 150, 90, 80, 80, 80, 80, 90" datatype="xml" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:10px; width:906px; height:535px; ">
+					<col ref="dept_nm" style="text-align:left; "/>
+					<col ref="part_nm" style="text-align:left; "/>
+					<col ref="area_nm" style="text-align:left; "/>
+					<col ref="part_clos_yn"/>
+					<col ref="aera_clos_yn"/>
+					<col ref="bo_nm" style="text-align:left; "/>
+					<col ref="amt_1" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_2" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_3" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_etc" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt" format="(-)#,###" style="text-align:right; "/>
+				</datagrid>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData/bnslist/record" caption="팀^파트^지역^결재상태^결재상태^지국^판촉물1^판촉물2^판촉물3^기타^계|팀^파트^지역^파트^지역^지국^판촉물1^판촉물2^판촉물3^기타^계" colsep="#" colwidth="90, 90, 90, 150, 150, 90, 80, 80, 80, 80, 80" datatype="xml" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:10px; width:906px; height:535px; ">
+					<col ref="dept_nm" style="text-align:left; "/>
+					<col ref="part_nm" style="text-align:left; "/>
+					<col ref="area_nm" style="text-align:left; "/>
+					<col ref="part_clos_yn"/>
+					<col ref="aera_clos_yn"/>
+					<col ref="bo_nm" style="text-align:left; "/>
+					<col ref="amt_1" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_2" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_3" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_etc" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt" format="(-)#,###" style="text-align:right; "/>
+				</datagrid>
+			</case>
+			<case id="case3">
+				<datagrid id="datagrid3" nodeset="/root/resData/gridData/spolist/record" caption="팀^파트^지역^결재상태^결재상태^지국^외상매출금^보증금지국^예수금스포츠^계|팀^파트^지역^파트^지역^지국^외상매출금^보증금지국^예수금스포츠^계" colsep="#" colwidth="90, 90, 90, 150, 150, 90, 80, 80, 80, 80" datatype="xml" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:10px; width:906px; height:535px; ">
+					<col ref="dept_nm" style="text-align:left; "/>
+					<col ref="part_nm" style="text-align:left; "/>
+					<col ref="area_nm" style="text-align:left; "/>
+					<col ref="part_clos_yn"/>
+					<col ref="aera_clos_yn"/>
+					<col ref="bo_nm" style="text-align:left; "/>
+					<col ref="amt_1" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_2" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_3" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt" format="(-)#,###" style="text-align:right; "/>
+				</datagrid>
+			</case>
+			<case id="case4">
+				<datagrid id="datagrid4" nodeset="/root/resData/gridData/chalist/record" caption="팀^파트^지역^결재상태^결재상태^지국^지대^보증금^전세지원금^환불^계|팀^파트^지역^파트^지역^지국^지대^보증금^전세지원금^환불^계" colsep="#" colwidth="90, 90, 90, 150, 150, 90, 80, 80, 80, 80, 80" datatype="xml" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:10px; width:906px; height:535px; ">
+					<col ref="dept_nm" style="text-align:left; "/>
+					<col ref="part_nm" style="text-align:left; "/>
+					<col ref="area_nm" style="text-align:left; "/>
+					<col ref="part_clos_yn"/>
+					<col ref="aera_clos_yn"/>
+					<col ref="bo_nm" style="text-align:left; "/>
+					<col ref="amt_1" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_2" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_3" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt_etc" format="(-)#,###" style="text-align:right; "/>
+					<col ref="amt" format="(-)#,###" style="text-align:right; "/>
+				</datagrid>
+			</case>
+		</switch>
+		<button id="button1" class="tab06" group="tab" crud="R" style="left:224px; top:145px; width:105px; height:23px; ">
+			<caption>스포츠입금</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.toggle("case3");
+					goTeamClos();
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="tab06" group="tab" crud="R" style="left:331px; top:145px; width:105px; height:23px; ">
+			<caption>인수인계</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.toggle("case4");
+					goTeamClos();
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="tab06" group="tab" selected="true" crud="R" style="left:10px; top:145px; width:105px; height:23px; ">
+			<caption>신문판매</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.toggle("case1");
+					goTeamClos();
+				]]>
+			</script>
+		</button>
+		<button id="button12" class="tab06" group="tab" crud="R" style="left:117px; top:145px; width:105px; height:23px; ">
+			<caption>판촉물입금</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.toggle("case2");
+					goTeamClos();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<flnm/>
+							<emp_no/>
+							<child_flnm/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpData/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<reg_dt/>
+								<emp_no/>
+								<flnm/>
+								<dept_nm/>
+								<dty_nm/>
+								<posi_nm/>
+								<child_flnm/>
+								<faml_prn/>
+								<faml_rshp_nm/>
+								<obcl_grad/>
+								<dept_cd/>
+								<dty_cd/>
+								<posi_cd/>
+								<faml_rshp_cd/>
+								<faml_seq/>
+								<seq/>
+								<occr_dt/>
+							</record>
+						</gridData>
+						<resForm>
+							<record>
+								<emp_no/>
+								<flnm/>
+								<dept_nm/>
+								<dty_nm/>
+								<posi_nm/>
+								<dept_cd/>
+								<dty_cd/>
+								<posi_cd/>
+							</record>
+						</resForm>
+						<totcnt/>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					datagrid2.addStatus(1, "insert");
+					//datagrid2.isReadOnly(1, 1, 1, 9) = true;
+					var today = monthdate(0);						
+					model1.setValue("/root/resData/gridData/record[1]/reg_dt",today);
+					model1.refresh();					
+					
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					String.prototype.trim = function()
+					 {
+					   return this.replace(/(^\s*)|(\s*$)/gi, "");
+					 }
+					 String.prototype.replaceAll = function(str1, str2)
+					 {
+					   var temp_str = "";
+					   if (this.trim() != "" && str1 != str2)
+					   {
+					     temp_str = this.trim();
+					     while (temp_str.indexOf(str1) > -1)
+					     {
+					       temp_str = temp_str.replace(str1, str2);
+					     }
+					   }
+					   return temp_str;
+					  }
+					
+						//오늘 날짜
+						function todaydate(val){
+							var e_date = new Date();
+							var year = e_date.getFullYear(); 
+							var month = e_date.getMonth() + 1;
+							var day = e_date.getDate();
+							if (("" + month).length==1){month = "0"+month;}
+							if (("" + day).length==1){day = "0"+day;}
+							if(val == '-'){
+								e_date = year+""+month+""+day;
+							}
+							else{
+								e_date = year+"-"+month+"-"+day;
+							}
+							return e_date;
+						}			
+						//한달후 날짜	
+					function monthdate(val){
+						 m = 1+parseInt(val);
+						 var f_date = "";
+						 var cDate=new Date();
+						 var year=cDate.getYear();
+						 var month=(cDate.getMonth()+ (parseInt(m))).toString();
+						 month = month.length==1?"0"+month:month;
+						 if (month=="00"){
+						  month="12";
+						  year--;
+						 }
+						 var day=cDate.getDate().toString();
+						 day = day.length==1?"0"+day:day;
+						 f_date = year+month+day;
+						 return f_date;  
+						}		 
+					function searchList(){
+						model1.send("hd_affr_1300");
+						var totalcnt = model1.getValue("/root/tempData/totalcnt");
+//						if(totalcnt == 0 && datagrid2.isReadOnly(1,1) == 1){return;}
+//						if(totalcnt >= 1 ){
+//							datagrid2.isReadOnly(1, 1, 1, 9) = false;
+//						}
+						model1.copyNode("/root/resData/gridData", "/root/tempData");
+						model1.refresh();
+						var totcnt = datagrid2.rows;
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+					}		
+					
+ 
+						
+					 function dayDiff(v1,v2){ 
+					 	if(v1 != "" && v2 != ""){
+							var sdate = new Date(v1.substring(0,4),v1.substring(4,6),v1.substring(6,8));  
+						 	var edate = new Date(v2.substring(0,4),v2.substring(4,6),v2.substring(6,8));  
+							return  Math.ceil((edate - sdate) / 1000 / 24 / 60 / 60); 
+					 	}
+					  }							
+ 
+					
+					function searchFlnm(){
+						var rowIdx =datagrid2.row;					
+						var flnm = datagrid2.valueMatrix(rowIdx,3);
+						var tmp_flnm = flnm.trim();
+						if(tmp_flnm == "") flnm = "xxx";
+						model1.setValue("/root/reqData/searchData/flnm",flnm );
+						model1.setValue("/root/reqData/searchData/emp_no","" );
+						model1.send("hd_affr_1301");				
+						model1.copyNode("/root/resData/resForm/record","/root/tempData/record");
+						var totalcnt = model1.getValue("/root/resData/resForm/record/totalcnt");
+						if(totalcnt == ""){
+							alert("검색결과가 없습니다");
+							model1.setValue("/root/reqData/searchData/emp_no","" );
+							model1.setValue("/root/reqData/searchData/flnm","" );
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", "");
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", "");
+							model1.refresh();
+							return;
+						}					
+						if(totalcnt > 1){
+							model.removeNodeset("/root/reqData/fwdData");  
+							model.makeNode("/root/reqData/fwdData/func_nm");
+							model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+							model.makeNode("/root/reqData/fwdData/nm_korn");
+							model.setValue("/root/reqData/fwdData/nm_korn", flnm);
+							window.load("/xrw/hd/com/HD_COM_1200.xrw","mdichild", "hd_com_1200", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+							return;
+						
+						}
+						var emp_no = model1.getValue("/root/resData/resForm/record/emp_no");
+						var flnm = model1.getValue("/root/resData/resForm/record/flnm");
+						var dept_cd = model1.getValue("/root/resData/resForm/record/dept_cd");
+						var dept_nm = model1.getValue("/root/resData/resForm/record/dept_nm");
+						var dty_cd = model1.getValue("/root/resData/resForm/record/dty_cd");
+						var dty_nm = model1.getValue("/root/resData/resForm/record/dty_nm");
+						var posi_cd = model1.getValue("/root/resData/resForm/record/posi_cd");
+						var posi_nm = model1.getValue("/root/resData/resForm/record/posi_nm");
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", emp_no);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", flnm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_cd", dept_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", dept_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_cd", dty_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", dty_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_cd", posi_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", posi_nm);
+						model1.refresh();						
+					}		
+					
+					function searchEmpno(){
+						var rowIdx =datagrid2.row;			
+						var emp = datagrid2.valueMatrix(rowIdx,2);
+						var tmp_emp = emp.trim();
+						if(tmp_emp  == ""){
+							alert("사번을 넣어주세요");
+							model1.setValue("/root/reqData/searchData/emp_no","" );
+							return;
+							
+							}
+						model1.setValue("/root/reqData/searchData/emp_no",emp );
+						model1.send("hd_affr_1301");		
+						model1.copyNode("/root/resData/resForm/record","/root/tempData/record");
+						var totalcnt = model1.getValue("/root/resData/resForm/record/totalcnt");
+						if(totalcnt == ""){
+							alert("검색결과가 없습니다");
+							model1.setValue("/root/reqData/searchData/emp_no","" );
+							model1.setValue("/root/reqData/searchData/flnm","" );
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", emp_no);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", flnm);
+							model1.refresh();
+							return;
+						}
+						var emp_no = model1.getValue("/root/resData/resForm/record/emp_no");
+						var flnm = model1.getValue("/root/resData/resForm/record/flnm");
+						var dept_cd = model1.getValue("/root/resData/resForm/record/dept_cd");
+						var dept_nm = model1.getValue("/root/resData/resForm/record/dept_nm");
+						var dty_cd = model1.getValue("/root/resData/resForm/record/dty_cd");
+						var dty_nm = model1.getValue("/root/resData/resForm/record/dty_nm");
+						var posi_cd = model1.getValue("/root/resData/resForm/record/posi_cd");
+						var posi_nm = model1.getValue("/root/resData/resForm/record/posi_nm");
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", emp_no);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", flnm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_cd", dept_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", dept_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_cd", dty_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", dty_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_cd", posi_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", posi_nm);
+						model1.refresh();						
+					}
+					
+					function searchChildflnm(){
+						var rowIdx =datagrid2.row;					
+						var emp_no = datagrid2.valueMatrix(rowIdx,2);
+						var child_flnm = datagrid2.valueMatrix(rowIdx,7);
+						model1.setValue("/root/reqData/searchData/child_flnm",child_flnm );
+						model1.setValue("/root/reqData/searchData/emp_no",emp_no );
+						model1.send("hd_affr_1302");
+						var faml_seq = model1.getValue("/root/tempData/record/faml_seq");	
+						var faml_rshp_cd = model1.getValue("/root/tempData/record/faml_rshp_cd");
+						var faml_rshp_nm = model1.getValue("/root/tempData/record/faml_rshp_nm");
+						var faml_flnm = model1.getValue("/root/tempData/record/faml_flnm");
+						var faml_prn = model1.getValue("/root/tempData/record/faml_prn");
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/child_flnm",faml_flnm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/faml_prn",faml_prn);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/faml_rshp_nm",faml_rshp_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/faml_rshp_cd",faml_rshp_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/faml_seq",faml_seq);						
+					}
+					
+					function setEmp_no(emp_no, flnm){
+						var rowIdx =datagrid2.row;					
+						//model1.setValue("/root/reqData/searchData/flnm",flnm );
+						model1.setValue("/root/reqData/searchData/emp_no",emp_no );
+						model1.send("hd_affr_1301");				
+						model1.copyNode("/root/resData/resForm/record","/root/tempData/record");
+						var totalcnt = model1.getValue("/root/resData/resForm/record/totalcnt");
+						var emp_no = model1.getValue("/root/resData/resForm/record/emp_no");
+						var flnm = model1.getValue("/root/resData/resForm/record/flnm");
+						var dept_cd = model1.getValue("/root/resData/resForm/record/dept_cd");
+						var dept_nm = model1.getValue("/root/resData/resForm/record/dept_nm");
+						var dty_cd = model1.getValue("/root/resData/resForm/record/dty_cd");
+						var dty_nm = model1.getValue("/root/resData/resForm/record/dty_nm");
+						var posi_cd = model1.getValue("/root/resData/resForm/record/posi_cd");
+						var posi_nm = model1.getValue("/root/resData/resForm/record/posi_nm");
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", emp_no);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", flnm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_cd", dept_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", dept_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_cd", dty_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", dty_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_cd", posi_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", posi_nm);
+						model1.refresh();						
+					}
+				]]>
+			</script>
+			<submission id="hd_affr_1300" action="/hd/affr/1300/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_1301" action="/hd/affr/1301/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_1302" action="/hd/affr/1302/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_1303" action="/hd/affr/1303/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="2,691;1,936;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="부서^사번^성명^직책^직급^등록일자^자녀명^주민등록번호^관계^장애등급" colsep="#" colwidth="120, 90, 80, 70, 70, 90, 80, 110, 60, 100, 100, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:90px; width:926px; height:615px; ">
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col class="req" ref="emp_no" type="inputbutton" maxlength="6" caption="사번">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						searchEmpno();												
+					]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");					
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+			</col>
+			<col class="req" ref="flnm" type="input" caption="성명">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						searchFlnm();				
+					]]>
+				</script>
+			</col>
+			<col ref="dty_nm"/>
+			<col ref="posi_nm"/>
+			<col ref="reg_dt" format="yyyy-mm-dd"/>
+			<col class="req" ref="child_flnm" type="input" caption="자녀명">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						searchChildflnm();
+					]]>
+				</script>
+			</col>
+			<col class="req" ref="faml_prn" format="999999-9999999" caption="주민등록번호"/>
+			<col ref="faml_rshp_nm"/>
+			<col ref="obcl_grad" type="input" style="text-align:left; "/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="dty_cd" visibility="hidden"/>
+			<col ref="posi_cd" visibility="hidden"/>
+			<col ref="faml_rshp_cd" visibility="hidden"/>
+			<col ref="faml_seq" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					rowStatus(datagrid2);
+				]]>
+			</script>
+		</datagrid>
+		<group id="group1" class="gro_btn" style="left:10px; top:70px; width:926px; height:17px; ">
+			<button id="button1" class="btn_grid03" style="left:873px; top:0px; width:53px; height:17px; ">
+				<caption>행추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						/*
+						if(datagrid2.isReadOnly(1,1) == 1) {
+							datagrid2.isReadOnly(1, 1, 1, 10) = false;							
+							datagrid2.addStatus(1, "insert");							
+							model1.setValue("/root/resData/gridData/record/reg_dt",today);
+						}else{
+							datagrid2.addRow(true, true);
+							model1.setValue("/root/resData/gridData/record["+datagrid2.row+"]/reg_dt",today);							
+						}	
+						*/				
+							datagrid2.addRow(true, true);						
+							var today = monthdate(0);						
+							model1.setValue("/root/resData/gridData/record["+datagrid2.row+"]/reg_dt",today);														
+
+							model1.refresh();						
+ 					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:40px; width:926px; height:21px; ">
+			<button id="button2" class="btn02" style="left:821px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (!rowInSubmit(datagrid2)) {
+							return;
+						}
+						
+						if(datagrid2.isReadOnly(1,1) == 1) {return;}
+						for(var i=1 ;i<datagrid2.rows;i++){
+							if(datagrid2.rowStatus(i) == 0 || datagrid2.rowStatus(i) == 5){
+													
+							}else{
+								if(!commGridReqCheck("datagrid2")) return;					
+							}
+						}
+						
+						if (window.alert("저장하시겠습니까?", "확인", 1) != 1)
+							return;
+							
+						model1.setValue("/root/reqData/multiUpData", datagrid2.getUpdateData());
+						model1.send("hd_affr_1303");
+						if(submit_completed()) {
+							searchList();
+							model1.refresh();
+							datagrid2.clearStatus();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:711px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					searchList();
+					datagrid2.clearStatus();
+				]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:876px; top:0px; width:50px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+			      viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+			     ]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:766px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (!rowDelSubmit(datagrid2)) {
+							return;
+						}
+						
+						if(datagrid2.isReadOnly(1,1) == 1) {return;}
+						for(var i=1 ;i<datagrid2.rows;i++){
+							if(datagrid2.rowStatus(i) == 0 || datagrid2.rowStatus(i) == 5){
+													
+							}else{
+								if(!commGridReqCheck("datagrid2")) return;					
+							}
+						}
+						
+						if (window.alert("삭제하시겠습니까?", "확인", 1) != 1)
+							return;
+							
+						model1.setValue("/root/reqData/multiUpData", datagrid2.getUpdateData());
+						model1.send("hd_affr_1303");
+						if(submit_completed()) {
+							searchList();
+							model1.refresh();
+							datagrid2.clearStatus();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="caption43" class="tit02" style="left:10px; top:68px; width:170px; height:20px; font-weight:bold; ">장애녀 지원 대상자 등록</caption>
+		<caption id="caption14" ref="/root/resData/totcnt" style="left:849px; top:705px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

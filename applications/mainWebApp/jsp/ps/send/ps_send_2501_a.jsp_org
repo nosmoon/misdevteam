@@ -1,0 +1,324 @@
+<%@ page contentType="text/html; charset=KSC5601" %>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명   : ps_send_2501_s.jsp
+* 기능     : 배달비마감 초기
+* 작성일자 : 2008-07-29
+* 작성자   : 김재일
+---------------------------------------------------------------------------------------------------%>
+
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자   :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    PS_S_SEND_LUMP_CNFMDataSet ds = (PS_S_SEND_LUMP_CNFMDataSet)request.getAttribute("ds");  // request dataset
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+<!--
+    //이벤트 핸들러 초기화
+    function jsInit(){
+        setEventHandler();
+        setEnterKeyEventHandler();
+        setInputBackgroundColor();
+    }
+
+    //폼 유효성 체크
+    function check_all(form){
+        if(!validate(form)) return false;
+        else{
+            makeValue(form);
+            return true;
+        }
+    }
+
+    //정산마감 처리 및 마감취소
+    function access_adjm(accflag){
+        var lo_form1 = document.clos_form;
+        var closnm = "";
+
+        if( accflag == "M" ) {
+          closnm = "마감";
+        } else {
+          closnm = "취소";
+        }
+
+        if( confirm("[" + lo_form1.closyymm.value + "]월분을 [" + closnm + "]하시겠습니까?") == true ) {
+           if(!check_all(lo_form1)) return;                            //폼 유효성 체크
+           lo_form1.accflag.value   = accflag;                         //처리코드 SET(정산마감:M , 마감취소:C)
+
+           //서블릿으로 보낸다.
+           makeValue(lo_form1);
+           lo_form1.action = "/ps/send/2506";
+           lo_form1.target = "ifrm";
+           lo_form1.submit();
+        }
+    }
+
+    //조회
+    function closlist_sear(curr_page_no) {
+        var lo_form1 = document.clos_form;
+
+        if(!curr_page_no) {
+            lo_form1.curr_page_no.value = '1';
+        } else {
+            lo_form1.curr_page_no.value = curr_page_no;
+        }
+
+        makeValue(lo_form1);
+
+        lo_form1.action = "/ps/send/2511";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+    }
+
+    //정산마감내역 엑셀저장
+    function closlist_excel() {
+        var lo_form1 = document.clos_form;
+
+        if( lo_form1.closyymm.value == "" ) {
+          alert( "정산년월을 선택하세요" );
+          return;
+        }
+
+        makeValue(lo_form1);
+        lo_form1.action = "/ps/send/2415";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+    }
+
+    //목록에서 선택된 로우 전역변수
+    var go_sel_row;
+
+    //선택된 로우 색깔 바꾸기
+    function change_sel_row(obj){
+        go_sel_row = obj;
+        obj.style.backgroundColor='#BFD2DD';
+        lo_table = obj.parentNode;
+        for(i=1; i<lo_table.rows.length; i++){
+            if(lo_table.rows[i] != go_sel_row){
+                lo_table.rows[i].style.backgroundColor='#FFFFFF';
+            }
+        }
+    }
+
+    //목록에서 마우스 IN
+    function mouse_in(obj){
+        if(obj != go_sel_row){
+            obj.style.backgroundColor='#CCCCBB';
+        }
+    }
+
+    //목록에서 마우스 OUT
+    function mouse_out(obj){
+        if(obj != go_sel_row){
+            obj.style.backgroundColor='#FFFFFF';
+        }
+    }
+
+    //선택한 마감년월 설정
+    function set_closyymm(yymm,medicd) {
+      document.clos_form.closyymm.value = yymm;
+      document.clos_form.medicd.value = medicd;
+      document.clos_form.closyymm.focus();
+      document.clos_form.closyymm.blur();
+
+      //호수별 마감상세 내역 조회
+      detail_view();
+    }
+
+    //상세내역화면
+    function detail_view() {
+        var lo_form1 = document.clos_form;
+
+        makeValue(lo_form1);
+
+        lo_form1.action = "/ps/send/2421";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+    }
+
+//-->
+</script>
+</head>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onload="jsInit();">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle">발송
+      &gt; </b> 배달비마감</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <form name="clos_form" method="post" action="" >
+    <input type="hidden" name="accflag"  value="">                          <!-- 인쇄구분코드 -->
+    <input type="hidden" name="curr_page_no" value="1">              		<!-- 현재 페이지 번호 -->
+    <input type="hidden" name="pagesize" value="15">           				<!-- 한 화면당 리스트 항목 수 -->
+    <input type="hidden" name="js_fn_nm" value="closlist_sear">             <!-- 페이지이동 자바스크립트명 -->
+  <tr>
+    <td width="830">
+      <!--타이틀 -->
+      <!--리스트 -->
+      <!--검색-->
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td height="27" class="title" bgcolor="#EBE9DC"><b>배달비마감</b></td>
+          <td height="27" class="title" width="50"  bgcolor="#EBE9DC" align="right"><img src="/html/comm_img/bu_clos_send.gif" align="absmiddle" border="0" style="cursor:hand" onclick="access_adjm('M')" ></td>
+          <td height="27" class="title" width="50"  bgcolor="#EBE9DC" align="right"><img src="/html/comm_img/bu_cencle01.gif" align="absmiddle" border="0" style="cursor:hand" onclick="access_adjm('C')" ></td>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+          <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list -->
+      <table  cellspacing="0" width="830" cellpadding="2" border="0" bgcolor="#FFFFFF" class="gray" id="code_detail">
+        <tr>
+          <td width="100" bgcolor="#dddddd" class="gray" > 마감년월<font color="red">*</font></td>
+          <td width="100" class="gray">
+            <input type="text" name="closyymm" value="<%=Util.getYyyyMm()%>" class="text_box" size="7" maxlength="7" caption="마감년월" dataType="month" notEmpty>
+          </td>
+          <td width="100" bgcolor="#dddddd" class="gray" > 기준일자<font color="red">*</font></td>
+          <td width="200" class="gray">
+<%--            <input type="text" name="bas_frdt" size="10" class="text_box" dataType="date"  caption="기준시작일자" notEmpty value="<%=Util.getCutStr(Util.addDate(Util.getDate(),-30),8)%>"> --%>
+            <input type="text" name="bas_frdt" size="10" class="text_box" dataType="date"  caption="기준시작일자" notEmpty value="<%=Util.getCutStr(Util.addDate(ds.getIv_bas_dt(),+1),8)%>">
+            ~
+            <input type="text" name="bas_todt" size="10" class="text_box" dataType="date"  caption="기준종료일자" notEmpty value="<%=Util.getDate()%>">
+          </td>
+          <td class="gray" bgcolor="#dddddd" width="100" >매체<font color="red">*</font></td>
+          <td class="gray" width="*" >
+            <select name="medicd_clos" size="1" class="sel_all" style="width:100;" >
+              <option value="ALL" >전체</option>
+              <%= ds.medicdcurOptHtml("") %>
+            </select>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!------여백--- -->
+    </td>
+  </tr>
+  <tr>
+    <td width="80">
+      <!--타이틀 -->
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td height="27" class="title" bgcolor="#EBE9DC"><b>배달비마감내역</b></td>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0" cellspacing="0" cellpadding="2" class="title1">
+        <tr bgcolor="#EBE9DC">
+          <td width="100" >&nbsp;<img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">마감년월</td>
+          <td width="*">
+            <input type="text" name="fryymm" value="<%=Util.getCutStr(Util.addMonth(Util.getDate(),-2),6)%>" class="text_box" size="7" maxlength="7" caption="시작년월" dataType="month" notEmpty> ~
+            <input type="text" name="toyymm" value="<%=Util.getYyyyMm()%>" class="text_box" size="7" maxlength="7" caption="종료년월" dataType="month" notEmpty>
+          </td>
+          <td width="60"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">매체</td>
+          <td width="170">
+            <select name="medicd" size="1" class="sel_all" style="width:100;" >
+              <option value="ALL" >전체</option>
+              <%= ds.medicdcurOptHtml("") %>
+            </select>
+          </td>
+          <td width="300"align="right">
+            <input type="image" src="/html/comm_img/bu_clos_search.gif" align="absmiddle" border="0" onclick="closlist_sear('1');window.event.returnValue=false;">
+          </td>
+        </tr>
+     	<tr bgcolor="#927F5B">
+          <td colspan="5" height="1">
+            <!--line -->
+          </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--리스트 -->
+      <table width="830" border="0" cellspacing="0" cellpadding="1" bgcolor="#FFFFFF" class="gray" id="clos_lst1">
+        <tr align="center" class="gray" bgcolor="#dddddd">
+          <td width="100" height="23" class="gray" >정산년월</td>
+          <td width="100" height="23" class="gray" >정산일자</td>
+          <td width="100" height="23" class="gray" >일괄건수</td>
+          <td width="100" height="23" class="gray" >반송건수</td>
+          <td width="100" height="23" class="gray" >총건수</td>
+          <td width="100" height="23" class="gray" >일괄금액</td>
+          <td width="100" height="23" class="gray" >반송금액</td>
+          <td width="*"   height="23" class="gray" >총금액</td>
+        </tr>
+
+<%-- 빈레코드 --%>
+<%
+    for(int j=0; j<15; j++){
+%>
+        <tr>
+          <td width="100" height="23" align="center" class="gray">&nbsp;</td>
+          <td width="100" height="23" align="center" class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="*"   height="23" align="right"  class="gray">&nbsp;</td>
+        </tr>
+<%-- 빈레코드 끝 --%>
+<%
+    }
+%>
+        <tr align="right" height="23">
+          <td colspan="8" bgcolor="#dddddd" class="gray">
+            <img src="/html/comm_img/ic_arr06.gif" width="7" height="7"> <b> 총건수 0 건 </b>
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" id="page_move">
+        <tr>
+          <td align="center" height="2">
+          <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td align="center" height="24" bgcolor="#E8E8E8">
+          <!--JSP PAGE START---------------------------------------------------------------------------------->
+          <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+          <jsp:param name = "curr_page_no"     value="1"/>
+          <jsp:param name = "total_records"    value="0"/>
+          <jsp:param name = "js_fn_nm"         value="closlist_sear"/>
+          <jsp:param name = "records_per_page" value="15"/>
+          <jsp:param name = "page_set_gubun"   value="0"/>
+          </jsp:include>
+          <!--JSP PAGE END------------------------------------------------------------------------------------>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  </form>
+</table>
+<br>
+<br>
+<iframe name="ifrm" width="100" height="0"></iframe>
+</body>
+</html>

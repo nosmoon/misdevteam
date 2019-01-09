@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>파견직(MIS) - 평가기준정보 세부항목 관리화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_cd>
+								<item>
+								</item>
+							</evlu_cd>
+							<dtls_item_cd>
+								<item>
+								</item>
+							</dtls_item_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<evlu_cd/>
+							<evlu_yy/>
+							<tms_clsf/>
+						</searchData>
+						<reqForm>
+							<evlu_cd_src/>
+							<evlu_cd_dest/>
+							<evlu_yy_src/>
+							<evlu_yy_dest/>
+							<tms_clsf_src/>
+							<tms_clsf_dest/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<valid_evlu_cd/>
+							<evlu_label/>
+							<evlu_cd/>
+							<evlu_yy/>
+							<tms_clsf/>
+						</resForm>
+						<gridData>
+							<record>
+								<dtls_view/>
+								<dtls_item_cd/>
+								<remk/>
+								<db_status/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//평가구분 콤보박스 생성
+					model1.send("hd_evlu_8000_l");
+					model1.setValue("/root/resData/resForm/valid_evlu_cd",model1.getValue("/root/dataSet/valid_evlu_cd"));
+					model1.copyNode("/root/initData/comboSet/evlu_cd", "/root/dataSet/CURLIST");
+					alert( model1.getValue("/root/dataSet/CURLIST/item"));
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					//세부항목 콤보박스 생성
+					model1.send("hd_evlu_5100_m");
+					//model1.copyNode("/root/initData/comboSet/dtls_item_cd", "/root/dataSet/CURLIST"); 120222
+					model1.copyNode("/root/initData/comboSet", "/root/dataSet");
+					/*
+					alert(model1.getValue("/root/initData/comboSet/xx_cd_010"));
+					alert(model1.getValue("/root/initData/comboSet/xx_cd_020"));
+					alert(model1.getValue("/root/initData/comboSet/xx_cd_030"));
+					alert(model1.getValue("/root/initData/comboSet/xx_cd_040"));
+					alert(model1.getValue("/root/initData/comboSet/xx_cd_050"));
+					*/
+					model1.removeNode("/root/dataSet");
+					//첫번째 평가구분값 선택
+					combo1.select(0);
+				]]>
+			</script>
+			<submission id="hd_evlu_8000_l" action="/servlet/hd/evlu/8000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_5100_m" action="/servlet/hd/evlu/5100" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_5102_a" action="/servlet/hd/evlu/5102" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_5101_l" action="/servlet/hd/evlu/5101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_5103_a" action="/servlet/hd/evlu/5103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//선택 로우 삭제.
+				function resetCol(row){
+					for(var i = 1; i < datagrid1.cols ; i++){
+				    		datagrid1.valueMatrix(row, i) = "";
+				    	}
+				}
+				//평가기준 세부항목 목록생성
+				function searchList(){
+					//기존의 노드를 모두 초기화
+					model1.removeNode("/root/dataSet");
+					model1.removeNode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_5101_l");	
+					model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						datagrid1.isReadOnly(i,datagrid1.colRef("dtls_view")) = false;
+						datagrid1.isReadOnly(i,datagrid1.colRef("dtls_item_cd")) = true;
+					}
+					rowCnt.value = "총 "+ (parseInt(datagrid1.rows)- datagrid1.fixedRows) + " 건";
+				}
+				//datagrid1 비고 입력함수
+				function setRemk(remk){
+					var preRemk = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk"));
+					var nxtRemk = model1.getValue("/root/reqData/fwdData/resRemk");
+					datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")) = model1.getValue("/root/reqData/fwdData/resRemk");
+					if(datagrid1.rowStatus(datagrid1.row)==0){
+						if(preRemk!=nxtRemk){
+							datagrid1.rowStatus(datagrid1.row) = 2;
+						}
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,69;2,94;2,113;2,118;2,126;2,173;2,183;2,746;" style="font-family:굴림; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_ActionBtn" style="left:10px; top:39px; width:926px; height:21px; ">
+			<button id="button1" class="btn03" style="left:863px; top:0px; width:63px; height:21px; background-image:../../../images/btn3.gif; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}		
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:808px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(!rowInSubmit(datagrid1)){return;}
+						if(datagrid1.rows==1){
+							alert("저장할 데이터가 없습니다!!");
+							return;
+						}
+						if(!commGridReqCheck("datagrid1")) return;
+						if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_5102_a");
+						if(submit_completed()){
+							//alert(model1.getValue("/root/dataSet/msg"));
+							model1.removeNode("/root/dataSet");
+							searchList();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:754px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(!rowDelSubmit(datagrid1)){return;}
+						if(datagrid1.rows==1){
+							alert("삭제할 데이터가 없습니다!!");
+							return;
+						}
+						if(!commGridReqCheck("datagrid1")) return;
+						if(window.alert("삭제 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+						model1.send("hd_evlu_5102_a");
+						if(submit_completed()){
+							//alert(model1.getValue("/root/dataSet/msg"));
+							model1.removeNode("/root/dataSet");
+							searchList();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn02" style="left:700px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						searchList();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:110px; width:926px; height:5px; "/>
+		<!-- 검색조건 -->
+		<caption id="captoin1" class="list_cap02" style="left:10px; top:69px; width:926px; height:26px; "/>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:69px; width:100px; height:26px; ">평가구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/evlu_cd" appearance="minimal" style="left:115px; top:73px; width:150px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					model1.setValue("/root/reqData/searchData/evlu_yy", model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+					model1.setValue("/root/reqData/searchData/tms_clsf", model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					searchList();
+					//현재 선택한 평가구분에 대한 정보설정
+					model1.setValue("/root/resData/resForm/evlu_label",combo1.label);
+					model1.setValue("/root/resData/resForm/evlu_cd",combo1.value);
+					model1.setValue("/root/resData/resForm/evlu_yy",model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+					model1.setValue("/root/resData/resForm/tms_clsf",model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					caption8.refresh();
+				]]>
+			</script>
+		</select1>
+		<!-- 평가기준 세부항목 복사 -->
+		<caption id="caption3" class="tit02" style="left:10px; top:126px; width:926px; height:28px; ">평가기준 세부항목 복사</caption>
+		<caption id="caption4" class="list_cap02" style="left:10px; top:146px; width:555px; height:28px; "/>
+		<caption id="caption5" class="list_cap01" style="left:10px; top:146px; width:100px; height:28px; ">평가구분</caption>
+		<select1 id="combo2" ref="/root/reqData/reqForm/evlu_cd_src" appearance="minimal" style="left:115px; top:151px; width:150px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					model1.setValue("/root/reqData/reqForm/evlu_yy_src",model1.getValue("/root/reqData/reqForm/evlu_cd_src").substr(0,4));
+					model1.setValue("/root/reqData/reqForm/tms_clsf_src",model1.getValue("/root/reqData/reqForm/evlu_cd_src").substr(4,6));
+				]]>
+			</script>
+		</select1>
+		<caption id="caption6" style="left:280px; top:151px; width:40px; height:20px; ">▶▶▶</caption>
+		<select1 id="combo3" ref="/root/reqData/reqForm/evlu_cd_dest" appearance="minimal" style="left:334px; top:151px; width:150px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					model1.setValue("/root/reqData/reqForm/evlu_yy_dest",model1.getValue("/root/reqData/reqForm/evlu_cd_dest").substr(0,4));
+					model1.setValue("/root/reqData/reqForm/tms_clsf_dest",model1.getValue("/root/reqData/reqForm/evlu_cd_dest").substr(4,6));
+				]]>
+			</script>
+		</select1>
+		<button id="button4" class="btn02" style="left:492px; top:150px; width:52px; height:21px; ">
+			<caption>복사</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					if(model1.getValue("/root/reqData/reqForm/evlu_cd_src")==""){
+						alert("복사하실 평가기준 세부항목의 정보를 선택하세요.");
+						return;
+					}
+					if(model1.getValue("/root/reqData/reqForm/evlu_cd_dest")==""){
+						alert("복사되어질 평가기준 세부항목의 정보를 선택하세요.");
+						return;
+					}
+					if(model1.getValue("/root/reqData/reqForm/evlu_cd_src")==model1.getValue("/root/reqData/reqForm/evlu_cd_dest")){
+						alert("같은 평가구분값은 복사하실 수 없습니다.");
+						return;
+					}
+					if(window.alert("복사된 데이터는 복원되지 않습니다.\n복사 하시겠습니까?", "확인", 1)!=1) return;
+					model1.setValue("/root/reqData/searchData/evlu_cd",model1.getValue("/root/reqData/reqForm/evlu_cd_dest"));
+					model1.setValue("/root/reqData/searchData/evlu_yy",model1.getValue("/root/reqData/reqForm/evlu_yy_dest"));
+					model1.setValue("/root/reqData/searchData/tms_clsf",model1.getValue("/root/reqData/reqForm/tms_clsf_dest"));
+					var b = model1.send("hd_evlu_5103_a");
+					if(submit_completed()){
+						searchList();
+						//현재 선택한 평가구분에 대한 정보설정
+						model1.setValue("/root/resData/resForm/evlu_label",combo1.label);
+						model1.setValue("/root/resData/resForm/evlu_cd",combo1.value);
+						model1.setValue("/root/resData/resForm/evlu_yy",model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+						model1.setValue("/root/resData/resForm/tms_clsf",model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+						caption8.refresh();
+					}
+				]]>
+			</script>
+		</button>
+		<!-- 평가기준 세부항목 설정 -->
+		<caption id="caption7" class="tit02" style="left:10px; top:183px; width:926px; height:28px; ">평가기준 세부항목 설정</caption>
+		<caption id="caption8" ref="/root/resData/resForm/evlu_label" class="tit02" style="left:170px; top:183px; width:100px; height:28px; "/>
+		<button id="button5" class="btn_grid05" visibility="hidden" style="left:555px; top:183px; width:75px; height:17px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					if(datagrid1.rows==1){
+						alert("저장할 데이터가 없습니다!!");
+						return;
+					}
+					if(!commGridReqCheck("datagrid1")) return;
+					if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+					model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					model1.send("hd_evlu_5102_a");
+					if(submit_completed()){
+						//alert(model1.getValue("/root/dataSet/msg"));
+						model1.removeNode("/root/dataSet");
+						searchList();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn_grid05" visibility="hidden" style="left:481px; top:183px; width:75px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					datagrid1.addStatus(datagrid1.row,"delete");
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn_grid05" style="left:855px; top:183px; width:75px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					datagrid1.addItem();
+					datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("dtls_view")) = "미정";
+					datagrid1.isReadOnly(datagrid1.row,datagrid1.colRef("dtls_view")) = true;
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="상세설정^세부항목^비고^DB상태값" colsep="#" colwidth="0, 250, 618, 5" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:15px; top:203px; width:926px; height:502px; ">
+			<col ref="dtls_view" type="inputbutton"/>
+			<col class="req" ref="dtls_item_cd" type="combo" caption="세부항목" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dtls_item_cd/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="remk" type="inputbutton" style="text-align:left; vertical-align:top; "/>
+			<col ref="db_status" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				//삭제
+				rowStatus(datagrid1);
+				
+				if(datagrid1.col==datagrid1.colRef("dtls_item_cd")){
+					if(datagrid1.colRef("dtls_view")){
+						var express = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("dtls_item_cd"));
+						switch(express){
+							/* 120222
+							case "10" :
+								window.load("/xrw/hd/evlu/HD_EVLU_5200.xrw","mdichild","mdi1","width:626;height:460;caption:hidden;align:center");
+								break;
+							case "20" :
+								window.load("/xrw/hd/evlu/HD_EVLU_5300.xrw","mdichild","mdi1","width:625;height:460;caption:hidden;align:center");
+								break;
+							case "30" :
+								window.load("/xrw/hd/evlu/HD_EVLU_5400.xrw","mdichild","mdi1","width:951;height:473;caption:hidden;align:center");
+								break;
+							case "40" :
+								window.load("/xrw/hd/evlu/HD_EVLU_5500.xrw","mdichild","mdi1","width:635;height:350;caption:hidden;align:center");
+								break;
+							case "50" :
+								window.load("/xrw/hd/evlu/HD_EVLU_5600.xrw","mdichild","mdi1","width:625;height:380;caption:hidden;align:center");
+								break;*/
+							
+							case model1.getValue("/root/initData/comboSet/xx_cd_010") :
+								window.load("/xrw/hd/evlu/HD_EVLU_5200.xrw","mdichild","mdi1","width:626;height:460;caption:hidden;align:center");
+								break;
+							case model1.getValue("/root/initData/comboSet/xx_cd_020") :
+								window.load("/xrw/hd/evlu/HD_EVLU_5300.xrw","mdichild","mdi1","width:625;height:460;caption:hidden;align:center");
+								break;
+							case model1.getValue("/root/initData/comboSet/xx_cd_030") :
+								window.load("/xrw/hd/evlu/HD_EVLU_5400.xrw","mdichild","mdi1","width:951;height:473;caption:hidden;align:center");
+								break;
+							case model1.getValue("/root/initData/comboSet/xx_cd_040") :
+								window.load("/xrw/hd/evlu/HD_EVLU_5500.xrw","mdichild","mdi1","width:635;height:350;caption:hidden;align:center");
+								break;
+							case model1.getValue("/root/initData/comboSet/xx_cd_050") :
+								window.load("/xrw/hd/evlu/HD_EVLU_5600.xrw","mdichild","mdi1","width:625;height:380;caption:hidden;align:center");
+								break;	
+								
+//							case "60" :
+//								window.load("/xrw/hd/evlu/HD_EVLU_5700.xrw","mdichild","mdi1","width:951;height:533;caption:hidden;align:center");
+//								break;
+							default :
+								break;
+						}
+					}
+				}else if(datagrid1.col==datagrid1.colRef("remk")){
+					model1.removenode("/root/reqData/fwdData");
+					model1.makeNode("/root/reqData/fwdData");
+					model1.makeNode("/root/reqData/fwdData/maintitle");
+					model1.makeNode("/root/reqData/fwdData/remk");
+					model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+					model1.makeNode("/root/reqData/fwdData/maxlength");
+					model1.makeNode("/root/reqData/fwdData/func_nm");
+					model1.setValue("/root/reqData/fwdData/maintitle","평가기준 세부항목 비고");
+					model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("remk")));
+					model1.setValue("/root/reqData/fwdData/maxlength", "5000");
+					model1.setValue("/root/reqData/fwdData/func_nm","setRemk");
+					window.load("/xrw/hd/evlu/HD_EVLU_1010.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					var express = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("dtls_item_cd"));
+					switch(express){
+						/* 120222
+						case "10" :
+							window.load("/xrw/hd/evlu/HD_EVLU_5200.xrw","mdichild","mdi1","width:626;height:460;caption:hidden;align:center");
+							break;
+						case "20" :
+							window.load("/xrw/hd/evlu/HD_EVLU_5300.xrw","mdichild","mdi1","width:625;height:460;caption:hidden;align:center");
+							break;
+						case "30" :
+							window.load("/xrw/hd/evlu/HD_EVLU_5400.xrw","mdichild","mdi1","width:951;height:473;caption:hidden;align:center");
+							break;
+						case "40" :
+							window.load("/xrw/hd/evlu/HD_EVLU_5500.xrw","mdichild","mdi1","width:635;height:350;caption:hidden;align:center");
+							break;
+						case "50" :
+							window.load("/xrw/hd/evlu/HD_EVLU_5600.xrw","mdichild","mdi1","width:625;height:380;caption:hidden;align:center");
+							break;*/
+							
+						case model1.getValue("/root/initData/comboSet/xx_cd_010") :
+							window.load("/xrw/hd/evlu/HD_EVLU_5200.xrw","mdichild","mdi1","width:626;height:460;caption:hidden;align:center");
+							break;
+						case model1.getValue("/root/initData/comboSet/xx_cd_020") :
+							window.load("/xrw/hd/evlu/HD_EVLU_5300.xrw","mdichild","mdi1","width:625;height:460;caption:hidden;align:center");
+							break;
+						case model1.getValue("/root/initData/comboSet/xx_cd_030") :
+							window.load("/xrw/hd/evlu/HD_EVLU_5400.xrw","mdichild","mdi1","width:951;height:473;caption:hidden;align:center");
+							break;
+						case model1.getValue("/root/initData/comboSet/xx_cd_040") :
+							window.load("/xrw/hd/evlu/HD_EVLU_5500.xrw","mdichild","mdi1","width:635;height:350;caption:hidden;align:center");
+							break;
+						case model1.getValue("/root/initData/comboSet/xx_cd_050") :
+							window.load("/xrw/hd/evlu/HD_EVLU_5600.xrw","mdichild","mdi1","width:625;height:380;caption:hidden;align:center");
+							break;
+						default :
+							break;
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(datagrid1.col == datagrid1.colRef("dtls_item_cd")){
+						for(var i=1; i<=(datagrid1.rows-datagrid1.fixedRows); i++){
+							if(datagrid1.row==i) continue;
+							if(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("dtls_item_cd")) == datagrid1.valueMatrix(i,datagrid1.colRef("dtls_item_cd"))){
+								alert("중복된  선택값이 존재합니다.");
+								resetCol(datagrid1.row);
+								return;
+							}
+						}
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="rowCnt" style="left:807px; top:715px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

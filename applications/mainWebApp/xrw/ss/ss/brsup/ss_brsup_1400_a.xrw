@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<insrclos_search_form>
+								<todt/>
+								<js_fn_nm/>
+								<frdt/>
+								<pageno/>
+								<pagesize/>
+							</insrclos_search_form>
+							<insrclos_list_form>
+								<basidt/>
+							</insrclos_list_form>
+							<insrclos_detail_form>
+								<accflag/>
+								<closyn/>
+								<basidt/>
+								<frdt/>
+								<todt/>
+								<closdt/>
+								<clamdt/>
+							</insrclos_detail_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<basidt/>
+									<frdt/>
+									<todt/>
+									<closdt/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1400subInit" action="/ss/brsup/1400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1400search" action="/ss/brsup/1405" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/insrclos_search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1400detailSearch" action="/ss/brsup/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/insrclos_list_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1400insert" action="/ss/brsup/1415" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/insrclos_detail_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1400update" action="/ss/brsup/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/insrclos_detail_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1400delete" action="/ss/brsup/1425" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/insrclos_detail_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1400close" action="/ss/brsup/1427" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/insrclos_detail_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1400closeCancel" action="/ss/brsup/1430" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/insrclos_detail_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				commEventHandler(PID1400group3);
+				
+				model.setValue("/root/reqData/reqform/insrclos_search_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/insrclos_search_form/pageno", 	"1");
+				//model.setValue("/root/reqData/reqform/extn_search_form/pagesize", "10");
+				model.setValue("/root/reqData/reqform/insrclos_search_form/pagesize", "5000");
+				
+				model.send("PID1400subInit", false);
+							
+				modelCopyValue("/root/reqData/reqform/insrclos_search_form/frdt", "/root/tempData/initTemp/defaultDate");
+				modelCopyValue("/root/reqData/reqform/insrclos_search_form/todt", "/root/tempData/initTemp/defaultDate");
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/accflag", "I");
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/closyn", "N");
+			}
+			
+			function search()
+			{
+				remakeNode("/root/tempData/resTemp");
+				
+				model.send("PID1400search", false);
+				
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+
+				//PID1400caption22.value= "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + " 건";
+							 	
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/basidt").length == 0)
+					model.alert("검색결과가 없습니다.");
+									
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1400datagrid1.rebuild();	
+			}
+			
+			function gridClick()
+			{
+				if(PID1400datagrid1.textMatrix(PID1400datagrid1.row, PID1400datagrid1.colRef("basidt")) == "")
+					return;
+					
+				remakeNode("/root/tempData/resTemp");
+				
+				model.setValue("/root/reqData/reqform/insrclos_list_form/basidt", PID1400datagrid1.textMatrix(PID1400datagrid1.row, PID1400datagrid1.colRef("basidt")));
+				
+				model.send("PID1400detailSearch", false);
+								
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/basidt", model.getValue("/root/tempData/resTemp/detailData/basidt"));
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/frdt", model.getValue("/root/tempData/resTemp/detailData/frdt"));
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/todt", model.getValue("/root/tempData/resTemp/detailData/todt"));
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/closdt", model.getValue("/root/tempData/resTemp/detailData/closdt"));
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/closyn", model.getValue("/root/tempData/resTemp/detailData/closyn"));
+				//PID1400caption13.value= model.getValue("/root/tempData/resTemp/detailData/closyn");
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/clamdt", model.getValue("/root/tempData/resTemp/detailData/clamdt"));
+				
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/accflag", "U");
+				PID1400input7.disabled = true;
+				PID1400button5.disabled = false;
+				PID1400button7.disabled = false;
+				PID1400button8.disabled = false;
+				PID1400button2.disabled = false;
+				
+				model.refresh();
+			}
+						
+			function add1()
+			{
+				PID1400input7.disabled = false;
+
+				clearChildNodes("/root/reqData/reqform/insrclos_detail_form", true);
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/accflag", "I");
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/closyn", "N");
+				PID1400button5.disabled = true;
+				PID1400button7.disabled = true;
+				PID1400button8.disabled = true;
+				PID1400button2.disabled = true;
+				
+				model.refresh();
+			}
+			
+			function save1()
+			{			
+				if(!commValidate("PID1400group5"))
+					return;
+					
+				if(model.getValue("/root/reqData/reqform/insrclos_detail_form/accflag") == 'I') {	        					// 신규입력일 때
+				
+					model.send("PID1400insert", false);
+					
+					if(!submit_completed())
+						return;
+						
+					search();
+					
+				} else if(model.getValue("/root/reqData/reqform/insrclos_detail_form/accflag") == 'U') {						// 수정저장일 때
+				
+					model.send("PID1400update", false);
+					
+					if(!submit_completed())
+						return;
+						
+					search();					
+				}
+				add1();
+			}
+			
+			function delete1()
+			{
+				if(!commValidate("PID1400group5"))
+					return;
+					
+				PID1400input7.disabled = false;										// 기준일자 입력항목 활성화
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/accflag", "D");	// 작업구분을 마감으로 설정
+
+				if(model.alert("삭제하시겠습니까?", "", 4) == "6") {
+
+					model.send("PID1400delete", false);
+					
+					if(!submit_completed())
+						return;
+							
+					search();		
+					add1();
+				}
+			}
+						
+			function clos1()
+			{
+				if(!commValidate("PID1400group5"))
+					return;
+					
+				PID1400input7.disabled = false;										// 기준일자 입력항목 활성화
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/accflag", "Y");	// 작업구분을 마감으로 설정
+
+				model.send("PID1400close", false);
+				
+				if(!submit_completed())
+					return;
+						
+				search();		
+				add1();	
+			}
+			
+			function cancel1()
+			{
+				gridClick();
+			}
+			
+			function clos_cancel1()
+			{
+				if(!commValidate("PID1400group5"))
+					return;
+					
+				PID1400input7.disabled = false;										// 기준일자 입력항목 활성화
+				model.setValue("/root/reqData/reqform/insrclos_detail_form/accflag", "N");	// 작업구분을 마감으로 설정
+
+				model.send("PID1400closeCancel", false);
+				
+				if(!submit_completed())
+					return;
+						
+				search();	
+				add1();
+			}
+			
+			function set_default(flag)
+			{
+				resetChildControl("PID1400group3", true, false);
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1400" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<!--<group id="PID1400group2" style="left:45px; top:340px; width:460px; height:25px; ">
+			<iviewer id="PID1400iviewer1" src="../common/iv_common_paging_half.xrw" style="left:0px; top:0px; width:460px; height:25px; "/>
+		</group>-->
+		<group id="PID1400group3" class="gro_tab1" style="left:10px; top:73px; width:535px; height:25px; text-align:left; ">
+			<caption id="PID1400caption20" class="list_cap01" style="left:0px; top:0px; width:535px; height:25px; "/>
+			<caption id="PID1400caption8" style="left:5px; top:0px; width:30px; height:25px; ">기간</caption>
+			<input id="PID1400input3" ref="/root/reqData/reqform/insrclos_search_form/frdt" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID1400input4" style="left:34px; top:4px; width:100px; height:18px; "/>
+			<input id="PID1400input4" ref="/root/reqData/reqform/insrclos_search_form/todt" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="종료일자" setHandler="true" relid="PID1400input3" style="left:153px; top:4px; width:100px; height:18px; "/>
+			<caption id="PID1400caption2" style="left:138px; top:4px; width:10px; height:20px; ">-</caption>
+			<button id="PID1400button6" class="btn05" style="left:258px; top:3px; width:22px; height:21px; ">
+				<caption>-</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						set_default("1");	
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1400group4" class="gro_tab1" style="left:550px; top:73px; width:385px; height:25px; text-align:left; ">
+			<caption id="PID1400caption1" class="list_cap01" style="left:0px; top:0px; width:385px; height:25px; "/>
+			<caption id="PID1400caption21" style="left:4px; top:3px; width:104px; height:20px; ">상해보험 등록</caption>
+		</group>
+		<datagrid id="PID1400datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="기준일자(계약년도)^시작일자^종료일자^등록종료일자" colsep="^" colwidth="213, 100, 100, 100" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:105px; width:535px; height:240px; ">
+			<col ref="basidt"/>
+			<col ref="frdt" format="yyyy-mm-dd"/>
+			<col ref="todt" format="yyyy-mm-dd"/>
+			<col ref="closdt" format="yyyy-mm-dd"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID1400datagrid1.mouseCol>PID1400datagrid1.fixedCols-1 && PID1400datagrid1.mouseRow>PID1400datagrid1.fixedRows-1)
+				       {
+						gridClick();
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+		<group id="PID1400group5" style="left:550px; top:105px; width:385px; height:145px; ">
+			<caption id="PID1400caption15" class="list_cap02" style="left:149px; top:120px; width:236px; height:25px; "/>
+			<caption id="PID1400caption10" class="list_cap02" style="left:149px; top:48px; width:236px; height:25px; "/>
+			<caption id="PID1400caption4" class="list_cap03" style="left:0px; top:0px; width:150px; height:25px; ">기준일자(계약년도)</caption>
+			<caption id="PID1400caption5" class="list_cap02" style="left:149px; top:0px; width:236px; height:25px; "/>
+			<caption id="PID1400caption7" class="list_cap03" style="left:0px; top:24px; width:150px; height:25px; ">시작일자</caption>
+			<caption id="PID1400caption9" class="list_cap02" style="left:149px; top:24px; width:236px; height:25px; "/>
+			<caption id="PID1400caption3" class="list_cap03" style="left:0px; top:48px; width:150px; height:25px; ">종료일자</caption>
+			<caption id="PID1400caption11" class="list_cap02" style="left:149px; top:72px; width:236px; height:25px; "/>
+			<caption id="PID1400caption12" class="list_cap03" style="left:0px; top:72px; width:150px; height:25px; ">등록종료일자</caption>
+			<caption id="PID1400caption13" ref="/root/reqData/reqform/insrclos_detail_form/closyn" class="list_cap02" style="left:149px; top:96px; width:236px; height:25px; text-align:left; "/>
+			<caption id="PID1400caption14" class="list_cap03" style="left:0px; top:96px; width:150px; height:25px; ">마감여부</caption>
+			<caption id="PID1400caption16" class="list_cap03" style="left:0px; top:120px; width:150px; height:25px; ">비용청구일자</caption>
+			<input id="PID1400input7" ref="/root/reqData/reqform/insrclos_detail_form/basidt" class="req" inputtype="date" format="yyyy" caption="기준일자(계약년도)" style="left:153px; top:3px; width:60px; height:18px; "/>
+			<input id="PID1400input1" ref="/root/reqData/reqform/insrclos_detail_form/frdt" class="req" inputtype="date" format="yyyy-mm-dd" dataType="date" caption="시작일자" style="left:153px; top:28px; width:100px; height:18px; "/>
+			<input id="PID1400input2" ref="/root/reqData/reqform/insrclos_detail_form/todt" class="req" inputtype="date" format="yyyy-mm-dd" dataType="date" caption="종료일자" style="left:153px; top:52px; width:100px; height:18px; "/>
+			<input id="PID1400input5" ref="/root/reqData/reqform/insrclos_detail_form/closdt" class="req" inputtype="date" format="yyyy-mm-dd" dataType="date" caption="등록종료일자" style="left:153px; top:76px; width:100px; height:18px; "/>
+			<input id="PID1400input6" ref="/root/reqData/reqform/insrclos_detail_form/clamdt" class="req" inputtype="date" format="yyyy-mm-dd" dataType="date" caption="비용청구일자" style="left:153px; top:124px; width:100px; height:18px; "/>
+		</group>
+		<group id="PID1400group6" style="left:550px; top:255px; width:385px; height:25px; ">
+			<caption id="PID1400caption18" class="list_cap01" style="left:0px; top:0px; width:385px; height:25px; "/>
+			<button id="PID1400button3" class="btn_grid02" style="left:60px; top:4px; width:42px; height:17px; ">
+				<caption>추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						add1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1400button4" class="btn_grid02" style="left:105px; top:4px; width:42px; height:17px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						save1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1400button5" class="btn_grid02" style="left:150px; top:4px; width:42px; height:17px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						delete1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1400button2" class="btn_grid02" style="left:195px; top:4px; width:42px; height:18px; ">
+				<caption>취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						cancel1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1400button7" class="btn_grid02" style="left:240px; top:4px; width:42px; height:17px; ">
+				<caption>마감</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						clos1();
+					]]>
+				</script>
+			</button>
+			<button id="PID1400button8" class="btn_grid04" style="left:285px; top:4px; width:64px; height:17px; ">
+				<caption>마감취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						clos_cancel1();
+					]]>
+				</script>
+			</button>
+		</group>
+		<!--<group id="PID1400group7" style="left:10px; top:345px; width:535px; height:25px; ">
+			<caption id="PID1400caption22" style="left:431px; top:3px; width:100px; height:20px; text-align:right; ">총건수 건</caption>
+		</group>-->
+	</xhtml:body>
+</xhtml:html>

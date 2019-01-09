@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>확장자 조회</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<extnblngcdCombo/>
+							<bocd/>
+						</comboSet>
+						<pageInfo/>
+						<postData>
+							<rdrExtnSearchForm/>
+						</postData>
+						<naviInfo>
+							<curr_page_no>1</curr_page_no>
+							<total_records>0</total_records>
+							<js_fn_nm>search</js_fn_nm>
+							<records_per_page>10</records_per_page>
+							<page_set_gubun>0</page_set_gubun>
+						</naviInfo>
+						<defaultData>
+						</defaultData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<rdrExtnSearchForm>
+								<job_flg/>
+								<stafno/>
+								<name/>
+								<extnblngcd/>
+								<extntypecd/>
+								<prn/>
+								<bocd/>
+								<pageno/>
+								<pagesize/>
+							</rdrExtnSearchForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<stafno/>
+									<bocd/>
+									<boemp_no/>
+									<prn/>
+									<nm/>
+									<tel_no1/>
+									<tel_no2/>
+									<tel_no3/>
+									<ptph_no1/>
+									<ptph_no2/>
+									<ptph_no3/>
+									<email/>
+									<dutycd/>
+									<dutynm/>
+									<extntypecd/>
+									<extnblngcd/>
+									<stafclsfcd/>
+									<extnblngnm/>
+									<rnum/>
+									<!--추가-->
+									<seq/>
+									<uniqeno/>
+									<tel_no/>
+									<ptph_no/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1200subInit" action="/ss/slcommon/1200" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1200subSearch" action="/ss/slcommon/1210" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/rdrExtnSearchForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{					
+					model.send("PID1200subInit", false);
+					modelCopyValue("/root/initData/comboSet/bocd", "/root/tempData/resTemp/bocd");	//session의 bocd를 사용함.
+					model.copyNode("/root/initData/comboSet/extnblngcdCombo", "/root/tempData/resTemp/extnblngcdCombo");
+					
+					//별도의 검색이 가능하므로 넘겨받은 parameter에 대한 검증은 불필요함.
+					childValueCopy("/root/reqData/reqform/rdrExtnSearchForm", "/root/initData/postData/rdrExtnSearchForm");
+					model.setValue("/root/reqData/reqform/rdrExtnSearchForm/prn", "");
+					model.setValue("/root/reqData/reqform/rdrExtnSearchForm/pageno", "1");
+					model.setValue("/root/reqData/reqform/rdrExtnSearchForm/pagesize", "5000");		//10 -> 5000
+					
+					group_scr.refresh();
+					
+					if(model.getValue("/root/reqData/reqform/rdrExtnSearchForm/stafno") != "" || model.getValue("/root/reqData/reqform/rdrExtnSearchForm/name") != "")
+					{
+						modelCopyValue("/root/reqData/reqform/rdrExtnSearchForm/bocd", "/root/initData/comboSet/bocd");
+						
+						remakeNode("/root/tempData/resTemp");
+						model.send("PID1200subSearch", false);
+						
+						childValueCopy("/root/initData/naviInfo", "/root/tempData/resTemp");
+						model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+						datagrid1.refresh();
+						
+						if(instance1.selectNodes("/root/resData/gridData/listGrid/record/stafno").length == 0)
+							model.alert("검색결과가 존재하지 않습니다.");
+						
+						model.removenode("/root/tempData/resTemp");
+					}
+				}
+				
+				function search(pageno)
+				{					
+					if(model.getValue("/root/reqData/reqform/rdrExtnSearchForm/extntypecd")=="20" && combo1.value != "30")
+					{
+						model.alert("확장유형이 품앗이확장 일 경우 확장자소속은 '지국'이어야만 합니다.");
+						combo1.value == "30";
+						model.setFocus("combo1");
+						return;
+					}
+					
+					modelCopyValue("/root/reqData/reqform/rdrExtnSearchForm/bocd", "/root/initData/comboSet/bocd");
+					model.setValue("/root/reqData/reqform/rdrExtnSearchForm/prn", "");
+					model.setValue("/root/reqData/reqform/rdrExtnSearchForm/pageno", pageno);
+					model.setValue("/root/reqData/reqform/rdrExtnSearchForm/pagesize", "5000");		//10 -> 5000
+					
+					remakeNode("/root/tempData/resTemp");
+					model.send("PID1200subSearch", false);
+					
+					childValueCopy("/root/initData/naviInfo", "/root/tempData/resTemp");
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+					datagrid1.refresh();
+					
+					if(instance1.selectNodes("/root/resData/gridData/listGrid/record/stafno").length == 0)
+						model.alert("검색결과가 존재하지 않습니다.");
+					
+					model.removenode("/root/tempData/resTemp");
+				}
+				
+				function setExtnPers()
+				{
+					if(event.button == 1)
+					{
+						var resPath = model.property("RDREXTN_RES_XPATH");
+	
+						gridRowCopyToOpener(resPath, datagrid1, datagrid1.row);
+					
+						close();
+					}
+				}
+								
+				function close()
+				{
+					window.close();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="650" pageheight="400" idprefix="PID1200" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:45px; width:630px; height:25px; ">
+			<caption id="caption20" class="list_cap03" style="left:0px; top:0px; width:630px; height:25px; "/>
+			<input id="input1" ref="/root/reqData/reqform/rdrExtnSearchForm/name" class="req" imemode="hangul" style="left:425px; top:4px; width:90px; height:18px; "/>
+			<button id="button2" class="btn_grid02" style="left:517px; top:5px; width:42px; height:17px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search(1);		
+					]]>
+				</script>
+			</button>
+			<caption id="caption2" style="left:0px; top:4px; width:65px; height:20px; ">확장자소속</caption>
+			<select1 id="combo1" ref="/root/reqData/reqform/rdrExtnSearchForm/extnblngcd" appearance="minimal" style="left:70px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/extnblngcdCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" style="left:192px; top:4px; width:55px; height:20px; ">고유번호</caption>
+			<caption id="caption4" style="left:370px; top:4px; width:55px; height:20px; ">확장자명</caption>
+			<input id="input2" ref="/root/reqData/reqform/rdrExtnSearchForm/stafno" imemode="disabled" maxlength="8" style="left:250px; top:4px; width:100px; height:18px; "/>
+		</group>
+		<caption id="PID1901caption4" class="tit01" style="left:10px; top:15px; width:630px; height:25px; text-align:left; ">확장자(조선IS요원/사설요원/지국직원)검색</caption>
+		<group id="group2" style="left:10px; top:365px; width:630px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:630px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:306px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="순번^확장자소속^고유번호^성명^전화번호^휴대폰번호^이메일" colsep="^" colwidth="50, 89, 70, 95, 90, 90, 144" ellipsis="true" mergecellsfixedrows="bycolrec" rowsep="|" tooltip="true" style="left:10px; top:75px; width:630px; height:285px; ">
+			<col ref="seq" style="text-align:right; "/>
+			<col ref="extnblngnm" style="text-align:left; "/>
+			<col ref="uniqeno" style="text-align:left; "/>
+			<col ref="nm" style="text-align:left; "/>
+			<col ref="tel_no" style="text-align:left; "/>
+			<col ref="ptph_no" style="text-align:left; "/>
+			<col ref="email" style="text-align:left; "/>
+			<col ref="extnblngcd" visibility="hidden"/>
+			<col ref="extntypecd" visibility="hidden"/>
+			<col ref="stafclsfcd" visibility="hidden"/>
+			<col ref="stafno" visibility="hidden"/>
+			<col ref="bocd" visibility="hidden"/>
+			<col ref="boemp_no" visibility="hidden"/>
+			<col ref="dutycd" visibility="hidden"/>
+			<col ref="dutynm" visibility="hidden"/>
+			<col ref="prn" visibility="hidden"/>
+			<col ref="tel_no1" visibility="hidden"/>
+			<col ref="tel_no2" visibility="hidden"/>
+			<col ref="tel_no3" visibility="hidden"/>
+			<col ref="ptph_no1" visibility="hidden"/>
+			<col ref="ptph_no2" visibility="hidden"/>
+			<col ref="ptph_no3" visibility="hidden"/>
+			<script type="javascript" ev:event="onrowchanged">
+				<![CDATA[
+				setExtnPers();
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

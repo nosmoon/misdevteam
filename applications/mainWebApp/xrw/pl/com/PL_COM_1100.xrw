@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_COM_1100.xrw
+* 기능 : 공통관리-매체검색
+* 작성일자 : 2009-02-21
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>매체검색(PL_COM_1100)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</medi_clsf>
+							<medi_cd>
+								<item>
+									<cd/>
+									<cdnm/>
+									<issu_cmpy/>
+									<medi_clsf/>
+								</item>
+							</medi_cd>
+							<absence_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</absence_clsf>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<medi_clsf/>
+								<issu_cmpy/>
+								<medi_cd/>
+								<medi_ser_no/>
+								<medi_nm/>
+								<absence_clsf/>
+							</searchTop>
+							<searchDtl/>
+						</searchData>
+						<reqForm/>
+					</reqData>
+					<resData>
+						<comboSet/>
+						<resform/>
+						<gridData>
+							<MEDIINFOLIST>
+								<record>
+									<medi_clsf/>
+									<medi_clsfnm/>
+									<issu_cmpy/>
+									<issu_cmpynm/>
+									<medi_cd/>
+									<medi_cdnm/>
+									<medi_ser_no/>
+									<medi_nm/>
+									<uprc/>
+									<basi_yymm/>
+									<reg_dt/>
+									<absence_clsf/>
+									<absence_clsfnm/>
+									<absence_dt/>
+									<dcrate/>
+									<type/>
+									<typenm/>
+									<ser_no_basi/>
+									<issu_clsf/>
+									<end_ser_no/>
+								</record>
+							</MEDIINFOLIST>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<rcvData>
+						<searchData/>
+					</rcvData>
+				</root>
+			</instance>
+			<submission id="pl_com_1100_m" action="/pl/com/1100" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/comboSet"/>
+			<submission id="pl_com_1110_l" action="/pl/com/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData/MEDIINFOLIST"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					model.send("pl_com_1100_m",true);
+
+					model.copyNode("/root/initData/comboSet/medi_clsf","/root/resData/comboSet/medi_clsf");				//매체구분 copy
+					model.makeNode("/root/tempData/medi_cd");															//매체코드 temp노드 생성
+					model.copyNode("/root/tempData/medi_cd","/root/resData/comboSet/medi_cd");							//매체코드 temp노드에 copy
+					model.copyNode("/root/initData/comboSet/absence_clsf","/root/resData/comboSet/absence_clsf");		//절판구분 copy
+
+					//콤보 초기구분값 세팅(전체(A), 선택(S), 공백("") -> value는 "")
+					makeComboGubun("A", "/root/initData/comboSet/medi_clsf", "item", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/absence_clsf", "item", "cdnm", "cd");
+
+					model.setValue("/root/reqData/searchData/searchTop/medi_cd",model.property("medi_cd"));				//매체코드 Set
+					model.setValue("/root/reqData/searchData/searchTop/medi_nm",model.property("medi_nm"));				//매체명 Set
+					model.setValue("/root/reqData/searchData/searchTop/medi_clsf",model.property("medi_clsf"));			//매체구분 Set
+					model.setValue("/root/reqData/searchData/searchTop/absence_clsf",model.property("absence_clsf"));	//절판구분 Set
+
+					//매체구분 동적,정적 체크
+					if(model.property("dynmstat") == "S"){
+						combo3.disabled	=	true;
+					}
+
+					//매체구분 유무에 따라 매체코드 처리
+					if(model.property("medi_clsf") != ""){
+						var nodeList = instance1.selectNodes("/root/resData/comboSet/medi_cd/item[medi_clsf='" + model.property("medi_clsf") + "']");	//매체구분 선택에 따른 매체코드 리스트 추출
+					
+						model.removenode("/root/initData/comboSet/medi_cd");	//매체코드 노드 remove
+						model.makeNode("/root/initData/comboSet/medi_cd");		//매체코드 노드 생성
+						var trgNode = instance1.selectSingleNode("/root/initData/comboSet/medi_cd");	//타겟노드 설정
+						for (var i = 0; i < nodeList.length; i++) {				//추출한 매체코드 갯수만큼 반복
+							var node = nodeList.item(i);			//item get
+							trgNode.appendChild(node);				//노드 item 타겟에 추가
+						}
+						combo1.refresh();
+					}else{
+						model.copyNode("/root/initData/comboSet/medi_cd","/root/resData/comboSet/medi_cd");		//매체구분 copy
+					}
+
+					model.refresh();
+
+					model.send("pl_com_1110_l");
+					
+					model.setFocus("datagrid1",true);
+				}
+
+				//선택값 Return
+				function selReturn(){
+					//선택 Row값 Get
+					var rownum = datagrid1.row;
+					var medi_ser_no = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/medi_ser_no");
+					var issu_cmpy = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/issu_cmpy");
+					var uprc = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/uprc");
+					var dcrate = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/dcrate");
+					var ser_no_basi = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/ser_no_basi");
+					var issu_clsf = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/issu_clsf");
+					var end_ser_no = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "end_ser_no");
+					var medi_cd = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/medi_cd");
+					var medi_nm = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/medi_nm");
+					var medi_clsf = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/medi_clsf");
+					var absence_clsf = model.getValue("/root/resData/gridData/MEDIINFOLIST/record[" + (rownum) + "]/absence_clsf");
+
+					var opwin = window.opener;		
+
+					//opener에 노드 유무확인 후 데이터 Set
+					if((model.property("medi_ser_no_path")).length > 0){
+						opwin.model.setValue(model.property("medi_ser_no_path"), medi_ser_no);
+					}
+					if((model.property("issu_cmpy_path")).length > 0){
+						opwin.model.setValue(model.property("issu_cmpy_path"), issu_cmpy);
+					}
+					if((model.property("uprc_path")).length > 0){
+						opwin.model.setValue(model.property("uprc_path"), uprc);
+					}
+					if((model.property("dcrate_path")).length > 0){
+						opwin.model.setValue(model.property("dcrate_path"), dcrate);
+					}
+					if((model.property("ser_no_basi_path")).length > 0){
+						opwin.model.setValue(model.property("ser_no_basi_path"), ser_no_basi);
+					}
+					if((model.property("issu_clsf_path")).length > 0){
+						opwin.model.setValue(model.property("issu_clsf_path"), issu_clsf);
+					}
+					if((model.property("end_ser_no_path")).length > 0){
+						opwin.model.setValue(model.property("end_ser_no_path"), end_ser_no);
+					}
+					if((model.property("medi_cd_path")).length > 0){
+						opwin.model.setValue(model.property("medi_cd_path"), medi_cd);
+					}
+					if((model.property("medi_nm_path")).length > 0){
+						opwin.model.setValue(model.property("medi_nm_path"), medi_nm);
+					}
+					if((model.property("medi_clsf_path")).length > 0){
+						opwin.model.setValue(model.property("medi_clsf_path"), medi_clsf);
+					}
+					if((model.property("absence_clsf_path")).length > 0){
+						opwin.model.setValue(model.property("absence_clsf_path"), absence_clsf);
+					}
+
+					opwin.model.refresh();									
+
+					model.close();				
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="640" pageheight="480" guideline="2,65;1,936;1,927;1,926;2,70;2,133;1,10;1,630;2,470;" style="font-family:굴림; border-style:solid; ">
+		<caption id="caption2" class="tit01" style="left:10px; top:5px; width:620px; height:29px; ">매체 검색</caption>
+		<button id="btnReset" class="btn03" style="left:353px; top:45px; width:63px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnRetrive" class="btn03" crud="R" style="left:422px; top:45px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.send("pl_com_1110_l");
+
+					//조회건수 체크
+					var lowcnt = datagrid1.rows;
+
+					if (lowcnt > 0) {
+						model.setFocus("datagrid1");
+					}
+
+				]]>
+			</script>
+		</button>
+		<button id="btrSel" class="btn03" style="left:491px; top:45px; width:63px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					selReturn();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:560px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<close ev:event="onclick"/>
+		</button>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:620px; height:55px; ">
+			<caption id="caption1" class="list_cap02" style="left:0px; top:0px; width:620px; height:26px; "/>
+			<caption id="caption3" class="list_cap02" style="left:0px; top:25px; width:620px; height:26px; "/>
+			<caption id="caption4" class="list_cap03" style="left:0px; top:0px; width:100px; height:26px; ">매체구분</caption>
+			<caption id="caption9" class="list_cap03" style="left:308px; top:0px; width:100px; height:26px; ">매체코드</caption>
+			<caption id="caption25" class="list_cap03" style="left:0px; top:25px; width:100px; height:26px; ">매체명</caption>
+			<caption id="caption12" class="list_cap03" style="left:308px; top:25px; width:100px; height:26px; ">절판구분</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/searchTop/medi_clsf" appearance="minimal" style="left:103px; top:4px; width:125px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-select">
+					<![CDATA[
+						var PCODE = combo3.value;		//선택값 Get
+						var nodeList = instance1.selectNodes("/root/resData/comboSet/medi_cd/item[medi_clsf='" + PCODE + "']");	//매체구분 선택에 따른 매체코드 리스트 추출
+
+						model.removenode("/root/initData/comboSet/medi_cd");	//매체코드 노드 remove
+						model.makeNode("/root/initData/comboSet/medi_cd");		//매체코드 노드 생성
+						var trgNode = instance1.selectSingleNode("/root/initData/comboSet/medi_cd");	//타겟노드 설정
+						for (var i = 0; i < nodeList.length; i++) {		//추출한 매체코드 갯수만큼 반복
+							var node = nodeList.item(i);			//item get
+							trgNode.appendChild(node);			//노드 item 타겟에 추가
+						}
+						combo1.refresh();
+					]]>
+				</script>
+			</select1>
+			<select1 id="combo1" ref="/root/reqData/searchData/searchTop/medi_cd" appearance="minimal" style="left:411px; top:4px; width:125px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_cd/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input1" ref="/root/reqData/searchData/searchTop/medi_nm" style="left:103px; top:29px; width:125px; height:18px; "/>
+			<script type="javascript" ev:event="onkeydown">
+				<![CDATA[										
+						if(event.keyCode == 13){						
+							model.setFocus("btnRetrive");
+							model.send("pl_com_1110_l");
+
+							//조회건수 체크
+							var lowcnt = datagrid1.rows;
+
+							if (lowcnt > 0) {
+								model.setFocus("datagrid1");
+							}
+						}
+					]]>
+			</script>
+			<select1 id="combo2" ref="/root/reqData/searchData/searchTop/absence_clsf" appearance="minimal" style="left:411px; top:29px; width:125px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/absence_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:123px; width:620px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/MEDIINFOLIST/record" caption="매체구분코드^매체구분^발행사코드^발행사^종류코드^매체코드^매체호수^매체명^단가^기준년월^등록일자^절판구분코드^절판구분^절판일자^할제^판형코드^판형^호수기준^발행구분^마감최종호수" colsep="^" colwidth="80, 70, 80, 90, 60, 70, 60, 300, 60, 60, 90, 100, 70, 90, 50, 70, 75, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:10px; top:133px; width:620px; height:337px; ">
+			<col ref="medi_clsf" visibility="hidden"/>
+			<col ref="medi_clsfnm" visibility="hidden" style="text-align:center; "/>
+			<col ref="issu_cmpy" visibility="hidden"/>
+			<col ref="issu_cmpynm" style="text-align:left; "/>
+			<col ref="medi_cd" visibility="hidden" style="text-align:center; "/>
+			<col ref="medi_cdnm" visibility="hidden" style="text-align:left; "/>
+			<col ref="medi_ser_no" visibility="hidden" style="text-align:center; "/>
+			<col ref="medi_nm" style="text-align:left; "/>
+			<col ref="uprc" format="###,###,##0" style="text-align:right; "/>
+			<col ref="basi_yymm" format="yyyy-mm" style="text-align:center; "/>
+			<col ref="reg_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="absence_clsf" visibility="hidden"/>
+			<col ref="absence_clsfnm" style="text-align:center; "/>
+			<col ref="absence_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="dcrate" format="##0.00" style="text-align:right; "/>
+			<col ref="type" visibility="hidden" style="text-align:center; "/>
+			<col ref="typenm" style="text-align:left; "/>
+			<col ref="ser_no_basi" visibility="hidden"/>
+			<col ref="issu_clsf" visibility="hidden"/>
+			<col ref="end_ser_no" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					selReturn();
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeydown">
+				<![CDATA[
+					if(event.keyCode == 13) {
+						selReturn();
+					}
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

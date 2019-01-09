@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>(-)매출등록</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<sp_sal_4000_m>
+								<dataSet>
+									<CURLIST1>
+										<record>
+											<cd/>
+											<cdnm/>
+											<cd_abrv_nm/>
+											<cdnm_cd/>
+											<cdabrvnm_cd/>
+										</record>
+									</CURLIST1>
+								</dataSet>
+							</sp_sal_4000_m>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<sale_fr_yymm/>
+							<sale_to_yymm/>
+							<purc_dlco_clsf_cd_seq/>
+							<purc_dlco_nm/>
+							<sale_item_cd/>
+							<sale_item_cd_nm/>
+							<proc_gubun/>
+						</searchData>
+						<reqForm>
+							<sale_item_cd/>
+							<work_yymm/>
+						</reqForm>
+						<multiUpdateData1/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+								<checked/>
+								<sale_yymm/>
+								<sale_seq/>
+								<dlco_no/>
+								<dlco_nm/>
+								<sale_item_cd/>
+								<sale_item_cd_nm/>
+								<vat_flag/>
+								<qunt/>
+								<uprc/>
+								<suply_amt/>
+								<vat_amt/>
+								<tot_rvord_amt/>
+								<sale_cost/>
+								<rcpm_clsf/>
+							</record>
+						</gridData1>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="is_com_1200_s" action="/is/com/1200" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+				model.setValue("/root/reqData/searchData/sale_fr_yymm", getCurrentMonth());
+				model.setValue("/root/reqData/searchData/sale_to_yymm", getCurrentMonth());
+				model.setValue("/root/reqData/reqForm/work_yymm", getCurrentMonth());								
+				
+				model.send("sp_sal_4000_m");
+				//datagrid1.addStatus(1, "insert");
+				model.refresh();	
+				
+				datagrid1.removeRow();
+				datagrid1.clearStatus();
+				//deleteRow(datagrid1);
+				
+				var dlco_no = model1.getValue("/root/resData/gridData1/record[1]/dlco_no");
+				var nodeList = root.selectNodes("/root/resData/gridData1/record");
+				var rowIdx = nodeList.length;
+				
+				/*
+				if (datagrid1.rows == 2 && datagrid1.rowStatus(1) == 0 ) {
+					if(dlco_no == ""){
+						datagrid1.addStatus(1, "insert");
+						//datagrid1.isReadOnly(1, 1, 1, 1) = false;
+						
+					}else{
+						datagrid1.addRow(true, true);
+					}
+				}else{
+					datagrid1.addRow(true, true);
+				}
+				*/
+				
+				]]>
+			</script>
+			<submission id="sp_sal_4000_m" action="/sp/sal/4000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/sp_sal_4000_m/dataSet"/>
+			<submission id="sp_sal_4010_l" action="/sp/sal/4010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1/record"/>
+			<submission id="sp_sal_4020_a" action="/sp/sal/4020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="sp_sal_4030_s" action="/sp/sal/4030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[	
+			/**지국 팝업**/
+			function setBocoInfo(menu_id, menu_nm){
+				model.setValue("/root/reqData/searchData/purc_dlco_clsf_cd_seq", menu_id);
+				model.setValue("/root/reqData/searchData/purc_dlco_nm", menu_nm);
+	
+				model.refresh();					
+			}
+			
+			/**데이터그리드 거래처 팝업**/
+			function dg_setDlcoInfo(menu_id, menu_nm_1){
+				datagrid1.valueMatrix(datagrid1.row, 3) = menu_id;
+				datagrid1.valueMatrix(datagrid1.row, 4) = menu_nm_1;				
+				datagrid1.addStatus(datagrid1.row, "update");  //상태 변경
+				
+				model.refresh();	
+			}
+			
+			function setAmt(){
+				var suply_amt = 0;
+				var	vat_amt = 0;
+				var	tot_rvord_amt = 0;
+				
+				suply_amt = Number(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("suply_amt")));
+				vat_amt   = Number(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("vat_amt")));
+				tot_rvord_amt = suply_amt + vat_amt;
+				
+				datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("tot_rvord_amt")) = tot_rvord_amt;
+				datagrid1.refresh();
+			}
+			
+			function setSVT(vat_flag){
+				var suply_amt = 0;
+				var	vat_amt = 0;
+				var	tot_rvord_amt = 0;
+				
+				if(vat_flag == "Y"){
+					if(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("qunt")) == "" || datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("uprc")) == ""){
+						suply_amt = 0;
+						vat_amt = 0;
+						tot_rvord_amt = 0;
+					}else{					
+						suply_amt = eval(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("qunt"))) *  eval(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("uprc")));
+						vat_amt = 0;
+						tot_rvord_amt = suply_amt + vat_amt;
+					}
+				}else{
+					if(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("qunt")) == "" || datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("uprc")) == ""){
+						suply_amt = 0;
+						vat_amt = 0;
+						tot_rvord_amt = 0;
+					}else{					
+						suply_amt = eval(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("qunt"))) *  eval(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("uprc")));
+						vat_amt = Math.round(suply_amt*0.1, 0);
+						tot_rvord_amt = suply_amt + vat_amt;
+					}	
+				}
+				
+				datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("suply_amt")) = suply_amt;
+				datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("vat_amt")) = vat_amt;
+				datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("tot_rvord_amt")) = tot_rvord_amt;
+				datagrid1.refresh();
+			}
+			
+			function  dg_sum(){
+				if(datagrid1.rows > datagrid1.fixedRows){ 
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("qunt"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("uprc"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("suply_amt"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("vat_amt"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("tot_rvord_amt"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("sale_cost"),"#,###", "background-color:#FFFFCC", 1, "전체합계");
+				}
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,935;2,61;2,71;2,145;2,135;2,130;2,699;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:143px; width:926px; height:5px; "/>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">매출월</caption>
+		<button id="button1" class="btn02" crud="R" style="left:828px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="선택^매출월^매출번호^지국번호^지국명^매출항목^매출항목명^면세여부^수량^단가^공급가액^세액^매출액^매출원가" colsep="#" colwidth="33, 62, 56, 95, 86, 91, 80, 66, 46, 62, 53, 65, 68, 73" frozencols="1" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:10px; top:160px; width:925px; height:502px; ">
+			<col checkvalue="Y,N" ref="checked" type="checkbox"/>
+			<col ref="sale_yymm" format="yyyy-mm"/>
+			<col ref="sale_seq"/>
+			<col ref="dlco_no"/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="sale_item_cd"/>
+			<col ref="sale_item_cd_nm"/>
+			<col ref="vat_flag" visibility="hidden"/>
+			<col ref="qunt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="uprc" format="(-)#,###" style="text-align:right; "/>
+			<col ref="suply_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="vat_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="tot_rvord_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="sale_cost" format="(-)#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				/**거래처팝업**/
+				if(datagrid1.col == datagrid1.colRef("dlco_no")){
+					model.makeNode("/root/reqData/fwdData/func_nm");
+					model.setValue("/root/reqData/fwdData/func_nm", "dg_setDlcoInfo");//팝업에서 함수호출명 
+						
+					window.load("/xrw/is/com/IS_COM_1100.xrw"
+								,"mdichild"
+								, "is_com_1100"
+								, "align:center; caption:hidden;width:645px; height:480px;"
+								, "/root/reqData/fwdData"
+								, "/root/reqData/fwdData");
+				}
+				/**매출항목**/								
+				var col = datagrid1.col;
+				if(col == datagrid1.colRef("sale_item_cd")){
+					
+					var indx = getSelectedRecordIndex(datagrid1);
+					var cd   =  model.getValue("/root/resData/gridData1/record["+indx+"]/sale_item_cd");
+					var cdnm =  model.getValue("/root/resData/gridData1/record["+indx+"]/sale_item_cd_nm");	
+						
+					var resultRef1 = "/root/resData/gridData1/record["+indx+"]/sale_item_cd";
+					var resultRef2 = "/root/resData/gridData1/record["+indx+"]/sale_item_cd_nm";
+					
+					showCommonCodePopup1("13", "35", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");					
+					
+					/**면세여부 부셋팅**/
+					var sale_item_cd = model.getValue("/root/resData/gridData1/record["+indx+"]/sale_item_cd");
+					model.setValue("/root/reqData/reqForm/sale_item_cd", sale_item_cd);
+					
+					model.send("sp_sal_2130_s");
+					if( submit_completed() ){
+						var vat_flag = model.getValue("/root/msgData/vat_flag");
+						model.setValue("/root/resData/gridData1/record["+indx+"]/vat_flag", vat_flag);
+						
+						setSVT(vat_flag);
+					}
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[				
+				var vat_flag = model.getValue("/root/msgData/vat_flag");
+				
+				
+				if(datagrid1.col == datagrid1.colRef("sale_item_cd")){
+					setSVT(vat_flag);
+				}
+				
+				if(datagrid1.col == datagrid1.colRef("qunt")){
+					setSVT(vat_flag);					
+				}
+				
+				if(datagrid1.col == datagrid1.colRef("uprc")){
+					setSVT(vat_flag);					
+				}	
+				
+				if(datagrid1.col == datagrid1.colRef("suply_amt")){
+					setAmt();					
+				}	
+				
+				if(datagrid1.col == datagrid1.colRef("vat_amt")){
+					setAmt();					
+				}					
+				]]>
+			</script>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:882px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));								
+				]]>
+			</script>
+		</button>
+		<input id="inp_sale_yymm" ref="/root/reqData/searchData/sale_fr_yymm" navindex="1" inputtype="date" format="yyyy-mm" style="left:99px; top:76px; width:85px; height:18px; "/>
+		<button id="button3" class="btn02" crud="C" style="left:425px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				// (-)매출 내역 조회 구분자
+				model.setValue("/root/reqData/searchData/proc_gubun", "1");
+				model.send("sp_sal_4010_l");		
+				
+				//dg_sum();
+				
+				//datagrid1.isReadOnly(0, 0, datagrid1.rows -1, 1) = true;			
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" crud="C" style="left:773px; top:40px; width:50px; height:18px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+				if(filename!=""){
+					datagrid1.saveExcel(filename, "sheetname: 매출등록");
+				}
+				]]>
+			</script>
+		</button>
+		<caption id="caption3" class="list_cap02" style="left:10px; top:98px; width:926px; height:28px; "/>
+		<input id="inp_purc_dlco_clsf_cd_seq" ref="/root/reqData/searchData/purc_dlco_clsf_cd_seq" inputtype="button" style="left:101px; top:103px; width:85px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				model.makeNode("/root/reqData/fwdData/func_nm");
+				model.setValue("/root/reqData/fwdData/func_nm", "setBocoInfo");//팝업에서 함수호출명 
+							
+				window.load("/xrw/is/com/IS_COM_1100.xrw"
+							,"mdichild"
+							, "is_com_1100"
+							, "align:center; caption:hidden;width:645px; height:480px;"
+							, "/root/reqData/fwdData"
+							, "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if (inp_purc_dlco_clsf_cd_seq.value.length == 9) {
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/dlco_clsf_cd_seq");
+					model.setValue("/root/reqData/fwdData/dlco_clsf_cd_seq", inp_purc_dlco_clsf_cd_seq.value);
+					model.send("is_com_1200_s");
+							
+					if (model.getValue("/root/tempData/record/dlco_clsf_cd_seq") != "") {
+						inp_purc_dlco_nm.value = model.getValue("/root/tempData/record/dlco_nm");
+					}else {
+						inp_purc_dlco_nm.value = "";
+						inp_purc_dlco_clsf_cd_seq.value = "";
+					}
+				}else {
+					inp_purc_dlco_nm.value = "";
+					inp_purc_dlco_clsf_cd_seq.value = "";
+				}
+				model.refresh();	
+				]]>
+			</script>
+		</input>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:98px; width:85px; height:28px; ">지국</caption>
+		<input id="inp_purc_dlco_nm" ref="/root/reqData/searchData/purc_dlco_nm" style="left:190px; top:103px; width:150px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[			
+				]]>
+			</script>
+		</input>
+		<caption id="caption2" class="list_cap01" style="left:445px; top:98px; width:85px; height:28px; ">매출항목</caption>
+		<input id="inp_sale_clsf" ref="/root/reqData/searchData/sale_item_cd" visibility="hidden" style="left:530px; top:98px; width:295px; height:18px; "/>
+		<input id="input1" ref="/root/reqData/searchData/sale_to_yymm" navindex="1" inputtype="date" format="yyyy-mm" style="left:204px; top:76px; width:85px; height:18px; "/>
+		<input id="input3" ref="/root/reqData/reqForm/work_yymm" navindex="1" inputtype="date" format="yyyy-mm" style="left:534px; top:76px; width:85px; height:18px; "/>
+		<caption id="caption4" class="list_cap01" style="left:445px; top:71px; width:85px; height:28px; ">(-)매출월</caption>
+		<input id="input2" ref="/root/reqData/searchData/sale_item_cd_nm" inputtype="button" style="left:536px; top:103px; width:304px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					/**매출구분팝업**/
+					var cd   =  "";
+					var cdnm =  "";
+										
+					var resultRef1 = "/root/reqData/searchData/sale_item_cd";
+					var resultRef2 = "/root/reqData/searchData/sale_item_cd_nm";				
+					
+					
+					showCommonCodePopup3("13", "35", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+					
+					model.refresh();
+					]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var sale_item_cd_nm = model.getValue("/root/reqData/searchData/sale_item_cd_nm");
+				
+				if(sale_item_cd_nm != ""){
+					alert("다중선택 팝업을 사용하세요.");
+					model.setValue("/root/reqData/searchData/sale_item_cd","");
+					model.refresh();
+					return;
+				}
+				
+				if(sale_item_cd_nm == ""){
+					model.setValue("/root/reqData/searchData/sale_item_cd","");
+					model.refresh();
+					return;
+				}
+				]]>
+			</script>
+		</input>
+		<caption id="caption42" style="left:187px; top:77px; width:15px; height:17px; ">~</caption>
+		<button id="button10" class="btn05" crud="R" style="left:480px; top:40px; width:110px; height:21px; ">
+			<caption>(-)매출처리대상조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					// (-)매출 처리대상 조회 구분자
+					model.setValue("/root/reqData/searchData/proc_gubun", "2");
+					model.send("sp_sal_4010_l");		
+					
+					//dg_sum();
+					
+					//datagrid1.isReadOnly(0, 0, datagrid1.rows -1, 1) = true;							
+				]]>
+			</script>
+		</button>
+		<button id="btnDlco" class="btn04" crud="R" style="left:593px; top:40px; width:89px; height:21px; ">
+			<caption>(-)매출등록</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var selected1 = 0;				
+					var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					var work_yymm = model.getValue("/root/reqData/reqForm/work_yymm");
+					if(work_yymm == ""){
+						alert("매출월을 입력하세요.");
+						return;
+					}
+					
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++) {
+						if(datagrid1.valueMatrix(i, datagrid1.colRef("checked")) == 'Y'){
+							selected1++;
+							datagrid1.addStatus(i, "update");
+						}else{
+							datagrid1.removeStatus(i, "update");
+						}
+					}
+				
+					if(selected1 == 0){
+						alert("선택된 자료가 없습니다.");
+						return;
+					}					
+					
+					model.setValue("/root/reqData/searchData/proc_gubun","1");
+					model.setValue("/root/reqData/multiUpdateData1", datagrid1.getUpdateData());
+					
+					model.send("sp_sal_4020_a");
+					
+					if( submit_completed() ){
+						model.setValue("/root/reqData/searchData/proc_gubun","1");						
+						model.send("sp_sal_4010_l");
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn04" crud="R" style="left:683px; top:40px; width:89px; height:21px; ">
+			<caption>(-)매출삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData/proc_gubun","2");
+					model.setValue("/root/reqData/multiUpdateData1", datagrid1.getUpdateData());
+					
+					model.send("sp_sal_4020_a");
+					
+					if( submit_completed() ){
+						model.setValue("/root/reqData/searchData/proc_gubun","2");
+						model.send("sp_sal_4010_l");
+					}								
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

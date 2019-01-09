@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet_ad.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>계산서일마감</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<cmb_work_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</cmb_work_clsf>
+						</comboSet>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<dd_work_clsf/>
+							<dd_clos_yymm/>
+							<dd_clos_dt/>
+							<work_clsf/>
+							<mm_ym_clsf>M</mm_ym_clsf>
+							<mm_clos_dt/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<sun/>
+								<sun_yn/>
+								<mon/>
+								<mon_yn/>
+								<tue/>
+								<tue_yn/>
+								<wed/>
+								<wed_yn/>
+								<thr/>
+								<thr_yn/>
+								<fri/>
+								<fri_yn/>
+								<sat/>
+								<sat_yn/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var currentDate = getCurrentDate();
+					model.setValue("/root/reqData/searchData/dd_clos_yymm"	, currentDate);
+					model.setValue("/root/reqData/searchData/mm_clos_dt"		, currentDate);
+					
+				
+					model.send("is_sal_1201_m");				
+					model.copyNode("/root/initData/comboSet/cmb_work_clsf", "/root/tempData/cmb_work_clsf");
+					cmb_work_clsf.refresh();
+										
+					
+					var ss_dealmedicd = model.property("ss_dealmedicd");
+					if( ss_dealmedicd == "1" )
+					{
+						cmb_work_clsf.select(0);
+						//cmb_work_clsf.disabled = true;
+					}
+					else if( ss_dealmedicd == "2" )
+					{
+						cmb_work_clsf.select(1);
+						//cmb_work_clsf.disabled = true;
+					}
+					else if( ss_dealmedicd == "3" )
+					{
+						cmb_work_clsf.select(0);
+						//cmb_work_clsf.disabled = false;
+					}
+					else
+					{
+						alert("사용자 업무코드 오류입니다.");
+						DisableButton();
+						return;
+					}
+					
+					EnableButton();
+					loadData();
+				]]>
+			</script>
+			<submission id="is_sal_1200_m" action="/is/sal/1200" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+			<submission id="is_sal_1201_m" action="/is/sal/1201" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="is_sal_1210_a" action="/is/sal/1210" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/msgData"/>
+			<submission id="is_sal_1211_a" action="/is/sal/1211" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				var CLR_WHITE 	= "#FFFFFF";
+				var CLR_PINK		= "#FA8C8C";
+				var CLR_BLUE		= "#9BC3FF";
+				var CLR_VIOLET	= "#DDA0DD";
+				function EnableButton()
+				{
+					btn_bluemg.disabled 		= false;
+					btn_bluemgcancel.disabled 	= false;
+					btn_pinkmg.disabled			= false;
+					btn_pinkmgcancel.disabled	= false;
+				}
+				function DisableButton()
+				{
+					btn_bluemg.disabled 		= true;
+					btn_bluemgcancel.disabled 	= true;
+					btn_pinkmg.disabled			= true;
+					btn_pinkmgcancel.disabled	= true;
+				}
+				
+				function DisplayGrid()
+				{
+					datagrid1.allStyle("data", "background-color") = CLR_WHITE;
+					for( var i=datagrid1.fixedRows; i<datagrid1.rows; i++ )
+					{
+						for( var j=datagrid1.fixedCols; j<datagrid1.cols; j++ )
+						{
+							if( j%2 == 0 )
+							{
+								var clos_yn = datagrid1.valueMatrix(i, j+1);
+								switch( clos_yn )
+								{
+									case "B" :
+									{
+										datagrid1.cellStyle("background-color", i, j) = CLR_BLUE;
+									}
+									break;
+									case "P" :
+									{
+										datagrid1.cellStyle("background-color", i, j) = CLR_PINK;
+									}
+									break;
+									case "V" :
+									{
+										datagrid1.cellStyle("background-color", i, j) = CLR_VIOLET;
+									}
+									break;
+									default :
+									{
+										datagrid1.cellStyle("background-color", i, j) = CLR_WHITE;
+									}
+								}
+							}
+						}						
+					}
+				}	
+				function loadData()
+				{
+					model.send("is_sal_1200_m");
+					if( submit_completed() )
+					{
+						DisplayGrid();
+					}
+										
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,936;2,60;2,70;" style="font-family:굴림; ">
+		<caption id="caption1" class="list_cap02" style="left:60px; top:125px; width:365px; height:361px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption44" class="list_cap02" style="left:60px; top:100px; width:365px; height:26px; "/>
+		<caption id="subtitle" class="tit02" style="left:60px; top:75px; width:130px; height:20px; ">계산서 일마감</caption>
+		<caption id="caption2" class="list_cap03" style="left:60px; top:100px; width:80px; height:26px; ">업무구분</caption>
+		<select1 id="cmb_work_clsf" ref="/root/reqData/searchData/work_clsf" class="req" navindex="1" appearance="minimal" style="left:145px; top:104px; width:104px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/cmb_work_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					loadData();
+				]]>
+			</script>
+		</select1>
+		<input id="inp_clos_yymm" ref="/root/reqData/searchData/dd_clos_yymm" navindex="2" inputtype="date" format="yyyy-mm" appearance="input" style="left:321px; top:104px; width:75px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					loadData();
+				]]>
+			</script>
+		</input>
+		<button id="btn_prev" class="btn_nav_prev" style="left:296px; top:105px; width:21px; height:17px; ">
+			<caption/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dd_clos_yymm = dateAdd("m", -1, model.getValue("/root/reqData/searchData/dd_clos_yymm"));
+					model.setValue("/root/reqData/searchData/dd_clos_yymm", dd_clos_yymm);
+					loadData();
+				]]>
+			</script>
+		</button>
+		<button id="btn_next" class="btn_nav_next" style="left:400px; top:105px; width:21px; height:17px; ">
+			<caption/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var dd_clos_yymm = dateAdd("m", +1, model.getValue("/root/reqData/searchData/dd_clos_yymm"));
+					model.setValue("/root/reqData/searchData/dd_clos_yymm", dd_clos_yymm);
+					loadData();
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" class="nobg" caption="일^일^월^월^화^화^수^수^목^목^금^금^토^토" colsep="#" colwidth="50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50" dataheight="50" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheight="50" rowsep="|" selectionmode="free" style="left:65px; top:130px; width:355px; height:352px; ">
+			<col ref="sun"/>
+			<col ref="sun_yn" visibility="hidden" style="text-align:center; "/>
+			<col ref="mon"/>
+			<col ref="mon_yn" visibility="hidden" style="text-align:center; "/>
+			<col ref="tue"/>
+			<col ref="tue_yn" visibility="hidden" style="text-align:center; "/>
+			<col ref="wed"/>
+			<col ref="wed_yn" visibility="hidden" style="text-align:center; "/>
+			<col ref="thr"/>
+			<col ref="thr_yn" visibility="hidden" style="text-align:center; "/>
+			<col ref="fri"/>
+			<col ref="fri_yn" visibility="hidden" style="text-align:center; "/>
+			<col ref="sat"/>
+			<col ref="sat_yn" visibility="hidden" style="text-align:center; "/>
+		</datagrid>
+		<button id="btn_bluemg" class="btn03" disabled="false" visibility="visible" crud="C" style="left:510px; top:39px; width:67px; height:21px; ">
+			<caption>매출마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var row 		= datagrid1.row;
+					var col 		= datagrid1.col;
+					var temp_dt 	= datagrid1.valueMatrix(row, col);
+					
+					if( temp_dt == "" )
+					{
+						alert("마감일자를 선택하세요.");
+						return;
+					}
+					else
+					{
+						if( window.alert("매출 마감하시겠습니까?", "확인", 1) == 1 )
+						{
+							if( temp_dt != '0' && temp_dt < 10 )
+							{
+								temp_dt = "0" + temp_dt;
+							}
+							
+							var dd_clos_dt 	= model.getValue("/root/reqData/searchData/dd_clos_yymm");
+							model.setValue("/root/reqData/searchData/dd_clos_dt"	, dd_clos_dt.substr(0,6) + temp_dt);
+							model.setValue("/root/reqData/searchData/dd_work_clsf"	, cmb_work_clsf.value);
+							model.send("is_sal_1210_a");
+							if( submit_completed() )
+							{
+								loadData();
+							}
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<button id="btn_bluemgcancel" class="btn04" disabled="false" visibility="visible" crud="C" style="left:582px; top:39px; width:87px; height:21px; ">
+			<caption>매출마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var row 		= datagrid1.row;
+					var col 		= datagrid1.col;
+					var temp_dt  	= datagrid1.valueMatrix(row, col);
+					
+					if( temp_dt == "" ){
+						alert("마감일자를 선택하세요.");					
+					}
+					else{
+						if( window.alert("매출 마감취소하시겠습니까?", "확인", 1) == 1 ){
+							if( temp_dt != '0' && temp_dt < 10 ){
+								temp_dt = "0" + temp_dt;
+							}
+							
+							var dd_clos_dt 	= model.getValue("/root/reqData/searchData/dd_clos_yymm");
+							model.setValue("/root/reqData/searchData/dd_clos_dt"	, dd_clos_dt.substr(0,6) + temp_dt);
+							model.setValue("/root/reqData/searchData/dd_work_clsf"	, cmb_work_clsf.value);
+							
+							model.send("is_sal_1211_a");
+							if( submit_completed() )
+							{
+								loadData();
+							}
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<button id="btn_pinkmg" class="btn03" crud="C" style="left:705px; top:39px; width:67px; height:21px; ">
+			<caption>매입마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var row 		= datagrid1.row;
+					var col 		= datagrid1.col;					
+					var temp_dt 	 = datagrid1.valueMatrix(row, col);
+					
+					if( temp_dt == "" )
+					{
+						alert("마감일자를 선택하세요.");
+						return;
+					}
+					else
+					{
+						if( window.alert("매입 마감하시겠습니까?", "확인", 1) == 1 )
+						{
+							if( temp_dt != '0' && temp_dt < 10 )
+							{
+								temp_dt = "0" + temp_dt;
+							}
+							
+							var dd_clos_dt 	= model.getValue("/root/reqData/searchData/dd_clos_yymm");
+							var work_cls = Number(cmb_work_clsf.value) + 1;
+							model.setValue("/root/reqData/searchData/dd_clos_dt", dd_clos_dt.substr(0,6) + temp_dt);
+							model.setValue("/root/reqData/searchData/dd_work_clsf"	, Number(cmb_work_clsf.value) + 1);
+							
+							model.send("is_sal_1210_a");
+							if( submit_completed() )
+							{
+								loadData();
+							}
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<button id="btn_pinkmgcancel" class="btn04" crud="C" style="left:776px; top:39px; width:87px; height:21px; ">
+			<caption>매입마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var row 		= datagrid1.row;
+					var col 		= datagrid1.col;
+					var temp_dt 	= datagrid1.valueMatrix(row, col);
+					
+					if( temp_dt == "" )
+					{
+						alert("마감일자를 선택하세요.");
+						return;
+					}
+					else
+					{
+						if( window.alert("마감취소하시겠습니까?", "확인", 1) == 1 )
+						{
+							if( temp_dt != '0' && temp_dt < 10 )
+							{
+								 temp_dt = "0" + temp_dt;
+							}
+							
+							var dd_clos_dt 	= model.getValue("/root/reqData/searchData/dd_clos_yymm");
+							model.setValue("/root/reqData/searchData/dd_clos_dt"	, dd_clos_dt.substr(0,6) + temp_dt);
+								model.setValue("/root/reqData/searchData/dd_work_clsf"	, Number(cmb_work_clsf.value) + 1);
+							
+							model.send("is_sal_1211_a");
+							if( submit_completed() )
+							{
+								loadData();
+							}
+						}
+					}				
+				]]>
+			</script>
+		</button>
+		<button id="btn_close" class="btn02" style="left:882px; top:39px; width:53px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<caption id="cpt_blue" style="left:460px; top:130px; width:55px; height:30px; vertical-align:middle; background-color:#9BC3FF; "/>
+		<caption id="cpt_pink" style="left:460px; top:230px; width:55px; height:30px; vertical-align:middle; background-color:#DDA0DD; "/>
+		<caption id="cpt_violet" style="left:460px; top:180px; width:55px; height:30px; vertical-align:middle; background-color:#FA8C8C; "/>
+		<caption id="cpt_bluememo" style="left:525px; top:130px; width:75px; height:30px; font-weight:bold; vertical-align:middle; background-color:transparent; ">매출마감</caption>
+		<caption id="cpt_pinkmemo" style="left:525px; top:180px; width:75px; height:30px; font-weight:bold; vertical-align:middle; background-color:transparent; ">매입마감</caption>
+		<caption id="cpt_violetmemo" style="left:525px; top:230px; width:75px; height:30px; font-weight:bold; vertical-align:middle; background-color:transparent; ">전체마감</caption>
+	</xhtml:body>
+</xhtml:html>

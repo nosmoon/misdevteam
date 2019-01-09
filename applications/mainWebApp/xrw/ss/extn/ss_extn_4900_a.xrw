@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<dncompCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</dncompCombo>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<gs_request>N</gs_request>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<search_form>
+								<fr_yymm/>
+								<to_yymm/>
+								<dncomp/>
+								<adv_nm/>
+								<adv_deptcd/>
+								<adv_deptnm/>
+								<adv_cmpycd/>
+								<adv_officd/>
+								<regdt/>
+								<regno/>
+							</search_form>
+							<init_form>
+								<res_path/>
+							</init_form>
+						</reqform>
+						<multiUpDate>
+							<multiUpDate1/>
+						</multiUpDate>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<yymm/>
+									<dncomp/>
+									<dncompnm/>
+									<deptnm/>
+									<adv_nm/>
+									<medi_qty/>
+									<mob_qty/>
+									<medi_amt/>
+									<mob_amt/>
+									<tot_amt/>
+									<regdt/>
+									<regno/>
+								</record>
+							</listGrid>
+							<listGrid2>
+								<record>
+									<yymm/>
+									<dncomp/>
+									<dncompnm/>
+									<deptnm/>
+									<adv_nm/>
+									<medi_qty/>
+									<mob_qty/>
+									<medi_amt/>
+									<mob_amt/>
+									<tot_amt/>
+									<adv_id/>
+									<regdt/>
+									<regno/>
+								</record>
+							</listGrid2>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID4910search" ref="/root/reqData/reqform/search_form" action="/ss/extn/4910" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID4920save" ref="/root/reqData/multiUpDate" action="/ss/extn/4920" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID4930detail" ref="/root/reqData/reqform/search_form" action="/ss/extn/4930" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					commEventHandler(PID4900group_scr);	
+					//model.send("PID4900init", false);
+					model.setValue("/root/reqData/reqform/init_form/res_path", "codeData");
+					makeTeamSearch("getTeamInit", "/ss/extn/4900", "/root/reqData/reqform/init_form", "/root/initData/comboSet/codeData", "cmbCommonTeamQ", "cmbCommonPartQ", "cmbCommonAreaQ");
+					model.copyNode("/root/initData/defaultData", "/root/initData/comboSet/codeData");					
+			
+					model.copyNode("/root/initData/comboSet/dncompCombo","/root/initData/comboSet/codeData/dncompCombo");
+	
+					var d = new Date();
+					var month1;
+					if(d.getMonth()+1 < 10){
+						month1 = "0"+(d.getMonth()+1);
+					}else{
+						month1 = d.getMonth()+1;	
+					}
+					var yymm = d.getYear()+""+month1;
+					
+					model.setValue("/root/reqData/reqform/search_form/fr_yymm", yymm);
+					model.setValue("/root/reqData/reqform/search_form/to_yymm", yymm);
+					remakeNode("/root/resData/gridData/listGrid2");
+					model.refresh();
+				}
+				
+				function search()
+				{
+					if(!commValidate("PID4900group_scr"))
+						return;
+					
+					if(PID4900input3.value==""){
+						model.setValue("/root/reqData/reqform/search_form/adv_cmpycd","");
+						model.setValue("/root/reqData/reqform/search_form/adv_officd","");
+						model.setValue("/root/reqData/reqform/search_form/adv_deptcd","");
+						model.setValue("/root/reqData/reqform/search_form/adv_deptnm","");
+						PID4900input6.value = "";
+					}
+									
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID4910search", false);
+					
+					if(!submit_completed())
+						return;
+					//데이터셋팅
+					//-조회목록
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/dataTemp/listGrid");					
+						
+					//model.refresh();
+					//PID4900datagrid1.clearStatus();
+					PID4900datagrid1.refresh();
+										
+					if(instance1.selectNodes("/root/resData/gridData/listGrid/record/yymm").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					var rows = PID4900datagrid1.rows;
+					
+					for(var i=2; i<=rows; i++){
+						if(PID4900datagrid1.valueMatrix(i,PID4900datagrid1.colRef("medi_err")) == 'E'){
+							PID4900datagrid1.cellstyle("color", i, 6) = "#ff0000";
+							PID4900datagrid1.cellstyle("color", i, 8) = "#ff0000";
+						}else{
+							PID4900datagrid1.cellstyle("color", i, 6) = "#000000";
+							PID4900datagrid1.cellstyle("color", i, 8) = "#000000";
+						}
+						
+						if(PID4900datagrid1.valueMatrix(i,PID4900datagrid1.colRef("mob_err")) == 'E'){
+							PID4900datagrid1.cellstyle("color", i, 7) = "#ff0000";
+							PID4900datagrid1.cellstyle("color", i, 9) = "#ff0000";
+						}else{
+							PID4900datagrid1.cellstyle("color", i, 7) = "#000000";
+							PID4900datagrid1.cellstyle("color", i, 9) = "#000000";
+						}
+					}
+						
+					model.removenode("/root/tempData/dataTemp");
+					
+					//PID4900multilinegrid1.rebuild();
+					
+					//resetDetail();
+				}
+				
+				function excel(){					
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						
+					if(filePath != "") {
+						PID4900datagrid1.saveExcel(filePath);
+						window.exec(filePath);
+					}
+				}
+				
+				function userSearch()
+				{
+					model.property("BRANCH_RES_XPATH") = "/root/tempData/tempUser";
+	   
+					//remakeNode("/root/reqData/reqform/list_form");
+	   
+					window.load("/xrw/ss/extn/ss_extn_4601_p.xrw", "modal", "ZIPPOP", style="width:660px; height:410px; align:center; caption:hidden;", "/root/reqData/reqform/user_form", "/root/tempData/userForm");
+					
+					if(model.getValue("/root/tempData/tempUser/empseq") == "")
+						return;
+					
+					PID4900datagrid2.textMatrix(PID4900datagrid2.row, PID4900datagrid2.colRef("adv_id")) = model.getValue("/root/tempData/tempUser/empseq");
+				       	PID4900datagrid2.textMatrix(PID4900datagrid2.row, PID4900datagrid2.colRef("deptnm")) = model.getValue("/root/tempData/tempUser/deptnm");			      
+				      	PID4900datagrid2.textMatrix(PID4900datagrid2.row, PID4900datagrid2.colRef("adv_nm")) = model.getValue("/root/tempData/tempUser/extnnm");			       
+				   	PID4900datagrid2.addStatus(PID4900datagrid2.row, "update");
+					
+				}
+					
+				function onClickDnCompPopup(){
+					model.property("BRANCH_RES_XPATH") = "/root/tempData/tempDncomp";
+	   
+					//remakeNode("/root/reqData/reqform/list_form");
+	   
+					window.load("/xrw/ss/extn/ss_extn_4602_p.xrw", "modal", "ZIPPOP", style="width:320px; height:430px; align:center; caption:hidden;", "/root/reqData/reqform/dncomp_form", "/root/tempData/dncompForm");
+					
+				       	PID4900datagrid2.textMatrix(PID4900datagrid2.row, PID4900datagrid2.colRef("dncomp")) = model.getValue("/root/tempData/tempDncomp/dncomp");
+				       	PID4900datagrid2.textMatrix(PID4900datagrid2.row, PID4900datagrid2.colRef("dncompnm")) = model.getValue("/root/tempData/tempDncomp/dncompnm");			      
+				       	PID4900datagrid2.addStatus(PID4900datagrid2.row, "update");				       
+				}
+				
+				function save()
+				{				
+				       var val = window.alert("저장 하시겠습니까?", "확인", 1) ;	
+					if ( val == 2 ){
+						return;
+					}						
+					if ( !checkChg("PID4900datagrid2") ){
+						commAlert("저장할 내용이 없습니다.");
+						return;
+					}						
+						
+					model.resetInstanceNode("/root/reqData/multiUpDate");
+					model.setValue("/root/reqData/multiUpDate/multiUpDate1", PID4900datagrid2.getUpdateData());
+					
+					model.send("PID4920save", false);
+
+					search();	
+					PID4900datagrid2.clearStatus();
+					remakeNode("/root/resData/gridData/listGrid2");
+					model.refresh();
+				}
+				
+				function gridClick(){
+					model.setValue("/root/reqData/reqform/search_form/regdt",PID4900datagrid1.textMatrix(PID4900datagrid1.row, PID4900datagrid1.colRef("regdt")));
+					model.setValue("/root/reqData/reqform/search_form/regno",PID4900datagrid1.textMatrix(PID4900datagrid1.row, PID4900datagrid1.colRef("regno")));
+					
+					if(!commValidate("PID4900group_scr"))
+						return;
+									
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID4930detail", false);
+					
+					if(!submit_completed())
+						return;
+					//데이터셋팅
+					//-조회목록
+					model.copyNode("/root/resData/gridData/listGrid2", "/root/tempData/dataTemp/listGrid");					
+						
+					//model.refresh();
+					//PID4900datagrid1.clearStatus();
+					PID4900datagrid2.refresh();
+										
+					if(instance1.selectNodes("/root/resData/gridData/listGrid2/record/yymm").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					model.removenode("/root/tempData/dataTemp");
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="1000" idprefix="PID4900" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:709px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();		
+					]]>
+				</script>
+			</button>
+			<button id="btnA2" class="btn02" style="left:764px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						save();
+					]]>
+				</script>
+			</button>
+			<button id="btnA3" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						excel();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID4900group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:25px; ">
+			<group id="grpCommonSelectQ" style="left:0px; top:0px; width:926px; height:25px; ">
+				<caption id="PID4900caption1" class="list_cap02" style="left:0px; top:0px; width:926px; height:25px; "/>
+				<caption id="PID4900caption2" class="list_cap01" style="left:0px; top:0px; width:70px; height:25px; ">대납기업</caption>
+				<!--<input id="dncomp" ref="/root/reqData/reqform/search_form/dncomp" inputtype="button" style="left:75px; top:4px; width:100px; height:18px; ">
+					<script type="javascript" ev:event="onbuttonclick">
+						<![CDATA[
+							model.property("BRANCH_RES_XPATH") = "/root/tempData/tempDncomp";
+   			   
+							window.load("/xrw/ss/extn/ss_extn_4602_p.xrw", "modal", "ZIPPOP", style="width:320px; height:430px; align:center; caption:hidden;", "/root/reqData/reqform/dncomp_form", "/root/tempData/dncompForm");
+							
+							if(model.getValue("/root/tempData/tempDncomp/dncomp") == "")
+								return;
+								
+						       	//model.setValue("/root/reqData/reqform/search_form/dncomp",model.getValue("/root/tempData/tempDncomp/dncomp"));
+						       	dncomp.value = model.getValue("/root/tempData/tempDncomp/dncomp");
+						       
+						]]>
+					</script>
+				</input>-->
+				<select1 id="dncomp" ref="/root/reqData/reqform/search_form/dncomp" appearance="minimal" style="left:75px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/dncompCombo/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="PID4900caption3" class="list_cap01" style="left:180px; top:0px; width:80px; height:25px; ">약정월</caption>
+				<input id="PID4900input1" ref="/root/reqData/reqform/search_form/fr_yymm" inputtype="date" format="yyyy-mm" caption="시작월" setHandler="true" relid="PID4900input2" style="left:264px; top:4px; width:80px; height:18px; "/>
+				<caption id="PID4900caption4" style="left:345px; top:0px; width:10px; height:25px; ">-</caption>
+				<input id="PID4900input2" ref="/root/reqData/reqform/search_form/to_yymm" inputtype="date" format="yyyy-mm" caption="종료월" setHandler="true" relid="PID4900input1" style="left:355px; top:4px; width:80px; height:18px; "/>
+				<caption id="caption1" class="list_cap01" style="left:440px; top:0px; width:60px; height:25px; ">권유자</caption>
+				<input id="adv_nm" ref="/root/reqData/reqform/search_form/adv_nm" style="left:504px; top:4px; width:80px; height:18px; "/>
+				<caption id="caption2" class="list_cap01" style="left:588px; top:0px; width:80px; height:25px; ">권유부서</caption>
+				<input id="PID4900input3" ref="/root/reqData/reqform/search_form/adv_deptcd" inputtype="button" maxlength="6" style="left:674px; top:4px; width:80px; height:18px; ">
+					<script type="javascript" ev:event="onbuttonclick">
+						<![CDATA[
+													
+							model.property("BRANCH_RES_XPATH") = "/root/tempData/tempDeptinfo";
+	   			   
+							window.load("/xrw/ss/extn/ss_extn_4901_p.xrw", "modal", "ZIPPOP", style="width:640px; height:430px; align:center; caption:hidden;", "/root/reqData/reqform/search_form", "/root/tempData/tempDeptinfo");
+								
+							if(model.getValue("/root/tempData/tempDeptinfo/deptcd") == "")
+								return;
+								
+						       	PID4900input3.value = model.getValue("/root/tempData/tempDeptinfo/deptcd");
+						       	PID4900input4.value = model.getValue("/root/tempData/tempDeptinfo/deptnm");
+						       	PID4900input5.value = model.getValue("/root/tempData/tempDeptinfo/cmpycd");
+						       	PID4900input6.value = model.getValue("/root/tempData/tempDeptinfo/officd");
+							
+						]]>
+					</script>
+				</input>
+				<input id="PID4900input4" ref="/root/reqData/reqform/search_form/adv_deptnm" editable="false" appearance="input" style="left:757px; top:4px; width:130px; height:18px; border-style:none; "/>
+				<input id="PID4900input5" ref="/root/reqData/reqform/search_form/adv_cmpycd" visibility="hidden" appearance="input" style="left:737px; top:4px; width:130px; height:18px; border-style:none; "/>
+				<input id="PID4900input6" ref="/root/reqData/reqform/search_form/adv_officd" visibility="hidden" appearance="input" style="left:737px; top:4px; width:130px; height:18px; border-style:none; "/>
+				<select1 id="cmbCommonTeamQ" ref="/root/reqData/reqform/search_form/deptcd" class="req_100" visibility="hidden" appearance="minimal" style="left:800px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/teamlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<select1 id="cmbCommonPartQ" ref="/root/reqData/reqform/search_form/partcd" class="req_100" visibility="hidden" appearance="minimal" style="left:800px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/partlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<select1 id="cmbCommonAreaQ" ref="/root/reqData/reqform/search_form/areacd" class="req_60" visibility="hidden" appearance="minimal" style="left:800px; top:4px; width:60px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/arealist/record">
+							<label ref="area_nm"/>
+							<value ref="area_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+			</group>
+		</group>
+		<group id="PID4900group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="PID4900datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="약정월^대납기업코드^대납기업명^권유부서^권유자^신문부수^e조경부수^신문금액^e조경금액^금액계" colwidth="80,80,100,150,80,80,80,80,80,80" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" selectionmode="free" rowsep="|" colsep="#" tooltip="true" style="left:10px; top:110px; width:926px; height:300px; ">
+			<col ref="yymm"/>
+			<col ref="dncomp"/>
+			<col ref="dncompnm"/>
+			<col ref="deptnm"/>
+			<col ref="adv_nm"/>
+			<col ref="medi_qty" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="mob_qty" format="(-)#,###.#" style="text-align:right; "/>
+			<col ref="medi_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="mob_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="tot_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="regdt" visibility="hidden"/>
+			<col ref="regno" visibility="hidden"/>
+			<col ref="medi_err" visibility="hidden"/>
+			<col ref="mob_err" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4900datagrid1.mouseCol>PID4900datagrid1.fixedCols-1 && PID4900datagrid1.mouseRow>PID4900datagrid1.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}		
+				]]>
+			</script>
+		</datagrid>
+		<button id="button1" class="btn_grid03" style="left:790px; top:420px; width:53px; height:17px; background-image:/images/btn_s_3.gif; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					PID4900datagrid2.addRow();							
+					PID4900datagrid2.refresh();
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn_grid03" style="left:850px; top:420px; width:53px; height:17px; background-image:/images/btn_s_3.gif; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					se_grid_delete("PID4900datagrid2");
+				]]>
+			</script>
+		</button>
+		<datagrid id="PID4900datagrid2" nodeset="/root/resData/gridData/listGrid2/record" caption="약정월^대납기업코드^대납기업명^권유부서^권유자^신문부수^e조경부수^신문금액^e조경금액^금액계" colwidth="80,80,100,150,80,80,80,80,80,80" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="update" selectionmode="free" rowsep="|" colsep="#" tooltip="true" style="left:10px; top:440px; width:924px; height:300px; ">
+			<col ref="yymm" type="input" format="yyyy-mm" style="text-align:left; "/>
+			<col ref="dncomp" type="inputbutton">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					onClickDnCompPopup();	
+				]]>
+				</script>
+			</col>
+			<col ref="dncompnm"/>
+			<col ref="deptnm"/>
+			<col ref="adv_nm" type="inputbutton">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					userSearch();	
+				]]>
+				</script>
+			</col>
+			<col ref="medi_qty" type="input" format="(-)#,###.#" style="text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[						 
+						 var row= PID4900datagrid2.row;	
+						 
+						 PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("medi_amt"))
+						 	= se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("medi_qty"))) * 180000;
+						 	
+						 PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("tot_amt")) =
+						 	se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("medi_amt")))
+						 	+se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("mob_amt")))
+						 					
+						PID4900datagrid2.refresh();
+					]]>
+				</script>
+			</col>
+			<col ref="mob_qty" type="input" format="(-)#,###.#" style="text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[						
+						 var row= PID4900datagrid2.row;	
+						 
+						 PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("mob_amt"))
+						 	= se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("mob_qty"))) * 60000;
+						 
+						 PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("tot_amt")) =
+						 	se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("medi_amt")))
+						 	+se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("mob_amt")))	
+						 					
+						PID4900datagrid2.refresh();
+					]]>
+				</script>
+			</col>
+			<col ref="medi_amt" type="input" format="(-)#,###" style="text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[						 
+						 var row= PID4900datagrid2.row;	
+						 
+						 PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("tot_amt")) =
+						 	se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("medi_amt")))
+						 	+se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("mob_amt")))	
+						 					
+						PID4900datagrid2.refresh();
+					]]>
+				</script>
+			</col>
+			<col ref="mob_amt" type="input" format="(-)#,###" style="text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[						 
+						 var row= PID4900datagrid2.row;	
+						 
+						 PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("tot_amt")) =
+						 	se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("medi_amt")))
+						 	+se_eval(PID4900datagrid2.valueMatrix(row,PID4900datagrid2.colRef("mob_amt")))	
+						 					
+						PID4900datagrid2.refresh();
+					]]>
+				</script>
+			</col>
+			<col ref="tot_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="adv_id" visibility="hidden"/>
+			<col ref="regdt" visibility="hidden"/>
+			<col ref="regno" visibility="hidden"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

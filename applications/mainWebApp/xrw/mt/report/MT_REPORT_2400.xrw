@@ -1,0 +1,1066 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<printsize>
+								<item>
+									<label>A4</label>
+									<value>A4</value>
+								</item>
+								<item>
+									<label>B4</label>
+									<value>B4</value>
+								</item>
+							</printsize>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<cmpy_cd/>
+							<printsize/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+							<cmpy_cd/>
+							<clos_yymm/>
+							<stok_yymm/>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpdate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<mode/>
+							<cmpy_cd/>
+							<report_id/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<msg>
+							<errMsg/>
+							<errCode/>
+						</msg>
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+							<record>
+								<cmpy_cd/>
+							</record>
+						</gridData>
+						<gridData2>
+							<record>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				var now_date = new Date();
+				var year = now_date.getYear();
+				var month = now_date.getMonth();
+				var month_tm = '0' + month;
+				if(month_tm.length == 3){
+					month_tm = month_tm.substring(1, 3);
+				}
+				if(month_tm == "00"){
+					year = year - 1;
+					month_tm = "12";
+				}
+				var befo_mm = year + month_tm;
+				model1.setValue("/root/reqData/reqForm/clos_yymm", befo_mm);
+				input1.refresh();
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+				function sp_mt_report_total_1() {
+					var page_clsf = "2";
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var baseym 	= clos_yymm.substring(0,4);
+					var baseym_1 	= eval(baseym) - 1;
+					var baseym_2 	= eval(baseym) - 2;
+					
+					var clos_yy = clos_yymm.substring(0,4);
+					var clos_mm = clos_yymm.substring(4,7);
+					
+					var printsize = model.getValue("/root/reqData/searchData/printsize");
+					//model1.alert( printsize );
+					if(clos_yymm == ""){
+						alert("기준년월을 입력하세요");
+						return;
+					}
+					
+					//alert("... 여기..." + clos_yymm);
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1210_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",printsize); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_clos_yymm" , clos_yymm );
+					makeNodeValue("/root/oz_data/childCount", "10");
+					
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1230_P");
+					makeNodeValue("/root/oz_data/child1/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_iss_date" , clos_yymm );
+					
+					makeNodeValue("/root/oz_data/child2/ozrName" , "mt/SP_MT_REPORT_1120_P");
+					makeNodeValue("/root/oz_data/child2/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child2/odiParam/iv_stok_yymm" , clos_yymm );
+					makeNodeValue("/root/oz_data/child2/odiParam/iv_page_clsf" , page_clsf );
+					
+					makeNodeValue("/root/oz_data/child3/ozrName" , "mt/SP_MT_REPORT_1121_P");
+					makeNodeValue("/root/oz_data/child3/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child3/odiParam/iv_stok_yymm" , clos_yymm );
+					
+					makeNodeValue("/root/oz_data/child4/ozrName" , "mt/SP_MT_REPORT_1290_P");
+					makeNodeValue("/root/oz_data/child4/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child4/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child4/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child4/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child4/odiParam/iv_baseym_2" , baseym_2 );
+					makeNodeValue("/root/oz_data/child4/odiParam/iv_page_clsf" , page_clsf );
+					
+					makeNodeValue("/root/oz_data/child5/ozrName" , "mt/SP_MT_REPORT_1295_P");
+					makeNodeValue("/root/oz_data/child5/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child5/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child5/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child5/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child5/odiParam/iv_baseym_2" , baseym_2 );
+					makeNodeValue("/root/oz_data/child5/odiParam/iv_page_clsf" , page_clsf );
+					
+					makeNodeValue("/root/oz_data/child6/ozrName" , "mt/SP_MT_REPORT_1291_P");
+					makeNodeValue("/root/oz_data/child6/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child6/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child6/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child6/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child6/odiParam/iv_baseym_2" , baseym_2 );
+					//makeNodeValue("/root/oz_data/child7/odiParam/iv_page_clsf" , page_clsf );
+					
+					makeNodeValue("/root/oz_data/child7/ozrName" , "mt/SP_MT_REPORT_1292_P");
+					makeNodeValue("/root/oz_data/child7/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child7/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child7/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child7/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child7/odiParam/iv_baseym_2" , baseym_2 );
+					
+					makeNodeValue("/root/oz_data/child8/ozrName" , "mt/SP_MT_REPORT_1293_P");
+					makeNodeValue("/root/oz_data/child8/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child8/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child8/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child8/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child8/odiParam/iv_baseym_2" , baseym_2 );
+					makeNodeValue("/root/oz_data/child8/odiParam/iv_page_clsf" , page_clsf );
+					
+					makeNodeValue("/root/oz_data/child9/ozrName" , "mt/SP_MT_REPORT_1294_P");
+					makeNodeValue("/root/oz_data/child9/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child9/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child9/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child9/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child9/odiParam/iv_baseym_2" , baseym_2 );
+					makeNodeValue("/root/oz_data/child9/odiParam/iv_page_clsf" , page_clsf );
+					
+					//2.원재료 종합보고
+					//가.신문용지 입-출고 및 재고현황
+					makeNodeValue("/root/oz_data/child10/ozrName" , "mt/SP_MT_REPORT_1312_P");
+					makeNodeValue("/root/oz_data/child10/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child10/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child10/odiParam/iv_ewh_dt" , clos_yymm );
+					//나.월별 신문용지 입-출고 및 재고현황
+					makeNodeValue("/root/oz_data/child11/ozrName" , "mt/SP_MT_REPORT_1340_P");
+					makeNodeValue("/root/oz_data/child11/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child11/odiParam/iv_stok_yy" , stok_yy );
+					makeNodeValue("/root/oz_data/child11/odiParam/iv_stok_mm" , stok_mm );
+					makeNodeValue("/root/oz_data/child11/odiParam/iv_page_clsf" , page_clsf );
+					//다.매체별 인쇄처별 용지소모내역
+					makeNodeValue("/root/oz_data/child12/ozrName" , "mt/SP_MT_REPORT_1350_P");
+					makeNodeValue("/root/oz_data/child12/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child12/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child12/odiParam/iv_eowh_dt" , clos_yymm );
+					makeNodeValue("/root/oz_data/child12/odiParam/iv_page_clsf" , page_clsf );
+					//마.월별 인쇄처별 용지구입량,구입금액,소모량,소모금액
+					makeNodeValue("/root/oz_data/child13/ozrName" , "mt/SP_MT_REPORT_1231_P");
+					makeNodeValue("/root/oz_data/child13/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child13/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child13/odiParam/iv_iss_date" , clos_yymm );
+					makeNodeValue("/root/oz_data/child13/odiParam/iv_page_clsf" ,page_clsf);
+					
+					makeNodeValue("/root/oz_data/child14/ozrName" , "mt/SP_MT_REPORT_1270_P");
+					makeNodeValue("/root/oz_data/child14/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child14/odiParam/iv_prt_yymm" , clos_yymm );
+					makeNodeValue("/root/oz_data/child14/odiParam/iv_page_clsf" , page_clsf);
+					
+					makeNodeValue("/root/oz_data/child10/ozrName" , "mt/SP_MT_REPORT_1232_P");
+					makeNodeValue("/root/oz_data/child10/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child10/odiParam/iv_iss_date" , clos_yymm );
+					
+					
+					var clos_yy = clos_yymm.substring(0,4);
+					var clos_mm = clos_yymm.substring(4,7);
+					
+					makeNodeValue("/root/oz_data/child11/ozrName" , "mt/SP_MT_REPORT_1342_P");
+					makeNodeValue("/root/oz_data/child11/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child11/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child11/odiParam/iv_stok_yy" , clos_yy );
+					makeNodeValue("/root/oz_data/child11/odiParam/iv_stok_mm" , clos_mm );
+					
+					makeNodeValue("/root/oz_data/child12/ozrName" , "mt/SP_MT_REPORT_2090_P");
+					makeNodeValue("/root/oz_data/child12/printsize" , printsize );
+					makeNodeValue("/root/oz_data/child12/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child12/odiParam/iv_issu_yymm" , clos_yymm );
+					
+					// 프린터로 직접출력할 경우에만 사용.. ( preview:미리보기,print:직접출력, export:파일 )					
+					//makeNodeValue("/root/oz_data/preview","print");
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+						
+						
+				}
+				
+				function sp_mt_report_1121_p() {
+					var page_clsf = "2";
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1120_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_stok_yymm" , clos_yymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , page_clsf );
+					makeNodeValue("/root/oz_data/childCount", "1");
+					
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1121_P");
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_stok_yymm" , clos_yymm );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_page_clsf" , page_clsf );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1210_p() {
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1210_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_clos_yymm" , clos_yymm );
+					// 프린터로 직접출력할 경우에만 사용.. ( preview:미리보기,print:직접출력, export:파일 )					
+					//makeNodeValue("/root/oz_data/preview","print");
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1230_p() {
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1230_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_iss_date" , clos_yymm);
+					
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1231_p() {
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1240_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_prt_yymm" , clos_yymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2" );
+					
+					makeNodeValue("/root/oz_data/childCount", "1");
+					
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1270_P");
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_prt_yymm" , clos_yymm );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_page_clsf" , "2" );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1226_p(){
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1226_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_yymm" , clos_yymm );
+					//makeNodeValue("/root/oz_data/odiParam/iv_fac_clsf" , "10" );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1291_p(){
+					var clos_yymm	= model1.getValue("/root/reqData/reqForm/clos_yymm")
+					
+					var baseym 	= clos_yymm.substring(0,4);
+					var baseym_1 	= eval(baseym) - 1;
+					var baseym_2 	= eval(baseym) - 2;
+					var printsize = model.getValue("/root/reqData/searchData/printsize");
+					var page_clsf 	= "2";
+					
+					if(baseym == ""){
+						alert("기준년도를 입력하세요");
+						return;
+					}
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1290_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",printsize); 		    //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/odiParam/iv_baseym_2" , baseym_2 );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , page_clsf );
+					makeNodeValue("/root/oz_data/childCount","3");
+
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1295_P");
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_baseym_2" , baseym_2 );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_page_clsf" , page_clsf );
+					
+					makeNodeValue("/root/oz_data/child2/ozrName" , "mt/SP_MT_REPORT_1293_P");
+					makeNodeValue("/root/oz_data/child2/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child2/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child2/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child2/odiParam/iv_baseym_2" , baseym_2 );
+					makeNodeValue("/root/oz_data/child2/odiParam/iv_page_clsf" , page_clsf );
+					
+					makeNodeValue("/root/oz_data/child3/ozrName" , "mt/SP_MT_REPORT_1294_P");
+					makeNodeValue("/root/oz_data/child3/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child3/odiParam/iv_baseym" , baseym );
+					makeNodeValue("/root/oz_data/child3/odiParam/iv_baseym_1" , baseym_1 );
+					makeNodeValue("/root/oz_data/child3/odiParam/iv_baseym_2" , baseym_2 );
+					makeNodeValue("/root/oz_data/child3/odiParam/iv_page_clsf" , page_clsf );
+						
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1312_p(){
+					var clos_yymm 	= model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var stok_yy	= clos_yymm.substring(0,4);
+					var stok_mm 	= clos_yymm.substring(4,6);
+					
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1312_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_ewh_dt" , clos_yymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf", "2");
+					/*
+					makeNodeValue("/root/oz_data/childCount", "1");
+					
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1340_P");
+					//makeNodeValue("/root/oz_data/child2/odiParam/iv_iss_date" , clos_yymm );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_stok_yy" , stok_yy );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_stok_mm" , stok_mm );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_page_clsf", "2");*/
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function SP_MT_REPORT_1340_P(){
+					var clos_yymm 	= model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var stok_yy	= clos_yymm.substring(0,4);
+					var stok_mm 	= clos_yymm.substring(4,6);
+					return;
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1340_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_stok_yy" , stok_yy );
+					makeNodeValue("/root/oz_data/odiParam/iv_stok_mm" , stok_mm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf", "2");
+					
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1341_p() {
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					//alert("... 여기..." + clos_yymm);
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1341_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_stok_yymm" , clos_yymm );
+					
+					// 프린터로 직접출력할 경우에만 사용.. ( preview:미리보기,print:직접출력, export:파일 )					
+					//makeNodeValue("/root/oz_data/preview","print");
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1320_p(){
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+							
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1320_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_ewh_dt" , clos_yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1330_p(){
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1330_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_owh_dt" , clos_yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1353_p(){
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var report_clsf = "라";
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1353_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_yymm" , clos_yymm );
+					
+					makeNodeValue("/root/oz_data/childCount","1");
+							
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1350_P");
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_eowh_dt" , clos_yymm );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_report_clsf" , report_clsf );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1350_p(){
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var page_clsf = "2";
+					
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1353_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_yymm" , clos_yymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , page_clsf );
+					
+					makeNodeValue("/root/oz_data/childCount","1");
+							
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1350_P");
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_eowh_dt" , clos_yymm );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_page_clsf" , page_clsf );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1342_p(){
+					var clos_yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var clos_yy = stok_yymm.substring(0,4);
+					var clos_mm = stok_yymm.substring(4,7);
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1342_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					
+					makeNodeValue("/root/oz_data/odiParam/iv_stok_yy" , clos_yy );
+					makeNodeValue("/root/oz_data/odiParam/iv_stok_mm" , clos_mm );
+							
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2090_p() {
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2090_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_issu_yymm" , yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_1281_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2040_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_yymm" , yymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2" );
+					/*
+					makeNodeValue("/root/oz_data/childCount","1");
+					
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_2050_P");
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_iss_date" , yymm );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_page_clsf" , "2" );*/
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+					
+				}
+				
+				function sp_mt_report_1282_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					model.alert("mis개발팀으로 문의하세요.");
+					return;
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2050_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_iss_date" , yymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2" );
+					
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+					
+				}
+				function sp_mt_report_2100_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2100_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_clos_yymm" , yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2110_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2110_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_cnsm_yymm" , yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2120_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2120_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_clos_yymm" , yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2130_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2130_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_clos_yymm" , yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2010_p(){
+					var basi_dt = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2010_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_basi_dt" , basi_dt );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2140_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2140_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_issu_yymm" , yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2150_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2150_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_issu_yymm" , yymm );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2160_p(){
+					var yyyy = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					//yyyy = yyyy.substring(0,4);	
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2160_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_yyyy" , yyyy );					
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2" );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2170_p(){
+					var yy = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					yy = yy.substring(0,6);
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2170_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_issu_yy" , yy );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2" );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2180_p(){
+					var yyyymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var yy = yyyymm.substring(0,4);
+					var mm = yyyymm.substring(4,7);					
+					
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2180_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_yyyy" , yy );
+					makeNodeValue("/root/oz_data/odiParam/iv_mm" , mm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2" );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				function sp_mt_report_2190_p(){
+					var yyyymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var yyyy = yyyymm.substring(0,4);
+					var mm = yyyymm.substring(4,7);
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_2190_P");
+					makeNodeValue("/root/oz_data/preview", "preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_yyyy" , yyyy );
+					//makeNodeValue("/root/oz_data/odiParam/iv_mm" , mm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2" );
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				
+				/*
+				function sp_mt_report_1231_p(){
+					var yymm = model1.getValue("/root/reqData/reqForm/clos_yymm");
+						
+					//오즈관련 노드초기화
+					resetOznode();
+					//ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅
+					makeNodeValue("/root/oz_data/ozrName" , "mt/SP_MT_REPORT_1231_P");
+					makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 				       //페이지용지설정(기본 A4)
+              			
+					//odi파라미터 설정
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/odiParam/iv_iss_date" , yymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2");
+					
+					makeNodeValue("/root/oz_data/childCount","1");
+					
+					makeNodeValue("/root/oz_data/child1/ozrName" , "mt/SP_MT_REPORT_1232_P");
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_iss_date" , yymm );
+					makeNodeValue("/root/oz_data/odiParam/iv_page_clsf" , "2");
+						
+					//레포트뷰어 호출
+					openOzwin("/root/oz_data");
+				}
+				*/
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/mt_common.js"/>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="946" pageheight="728" guideline="1,936;" style="font-family:굴림; ">
+		<import id="import1" src="../../../common/xrw/iv_TitleBar_Pop640.xrw" style="left:10px; top:5px; width:926px; height:30px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnReset" class="btn02" navindex="3" style="left:815px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();	
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" navindex="4" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" navindex="1" style="left:755px; top:0px; width:53px; height:21px; ">
+				<caption>출력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var report_id 	= model1.getValue("/root/resData/resForm/report_id");
+					var yymm 		= model1.getValue("/root/reqData/reqForm/clos_yymm");
+					var func_nm	= "";
+					func_nm		= report_id.toLowerCase();
+					
+					if (report_id == ""){
+						alert("출력하고자 하는 보고서를 선택해주십시오.");
+						return;
+					}
+					if (yymm == ""){
+						alert("출력하고자 하는 발행년월을 선택해주십시오.");
+						return;
+					}
+					
+					eval(func_nm + "();");
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group3" class="gro_sel" style="left:10px; top:75px; width:926px; height:26px; ">
+			<caption id="caption3" class="list_cap02" style="left:99px; top:0px; width:827px; height:26px; border-style:solid; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:100px; height:26px; border-style:solid; ">발행년월</caption>
+			<input id="input1" ref="/root/reqData/reqForm/clos_yymm" inputtype="date" format="yyyy-mm" style="left:104px; top:4px; width:100px; height:18px; background-color:#ffffcc; "/>
+			<caption id="caption5" class="list_cap01" style="left:235px; top:0px; width:100px; height:26px; border-style:solid; ">용지</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/printsize" appearance="minimal" style="left:339px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/printsize/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<button id="button21" style="left:462px; top:3px; width:60px; height:19px; text-align:center; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+				<caption>일괄출력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							var printsize = model.getValue("/root/reqData/searchData/printsize");
+							
+							if( window.alert(printsize + " 용지로 일괄출력하시겠습니까?" ,"조선일보MIS", 1) != 1){
+							return;
+							}
+							
+							sp_mt_report_total_1();
+						]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" style="left:10px; top:110px; width:926px; height:605px; ">
+			<caption id="caption14" class="list_cap02" style="left:0px; top:410px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<caption id="caption2" class="list_cap02" style="left:0px; top:25px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:460px; height:26px; font-weight:bold; text-align:left; border-style:solid; ">1. 원재료, 부재료 및 기타재료 구입- 소모-재고 현황</caption>
+			<caption id="caption6" class="list_cap01" style="left:466px; top:0px; width:460px; height:26px; font-weight:bold; text-align:left; border-style:solid; ">3. 원가</caption>
+			<caption id="caption7" class="list_cap02" style="left:0px; top:50px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<caption id="caption10" class="list_cap02" style="left:0px; top:75px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<caption id="caption12" class="list_cap02" style="left:0px; top:100px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio1" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:30px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>가. 원재료, 부재료, 기타재료, 총합계</label>
+						<value>SP_MT_REPORT_1210_P</value>
+					</item>
+				</choices>
+			</select1>
+			<select1 id="radio2" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:55px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>라. 월별 재료구입 현황(원+부+기타재료)</label>
+						<value>SP_MT_REPORT_1230_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption8" class="list_cap02" style="left:0px; top:200px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio6" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:205px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>가. 신문용지 입-출고 및 재고현황(월별)</label>
+						<value>SP_MT_REPORT_1312_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption9" class="list_cap01" style="left:0px; top:175px; width:460px; height:26px; font-weight:bold; text-align:left; border-style:solid; ">2. 원재료(신문용지) 종합보고</caption>
+			<caption id="caption11" class="list_cap02" style="left:0px; top:225px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio7" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:230px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>나. 월별 신문용지 입-출고 및 재고현황</label>
+						<value>SP_MT_REPORT_1340_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption13" class="list_cap02" style="left:0px; top:250px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<caption id="caption15" class="list_cap02" style="left:0px; top:275px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio14" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:280px; width:370px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>마. 월별 인쇄처별 용지구입량, 구입금액, 소모량, 소모금액</label>
+						<value>SP_MT_REPORT_1231_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption25" class="list_cap02" style="left:0px; top:380px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<caption id="caption26" class="list_cap01" style="left:0px; top:355px; width:460px; height:26px; font-weight:bold; text-align:left; border-style:solid; ">3. 위탁처 재료비 소모현황</caption>
+			<select1 id="radio18" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:385px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>가. 위탁처 소모현황, 누계, 월별 소모금액 현황</label>
+						<value>SP_MT_REPORT_1281_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption31" class="list_cap02" style="left:466px; top:25px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio25" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:470px; top:30px; width:320px; height:20px; color:#ff0000; background-color:#ff9900; border-style:none; ">
+				<choices>
+					<item>
+						<label>가. 1부당 1개월, 1면당 1일 원가</label>
+						<value>SP_MT_REPORT_2140_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption32" class="list_cap02" style="left:466px; top:50px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio26" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:470px; top:55px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>나. 매체별 월별 발행일수, 발행면수</label>
+						<value>SP_MT_REPORT_2150_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption33" class="list_cap02" style="left:466px; top:75px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio27" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:470px; top:80px; width:320px; height:20px; color:#ff0000; background-color:#ff9900; border-style:none; ">
+				<choices>
+					<item>
+						<label>사. 매체별 월별 면당원가</label>
+						<value>SP_MT_REPORT_2160_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption34" class="list_cap02" style="left:466px; top:100px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio28" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:470px; top:105px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>사. 매체별 월별 면당원가(흑백-컬러)</label>
+						<value>SP_MT_REPORT_2170_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption35" class="list_cap02" style="left:466px; top:125px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio29" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:470px; top:130px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>사. 매체별 월별 1부당 1개월 원가</label>
+						<value>SP_MT_REPORT_2180_P</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption36" class="list_cap02" style="left:466px; top:150px; width:460px; height:26px; text-align:left; border-style:solid; "/>
+			<select1 id="radio30" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:470px; top:155px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>사. 매체별 월별 1면당 1일 원가</label>
+						<value>SP_MT_REPORT_2190_P</value>
+					</item>
+				</choices>
+			</select1>
+			<select1 id="radio31" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:80px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>마. 연도별 월별 신문용지 소모량 현황(4p)</label>
+						<value>SP_MT_REPORT_1291_P</value>
+					</item>
+				</choices>
+			</select1>
+			<select1 id="radio32" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:255px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>다. 라. 매체별 인쇄처별 용지 소모내역(월별소모내역)</label>
+						<value>SP_MT_REPORT_1350_P</value>
+					</item>
+				</choices>
+			</select1>
+			<select1 id="radio19" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:105px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>아. 신문잉크 사용 현황(7p)</label>
+						<value>SP_MT_REPORT_1121_P</value>
+					</item>
+				</choices>
+			</select1>
+			<select1 id="radio3" ref="/root/resData/resForm/report_id" appearance="full" overflow="visible" style="left:5px; top:415px; width:320px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>가2. 위탁처 소모현황, 누계, 월별 소모금액 현황2</label>
+						<value>SP_MT_REPORT_1282_P</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+	</xhtml:body>
+</xhtml:html>

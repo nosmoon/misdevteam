@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>지국검색</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<searchBranch>
+								<deptcd/>
+								<partcd/>
+								<areacd/>
+								<bocd/>
+								<srch_word/>
+								<addr3/>
+								<bonm/>
+								<flag>A</flag>
+							</searchBranch>
+						</searchData>
+						<reqform/>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<branchGrid>
+								<record>
+									<bocd/>
+									<bonm/>
+									<deptcd/>
+									<deptnm/>
+									<areacd/>
+									<areanm/>
+									<tel_no11/>
+									<tel_no12/>
+									<tel_no13/>
+									<fax1/>
+									<fax2/>
+									<fax3/>
+									<bo_headnm/>
+									<htel_no1/>
+									<htel_no2/>
+									<htel_no3/>
+									<hptph_no1/>
+									<hptph_no2/>
+									<hptph_no3/>
+									<hemail/>
+									<boaddr/>
+									<bodtlsaddr/>
+									<hboaddr/>
+									<hbodtlsaddr/>
+									<oprenvclsfnm/>
+									<cntrstatnm/>
+									<bospcfclsfnm/>
+									<tel_no1/>
+									<hptph_no/>
+									<baddr/>
+									<fax/>
+									<htel_no/>
+									<haddr/>
+									<status/>
+								</record>
+							</branchGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<searchBranch>
+							<deptcd/>
+							<partcd/>
+							<areacd/>
+							<bonm/>
+						</searchBranch>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="subBranch" action="/ps/common/1911" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchBranch" resultref="/root/resData/gridData/branchGrid"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					modelCopyValue("/root/reqData/searchData/searchBranch/deptcd", "/root/tempData/searchBranch/deptcd");
+					modelCopyValue("/root/reqData/searchData/searchBranch/partcd", "/root/tempData/searchBranch/partcd");
+					modelCopyValue("/root/reqData/searchData/searchBranch/areacd", "/root/tempData/searchBranch/areacd");
+					modelCopyValue("/root/reqData/searchData/searchBranch/bonm", "/root/tempData/searchBranch/bonm");
+					
+					if(model.getValue("/root/reqData/searchData/searchBranch/bonm") != "")
+					{
+						modelCopyValue("/root/reqData/searchData/searchBranch/srch_word", "/root/reqData/searchData/searchBranch/bonm");
+						input1.refresh();
+						
+						model.send("subBranch", false);
+						multilinegrid1.refresh();
+						
+						if((instance1.selectNodes("/root/resData/gridData/branchGrid/record/bocd")).length == 0)
+							model.toggle("case2");
+						else
+							model.toggle("case1");
+					}
+					
+					model.setFocus("input1");
+				}
+				
+				function search()
+				{
+					if(!commReqCheck("group_scr"))
+						return;
+						
+					if(model.getValue("/root/reqData/searchData/searchBranch/flag") == "A")
+					{
+						model.setValue("/root/reqData/searchData/searchBranch/addr3", "");
+						modelCopyValue("/root/reqData/searchData/searchBranch/bonm", "/root/reqData/searchData/searchBranch/srch_word");
+					}
+					else
+					{
+						model.setValue("/root/reqData/searchData/searchBranch/bonm", "");
+						modelCopyValue("/root/reqData/searchData/searchBranch/addr3", "/root/reqData/searchData/searchBranch/srch_word");
+					}
+					
+					model.send("subBranch", true);
+					
+					if((instance1.selectNodes("/root/resData/gridData/branchGrid/record/bocd")).length == 0)
+						model.toggle("case2");
+					else
+						model.toggle("case1");
+					
+				}
+				
+				function onKeyDown()
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("multilinegrid1");
+						search();
+					}
+				}
+				
+				function onSelectBranch()
+				{
+					if(event.button == 1)
+					{
+						var resPath = model.property("BRANCH_RES_XPATH");
+	
+						window.opener.javaScript.remakeNode(resPath);
+						window.opener.javaScript.makeValueNode(resPath+"/bocd", curRowRefColValue(multilinegrid1, "bocd"));
+						window.opener.javaScript.makeValueNode(resPath+"/bonm", curRowRefColValue(multilinegrid1, "bonm"));
+						window.opener.javaScript.makeValueNode(resPath+"/deptcd", curRowRefColValue(multilinegrid1, "deptcd"));
+						window.opener.javaScript.makeValueNode(resPath+"/deptnm", curRowRefColValue(multilinegrid1, "deptnm"));
+						window.opener.javaScript.makeValueNode(resPath+"/areacd", curRowRefColValue(multilinegrid1, "areacd"));
+						window.opener.javaScript.makeValueNode(resPath+"/areanm", curRowRefColValue(multilinegrid1, "areanm"));
+					
+						close();
+					}
+				}
+				
+				function close()
+				{
+					window.close();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="650" pageheight="400" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:65px; width:630px; height:25px; ">
+			<caption id="caption20" class="list_cap02" style="left:0px; top:0px; width:630px; height:25px; "/>
+			<select1 id="radio1" ref="/root/reqData/searchData/searchBranch/flag" appearance="full" cols="2" overflow="visible" style="left:2px; top:5px; width:125px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>지국명</label>
+						<value>A</value>
+					</item>
+					<item>
+						<label>읍/면/동</label>
+						<value>B</value>
+					</item>
+				</choices>
+			</select1>
+			<input id="input1" ref="/root/reqData/searchData/searchBranch/srch_word" class="req" imemode="hangul" caption="검색어" style="left:130px; top:4px; width:150px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						onKeyDown();
+					]]>
+				</script>
+			</input>
+			<button id="button2" class="btn_grid04" style="left:284px; top:5px; width:64px; height:17px; ">
+				<caption>지국찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" style="left:10px; top:15px; width:630px; height:25px; ">
+			<caption id="PID1901caption4" class="list_cap03" style="left:0px; top:0px; width:630px; height:25px; text-align:left; ">지국 검색</caption>
+		</group>
+		<group id="group2" style="left:10px; top:365px; width:630px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:630px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:316px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<switch id="switch1" style="left:10px; top:90px; width:630px; height:275px; ">
+			<case id="case1" selected="true">
+				<multilinegrid id="multilinegrid1" nodeset="/root/resData/gridData/branchGrid/record" caption="지국/상태^지국장/이메일^지국전화/팩스^지국장휴대폰/자택^지국주소/지국장자택주소|지국/상태^지국장/이메일^지국전화/팩스^지국장휴대폰/자택^지국주소/지국장자택주소" colsep="^" colwidth="70, 90, 80, 105, 282" rowsep="|" mergecellsfixedrows="bycolrec" style="left:0px; top:0px; width:630px; height:275px; ">
+					<row>
+						<col ref="bonm"/>
+						<col ref="bo_headnm"/>
+						<col ref="tel_no1"/>
+						<col ref="hptph_no"/>
+						<col ref="baddr"/>
+						<col ref="bocd" visibility="hidden"/>
+						<col ref="deptcd" visibility="hidden"/>
+						<col ref="deptnm" visibility="hidden"/>
+						<col ref="areacd" visibility="hidden"/>
+						<col ref="areanm" visibility="hidden"/>
+					</row>
+					<row>
+						<col ref="status"/>
+						<col ref="hemail"/>
+						<col ref="fax"/>
+						<col ref="htel_no"/>
+						<col ref="haddr"/>
+					</row>
+					<script type="javascript" ev:event="onrowchanged">
+						<![CDATA[
+							onSelectBranch();
+						]]>
+					</script>
+				</multilinegrid>
+			</case>
+			<case id="case2">
+				<caption id="caption3" style="left:5px; top:35px; width:615px; height:20px; font-weight:bold; text-align:center; background-color:#E7E7E7; ">
+					<![CDATA[검색한 '지국'이 없습니다.]]>
+				</caption>
+				<caption id="caption4" style="left:5px; top:55px; width:615px; height:20px; text-align:center; background-color:#E7E7E7; ">
+					<![CDATA[관리부서,또는 관리지역에 소속되지 않은 지국명 또는 읍/명/동 이거나 존재하지 않는 검색어입니다.]]>
+				</caption>
+				<line id="line1" style="x1:5px; y1:35px; x2:620px; y2:35px; border-color:#979596; "/>
+				<line id="line2" style="x1:5px; y1:75px; x2:620px; y2:75px; border-color:#979596; "/>
+			</case>
+			<case id="case3"/>
+		</switch>
+		<group id="group3" style="left:10px; top:40px; width:630px; height:25px; ">
+			<caption id="caption2" style="left:0px; top:0px; width:630px; height:25px; ">지국명을 혹은 읍/면/동' 입력을 선택하신 후, 검색어를 입력하시고 '지국찾기'를 클릭해 주세요. (*는 폐쇄지국)</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

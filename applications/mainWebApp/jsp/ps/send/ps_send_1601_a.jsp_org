@@ -1,0 +1,466 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<!--JSP COMMENT START------------------------------------------------------------------------------->
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_send_1601_a.jsp
+* 기능 : 매체 추가발송 발송처리 초기화면
+* 작성일자 : 2004-03-10
+* 작성자 : 장수환
+---------------------------------------------------------------------------------------------------%>
+
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<!--JSP COMMENT END--------------------------------------------------------------------------------->
+<%
+    String records_per_page = "5";
+    //	dataset 인스턴스 선언부분
+    PS_S_SEND_LUMP_PROCDataSet ds = (PS_S_SEND_LUMP_PROCDataSet)request.getAttribute("ds");  // request dataset
+
+    // 화면당 보여줄 Row수
+    int li_per = 10;
+%>
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"-->
+<html>
+<head>
+
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+    setInputBackgroundColor();
+}
+
+// 지사별 확인내역 조회처리
+function list_search(){
+    var lo_form1 = document.list_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+    lo_form1.action = "/ps/send/1606";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+	setEventHandler();
+
+	//발송방법별 상세테이블을 초기화한다
+	document.detail_form.reset();
+}
+
+function resetform(){
+    var lo_form2 = document.sub_form;
+
+    //히든값에 조건을 입력한다
+    lo_form2.cnfmbrch.value = "";			//확인지사
+    lo_form2.brchdt.value = "";			//본사확인일자
+    //lo_form2.medinm.value = "";			//매체명
+    //lo_form2.mediser_no.value = "";		//호수
+	lo_form2.sendmthdnm.value = "";		//발송방법
+	//lo_form2.sendkindnm.value = "";		//발송종류
+	lo_form2.sendqty.value = "";			//발송부수
+	lo_form2.cnfmbrchcd.value = "";		//확인지사코드
+	//lo_form2.medicd.value = "";			//매체코드
+	lo_form2.sendmthdcd.value = "";		//발송방법코드
+	//lo_form2.sendkindcd.value = "";		//발송종류코드
+
+    lo_form2.action = "/ps/send/1611";
+    lo_form2.target = "ifrm";
+    lo_form2.submit();
+}
+
+// 추가발송확인 발송방법별 상세조회
+function detail_list(str1,str2,str3,str4,str5,str6,str7,str8,str9,str10,str11,str12) {
+    var lo_form1 = document.detail_form;
+    var lo_form2 = document.sub_form;
+
+    lo_form1.cnfmbrch.value = str1;			//확인지사
+    lo_form1.brchdt.value = str2;			//본사확인일자
+    //lo_form1.medinm.value = str3;			//매체명
+    //lo_form1.mediser_no.value = str12;		//호수
+	lo_form1.sendmthdnm.value = str7;		//발송방법
+	//lo_form1.sendkindnm.value = str8;		//발송종류
+	lo_form1.sendqty.value = str11			//발송부수
+	lo_form1.cnfmbrchcd.value = str4;		//확인지사코드
+	//lo_form1.medicd.value = str5;			//매체코드
+	lo_form1.sendmthdcd.value = str9;		//발송방법코드
+	//lo_form1.sendkindcd.value = str10;		//발송종류코드
+
+    lo_form2.cnfmbrch.value = str1;			//확인지사
+    lo_form2.brchdt.value = str2;			//본사확인일자
+    //lo_form2.medinm.value = str3;			//매체명
+    //lo_form2.mediser_no.value = str12;		//호수
+	lo_form2.sendmthdnm.value = str7;		//발송방법
+	//lo_form2.sendkindnm.value = str8;		//발송종류
+	lo_form2.sendqty.value = str11			//발송부수
+	lo_form2.cnfmbrchcd.value = str4;		//확인지사코드
+	//lo_form2.medicd.value = str5;			//매체코드
+	lo_form2.sendmthdcd.value = str9;		//발송방법코드
+	//lo_form2.sendkindcd.value = str10;		//발송종류코드
+
+    lo_form1.action = "/ps/send/1611";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// navigator선택시 페이지 move처리
+function page_move(curr_page_no) {
+    var lo_form =  document.sub_form;
+    var lo_form1 = document.detail_form;
+
+    if(!curr_page_no) {
+        lo_form.curr_page_no.value = '1';
+    } else {
+        lo_form.curr_page_no.value = curr_page_no;
+    }
+    lo_form.action = "/ps/send/1611";
+    lo_form.target = "ifrm";
+    lo_form.submit();
+	setEventHandler();
+}
+
+// 추가발송 리스트 인쇄
+function print() {
+    var lo_form1 = document.detail_form;
+
+    makeValue(lo_form1);
+    lo_form1.action = "/ps/send/1616";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+	setEventHandler();
+}
+// 추가발송 스티커 인쇄
+function print_sticker() {
+    var lo_form1 = document.list_form;
+
+	lo_form1.flag.value = "STICKER";
+    makeValue(lo_form1);
+    lo_form1.action = "/ps/send/1621";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// 추가발송 리스트 인쇄
+function print_list() {
+    var lo_form1 = document.list_form;
+
+	lo_form1.flag.value = "LIST";
+    makeValue(lo_form1);
+    lo_form1.action = "/ps/send/1621";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// 추가 리스트 엑셀전환
+function print_excel() {
+    var lo_form1 = document.list_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+
+	lo_form1.flag.value = "LIST";
+    lo_form1.action = "/ps/send/1626";
+    lo_form1.target = "_blank";
+    lo_form1.submit();
+}
+
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray" onload="init()">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >발송
+      &gt; </b> 추가발송 &gt; 발송처리 </td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <form name="list_form" method="post" action="">
+	<input type="hidden" name="flag" value="">
+  <tr>
+    <td>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr>
+          <td class="title">
+            <table width="830" border="0" cellspacing="0" cellpadding="2">
+              <tr bgcolor="#EBE9DC">
+                <td width="80" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송일자 <font color="red">*</font></td>
+                <td width="100">
+                    <select name="senddt" size="1" class="sel_all" style="width:80;" notEmpty id="senddt_view" caption="발송일자">
+                      <%= ds.hdqtsenddtcurOptHtml("") %>
+                    </select>
+                  <!--input type="text" name="senddt" size="10" class="text_box" caption="발송일자" dataType="date" notEmpty-->
+                </td>
+                <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7">매체종류</td>
+                <td width="150">
+                  <select name="medicd" size="1" class="sel_all" notEmpty>
+                    <option value="ALL">전체</option>
+                    <%= ds.medicdcurOptHtml("") %>
+                  </select>
+                </td>
+                <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송지사</td>
+                <td width="150">
+                  <select name="sendbrch" size="1"  class="sel_all" notEmpty>
+                    <option value="ALL"  selected  >전체</option>
+                    <%= ds.bocdcurOptHtml("") %>
+                  </select>
+                </td>
+                <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송방법</td>
+                <td width="100">
+                  <select name="sendmthdcd" size="1" class="sel_all" notEmpty>
+                    <%= ds.sendclsfcurOptHtml("") %>
+                  </select>
+                </td>
+                <td width="*" align="right">
+                  <input type="image" src="/html/comm_img/bu_search.gif" width="36" height="19" border="0" align="absmiddle" onclick="javascript:list_search();window.event.returnValue=false;" style="cursor:hand">
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td height="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--검색끝-->
+      <table width="830" border="0" cellspacing="0" cellpadding="2" align="center" id="total_info">
+        <tr>
+          <td width="320" bgcolor="#EBE9DC" class="title"><b>지사별발송정보</b></td>
+          <td width="200" bgcolor="#EBE9DC" class="title" align="right">
+            <img src="/html/comm_img/ic_arr06.gif" width="7" height="7" align="absmiddle"> 합계 <b>&nbsp; &nbsp;</b> 부
+          </td>
+          <td width="300" bgcolor="#EBE9DC" class="title" align="right">
+	        <img src="/html/comm_img/bu_print07.gif" width="78" height="19" align="absmiddle" border="0">
+            <img src="/html/comm_img/bu_print.gif"   width="39" height="19" align="absmiddle" border="0">
+            <img src="/html/comm_img/bu_print01.gif" width="80" height="19" align="absmiddle" border="0" >
+          </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list start -->
+      <table width="830" border="0" align="center" cellpadding="1" cellspacing="0" bgcolor="#FFFFFF" class="gray" id="list_info">
+        <tr bgcolor="#dddddd" align="center">
+          <td width="180" class="gray">발송지사</td>
+          <td width="180" class="gray">지사처리일자</td>
+          <td width="180" class="gray">매체</td>
+          <td width="140" class="gray">호수</td>
+          <td width="140" class="gray">발송부수</td>
+        </tr>
+<%
+    for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+        <tr>
+          <td width="180" class="gray" align="center">&nbsp;</td>
+          <td width="180" class="gray" align="center">&nbsp;</td>
+          <td width="180" class="gray" align="center">&nbsp;</td>
+          <td width="140" class="gray" align="center">&nbsp;</td>
+          <td width="140" class="gray" align="right" >&nbsp;</td>
+        </tr>
+<%
+    }
+%>
+      </table>
+    </td>
+  </tr>
+  </form>
+
+  <tr>
+    <td height="10">
+      <!--여백-->
+    </td>
+  </tr>
+
+  <!--발송내역 상세 타이틀-->
+  <form name="detail_form" method="post" action="">
+  <input name="curr_page_no" type="hidden" value ="1">
+  <input name="records_per_page" type="hidden" value ="5">
+  <input name="js_fn_nm" type="hidden" value ="page_move">
+  <!-- 확인지사코드 -->
+  <input name="cnfmbrchcd" type="hidden" value ="">
+  <!-- 매체코드 -->
+  <input name="medicd" type="hidden" value ="">
+  <!-- 발송방법코드 -->
+  <input name="sendmthdcd" type="hidden" value ="">
+  <!-- 발송종류코드 -->
+<%--
+  <input name="sendkindcd" type="hidden" value ="">
+--%>
+  <!-- 최종호수 -->
+  <input name="mediser" type="hidden" value ="">
+  <tr>
+    <td>
+      <table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+        <tr>
+          <td width="420" bgcolor="#EBE9DC" class="title"><b>발송방법별 상세</b></td>
+          <td width="400" bgcolor="#EBE9DC" class="title" align="right">
+            <img src="/html/comm_img/bu_print.gif" width="39" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="print()">
+          </td>
+        </tr>
+        <tr>
+          <td height="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--발송내역 상세 타이틀 끝-->
+      <!--발송내역 상세-->
+      <table width="830" border="0" align="center" cellpadding="1" cellspacing="0" class="gray">
+        <tr bgcolor="#EBE9DC" class="gray">
+          <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">확인지사</td>
+          <td width="105">
+            <input type="text" name="cnfmbrch" size="17" value="" class="text_box" readonly >
+          </td>
+          <td width="100"><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">지사처리일자</td>
+          <td width="105">
+            <input type="text" name="brchdt" size="10" value="" class="text_box" dataType="date" readonly >
+          </td>
+          <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송방법</td>
+          <td width="105" >
+            <input type="text" name="sendmthdnm" size="8"  value="" class="text_box" readonly >
+          </td>
+          <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송부수</td>
+          <td width="105" >
+            <input type="text" name="sendqty" size="7"  value="" class="numb_box" dataType="number" comma readonly >
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" align="center" class="gray">
+        <tr>
+          <td height="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--상세내역끝-->
+      <!--list start-->
+      <table width="830" border="0" align="center" cellpadding="1" cellspacing="0" bgcolor="#ffffff" class="gray" id="detail_info">
+        <tr bgcolor="#dddddd" align="center">
+          <td class="gray" width="110">독자번호</td>
+          <td class="gray" width="80">독자성명</td>
+          <td class="gray" width="80">구독호수</td>
+          <td class="gray" width="100">발송호수</td>
+          <td class="gray" width="80">전화번호</td>
+          <td class="gray" width="60">우편번호</td>
+          <td class="gray" width="300">주소</td>
+        </tr>
+        <tr>
+          <td class="gray" width="110" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="left"  >&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="100" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="60" align="center">&nbsp;</td>
+          <td class="gray" width="300" align="left"  >&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="gray" width="110" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="left"  >&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="100" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="60" align="center">&nbsp;</td>
+          <td class="gray" width="300" align="left"  >&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="gray" width="110" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="left"  >&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="100" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="60" align="center">&nbsp;</td>
+          <td class="gray" width="300" align="left"  >&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="gray" width="110" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="left"  >&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="100" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="60" align="center">&nbsp;</td>
+          <td class="gray" width="300" align="left"  >&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="gray" width="110" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="left"  >&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="100" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="60" align="center">&nbsp;</td>
+          <td class="gray" width="300" align="left"  >&nbsp;</td>
+        </tr>
+      </table>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" id="navi">
+        <tr>
+          <td align="center" height="2">
+            <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td colspan=5 align="center" bgcolor="#E8E8E8">
+            <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+            <jsp:param name = "curr_page_no" 		value="0"/>
+            <jsp:param name = "total_records" 		value="0"/>
+            <jsp:param name = "js_fn_nm" 			value=""/>
+            <jsp:param name = "records_per_page" 	value="5"/>
+            <jsp:param name = "page_set_gubun" 		value="0"/>
+            </jsp:include>
+            <!--JSP PAGE END------------------------------------------------------------------------------------>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  </form>
+</table>
+
+<form name="sub_form" method="post" action="">
+  <input name="curr_page_no" type="hidden" value ="1">
+  <input name="records_per_page" type="hidden" value ="<%=records_per_page%>">
+  <input name="js_fn_nm" type="hidden" value ="page_move">
+  <input name="cnfmbrch" type="hidden" value ="">
+  <input name="brchdt" type="hidden" value ="">
+  <input name="medinm" type="hidden" value ="">
+  <input name="mediser_no" type="hidden" value ="">
+  <input name="sendmthdnm" type="hidden" value ="">
+<%--
+  <input name="sendkindnm" type="hidden" value ="">
+--%>
+  <input name="sendqty" type="hidden" value ="">
+  <input name="cnfmbrchcd" type="hidden" value ="">
+  <input name="medicd" type="hidden" value ="">
+  <input name="sendmthdcd" type="hidden" value ="">
+<%--
+  <input name="sendkindcd" type="hidden" value ="">
+--%>
+</form>
+
+<iframe name="ifrm" width=800 height=0></iframe>
+<!--발송내역 상세 끝-->
+</body>
+</html>

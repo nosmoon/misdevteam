@@ -1,0 +1,591 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_QTY_1900.xrw
+* 기능 : 부수관리 - 발송부수증감
+* 작성일자 : 2009-04-02
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<area_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</area_cd>
+							<rownum1/>
+							<rownum2/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team_cd/>
+							<part_cd/>
+							<area_cd/>
+							<issu_dt/>
+							<callgb/>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+							<issu_dt/>
+							<send_clos_grp_clsf/>
+							<colcnt/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<tab1form>
+								<colcnt/>
+								<tab1grid>
+									<record>
+										<dept_nm/>
+										<part_nm/>
+										<area_nm/>
+										<send_plac_nm/>
+										<bo_cd/>
+										<send_plac_seq/>
+									</record>
+								</tab1grid>
+							</tab1form>
+							<tab2form>
+								<colcnt/>
+								<tab2grid>
+									<record>
+										<dept_nm/>
+										<part_nm/>
+										<area_nm/>
+										<send_plac_nm/>
+										<bo_cd/>
+										<send_plac_seq/>
+									</record>
+								</tab2grid>
+							</tab2form>
+							<closyn_cap/>
+						</resform>
+						<gridData>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData>
+							<bo_cd/>
+							<send_plac_seq/>
+							<send_plac_nm/>
+						</keyData>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_qty_1910_l" action="/se/qty/1910" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resform/tab1form/tab1grid/record"/>
+			<submission id="se_qty_1930_l" action="/se/qty/1930" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resform/tab2form/tab2grid/record"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					makeTeamSearch(
+						   "se_qty_1900_m"
+						  , "/se/qty/1900"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+
+					model.setValue("/root/reqData/searchData/issu_dt", getCurrentDate());
+					model.setValue("/root/reqData/searchData/callgb", "1");		//초기화면에서 호출
+				
+					var len = (parseInt(model.getValue("/root/initData/comboSet/rownum1"))*5);		// 가변 컬럼수
+					var len2 = 7 + (parseInt(model.getValue("/root/initData/comboSet/rownum2"))*5);	// 실제 컬럼수2
+					var colLen2 = datagrid2.cols;      
+
+					//일반탭 가변컬럼 구성
+					datagrid1.addRow();
+					for ( var i = 0 ; i < len ; i++ ){
+						 if       (i%5 == 0) datagrid1.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+						 else if(i%5 == 1) datagrid1.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)+";type:checkbox;"); 
+						 else if(i%5 == 2) datagrid1.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)+";type:input;"); 
+						 else if(i%5 == 3) datagrid1.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+						 else if(i%5 == 4) datagrid1.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+					}
+
+					datagrid1.addColumn("ref:add_snd_bo_cdseq");			//합송처코드
+					datagrid1.addColumn("ref:add_snd_send_plac_nm");		//합송처명
+					datagrid1.removeRow();
+
+					//스포츠탭 가변컬럼 구성
+					if ( colLen2 > len2 ){
+						//datagrid2.addRow();
+						for ( var i = 0 ; i < colLen2 - len2 ; i++ ){
+							datagrid2.removeColumn();
+						}
+						//datagrid2.removeRow();
+					} else if ( colLen2 < len2 ) {
+						//datagrid2.addRow();
+						for ( var i = 0 ; i < len2 - colLen2 ; i++ ){
+							 if       (i%5 == 0) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+							 else if(i%5 == 1) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)+";type:checkbox;"); 
+							 else if(i%5 == 2) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)+";type:input;"); 
+							 else if(i%5 == 3) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+							 else if(i%5 == 4) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+						}
+						//datagrid2.removeRow();
+					}
+					
+					datagrid1.subtotal("clear", -1, 0,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+					datagrid1.attribute("frozenbottomrows") = 0;
+
+					model.send("se_qty_1910_l");
+
+					var rowcnt1 = datagrid1.rows - datagrid1.fixedRows;
+
+					if(rowcnt1 > 0){
+						datagrid1.subtotalPosition = "below";	
+						for(var i=datagrid1.colRef("send_plac_seq") +1; i<datagrid1.cols; i++){
+							datagrid1.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+						}
+						datagrid1.attribute("frozenbottomrows") = 1;
+					}
+				]]>
+			</script>
+			<submission id="se_qty_1920_a" action="/se/qty/1920" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,102;2,725;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="R" style="left:604px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+					//se_cleargrid("datagrid1");	//라이트 그리드 조회시 지우고 새로조회해야됨
+					//se_cleargrid("datagrid2");	//라이트 그리드 조회시 지우고 새로조회해야됨
+					var area_cd = model.getValue("/root/reqData/searchData/area_cd");
+
+					datagrid1.subtotal("clear", -1, 0,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+					datagrid1.attribute("frozenbottomrows") = 0;
+
+					datagrid2.subtotal("clear", -1, 0,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+					datagrid2.attribute("frozenbottomrows") = 0;
+
+					for(var i=datagrid1.rows; i>datagrid1.fixedRows; i--) { 
+						datagrid1.removeRow(false);
+					}
+
+					for(var j=datagrid2.rows; j>datagrid2.fixedRows; j--) { 
+						datagrid2.removeRow(false);
+					}
+
+					model.refresh();
+
+					model.setValue("/root/reqData/searchData/callgb", "2");		//조회화면에서 호출
+					model.setValue("/root/reqData/reqform/issu_dt", model.getValue("/root/reqData/searchData/issu_dt"));
+
+					var iSel = switch1.selectedIndex;
+					if(iSel == 0){
+						model.send("se_qty_1910_l");
+						se_chkGridCnt("datagrid1");
+							
+						var rowcnt1 = datagrid1.rows - datagrid1.fixedRows;
+	
+						if(rowcnt1 > 0){
+							datagrid1.subtotalPosition = "below";	
+							for(var i=datagrid1.colRef("send_plac_seq") +1; i<datagrid1.cols; i++){
+								datagrid1.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+							}
+							datagrid1.attribute("frozenbottomrows") = 1;
+						}
+
+						var colCnt = datagrid1.cols;
+						
+						if(colCnt>8){
+							if(datagrid1.colAttribute (9, "editable" )=="false"){
+								model.setValue("/root/resData/resform/closyn_cap", "마감완료");
+							}else{
+								model.setValue("/root/resData/resform/closyn_cap", "");
+							}
+							model.refresh();
+						}
+					}else{
+						model.send("se_qty_1930_l");
+						se_chkGridCnt("datagrid2");
+							
+						var rowcnt2 = datagrid2.rows - datagrid2.fixedRows;
+	
+						if(rowcnt2 > 0){
+							datagrid2.subtotalPosition = "below";	
+							for(var i=datagrid2.colRef("send_plac_seq") +1; i<datagrid2.cols; i++){
+								datagrid2.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+							}
+							datagrid2.attribute("frozenbottomrows") = 1;
+						}
+
+						var colCnt = datagrid2.cols;
+						
+						if(colCnt>6){
+							if(datagrid2.colAttribute (7, "editable" )=="false"){
+								model.setValue("/root/resData/resform/closyn_cap", "마감완료");
+							}else{
+								model.setValue("/root/resData/resform/closyn_cap", "");
+							}
+							model.refresh();
+						}
+					}
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<button id="button9" class="btn03" crud="U" style="left:672px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			
+					var iSel = switch1.selectedIndex;
+					if(iSel == 0){		//일반
+						model.setValue("/root/reqData/reqform/colcnt", model.getValue("/root/initData/comboSet/rownum1"));
+						model.setValue("/root/reqData/reqform/send_clos_grp_clsf", "10");	
+			        		model.setValue("/root/reqData/reqform/multiUpDate", datagrid1.getUpdateData());
+					}else{			//스포츠
+						model.setValue("/root/reqData/reqform/colcnt", model.getValue("/root/initData/comboSet/rownum2"));
+						model.setValue("/root/reqData/reqform/send_clos_grp_clsf", "20");
+			        		model.setValue("/root/reqData/reqform/multiUpDate", datagrid2.getUpdateData());
+					}									
+				        	
+					model.send("se_qty_1920_a");
+				]]>
+			</script>
+		</button>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:32px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area_cd" appearance="minimal" style="left:369px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:147px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<caption id="caption4" class="list_cap01" style="left:320px; top:0px; width:45px; height:26px; ">지역</caption>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part_cd" appearance="minimal" style="left:221px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption1" class="list_cap01" style="left:470px; top:0px; width:65px; height:26px; ">발송일자</caption>
+			<input id="input24" ref="/root/reqData/searchData/issu_dt" inputtype="date" style="left:539px; top:4px; width:90px; height:18px; "/>
+			<caption id="cap_clos_yn" ref="/root/resData/resform/closyn_cap" style="left:645px; top:3px; width:120px; height:20px; ">마감완료</caption>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" style="left:10px; top:142px; width:926px; height:583px; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid1" nodeset="/root/resData/resform/tab1form/tab1grid/record" caption="팀명^파트명^지역명^발송처명^센터코드(히든)^발송처순번(히든)|팀명^파트명^지역명^발송처명^센터코드(히든)^발송처순번(히든)" colsep="#" colwidth="90, 90, 80, 100, 100, 100" datatype="delimeter" frozencols="4" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:5px; top:5px; width:914px; height:571px; ">
+					<col ref="dept_nm"/>
+					<col ref="part_nm"/>
+					<col ref="area_nm"/>
+					<col ref="send_plac_nm" style="text-align:left; "/>
+					<col ref="bo_cd" visibility="hidden"/>
+					<col ref="send_plac_seq" visibility="hidden"/>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						var colnum = datagrid1.col;
+						var rownum = datagrid1.row;
+						var b_qty = 0;
+						var b_col = 0;
+						//본지의 부수를 구해온다
+						for(var i=7; i<datagrid1.cols-2; i++){
+							if(i%5==2){
+								if(datagrid1.valueMatrix(rownum, i)=="110"){
+									b_qty = se_eval(datagrid1.valueMatrix(rownum, i+4));
+									b_col = i+2;
+								}
+							}
+						}
+						
+						if(colnum%5==3){		//등록체크 클릭시 본지의 부수를 선택한 매체의 부수로 세팅
+							if(datagrid1.valueMatrix(rownum, colnum)=="Y"){
+								var currtot = se_eval(datagrid1.valueMatrix(rownum, colnum+3));
+								var orgqty = se_eval(datagrid1.valueMatrix(rownum, colnum+1));
+								datagrid1.valueMatrix(rownum, colnum+1) = orgqty+b_qty-currtot;
+								datagrid1.valueMatrix(rownum, colnum+3) = b_qty;
+							}else{
+								//datagrid1.valueMatrix(rownum, colnum+3) = datagrid1.valueMatrix(rownum, colnum+2);
+							}
+						}else if(colnum%5==4){	//증감 변경시 부수계산
+							//본지 
+							if( b_col == colnum ){	//본지의 부수 변경시 등록클릭된 매체들의 부수도 동일하게 세팅
+								b_qty = se_eval(datagrid1.valueMatrix(rownum, colnum))+se_eval(datagrid1.valueMatrix(rownum, colnum+1));
+								if( b_qty < 0  ){
+									commAlert("발송부수가 0보다 작을 수 없습니다.");
+									datagrid1.valueMatrix(rownum, colnum) = 0;
+									return;
+								}
+								datagrid1.valueMatrix(rownum, colnum+2) = b_qty;
+								
+								for(var i=7; i<datagrid1.cols-2; i++){
+									if(i%5==3){		//등록체크값
+										if(datagrid1.valueMatrix(rownum, i) == "Y"){
+											var currtot = se_eval(datagrid1.valueMatrix(rownum, i+3));
+											var orgqty = se_eval(datagrid1.valueMatrix(rownum, i+1));
+											datagrid1.valueMatrix(rownum, i+1) = orgqty+b_qty-currtot;
+											datagrid1.valueMatrix(rownum, i+3) = b_qty;
+										}
+									}
+									
+								}
+							}else{
+								if( se_eval(datagrid1.valueMatrix(rownum, colnum))+se_eval(datagrid1.valueMatrix(rownum, colnum+1))< 0  ){
+									commAlert("발송부수가 0보다 작을 수 없습니다.");
+									datagrid1.valueMatrix(rownum, colnum) = 0;
+									return;
+								}
+								datagrid1.valueMatrix(rownum, colnum+2) = se_eval(datagrid1.valueMatrix(rownum, colnum))+se_eval(datagrid1.valueMatrix(rownum, colnum+1));
+								
+							}
+						}
+
+						var rowcnt1 = datagrid1.rows - datagrid1.fixedRows;
+	
+						if(rowcnt1 > 0){
+							datagrid1.subtotal("clear", -1, 0,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+							datagrid1.attribute("frozenbottomrows") = 0;
+							
+							datagrid1.subtotalPosition = "below";	
+							for(var i=datagrid1.colRef("send_plac_seq") +1; i<datagrid1.cols; i++){
+								datagrid1.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+							}
+							datagrid1.attribute("frozenbottomrows") = 1;									
+						}
+						]]>
+					</script>
+					<script type="javascript" ev:event="onbuttonclick">
+						<![CDATA[
+					
+						var rnum = datagrid1.row;
+						
+						/* 팝업을 위한 전역 변수를 사용하여 가져갈 코드값과 결과 값을 받을 경로를 지정한다. */
+						var bo_cd_path	 = "/root/tempData/keyData/bo_cd";					//지국코드경로
+						var send_plac_seq_path	 = "/root/tempData/keyData/send_plac_seq";	//발송처순번경로
+						var send_plac_nm_path	 = "/root/tempData/keyData/send_plac_nm";		//발송처명경로
+						var area_nm_path	 = "/root/tempData/keyData/area_nm";		//지역명
+						
+						model.property("bo_cd_path") 			= bo_cd_path;								
+						model.property("bo_seq_path") 			= "";								
+						model.property("send_plac_seq_path") 	= send_plac_seq_path;
+						model.property("send_plac_nm_path") 	= send_plac_nm_path;
+						model.property("area_cd_path") 		= "";
+						model.property("area_nm_path") 		= area_nm_path;
+						
+						window.load(
+								"/xrw/se/comm/SE_COMM_2000.xrw", 
+								"modal", 
+								"", 
+								"left:30px; top:200px; width:655px; height:520; align:center; caption:hidden"
+								,""
+								,""
+							);
+				
+						var collen = 7 + (parseInt(model.getValue("/root/initData/comboSet/rownum1"))*5);      // 가변 컬럼수
+						datagrid1.valueMatrix(rnum, collen) = model.getValue(bo_cd_path)+model.getValue(send_plac_seq_path);	//합송처코드
+						datagrid1.valueMatrix(rnum, collen+1) = model.getValue(send_plac_nm_path);	//합송처명
+						datagrid1.rowStatus(rnum) = 2;
+						
+						datagrid1.refresh();		
+						]]>
+					</script>
+				</datagrid>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData/resform/tab2form/tab2grid/record" caption="팀명^파트명^지역명^발송처명^센터코드(히든)^발송처순번(히든)|팀명^파트명^지역명^발송처명^센터코드(히든)^발송처순번(히든)" colsep="#" colwidth="80, 80, 103, 170, 100, 100" datatype="delimeter" frozencols="4" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:5px; top:5px; width:914px; height:575px; ">
+					<col ref="dept_nm"/>
+					<col ref="part_nm"/>
+					<col ref="area_nm"/>
+					<col ref="send_plac_nm" style="text-align:left; "/>
+					<col ref="bo_cd" visibility="hidden"/>
+					<col ref="send_plac_seq" visibility="hidden"/>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+		
+						var colnum = datagrid2.col;
+						var rownum = datagrid2.row;
+						
+						if(colnum%5==4){
+							if( se_eval(datagrid2.valueMatrix(rownum, colnum))+se_eval(datagrid2.valueMatrix(rownum, colnum+1))< 0  ){
+								commAlert("발송부수가 0보다 작을 수 없습니다.");
+								datagrid2.valueMatrix(rownum, colnum) = 0;
+								return;
+							}
+								else
+							datagrid2.valueMatrix(rownum, colnum+2) = se_eval(datagrid2.valueMatrix(rownum, colnum))+se_eval(datagrid2.valueMatrix(rownum, colnum+1));
+						}
+
+						var rowcnt2 = datagrid2.rows - datagrid2.fixedRows;
+						
+						if(rowcnt2 > 0){
+							datagrid2.subtotal("clear", -1, 0,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+							datagrid2.attribute("frozenbottomrows") = 0;
+							
+							datagrid2.subtotalPosition = "below";	
+							for(var i=datagrid2.colRef("send_plac_seq") +1; i<datagrid2.cols; i++){
+								datagrid2.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+							}
+							datagrid2.attribute("frozenbottomrows") = 1;	
+						}
+						]]>
+					</script>
+				</datagrid>
+			</case>
+		</switch>
+		<button id="button6" class="tab05" group="tab" selected="true" style="left:10px; top:120px; width:92px; height:23px; ">
+			<caption>일반</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.toggle("case1");
+					
+					model.setValue("/root/reqData/searchData/callgb", "2");		//조회화면에서 호출
+					model.setValue("/root/reqData/reqform/issu_dt", model.getValue("/root/reqData/searchData/issu_dt"));
+					
+					datagrid1.subtotal("clear", -1, 0,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+					datagrid1.attribute("frozenbottomrows") = 0;
+
+					for(var i=datagrid1.rows; i>datagrid1.fixedRows; i--) { 
+						datagrid1.removeRow(false);
+					}
+
+					model.send("se_qty_1910_l");
+					se_chkGridCnt("datagrid1");
+
+					var rowcnt1 = datagrid1.rows - datagrid1.fixedRows;
+
+					if(rowcnt1 > 0){
+						datagrid1.subtotalPosition = "below";	
+
+						for(var i=datagrid1.colRef("send_plac_seq") +1; i<datagrid1.cols; i++){
+							datagrid1.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+						}
+						datagrid1.attribute("frozenbottomrows") = 1;
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="tab05" group="tab" style="left:104px; top:120px; width:92px; height:23px; ">
+			<caption>스포츠</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.toggle("case2");
+						
+					var len = 7 + (parseInt(model.getValue("/root/initData/comboSet/rownum2"))*5);      // 실제 컬럼수  //2012.08.14 봉은정 : 컬럼추가로 5를 7로 변경 
+					var colLen = datagrid2.cols;      
+					
+					datagrid2.subtotal("clear", -1, 0,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+					datagrid2.attribute("frozenbottomrows") = 0;
+
+					if ( colLen > len ){
+						datagrid2.addRow();
+						for ( var i = 0 ; i < colLen - len ; i++ ){
+							datagrid2.removeColumn();
+						}
+						datagrid2.removeRow();
+					} else if ( colLen < len ) {
+						datagrid2.addRow();
+						for ( var i = 0 ; i < len - colLen ; i++ ){
+							 if(i%5 == 0)  datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+							 else if(i%5 == 1) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)+";type:checkbox;"); 
+							 else if(i%5 == 2) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)+";type:input;"); 
+							 else if(i%5 == 3) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+							 else if(i%5 == 4) datagrid2.addColumn("ref:col" + (Math.floor(i/5)+1) + "_"+((i%5)+1)); 
+							 							 						
+						}
+						datagrid2.removeRow();
+					}		
+					
+					model.setValue("/root/reqData/searchData/callgb", "2");		//조회화면에서 호출
+					model.setValue("/root/reqData/reqform/issu_dt", model.getValue("/root/reqData/searchData/issu_dt"));
+					
+					for(var j=datagrid2.rows; j>datagrid2.fixedRows; j--) { 
+						datagrid2.removeRow(false);
+					}
+
+					model.send("se_qty_1930_l");
+					se_chkGridCnt("datagrid2");
+
+					var rowcnt2 = datagrid2.rows - datagrid2.fixedRows;
+
+					if(rowcnt2 > 0){
+						datagrid2.subtotalPosition = "below";	
+						for(var i=datagrid2.colRef("send_plac_seq") +1; i<datagrid2.cols; i++){
+							datagrid2.subtotal("sum", -1, i,"#,###", "background-color:#DDDDDD;font-weight:bold;", 1, "합 계");	
+						}
+						datagrid2.attribute("frozenbottomrows") = 1;
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var iSel = switch1.selectedIndex;
+					var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+
+					if(iSel == 0){
+						datagrid1.saveExcel(dir);
+					}else{
+						datagrid2.saveExcel(dir);
+					}
+
+					commAlert("엑셀 저장이 완료되었습니다.");
+					return;
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" crud="R" style="left:739px; top:44px; width:63px; height:21px; color:#ffcc99; ">
+			<caption>검증</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.load("/xrw/se/qty/SE_QTY_1950.xrw"
+								,"modal"
+								,""
+								,"align:center; width:820; height:580; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden;"
+								,"/root/reqData/searchData"
+								,""
+								);									
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

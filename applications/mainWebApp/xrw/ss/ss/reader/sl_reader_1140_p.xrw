@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>구독내역</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<postData>
+							<readerSubsHisForm>
+								<!-- 실제 데이터 노드들은 유효성 검증을 위해 만들어 놓지 않는다. -->
+								<!--rdr_no/>
+								<medicd/-->
+							</readerSubsHisForm>
+						</postData>
+						<naviInfo>
+							<curr_page_no>1</curr_page_no>
+							<total_records>0</total_records>
+							<js_fn_nm>page_move</js_fn_nm>
+							<records_per_page>5000</records_per_page>
+							<page_set_gubun>0</page_set_gubun>
+						</naviInfo>
+						<defaultData>
+							<tabCaption>구독내역</tabCaption>
+						</defaultData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<searchForm>
+								<pageno/>
+								<pagesize/>
+								<pid/>
+								<rdr_no/>
+								<medicd/>
+								<frdt/>
+								<todt/>
+							</searchForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<mediGrid>
+								<record>
+									<medicd/>
+									<cicdnm/>
+									<cimgtcd2/>
+									<subsuprc/>
+									<chk/>
+								</record>
+							</mediGrid>
+							<subsGrid>
+								<record>
+									<rdr_extndt/>
+									<medinm/>
+									<suspdt/>
+									<bonm/>
+									<rdr_extntypenm/>
+									<remk/>
+									<duration/>
+								</record>
+							</subsGrid>
+							<movmGrid>
+								<record>
+									<movmdt/>
+									<trsfbocd/>
+									<trsfbonm/>
+									<acptbocd/>
+									<acptbonm/>
+								</record>
+							</movmGrid>
+							<suspGrid>
+								<record>
+									<suspfrdt/>
+									<susptodt/>
+									<medinm/>
+									<bonm/>
+									<clsfnm/>
+									<duration/>
+								</record>
+							</suspGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-model-destruct">
+				<![CDATA[
+				//종료시에 셋팅.
+				setRdrNo();
+				]]>
+			</script>
+			<submission id="PID1140subMediList" action="/ss/slcommon/1600" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1140subSearchSubs" action="/ss/slreader/1150" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/searchForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1140subSearchMovm" action="/ss/slreader/1170" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/searchForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1140subSearchSusp" action="/ss/slreader/1160" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/searchForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					commEventHandler(group4);
+					
+					if(instance1.selectNodes("/root/initData/postData/readerSubsHisForm/rdr_no").length == 0)
+					{
+						model.alert("유효하지 않은 arguments 입니다.");
+						close();
+					}
+					if(model.getValue("/root/initData/postData/readerSubsHisForm/rdr_no") == "" || model.getValue("/root/initData/postData/readerSubsHisForm/medicd") == "")
+					{
+						model.alert("독자번호나 매체코드가 셋팅되지 않았습니다.");
+						close();
+					}
+					
+					model.send("PID1140subMediList", false);
+					model.copyNode("/root/resData/gridData/mediGrid", "/root/tempData/resTemp/mediGrid");
+					var medicd = model.getValue("/root/initData/postData/readerSubsHisForm/medicd");
+					var medis = instance1.selectNodes("/root/resData/gridData/mediGrid/record[medicd='" + medicd + "']");
+					for(var i=0; i<medis.length; i++)
+						medis.item(i).selectSingleNode("chk").nodeValue = "Y";	//넘어온 매체 코드에 해당하는 건을 check.
+					
+					modelCopyValue("/root/reqData/reqform/searchForm/rdr_no", "/root/initData/postData/readerSubsHisForm/rdr_no");
+					modelCopyValue("/root/reqData/reqform/searchForm/medicd", "/root/initData/postData/readerSubsHisForm/medicd");
+					model.setValue("/root/reqData/reqform/searchForm/pid", "1150");	//필요없지만 넣어 놓음.
+					model.setValue("/root/reqData/reqform/searchForm/pageno", "1");
+					model.setValue("/root/reqData/reqform/searchForm/pagesize", "5000");
+					model.send("PID1140subSearchSubs", false);
+					model.copyNode("/root/resData/gridData/subsGrid", "/root/tempData/resTemp/subsGrid");
+					
+					model.toggle("case1");
+					button5.selected = true;
+					
+					model.setValue("/root/initData/defaultData/tabCaption", "구독내역");
+					caption2.refresh();
+
+					datagrid4.refresh();
+					datagrid1.refresh();
+					
+					model.removenode("/root/tempData/resTemp");
+				}
+				
+				function search(pid)
+				{					
+					var submid = "PID1140subSearchSubs";
+					var gridnode = "subsGrid";
+					var caseid = "case1";
+					var gridid = "datagrid1";
+					var tabcap = "구독내역";
+					switch(pid)
+					{
+						case "1150" : caseid = "case1"; 
+								    gridid = "datagrid1";
+								    tabcap = "구독내역";
+								    submid = "PID1140subSearchSubs";
+								    gridnode = "subsGrid";
+								    break;
+						case "1170" : caseid = "case2"; 
+								    gridid = "datagrid2";
+								    tabcap = "이사내역";
+								    submid = "PID1140subSearchMovm";
+								    gridnode = "movmGrid";
+								    break;
+						case "1160" : caseid = "case3"; 
+								    gridid = "datagrid3";
+								    tabcap = "휴독내역";
+								    submid = "PID1140subSearchSusp";
+								    gridnode = "suspGrid";
+								    break;
+						default : caseid = "case1"; break;
+					}
+					
+					var medis = concatGridColValues(datagrid4, "medicd", "##", true, "chk", "Y");
+					alert(medis);
+					model.setValue("/root/reqData/reqform/searchForm/medicd", medis);	
+					model.setValue("/root/reqData/reqform/searchForm/pid", pid);	//필요없지만 넣어 놓음.
+					model.setValue("/root/reqData/reqform/searchForm/pageno", "1");
+					model.setValue("/root/reqData/reqform/searchForm/pagesize", "5000");
+					
+					model.send(submid, false);
+					model.copyNode("/root/resData/gridData/"+gridnode, "/root/tempData/resTemp/"+gridnode);
+					model.toggle(caseid);
+					eval(gridid + ".refresh()");
+					
+					model.setValue("/root/initData/defaultData/tabCaption", tabcap);
+					caption2.refresh();
+					
+					modelCopyValue("/root/initData/naviInfo/curr_page_no", "/root/tempData/resTemp/curr_page_no");
+					modelCopyValue("/root/initData/naviInfo/total_records", "/root/tempData/resTemp/total_records");
+					if(model.getValue("/root/tempData/resTemp/datanotexist") == "true")
+						model.alert("검색 결과가 없습니다.");
+					
+					model.removenode("/root/tempData/resTemp");
+				}
+				
+				/*function chkAll()
+				{
+					var chk = "";
+					var chkcnt = instance1.selectNodes("/root/resData/gridData/mediGrid/record[chk='Y']").length;
+					if(chkcnt == instance1.selectNodes("/root/resData/gridData/mediGrid/record").length)
+						chk = "N";
+					else
+						chk = "Y"
+					
+					var nodes = instance1.selectNodes("/root/resData/gridData/mediGrid/record");
+					for(var i=0; i<nodes.length; i++)
+						nodes.item(i).selectSingleNode("chk").nodeValue = chk;
+					datagrid4.refresh();
+				}*/
+				
+				function setRdrNo()
+				{
+					var resPath = model.property("RDRSUBSHIS_RES_XPATH");
+	
+					opener.model.removenode(resPath);
+					opener.model.makeNode(resPath + "/rdr_no");
+					opener.model.setValue(resPath + "/rdr_no", model.getValue("/root/initData/postData/readerSubsHisForm/rdr_no"));	//받은 rdr_no를 그대로 돌려줌.
+				}
+								
+				function close()
+				{
+					window.close();
+				}
+				
+				function page_move(pageno)
+				{
+					//사용안함.
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="900" pageheight="350" idprefix="PID1140" style="font-family:굴림; ">
+		<group id="group1" style="left:10px; top:15px; width:880px; height:25px; ">
+			<caption id="caption4" class="list_cap03" style="left:0px; top:0px; width:880px; height:25px; text-align:center; ">구독내역</caption>
+		</group>
+		<group id="group2" style="left:10px; top:315px; width:880px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:880px; height:25px; text-align:center; "/>
+			<button id="button1" class="btn_grid02" style="left:435px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<switch id="switch1" style="left:240px; top:75px; width:650px; height:235px; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/subsGrid/record" caption="구독기간^지국명^매체명^확장유형^비고" colsep="^" colwidth="145, 100, 100, 80, 220" ellipsis="true" mergecellsfixedrows="bycolrec" rowsep="|" tooltip="true" style="left:0px; top:0px; width:647px; height:233px; ">
+					<col ref="duration" style="text-align:left; "/>
+					<col ref="bonm" style="text-align:left; "/>
+					<col ref="medinm" style="text-align:left; "/>
+					<col ref="rdr_extntypenm" style="text-align:left; "/>
+					<col ref="remk" style="text-align:left; "/>
+				</datagrid>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData/movmGrid/record" caption="이사일자^이사전 지국^이사후 지국" colsep="^" colwidth="145, 250, 250" mergecellsfixedrows="bycolrec" rowsep="|" style="left:0px; top:0px; width:647px; height:233px; ">
+					<col ref="movmdt"/>
+					<col ref="trsfbonm" style="text-align:left; "/>
+					<col ref="acptbonm" style="text-align:left; "/>
+				</datagrid>
+			</case>
+			<case id="case3">
+				<datagrid id="datagrid3" nodeset="/root/resData/gridData/suspGrid/record" caption="지국명^매체^휴독기간" colsep="^" colwidth="200, 222, 223" mergecellsfixedrows="bycolrec" rowsep="|" style="left:0px; top:0px; width:647px; height:233px; ">
+					<col ref="bonm" style="text-align:left; "/>
+					<col ref="medinm" style="text-align:left; "/>
+					<col ref="duration" style="text-align:left; "/>
+				</datagrid>
+			</case>
+		</switch>
+		<group id="group3" style="left:240px; top:45px; width:650px; height:25px; ">
+			<caption id="caption2" ref="/root/initData/defaultData/tabCaption" class="list_cap03" style="left:0px; top:0px; width:650px; height:25px; text-align:left; "/>
+			<button id="button5" class="tab03" group="tab" style="left:454px; top:1px; width:65px; height:23px; ">
+				<caption>구독</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+					search("1150");
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="tab03" group="tab" style="left:519px; top:1px; width:65px; height:23px; ">
+				<caption>이사</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+					search("1170");
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="tab03" group="tab" style="left:584px; top:1px; width:65px; height:23px; ">
+				<caption>휴독</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+					search("1160");
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group4" style="left:10px; top:45px; width:225px; height:25px; ">
+			<caption id="caption3" class="list_cap03" style="left:0px; top:0px; width:225px; height:25px; text-align:left; ">기간</caption>
+			<input id="input1" ref="/root/reqData/reqform/searchForm/frdt" inputtype="date" format="yyyy/mm/dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="input2" style="left:30px; top:4px; width:80px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/reqform/searchForm/todt" inputtype="date" format="yyyy/mm/dd" dataType="dateto" caption="종료일자" setHandler="true" relid="input1" style="left:140px; top:4px; width:80px; height:18px; "/>
+			<caption id="caption5" style="left:120px; top:5px; width:15px; height:20px; ">~</caption>
+		</group>
+		<datagrid id="datagrid4" nodeset="/root/resData/gridData/mediGrid/record" caption="∨^매체명^약어" colsep="^" colwidth="30, 111, 80" explorerbar="move" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:75px; width:225px; height:235px; ">
+			<col checkvalue="Y,N" ref="chk" type="checkbox"/>
+			<col ref="cicdnm" style="text-align:left; "/>
+			<col ref="cimgtcd2" style="text-align:left; "/>
+			<col ref="medicd" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(event.button==1 && datagrid4.row==0 && datagrid4.col==0)
+					//chkAll();
+					checkAllGridChkCol(datagrid4, "chk");
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

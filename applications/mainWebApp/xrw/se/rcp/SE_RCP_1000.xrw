@@ -1,0 +1,415 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_RCP_1000.xrw
+* 기능 : 입금관리 - 입금확인
+* 작성일자 : 2009-03-04
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team_cd/>
+							<part_cd/>
+							<area_cd/>
+							<rcpm_dt1/>
+							<rcpm_dt2/>
+							<bo_nm/>
+							<acct_no/>
+							<rcpm_pers/>
+							<cnfm_yn/>
+						</searchData>
+						<reqform>
+							<accflag/>
+							<multiUpDate/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<stat/>
+						</resform>
+						<gridData>
+							<tab1list>
+								<record>
+									<cnfm_yn/>
+									<area_nm/>
+									<bo_cdseq/>
+									<bo_nm/>
+									<chrg_flnm/>
+									<bo_head_nm/>
+									<biz_reg_no/>
+									<bank_id/>
+									<acct_num/>
+									<tran_date/>
+									<tran_date_seq/>
+									<tran_time/>
+									<rcpm_pers/>
+									<acct_no/>
+									<tran_amt/>
+									<cntr_stat_nm/>
+									<rcpm_cnfm_dt/>
+								</record>
+							</tab1list>
+							<tab2list>
+								<record>
+									<area_nm/>
+									<bo_nm/>
+									<chrg_flnm/>
+									<bo_head_nm/>
+									<vitl_acct_no/>
+									<acct_rcpm_cnfm_tot_amt/>
+									<acct_rcpm_reg_tot_amt/>
+									<rem_amt/>
+									<cntr_stat_nm/>
+								</record>
+							</tab2list>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_rcp_1010_l" action="/se/rcp/1010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/tab1list"/>
+			<submission id="se_rcp_1020_l" action="/se/rcp/1020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/tab2list"/>
+			<submission id="se_rcp_1030_a" action="/se/rcp/1030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					
+					makeTeamSearch(
+						   "se_rcp_1000_m"
+						  , "/se/rcp/1000"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+					model.setValue("/root/reqData/searchData/rcpm_dt1", getCurrentDate());
+					model.setValue("/root/reqData/searchData/rcpm_dt2", getCurrentDate());
+					var stat = 0;
+					model.setValue("/root/resData/resform/stat", stat);
+					cbo_cnfm_yn.select(0);
+
+					datagrid1.fixedcellcheckbox(0, datagrid1.colRef("cnfm_yn"), true) = true;
+										
+					ipt_rcpm_dt1.refresh();
+					ipt_rcpm_dt2.refresh();
+					cbo_cnfm_yn.refresh();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,69;2,725;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:127px; width:926px; height:5px; "/>
+		<button id="button7" class="btn03" style="left:672px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var iSel = switch1.selectedIndex;
+				
+				if(!commReqCheck(group_scr)) return;	
+				if(!se_chkOverDate(model.getValue("/root/reqData/searchData/rcpm_dt1"),model.getValue("/root/reqData/searchData/rcpm_dt2"))) return;
+					
+				if(iSel == 0){
+					model.send("se_rcp_1010_l");
+					se_chkGridCnt("datagrid1");
+					var rowCnt = datagrid1.rows;
+					//확인된 내역은 readonly
+					for(var i=1; i<rowCnt; i++){
+						if(datagrid1.valueMatrix(i,1)=="Y") datagrid1.isReadOnly(i,1) = true;
+						else datagrid1.isReadOnly(i,1) = false;
+					}					
+				}else if(iSel == 1){
+					model.send("se_rcp_1020_l");
+					se_chkGridCnt("datagrid2");					
+				}
+				var stat = 1;
+				model.setValue("/root/resData/resform/stat", stat);
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<switch id="switch1" style="left:10px; top:166px; width:926px; height:559px; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/tab1list/record" caption="확인^지역^(센터코드)^센터명^담당자^센터대표^(키1)^(키2)^(키3)^입금일자^(키5)^입금시간^입금인^계좌번호^입금액^계약상태^확인일자" colsep="#" colwidth="50, 80, 65, 80, 80, 80, 35, 37, 30, 85, 35, 70, 105, 110, 90, 85, 80" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:0px; top:0px; width:924px; height:535px; ">
+					<col checkvalue="Y,N" ref="cnfm_yn" type="checkbox"/>
+					<col ref="area_nm"/>
+					<col ref="bo_cdseq" visibility="hidden"/>
+					<col ref="bo_nm"/>
+					<col ref="chrg_flnm"/>
+					<col ref="bo_head_nm"/>
+					<col ref="biz_reg_no" visibility="hidden"/>
+					<col ref="bank_id" visibility="hidden"/>
+					<col ref="acct_num" visibility="hidden"/>
+					<col ref="tran_date" format="yyyy-mm-dd" style="text-align:center; "/>
+					<col ref="tran_date_seq" visibility="hidden"/>
+					<col ref="tran_time" format="hh:nn:ss" style="text-align:center; "/>
+					<col ref="rcpm_pers" style="text-align:left; "/>
+					<col ref="acct_no" style="text-align:center; "/>
+					<col ref="tran_amt" format="###,###,###,##0" style="text-align:right; "/>
+					<col ref="cntr_stat_nm" style="text-align:center; "/>
+					<col ref="rcpm_cnfm_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+					<script type="javascript" ev:event="xforms-select">
+						<![CDATA[
+							var iSel = switch1.selectedIndex;
+							
+							if(iSel == 0){
+								var rowCnt = datagrid1.rows;
+								var fixcnt = datagrid1.fixedRows;
+								
+								var selnum = datagrid1.row;
+								
+								if(rowCnt - fixcnt < 1 || selnum > 0){
+									return;
+								}
+								
+								//확인된 내역은 readonly
+								for(var i=1; i<rowCnt; i++){
+									if(datagrid1.valueMatrix(i,1)=="N"){
+										datagrid1.valueMatrix(i,1) = "Y";
+										datagrid1.rowStatus(i) = 2;
+									}
+								}
+								
+								datagrid1.refresh();
+							}
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-deselect">
+						<![CDATA[
+							var iSel = switch1.selectedIndex;
+							
+							if(iSel == 0){
+								var rowCnt = datagrid1.rows;
+								var fixcnt = datagrid1.fixedRows;
+								var selnum = datagrid1.row;
+								
+								if(rowCnt - fixcnt < 1 || selnum > 0){
+									return;
+								}
+								
+								//확인된 내역 (readonly) 그대로
+								for(var i=1; i<rowCnt; i++){
+									if(datagrid1.valueMatrix(i,1)=="Y" && datagrid1.isReadOnly(i,1) == false){
+										datagrid1.valueMatrix(i,1) = "N";
+										datagrid1.rowStatus(i) = 0;
+									}
+								}
+								
+								datagrid1.refresh();
+							}
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var iSel = switch1.selectedIndex;
+							
+							if(iSel == 0){
+								var rowCnt = datagrid1.rows;
+								var fixcnt = datagrid1.fixedRows;
+								var selnum = datagrid1.row;
+								var selcol = datagrid1.col;
+								
+								if(rowCnt - fixcnt < 1 || selcol != 1 || datagrid1.isReadOnly(selnum,1) == true){
+									return;
+								}
+								
+								if(datagrid1.valueMatrix(selnum,1)=="Y"){
+									datagrid1.rowStatus(selnum) = 2;
+								}else if(datagrid1.valueMatrix(selnum,1)=="N"){
+									datagrid1.rowStatus(selnum) = 0;
+								}
+								
+								datagrid1.refresh();
+							}
+						]]>
+					</script>
+				</datagrid>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData/tab2list/record" caption="지역^센터명^담당자^센터대표^계좌번호^입금확인총액^입금등록총액^잔액^계약상태" colsep="^" colwidth="90, 90, 90, 90, 120, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:0px; top:0px; width:924px; height:535px; ">
+					<col ref="area_nm"/>
+					<col ref="bo_nm"/>
+					<col ref="chrg_flnm" style="text-align:center; "/>
+					<col ref="bo_head_nm" style="text-align:center; "/>
+					<col ref="vitl_acct_no" style="text-align:center; "/>
+					<col ref="acct_rcpm_cnfm_tot_amt" format="###,###,###,##0" style="text-align:right; "/>
+					<col ref="acct_rcpm_reg_tot_amt" format="###,###,###,##0" style="text-align:right; "/>
+					<col ref="rem_amt" format="###,###,###,##0" style="text-align:right; "/>
+					<col ref="cntr_stat_nm" format="yyyy-mm-dd" style="text-align:center; "/>
+				</datagrid>
+			</case>
+		</switch>
+		<button id="button6" class="tab05" group="tab" selected="true" style="left:11px; top:144px; width:105px; height:23px; ">
+			<caption>입금확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.toggle("case1");
+			
+				model.send("se_rcp_1010_l");
+				se_chkGridCnt("datagrid1");
+				var rowCnt = datagrid1.rows;
+				//확인된 내역은 readonly
+				for(var i=1; i<rowCnt; i++){
+					if(datagrid1.valueMatrix(i,1)=="Y") datagrid1.isReadOnly(i,1) = true;
+					else datagrid1.isReadOnly(i,1) = false;
+				}
+				
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="tab05" group="tab" style="left:105px; top:144px; width:92px; height:23px; ">
+			<caption>총입금액</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.toggle("case2");
+				model.send("se_rcp_1020_l");
+				se_chkGridCnt("datagrid2");
+				
+				]]>
+			</script>
+		</button>
+		<caption id="output1" class="tabline" style="left:11px; top:166px; width:925px; height:1px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:51px; ">
+			<caption id="caption1" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area_cd" appearance="minimal" style="left:445px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption10" class="list_cap01" style="left:381px; top:25px; width:60px; height:26px; ">입금인</caption>
+			<caption id="caption2" class="list_cap01" style="left:552px; top:0px; width:65px; height:26px; ">입금일자</caption>
+			<caption id="caption11" class="list_cap01" style="left:552px; top:25px; width:65px; height:26px; ">확인처리</caption>
+			<caption id="caption3" class="list_cap01" style="left:180px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<input id="ipt_rcpm_dt1" ref="/root/reqData/searchData/rcpm_dt1" class="req" inputtype="date" caption="입금일자" style="left:621px; top:4px; width:90px; height:18px; "/>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team_cd" appearance="minimal" style="left:64px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part_cd" appearance="minimal" style="left:254px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:381px; top:0px; width:60px; height:26px; ">지역</caption>
+			<select1 id="cbo_cnfm_yn" ref="/root/reqData/searchData/cnfm_yn" appearance="minimal" style="left:621px; top:29px; width:90px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>처리완료</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>미처리</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption37" style="left:710px; top:6px; width:15px; height:17px; text-align:center; ">~</caption>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:60px; height:26px; ">팀</caption>
+			<input id="ipt_rcpm_dt2" ref="/root/reqData/searchData/rcpm_dt2" class="req" inputtype="date" caption="입금일자" style="left:724px; top:4px; width:90px; height:18px; "/>
+			<caption id="caption8" class="list_cap01" style="left:0px; top:25px; width:60px; height:26px; ">센터명</caption>
+			<caption id="caption9" class="list_cap01" style="left:180px; top:25px; width:70px; height:26px; ">계좌번호</caption>
+			<input id="input6" ref="/root/reqData/searchData/acct_no" style="left:254px; top:29px; width:110px; height:18px; "/>
+			<input id="input1" ref="/root/reqData/searchData/bo_nm" style="left:64px; top:29px; width:100px; height:18px; "/>
+			<input id="input3" ref="/root/reqData/searchData/rcpm_pers" style="left:445px; top:29px; width:90px; height:18px; "/>
+		</group>
+		<button id="button8" class="btn03" crud="C" style="left:740px; top:44px; width:63px; height:21px; ">
+			<caption>확인처리</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				var iSel = switch1.selectedIndex;
+				if(iSel == 1) return;					
+				if(!commConfirmBox("확인처리 하시겠습니까?")) return;
+						
+				if(!checkChg("datagrid1")){
+					commAlert("확인처리할 내역을 선택해 주십시오.");
+					return;
+				}else{			
+					model.setValue("/root/reqData/reqform/multiUpDate", datagrid1.getUpdateData());
+					
+					model.send("se_rcp_1030_a");
+					
+					if(submit_completed()){
+						model.send("se_rcp_1010_l");
+						se_chkGridCnt("datagrid1");
+						var rowCnt = datagrid1.rows;
+						//확인된 내역은 readonly
+						for(var i=1; i<rowCnt; i++){
+							if(datagrid1.valueMatrix(i,1)=="Y") datagrid1.isReadOnly(i,1) = true;
+							else datagrid1.isReadOnly(i,1) = false;
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn03" crud="R" style="left:807px; top:44px; width:63px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var iSel = switch1.selectedIndex;
+					var stat = model.getValue("/root/resData/resform/stat")
+					
+					if (stat == "0") {
+						commAlert("조회 후 저장할 수 있습니다.");
+							return;
+					}else if (stat == "1"){
+						if (iSel == "0") {
+							var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+							datagrid1.saveExcel(dir);
+						}else if (iSel="1"){
+							var dir = window.fileDialog("save", "|", false, "", "", "Excel Files(*.xls)");
+							datagrid2.saveExcel(dir);
+						}
+					}
+					
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

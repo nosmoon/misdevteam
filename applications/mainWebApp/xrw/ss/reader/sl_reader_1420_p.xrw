@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>독자메모</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<postData>
+							<readerMemoForm>
+								<!--rdr_no/>
+								<flag/-->
+							</readerMemoForm>
+						</postData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<rdrmemoDetailForm>
+								<accflag/>
+								<incmgpers/>
+								<rdr_no/>
+								<cont/>
+							</rdrmemoDetailForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-model-destruct">
+				<![CDATA[
+				//종료시에 셋팅.
+				setRdrNo();
+				]]>
+			</script>
+			<submission id="PID1420subSearch" action="/ss/slreader/1430" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/rdrmemoDetailForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				if(instance1.selectNodes("/root/initData/postData/readerMemoForm/rdr_no").length == 0)
+				{
+					model.alert("유효하지 않은 arguments 입니다.");
+					close();
+				}
+				if(model.getValue("/root/initData/postData/readerMemoForm/rdr_no")=="" || model.getValue("/root/initData/postData/readerMemoForm/flag")=="")
+				{
+					model.alert("독자번호나 처리FLAG가 셋팅되지 않았습니다.");
+					close();
+				}
+				
+				modelCopyValue("/root/reqData/reqform/rdrmemoDetailForm/rdr_no", "/root/initData/postData/readerMemoForm/rdr_no");
+				modelCopyValue("/root/reqData/reqform/rdrmemoDetailForm/accflag", "/root/initData/postData/readerMemoForm/flag");
+				
+				model.send("PID1420subSearch", false);
+				//해당 기능이 servlet 에서 막혀 있으므로 더이상 처리할 것이 없음. 권한 없음.
+			}
+			
+			function search(accflag)
+			{					
+				if(accflag == "D" && !confirm("독자에 대한 모든 메모를 잃게 됩니다. 정말 수행 하시겠습니까?"))
+					return;
+				
+				model.setValue("/root/reqData/reqform/rdrmemoDetailForm/accflag", accflag);
+				
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1420subSearch", false);
+				//해당 기능이 servlet 에서 막혀 있으므로 더이상 처리할 것이 없음. 권한 없음.
+			}
+			
+			//return value setting.		
+			function setRdrNo()
+			{
+				var resPath = model.property("READERMEMO_RES_XPATH");
+
+				opener.model.removenode(resPath);
+				opener.model.makeNode(resPath + "/rdr_no");
+				opener.model.setValue(resPath + "/rdr_no", model.getValue("/root/initData/postData/readerMemoForm/rdr_no"));	//받은 rdr_no를 그대로 돌려줌.
+			}
+							
+			function close()
+			{
+				window.close();
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="420" pageheight="400" idprefix="PID1420" style="font-family:굴림; ">
+		<group id="group1" style="left:10px; top:15px; width:400px; height:351px; ">
+			<caption id="PID1901caption4" class="tit01" style="left:0px; top:0px; width:400px; height:25px; text-align:left; ">독자메모</caption>
+			<caption id="caption13" class="list_cap02" style="left:0px; top:24px; width:400px; height:327px; text-align:center; "/>
+			<textarea id="textarea1" ref="/root/reqData/reqform/rdrmemoDetailForm/cont" disabled="true" style="left:5px; top:30px; width:330px; height:315px; text-align:left; vertical-align:top; "/>
+			<button id="button2" class="btn_grid03" disabled="true" style="left:340px; top:155px; width:53px; height:17px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					search("D");	
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn_grid03" disabled="true" style="left:340px; top:175px; width:53px; height:17px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					search("U");	
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" style="left:10px; top:365px; width:400px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:400px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:186px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();		
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

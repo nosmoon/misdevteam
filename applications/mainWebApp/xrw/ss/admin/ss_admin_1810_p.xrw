@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>테이블 정보</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<postData>
+							<table_form>
+								<db_cd/>
+							</table_form>
+						</postData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<table_form>
+								<db_cd/>
+							</table_form>
+							<db_cd/>
+							<table_name/>
+						</searchData>
+						<reqform/>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<tableGrid>
+								<record>
+									<table_name/>
+								</record>
+							</tableGrid>
+							<columnGrid>
+								<record>
+									<column_name/>
+									<data_type/>
+									<comments/>
+								</record>
+							</columnGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1811search" ref="/root/reqData/searchData/table_form" action="/ss/admin/1811" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1812detail" ref="/root/reqData/searchData" action="/ss/admin/1812" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				
+				function init()
+				{
+					model.copyNode("/root/reqData/searchData/table_form","/root/initData/postData/table_form");
+					if(model.getValue("/root/reqData/searchData/table_form/db_cd") == "SL"){
+						caption2.text = "판매 테이블 정보";
+					}else if(model.getValue("/root/reqData/searchData/table_form/db_cd") == "BI"){
+						caption2.text = "빌링 테이블 정보";
+					}else if(model.getValue("/root/reqData/searchData/table_form/db_cd") == "SO"){
+						caption2.text = "회원 테이블 정보";
+					}else if(model.getValue("/root/reqData/searchData/table_form/db_cd") == "DW"){
+						caption2.text = "DW 테이블 정보";
+					}else{
+						caption2.text = "테이블 정보";
+					}
+					search();
+				}
+				
+				function search()
+				{
+					remakeNode("/root/tempData/resTemp");
+					model.send("PID1811search", false);					
+					if(!submit_completed())
+						return;
+					model.copyNode("/root/resData/gridData/tableGrid", "/root/tempData/resTemp/tableGrid");
+						 	
+				 	if(instance1.selectNodes("/root/resData/gridData/tableGrid/record/table_name").length == 0)
+						model.alert("테이블이 없습니다.");
+														
+					model.removenode("/root/tempData/resTemp");	
+					PID1810datagrid.rebuild();	
+				}
+				
+				function gridClick()
+				{
+					var table_name = PID1810datagrid.textMatrix(PID1810datagrid.row, PID1810datagrid.colRef("table_name"));
+					model.setValue("/root/reqData/searchData/table_name",table_name);
+					model.setValue("/root/reqData/searchData/db_cd",model.getValue("/root/reqData/searchData/table_form/db_cd"));
+					
+					model.send("PID1812detail", false);
+					if(!submit_completed())
+						return;
+					model.copyNode("/root/resData/gridData/columnGrid", "/root/tempData/resTemp/columnGrid");
+						 	
+				 	if(instance1.selectNodes("/root/resData/gridData/columnGrid/record/column_name").length == 0)
+						model.alert("컬럼이 없습니다.");
+														
+					model.removenode("/root/tempData/resTemp");		
+					PID1810datagrid2.refresh();					
+				}
+				
+				function close()
+				{
+					window.close();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="650" pageheight="400" style="font-family:굴림; ">
+		<caption id="caption2" style="left:5px; top:5px; width:630px; height:25px; text-align:left; ">
+			<B>테이블 정보</B>
+		</caption>
+		<datagrid id="PID1810datagrid" nodeset="/root/resData/gridData/tableGrid/record" caption="테이블명" colwidth="235" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" selectionmode="free" rowsep="|" colsep="^" tooltip="true" style="left:10px; top:30px; width:235px; height:325px; ">
+			<col ref="table_name" style="text-align:left; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1810datagrid.mouseCol>PID1810datagrid.fixedCols-1 && PID1810datagrid.mouseRow>PID1810datagrid.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}				
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="PID1810datagrid2" nodeset="/root/resData/gridData/columnGrid/record" caption="컬럼명^타입^설명" colwidth="150, 90, 140" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" selectionmode="free" rowsep="|" colsep="^" tooltip="true" style="left:250px; top:30px; width:380px; height:325px; ">
+			<col ref="column_name" style="text-align:left; "/>
+			<col ref="data_type" style="text-align:left; "/>
+			<col ref="comments" style="text-align:left; "/>
+		</datagrid>
+		<group id="group2" style="left:10px; top:365px; width:630px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:630px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:316px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();		
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

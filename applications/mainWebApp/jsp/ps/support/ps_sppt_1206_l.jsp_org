@@ -1,0 +1,103 @@
+<%@ page language="java" contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_sppt_1201_l.jsp
+* 기능 : 불편접수내역 조회
+* 작성일자 : 2003-12-08
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+
+<%
+    String records_per_page =   request.getParameter("records_per_page");
+    // dataset 인스턴스 선언부분
+    PS_L_DSCT_CATLDataSet ds = (PS_L_DSCT_CATLDataSet)request.getAttribute("ds");
+    // 공란으로 화면을 구성할 Row수
+    int records_non_page = Integer.parseInt(records_per_page) - ds.curcommlist.size();
+%>
+      <!--리스트 -->
+      <table cellspacing="0" width="830" cellpadding="1" border="0" class="gray" bgcolor="#FFFFFF" id="code_list">
+        <tr align="center" bgcolor="#dddddd">
+          <td class="gray" width="120"> 독자번호 </td>
+          <td class="gray" width="80"> 구독기간 </td>
+          <td class="gray" width="90"> 구독자/접수자 </td>
+          <td class="gray" width="65" align="center"> 불편유형 </td>
+          <td class="gray" width="215"> 제목 </td>
+          <td class="gray" width="65"> 접수처 </td>
+          <td class="gray" width="65"> 접수일자 </td>
+          <td class="gray" width="65"> 처리일자 </td>
+          <td class="gray" width="65"> 처리여부 </td>
+        </tr>
+<%
+	for(int i=0; i<ds.curcommlist.size(); i++){
+		PS_L_DSCT_CATLCURCOMMLISTRecord curcommlistRec = (PS_L_DSCT_CATLCURCOMMLISTRecord)ds.curcommlist.get(i);
+%>
+        <tr onmouseover="this.style.backgroundColor='#EDFFF1'" onmouseout="this.style.backgroundColor=''" style="cursor:hand" onclick="set_detail('<%= curcommlistRec.regdt%>','<%= curcommlistRec.regno%>')" >
+          <td class="gray" width="120" align="center"><%= curcommlistRec.rdr_no%>-<%= curcommlistRec.medicd%>-<%= curcommlistRec.termsubsno%></td>
+          <td class="gray" width="80" align="center"><%= Util.convertNull(curcommlistRec.subsfrser_no,"&nbsp")%>-<%= Util.convertNull(curcommlistRec.substoser_no,"&nbsp")%></td>
+          <td class="gray" width="90"><%= curcommlistRec.rdrnm%></td>
+          <td class="gray" width="65" align="center"><%= curcommlistRec.dscttypecd%></td>
+          <td class="gray" width="215"><%= curcommlistRec.titl%></td>
+          <td class="gray" width="65" align="center"><%= Util.convertNull(curcommlistRec.acpnpathcd,"&nbsp;")%></td>
+          <td class="gray" width="65" align="center"><%= curcommlistRec.acpndt.equals("")? "&nbsp;" : Util.convertS(curcommlistRec.acpndt) %></td>
+          <td class="gray" width="65" align="center"><%= curcommlistRec.boprocdt.equals("") ? "&nbsp;" : Util.convertS(curcommlistRec.boprocdt)%></td>
+          <td class="gray" width="65" align="center" ><%= curcommlistRec.boprocyn.equals("Y")? "처리완료" : "미처리" %></td>
+        </tr>
+<%
+	}
+	for ( int i= 0 ; i <records_non_page ; i++ ) {
+%>
+        <tr>
+          <td class="gray" width="120" align="center">&nbsp;</td>
+          <td class="gray" width="80" align="center">&nbsp;</td>
+          <td class="gray" width="90">&nbsp;</td>
+          <td class="gray" width="65">&nbsp;</td>
+          <td class="gray" width="215">&nbsp;</td>
+          <td class="gray" width="65">&nbsp;</td>
+          <td class="gray" width="65" align="center">&nbsp;</td>
+          <td class="gray" width="65" align="center">&nbsp;</td>
+          <td class="gray" width="65">&nbsp;</td>
+        </tr>
+<%
+	}
+%>
+      </table>
+      <!---button-->
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center" id="list_page">
+        <tr>
+          <td align="center" height="2">
+            <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td align="center" height="24" bgcolor="#E8E8E8">
+            <div align="center">
+            <!--JSP PAGE START---------------------------------------------------------------------------------->
+            <%
+                String curr_page_no = request.getParameter("curr_page_no");
+                String total_records = String.valueOf(ds.getTotalcnt());
+                String js_fn_nm = request.getParameter("js_fn_nm"); // 페이지이동 Script
+            %>
+            <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp" >
+            <jsp:param name = "curr_page_no" 		value="<%=curr_page_no%>"/>
+            <jsp:param name = "total_records" 		value="<%=total_records%>"/>
+            <jsp:param name = "js_fn_nm" 		    value="<%=js_fn_nm%>"/>
+            <jsp:param name = "records_per_page" 	value="<%=records_per_page%>"/>
+            <jsp:param name = "page_set_gubun" 		value="0"/>
+            </jsp:include>
+            <!--JSP PAGE END------------------------------------------------------------------------------------>
+        	</div>
+          </td>
+        </tr>
+      </table>
+
+<script>
+    parent.document.all.code_list.outerHTML = document.all.code_list.outerHTML;
+    parent.document.all.list_page.outerHTML = document.all.list_page.outerHTML;
+    parent.init();
+</script>

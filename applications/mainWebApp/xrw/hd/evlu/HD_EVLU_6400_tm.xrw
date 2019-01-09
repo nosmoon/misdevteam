@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>파견직(EP) - 2차평가자 평가정보 확인 화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_cd>
+								<item/>
+							</evlu_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+							<evlu_cd/>
+						</searchData>
+						<reqForm>
+							<evlu_yy/>
+							<tms_clsf/>
+							<evlu_pers_emp_no_2tms/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<valid_evlu_cd/>
+						</resForm>
+						<gridData>
+							<record>
+								<evlu_grp_nm/>
+								<dept_nm/>
+								<tgt_evlu_pers_emp_no/>
+								<tgt_evlu_pers_nm_korn/>
+								<rvis_scor_avg/>
+								<rank/>
+								<last_grad/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//샘플2차평가자 설정
+					model1.setValue("/root/reqData/reqForm/evlu_pers_emp_no_2tms","204021");
+					model1.send("hd_evlu_8000_l");
+					//model1.setValue("/root/resData/resForm/valid_evlu_cd",model1.getValue("/root/dataSet/valid_evlu_cd"));
+					model1.copyNode("/root/initData/comboSet/evlu_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					model1.refresh();
+					combo1.select(0);
+					//평가구분값 파싱
+					if(model1.getValue("/root/reqData/searchData/evlu_cd") != ""){
+						model1.setValue("/root/reqData/reqForm/evlu_yy", model1.getValue("/root/reqData/searchData/evlu_cd").substring(0,4));
+						model1.setValue("/root/reqData/reqForm/tms_clsf", model1.getValue("/root/reqData/searchData/evlu_cd").substring(4,6));
+					}
+				]]>
+			</script>
+			<submission id="hd_evlu_8000_l" action="/servlet/hd/evlu/8000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_6401_l" action="/servlet/hd/evlu/6401" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//평가대상 목록생성
+				function searchList(){
+					//상태값이 남아있기 때문에 기존의 노드를 모두 초기화
+					model1.removeNode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					model1.refresh();
+					//데이터 생성
+					model1.send("hd_evlu_6401_l");	
+					model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					rowCnt.value = "총 "+ (parseInt(datagrid1.rows)- 1) + " 건";	
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,69;2,94;2,102;2,107;2,117;2,746;1,926;2,739;2,457;" style="font-family:굴림; ">
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_ActionBtn" style="left:10px; top:39px; width:926px; height:21px; ">
+			<button id="button1" class="btn03" style="left:863px; top:0px; width:63px; height:21px; background-image:../../../images/btn3.gif; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn03" style="left:795px; top:0px; width:63px; height:21px; background-image:../../../images/btn3.gif; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						searchList();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<!-- 검색조건 -->
+		<caption id="captoin1" class="list_cap02" style="left:10px; top:69px; width:926px; height:26px; "/>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:69px; width:100px; height:26px; ">평가구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/evlu_cd" appearance="minimal" style="left:115px; top:73px; width:150px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_cd/item">
+					<label ref="evlu_cdnm"/>
+					<value ref="evlu_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<!-- 평가대상자 -->
+		<caption id="caption4" class="tit02" style="left:10px; top:117px; width:926px; height:20px; ">피평가자 리스트</caption>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="평가그룹^부서^사번^성명^보정점수평균^순위^등급" colsep="^" colwidth="130, 130, 130, 130, 125, 125, 125" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:140px; width:926px; height:565px; ">
+			<col ref="evlu_grp_nm"/>
+			<col ref="dept_nm" format="yyyy" style="text-align:left; "/>
+			<col ref="tgt_evlu_pers_emp_no"/>
+			<col ref="tgt_evlu_pers_nm_korn"/>
+			<col ref="rvis_scor_avg"/>
+			<col ref="rank"/>
+			<col ref="last_grad"/>
+		</datagrid>
+		<!-- 평가대상자 기본정보 -->
+		<!-- 1차평가자 평가 -->
+		<input id="input1" ref="/root/reqData/reqForm/evlu_pers_emp_no_2tms" visibility="hidden" style="left:325px; top:73px; width:100px; height:18px; "/>
+		<caption id="caption1" visibility="hidden" style="left:428px; top:72px; width:142px; height:20px; ">
+			<![CDATA[<-- 샘플2차평가자사번]]>
+		</caption>
+		<caption id="rowCnt" style="left:801px; top:710px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

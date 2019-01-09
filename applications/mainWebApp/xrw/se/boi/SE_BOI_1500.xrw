@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터 -->
+						<session/>
+						<!-- 서버의 세션 정보 -->
+						<comboSet>
+							<dept_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</dept_cd>
+							<area_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</area_cd>
+							<adms_dstc_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</adms_dstc_cd>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo/>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영시 사용(화면ID등) -->
+					</initData>
+					<reqData>
+						<!-- 서버에 전달하고자 하는 데이터 (submit시 처리) -->
+						<fwdData/>
+						<!-- popup등의 페이지전환시 데이타 입출력에 사용 -->
+						<searchData>
+							<callgb/>
+							<area_cd1/>
+							<area_cd2/>
+							<dept_cd/>
+							<adms_dstc_cd1/>
+							<adms_dstc_cd2/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqform>
+						</reqform>
+						<!-- 입력처리 formData 복수사용시 하위노드로 1,2,3으로 정의-->
+						<multiUpDate/>
+						<!-- Grid의 MultiUpDate유형 사용시 처리 -->
+					</reqData>
+					<resData>
+						<!-- 서버로부터 전달 받은 데이터 (submit의 결과) -->
+						<resform/>
+						<!-- (submit의 결과) formData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<gridData/>
+						<!-- (submit의 결과) gridData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<MsgData/>
+						<!-- (submit의 결과) 전달 받은 MsgData -->
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+					<!-- 저장소 -->
+				</root>
+			</instance>
+			<submission id="se_boi_1500_m" action="/se/boi/1500" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_boi_1510_l" action="/se/boi/1510" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("se_boi_1500_m");	
+					
+					model.setValue("/root/reqData/searchData/callgb", "1");
+					rdo_callgb.refresh();
+					
+					cbo_area_cd1.select(0);
+					cbo_area_cd2.select(0);
+					cbo_dept_cd.select(0);
+					cbo_adms_dstc_cd1.select(0);
+					cbo_adms_dstc_cd2.select(0);
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function goReport(gubun){
+					var report	= "SP_SE_BOI_1510_L";
+													
+					var report_gubun = model.getValue("/root/reqData/searchData/gubun");
+					//var report_index		= parseInt(report_gubun) - 1;							
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "se/" + report)	;			
+					makeNodeValue("/root/oz_data/preview", "");		//디폴트 미리보기 모드		
+					makeNodeValue("/root/oz_data/printsize", "");		//디폴트 A4	
+					makeNodeValue("/root/oz_data/conParam/sv_url","19110");					
+					makeNodeValue("/root/oz_data/conParam/sv_uid");					
+					makeNodeValue("/root/oz_data/conParam/sv_bonm");					
+					makeNodeValue("/root/oz_data/conParam/uv_line");					
+					makeNodeValue("/root/oz_data/conParam/uv_summary");											
+														
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", model.property("ss_cmpycd"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers",model.property("ss_emp_no"));
+						
+					makeNodeValue("/root/oz_data/odiParam/iv_callgb"	, model.getValue("/root/reqData/searchData/callgb"));
+					makeNodeValue("/root/oz_data/odiParam/iv_area_cd1"	, model.getValue("/root/reqData/searchData/area_cd1"));
+					makeNodeValue("/root/oz_data/odiParam/iv_area_cd2"	, model.getValue("/root/reqData/searchData/area_cd2"));
+					makeNodeValue("/root/oz_data/odiParam/iv_dept_cd"	, model.getValue("/root/reqData/searchData/dept_cd"));
+					makeNodeValue("/root/oz_data/odiParam/iv_adms_dstc_cd1"	, model.getValue("/root/reqData/searchData/adms_dstc_cd1"));
+					makeNodeValue("/root/oz_data/odiParam/iv_adms_dstc_cd2"	, model.getValue("/root/reqData/searchData/adms_dstc_cd2"));					
+				
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<group id="selectBox" class="gro_tab2" style="left:10px; top:70px; width:305px; height:655px; ">
+			<select1 id="rdo_callgb" ref="/root/reqData/searchData/callgb" appearance="full" vcellspacing="5" overflow="visible" style="left:22px; top:15px; width:260px; height:345px; border-style:none; ">
+				<choices>
+					<item>
+						<label>센터 소재지 전화번호 대장(지역)</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>지대 청구지 주소 전화번호 대장(지역)</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>센터 소재지 전화번호 대장(부서)</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>지대 청구지 주소 전화번호 대장(부서)</label>
+						<value>4</value>
+					</item>
+					<item>
+						<label>센터 소재지 주소 전화번호 대장(행정구역)</label>
+						<value>5</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					
+					var type = rdo_callgb.value;
+					if(type == "1"){
+						model.toggle("case1");
+					}else if(type == "2"){
+						model.toggle("case1");
+					}else if(type == "3"){
+						model.toggle("case2");
+					}else if(type == "4"){
+						model.toggle("case2");
+					}else if(type == "5"){
+						model.toggle("case3");
+					}
+					]]>
+				</script>
+			</select1>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<switch id="switch1" class="gro_sel" style="left:331px; top:70px; width:605px; height:255px; ">
+			<case id="case1" selected="true">
+				<caption id="caption70" class="list_cap02" style="left:25px; top:20px; width:510px; height:26px; "/>
+				<select1 id="cbo_area_cd1" ref="/root/reqData/searchData/area_cd1" appearance="minimal" style="left:119px; top:24px; width:110px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/area_cd/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="caption1" style="left:230px; top:25px; width:20px; height:20px; text-align:center; ">~</caption>
+				<select1 id="cbo_area_cd2" ref="/root/reqData/searchData/area_cd2" appearance="minimal" style="left:250px; top:24px; width:110px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/area_cd/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="caption45" class="list_cap03" style="left:25px; top:20px; width:90px; height:26px; text-align:center; ">지역</caption>
+			</case>
+			<case id="case2">
+				<caption id="caption3" class="list_cap02" style="left:25px; top:20px; width:510px; height:26px; "/>
+				<select1 id="cbo_dept_cd" ref="/root/reqData/searchData/dept_cd" appearance="minimal" style="left:119px; top:24px; width:160px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/dept_cd/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="caption8" class="list_cap03" style="left:25px; top:20px; width:90px; height:26px; text-align:center; ">부서</caption>
+			</case>
+			<case id="case3">
+				<caption id="caption2" class="list_cap02" style="left:25px; top:20px; width:510px; height:26px; "/>
+				<caption id="caption5" style="left:229px; top:25px; width:20px; height:20px; text-align:center; ">~</caption>
+				<select1 id="cbo_adms_dstc_cd1" ref="/root/reqData/searchData/adms_dstc_cd1" appearance="minimal" style="left:119px; top:24px; width:110px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/adms_dstc_cd/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="caption6" class="list_cap03" style="left:25px; top:20px; width:90px; height:26px; text-align:center; ">행정구역</caption>
+				<select1 id="cbo_adms_dstc_cd2" ref="/root/reqData/searchData/adms_dstc_cd2" appearance="minimal" style="left:247px; top:24px; width:110px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/adms_dstc_cd/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</select1>
+			</case>
+		</switch>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" visibility="hidden" crud="R" style="left:738px; top:44px; width:63px; height:21px; ">
+			<caption>미리보기</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("V");
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" crud="R" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("P");
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

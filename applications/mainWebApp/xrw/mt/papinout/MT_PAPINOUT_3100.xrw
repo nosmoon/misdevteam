@@ -1,0 +1,1528 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</fac_clsf>
+							<papcmpy_cd>
+								<item/>
+							</papcmpy_cd>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<issu_dt/>
+							<fac_clsf/>
+							<collect_yn/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm/>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+						</fwdData>
+						<chk_val>
+							<a_wgt/>
+							<b_wgt/>
+							<c_wgt/>
+						</chk_val>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<selectCnt/>
+							<arvyul/>
+							<pajiyul/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+						<top_gridData>
+							<record>
+								<issu_dt/>
+								<medi_cd/>
+								<sect_cd/>
+								<pap_std/>
+								<issu_pcnt/>
+								<bw_pcnt/>
+								<clr_pcnt/>
+								<slip_qty/>
+								<chk_a/>
+								<chk_b/>
+								<chk_c/>
+								<prt_wgt/>
+							</record>
+						</top_gridData>
+						<pre_gridData>
+							<record>
+								<issu_dt/>
+								<medi_cd/>
+								<sect_cd/>
+								<pap_std/>
+								<issu_pcnt/>
+								<bw_pcnt/>
+								<clr_pcnt/>
+								<slip_qty/>
+								<chk_a/>
+								<chk_b/>
+								<chk_c/>
+								<prt_wgt/>
+							</record>
+						</pre_gridData>
+						<roll_wgt>
+							<record>
+								<matr_cd/>
+								<roll_wgt/>
+							</record>
+						</roll_wgt>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript">
+				<![CDATA[
+				function date(){
+					var d = new Date();
+					var rec = "";
+					var dd = "";
+					     	    
+					rec = "" + d.getYear();
+					if(d.getDate() < 10 ) dd = "0" + d.getDate();
+					else                       dd = d.getDate();
+					     	    
+					if( d.getMonth() + 1 < 10 )           rec = rec + "0" + (d.getMonth() + 1 )  + dd;
+					else if ( d.getMonth() + 1  > 10 )  rec = rec  + (d.getMonth() + 1) + dd;
+					     	    
+					return (rec);
+				}
+				
+				function TRUNC(arg){
+					  		var data = "" + arg;
+					  		 
+					  		if( data.indexOf(".") == -1 ) {
+					  		} 
+					  		else {
+					  			  data = data.substr( 0 , data.indexOf("."));
+					  		}
+					  		return Number(data);
+				}
+				
+				function setCollValue2(irow, fbool){
+					var tmpPcnt	= 0;
+					var qty		= 0;
+					var pyung		= model.getValue("/root/tempData/arvyul");
+					var pajiyul	= model.getValue("/root/tempData/pajiyul");
+					
+					//for (var i=1; i<datagrid2.rows; i++){
+					datagrid2.rowStatus(irow) = 1;
+					qty = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("slip_qty")));
+					
+					if (datagrid2.valueMatrix(irow, datagrid2.colRef("pap_std")) == "T"){
+						tmpPcnt = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("issu_pcnt"))) / 2;
+					} else {
+						tmpPcnt = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("issu_pcnt")));
+					}
+					
+					if (tmpPcnt == 36){
+						
+						datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * 16) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = Math.round((qty * 12) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+					} else if (tmpPcnt == 40){
+						datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = 0;
+						datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+					} else {
+						datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+						datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+					}	
+				}
+				
+				function setCollValue(irow, fbool){
+					var tmpPcnt	= 0;
+					var qty		= 0;
+					var pyung		= model.getValue("/root/tempData/arvyul");
+					var pajiyul	= model.getValue("/root/tempData/pajiyul");
+					
+					//for (var i=1; i<datagrid2.rows; i++){
+					datagrid2.rowStatus(irow) = 1;
+					qty = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("slip_qty")));
+					
+					if (datagrid2.valueMatrix(irow, datagrid2.colRef("pap_std")) == "T"){
+						tmpPcnt = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("issu_pcnt"))) / 2;
+					} else {
+						tmpPcnt = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("issu_pcnt")));
+					}
+					
+					//alert(tmpPcnt);
+					//if (datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt")) == "0" &&  datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) == "0" && datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")) == "0") {
+						//datagrid2.valueMatrix(irow, datagrid2.colRef("chk_a")) = "1";
+					if (fbool){
+						if (datagrid2.valueMatrix(irow, datagrid2.colRef("sect_cd")) != "0008"){
+							alert("포커스에만 컬렉트런을 적용합니다.");
+							return;
+						}
+					}
+					
+					if (fbool){	// 콜렉트런 적용..
+						if (tmpPcnt == 36){
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_a")) = "1";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_b")) = "1";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_c")) = "1";
+							
+							if (datagrid2.valueMatrix(irow, datagrid2.colRef("occr_dt")) == ""){
+								datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt")) = Math.round((qty * 16) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) = Math.round((qty * 12) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(irow, datagrid2.colRef("a_roll")) = Math.ceil(eval(datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt"))) / eval(datagrid2.valueMatrix(irow, datagrid2.colRef("a_rwgt"))));
+								datagrid2.valueMatrix(irow, datagrid2.colRef("b_roll")) = Math.ceil(eval(datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt"))) / eval(datagrid2.valueMatrix(irow, datagrid2.colRef("b_rwgt"))));
+								datagrid2.valueMatrix(irow, datagrid2.colRef("c_roll")) = Math.ceil(eval(datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt"))) / eval(datagrid2.valueMatrix(irow, datagrid2.colRef("c_rwgt"))));
+									
+							}
+							datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * 16) / 4000 * eval(pyung) * 1.015);
+							datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = Math.round((qty * 12) / 4000 * eval(pyung) * 1.015);
+							datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+						} else if (tmpPcnt == 40){
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_a")) = "1";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_b")) = "0";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_c")) = "1";
+							
+							if (datagrid2.valueMatrix(irow, datagrid2.colRef("occr_dt")) == ""){
+								datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) = 0;
+								datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+							}
+							datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+							datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = 0;
+							datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+						} else {
+							//alert("....");
+							
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_b")) = "1";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_c")) = "1";
+							
+							if (datagrid2.valueMatrix(irow, datagrid2.colRef("occr_dt")) == ""){
+								//if (tmpPcnt  4)
+								if (tmpPcnt > 8) { // A권
+									datagrid2.valueMatrix(irow, datagrid2.colRef("chk_a")) = "1";
+									datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(irow, datagrid2.colRef("a_roll")) = Math.ceil(eval(datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt"))) / eval(datagrid2.valueMatrix(irow, datagrid2.colRef("a_rwgt"))));
+									datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt"));
+								}
+								if ((tmpPcnt % 8) == 4) { // B권
+									datagrid2.valueMatrix(irow, datagrid2.colRef("chk_b")) = "1";
+									datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) = Math.round(qty * (tmpPcnt % 8) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(irow, datagrid2.colRef("b_roll")) = Math.ceil(eval(datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt"))) / eval(datagrid2.valueMatrix(irow, datagrid2.colRef("b_rwgt"))));
+									datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt"));
+								} else {
+									datagrid2.valueMatrix(irow, datagrid2.colRef("chk_b")) = "0";
+									datagrid2.valueMatrix(irow, datagrid2.colRef("b_roll")) = 0;
+									datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) = 0;
+									datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = 0;
+								}
+								if ((tmpPcnt % 8) != 4) { // C권
+									datagrid2.valueMatrix(irow, datagrid2.colRef("chk_c")) = "1";
+									datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")) = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("prt_wgt"))) - (eval(datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt"))));
+									datagrid2.valueMatrix(irow, datagrid2.colRef("c_roll")) = Math.ceil(eval(datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt"))) / eval(datagrid2.valueMatrix(irow, datagrid2.colRef("c_rwgt"))));
+									datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt"));
+								} else {
+									datagrid2.valueMatrix(irow, datagrid2.colRef("chk_c")) = "0";
+									datagrid2.valueMatrix(irow, datagrid2.colRef("c_roll")) = 0;
+									datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")) = 0;
+									datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = 0;
+								}
+								//datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								//datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								//datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+							}
+							//datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+							//datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+							//datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+						}
+					} else {// 콜렉트런 적용하지 않음.
+						if (tmpPcnt == 36){
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_a")) = "1";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_b")) = "1";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_c")) = "1";
+							
+							if (datagrid2.valueMatrix(irow, datagrid2.colRef("occr_dt")) == ""){
+								datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015 );
+								datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015 );
+							}
+							datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+							datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015 );
+							datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015 );
+							
+						} else {
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_a")) = "1";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_b")) = "1";
+							datagrid2.valueMatrix(irow, datagrid2.colRef("chk_c")) = "1";
+							
+							if (datagrid2.valueMatrix(irow, datagrid2.colRef("occr_dt")) == ""){
+								datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015 );
+								datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015 );
+							}
+							datagrid2.valueMatrix(irow, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+							datagrid2.valueMatrix(irow, datagrid2.colRef("b_base")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015 );
+							datagrid2.valueMatrix(irow, datagrid2.colRef("c_base")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015 );
+						}
+					}
+						
+					//}
+					//datagrid2.colHidden(11) = true;
+					//datagrid2.colHidden(12) = false;
+					//datagrid2.colHidden(13) = true;
+					//datagrid2.colHidden(14) = false;
+					//datagrid2.colHidden(15) = true;
+					//datagrid2.colHidden(16) = false;
+					//alert(datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt")) + "\n" + datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt")) + "\n" + datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")));
+					datagrid2.valueMatrix(irow, datagrid2.colRef("prt_wgt")) = eval(datagrid2.valueMatrix(irow, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(irow, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(irow, datagrid2.colRef("c_wgt")));
+				}
+				
+				/*
+				function datagridValueSet(grp,medi_cd, sect_cd, a_somo_kg,b_somo_kg,c_somo_kg){
+					  	     
+					  	    for( var i = 4 ; i < datagrid1.cols ; i++){
+					  	    		var tmpData = datagrid1.valueMatrix(0, i);
+					  	    		var gmedi_cd = tmpData.substr(1, 3);
+					  	    		var gsect_cd = tmpData.substr( tmpData.indexOf("-") + 1 , 4);
+					  	    		
+					  	    		if ( medi_cd == gmedi_cd && sect_cd == gsect_cd){   //기존 데이터 초기화
+						  	    		for(  var ii = 2 ; ii < datagrid1.rows; ii++){
+						  	    			if( datagrid1.valueMatrix(ii, 1 ) == '배분') {
+						  	    				  datagrid1.valueMatrix(ii, 2 ) = '';
+						  	    				  continue;
+						  	    			}
+						  	    			datagrid1.valueMatrix(ii, i ) = 0;
+						  	    			datagrid1.valueMatrix(ii, i + 1) = 0;
+						  	    		}
+					  	    		}
+					  	    		//alert(medi_cd +"##"+ gmedi_cd +"##"+ sect_cd +"##" + gsect_cd);
+					  	    		if ( medi_cd == gmedi_cd && sect_cd == gsect_cd){   //신구  데이터 셋팅
+					  	    			for(  var ii = 2 ; ii < datagrid1.rows; ii++){
+					  	    			   var ggrp        = datagrid1.valueMatrix(ii , 3);
+					  	    			   var gubun     = datagrid1.valueMatrix(ii , 2);
+					  	    			   var gmatr_cd = datagrid1.valueMatrix(ii , 0);
+					  	    			   var rollWgt = 0;
+					  	    			   var a_roll = 0;
+					  	    			   var b_roll = 0;
+					  	    			   var c_roll = 0;
+					  	    			    
+					  	    			    if( ggrp == grp && gubun == ''){
+					  	    			    	       
+					  	    			    		datagrid1.valueMatrix(ii, 2) = "Y";
+					  	    			    }
+					  	    			    
+					  	    			    if( ggrp == grp && gubun == 'A'){
+					  	    			    	     if( gmatr_cd == '1101402' ) continue;     // 팬아 일때 패스 
+					  	    			    	     datagrid1.valueMatrix(ii, i + 1) = a_somo_kg;
+					  	    			    	     var inst = model1.instance1.selectNodes("/root/resData/roll_wgt/record");
+					  	    			    	     for( var y = 0 ; y < inst.length; y++){
+					  	    			    	     	     var wgt_matrcd = inst.item(y).matr_cd.value;
+					  	    			    	     	     if ( gmatr_cd == wgt_matrcd){
+					  	    			    	     	     	      rollWgt = Number(inst.item(y).roll_wgt.value);
+					  	    			    	     	     }
+					  	    			    	     }
+					  	    			    	      
+					  	    			    	     if ( a_somo_kg == 0 )  { a_roll = 0;}
+					  	    			    	     else { 
+					  	    			    	               if ( rollWgt == 0 ) { a_roll = 0; }
+					  	    			    	     		else { a_roll = Math.round(a_somo_kg / rollWgt); }
+					  	    			    	     }
+					  	    			    	     
+					  	    			    	     datagrid1.valueMatrix(ii, i  ) = a_roll;
+					  	    			    } // a if end 
+					  	    		           if( ggrp == grp && gubun == 'B'){
+					  	    			    	     datagrid1.valueMatrix(ii, i + 1) = b_somo_kg;
+					  	    			    	     var inst = model1.instance1.selectNodes("/root/resData/roll_wgt/record");
+					  	    			    	     for( var y = 0 ; y < inst.length; y++){
+					  	    			    	     	     var wgt_matrcd = inst.item(y).matr_cd.value;
+					  	    			    	     	     if ( gmatr_cd == wgt_matrcd){
+					  	    			    	     	     	        rollWgt = Number(inst.item(y).roll_wgt.value);
+					  	    			    	     	     }
+					  	    			    	     }
+					  	    			    	     if ( b_somo_kg == 0 ){ b_roll = 0};
+					  	    			    	     else {
+					  	    			    	     	        if ( rollWgt == 0 ) { b_roll = 0; }
+					  	    			    	     		else {      b_roll = Math.round(b_somo_kg / rollWgt);  }
+					  	    			    	     }
+					  	    			    	     datagrid1.valueMatrix(ii, i  ) =b_roll;
+					  	    			  } //  b if end
+					  	    		         if( ggrp == grp && gubun == 'C'){
+					  	    			    	     datagrid1.valueMatrix(ii, i + 1) = c_somo_kg;
+					  	    			    	     var inst = model1.instance1.selectNodes("/root/resData/roll_wgt/record");
+					  	    			    	     for( var y = 0 ; y < inst.length; y++){
+					  	    			    	     	     var wgt_matrcd = inst.item(y).matr_cd.value;
+					  	    			    	     	     if ( gmatr_cd == wgt_matrcd){
+					  	    			    	     	     	        rollWgt = Number(inst.item(y).roll_wgt.value);
+					  	    			    	     	     }
+					  	    			    	     }
+					  	    			    	     if ( c_somo_kg == 0 ) {c_roll = 0};
+					  	    			    	     else {   
+					  	    			    	      		if ( rollWgt == 0 ) { c_roll = 0; }
+					  	    			    	     		else {       c_roll = Math.round(c_somo_kg / rollWgt);  }
+					  	    			    	     }
+					  	    			    	     datagrid1.valueMatrix(ii, i  ) =c_roll;
+					  	    			     
+					  	    		          }   // c if end
+					  	    	            }// for end 
+					  	    	 	} // if end
+					  	    		i = i + 1;
+					  	    }// for end 
+					  }
+					  */
+					  /*
+					   function initGrid1Data(){						
+						while (  datagrid1.cols  > 1 ){
+								datagrid1.removeColumn();
+						 } 
+						datagrid1.removeColumn();
+ 						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData/record");
+					
+						datagrid1.caption = "";
+						datagrid1.refresh();
+						 
+					}
+					*/
+					/*
+					function multiupDateStr(row , col){
+						var resStr = "";
+						var strTmp = datagrid1.valueMatrix( 0, col );
+						var medi_cd = strTmp.substr( 1, 3 );
+						var sect_cd  = strTmp.substr( 5, 4 );
+						var matr_cd  = datagrid1.valueMatrix( row, 0 );
+						var paper_clsf = datagrid1.valueMatrix( row, 2 );
+						var use_qunt  = datagrid1.valueMatrix( row, col );
+						resStr =  medi_cd+"#"+sect_cd+"#"+ matr_cd+"#"+paper_clsf +"#"+use_qunt;
+						
+						return resStr;
+					}
+					*/
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.setValue("/root/reqData/searchData/issu_dt",   date());
+					model1.send("mt_papinout_3100");
+					model1.copyNode("/root/initData/comboSet/fac_clsf" , "/root/tempData/fac_clsf");
+					model1.copyNode("/root/initData/comboSet/papcmpy_cd" , "/root/tempData/papcmpy_cd");
+					combo1.refresh();
+					combo1.disabled = false;
+					
+					if (model.getValue("/root/reqData/fwdData/issu_dt") != ""){
+						model.setValue("/root/reqData/searchData/issu_dt", model.getValue("/root/reqData/fwdData/issu_dt"));
+						input1.refresh();
+						
+						
+					}
+					
+					if ( model1.getValue("/root/tempData/uprc_yn") == 'N'){
+						combo1.select(0);
+						combo1.disabled = true;
+					}
+					
+				]]>
+			</script>
+			<submission id="mt_papinout_3100" action="/mt/papinout/3100" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_papinout_3101" action="/mt/papinout/3101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papinout_3102" action="/mt/papinout/3102" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papinout_3103" action="/mt/papinout/3103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="600" guideline="2,51;2,69;1,936;" style="font-family:굴림; ">
+		<button id="button1" class="btn02" style="left:720px; top:49px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(  commReqCheck(group2) == false ) return;
+				
+				model1.send("mt_papinout_3101");
+				
+				var pyung		= model.getValue("/root/tempData/arvyul");
+				var pajiyul	= model.getValue("/root/tempData/pajiyul");
+				
+				model1.copyNode("/root/resData/top_gridData",  "/root/tempData/top_gridData");
+				datagrid2.refresh();
+				
+				model1.copyNode("/root/resData/pre_gridData",  "/root/tempData/pre_gridData");
+				datagrid1.refresh();
+				
+				var tmpPcnt = 0;
+				var sPaperStd = "";
+				var qty		= 0;
+				var collect_yn	= "";
+				var wgt		= 0;
+				var wgt_l		= 0;
+				
+				//var nodeList	= instance1.selectNodes("/root/resData/top_gridData/record");
+				//alert(pyung + "\n" + pajiyul);
+				var cnt 		= 0;
+				//alert(datagrid2.fixedRows);
+				for (var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+					if (datagrid2.valueMatrix(i, datagrid2.colRef("occr_dt")) != ""){
+						cnt ++;
+					}
+				}
+				//if (cnt == 0){
+				//	if ( window.alert("포커스가 컬렉트 런이면\n확인을\n일반인쇄이면\n취소를 클릭해주십시오." ,  "조선일보 MIS" , 1) == 1 ){
+				//		collect_yn = "Y";
+				//	} else {
+				//		collect_yn = "N";
+				//	}
+				//}
+				//model.setValue("/root/reqData/searchData/collect_yn", collect_yn);
+				if (cnt == 0){
+					for (var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+						datagrid2.valueMatrix(i, datagrid2.colRef("chk_a")) = "1";
+						datagrid2.valueMatrix(i, datagrid2.colRef("chk_b")) = "1";
+						datagrid2.valueMatrix(i, datagrid2.colRef("chk_c")) = "1";
+						datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("b_base")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("c_base")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("b_base_l")) = 0;
+						datagrid2.valueMatrix(i, datagrid2.colRef("c_base_l")) = 0;
+					}
+				}
+				
+				for (var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+					datagrid2.rowStatus(i) = 1;
+					qty = eval(datagrid2.valueMatrix(i, datagrid2.colRef("slip_qty"))); //부수
+					
+					if (datagrid2.valueMatrix(i, datagrid2.colRef("pap_std")) == "T"){ //면수세팅
+						tmpPcnt = eval(datagrid2.valueMatrix(i, datagrid2.colRef("issu_pcnt"))) / 2;
+					} else {
+						tmpPcnt = eval(datagrid2.valueMatrix(i, datagrid2.colRef("issu_pcnt")));
+					}
+					if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){ //스포츠인 경우
+						wgt 	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+						wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+					} else if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){ //포커스인 경우
+						wgt 	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) * 1.015);
+						wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung));
+					} else {
+						wgt 	= Math.round(tmpPcnt * qty / 4000 * eval(pyung));
+						wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung));
+					}
+					datagrid2.valueMatrix(i, datagrid2.colRef("tot_wgt_l")) = wgt_l;
+					/* 값이 A,B,C 모두 0이면*/
+					if (datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) == "0" &&  datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) == "0" && datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) == "0") {
+						datagrid2.valueMatrix(i, datagrid2.colRef("chk_a")) = "1";
+						
+						//민 추가
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){ // 스포츠 A권 세팅
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))      = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))    = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))    = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+						} else if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){ // 포커스 A권 세팅
+							if (tmpPcnt == 36){
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * 32) / 4000 * eval(pyung));
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * 32) / 4000 * eval(pyung)) * 1.015;
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * 32) / 4000 * eval(pyung));
+								
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))    = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))      = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) * 1.015);
+								
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+							} else { 
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))   = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))     = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) * 1.015);
+							}
+						} else {// 나머지 외간 A권 세팅
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))      = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) )
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * tmpPcnt) / 4000 * eval(pyung) );
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))   = Math.round((qty * tmpPcnt) / 4000 * eval(pyung));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * tmpPcnt) / 4000 * eval(pyung));
+//							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))      = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+//							datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+//							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))   = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+//							datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+						}
+						datagrid2.valueMatrix(i, datagrid2.colRef("a_roll")) = Math.ceil(eval(datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))) / eval(datagrid2.valueMatrix(i, datagrid2.colRef("a_rwgt"))));
+							datagrid2.valueMatrix(i, datagrid2.colRef("b_roll")) = Math.ceil(eval(datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"))) / eval(datagrid2.valueMatrix(i, datagrid2.colRef("b_rwgt"))));
+							datagrid2.valueMatrix(i, datagrid2.colRef("c_roll")) = Math.ceil(eval(datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt"))) / eval(datagrid2.valueMatrix(i, datagrid2.colRef("c_rwgt"))));
+						//민 추가 끝
+						/*
+						// A권 세팅 
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){ // 스포츠 A권 세팅
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))      = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))    = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))    = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+						} else if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){ // 포커스 A권 세팅
+							if (tmpPcnt == 36){
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * 32) / 4000 * eval(pyung));
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * 32) / 4000 * eval(pyung)) * 1.015;
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * 32) / 4000 * eval(pyung));
+								
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))    = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))      = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+							} else { 
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))   = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))     = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+							}
+						} else {// 나머지 외간 A권 세팅
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))      = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) )
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))   = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+						}
+						// B 권 세팅
+						if ((tmpPcnt  % 8) != 0 && (tmpPcnt % 8) != 4) {		//B 권 세팅
+							datagrid2.valueMatrix(i, datagrid2.colRef("chk_b")) = "1";
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){ 
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"))     = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l"))   = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_base"))   = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_base_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								
+							} else if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){
+								if (tmpPcnt == 36){
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))     = Math.round((qty * 24) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))   = Math.round((qty * 24) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * 24) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * 24) / 4000 * eval(pyung) );
+								} else {
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l"))    = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))      = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base"))   = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								}
+							} else {
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"))     = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l"))   = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_base"))   = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_base_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+							}
+						} 
+						// C 권 세팅 
+						if (tmpPcnt % 4 == 0) {		//C
+							datagrid2.valueMatrix(i, datagrid2.colRef("chk_c")) = "1";
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt"))     = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l"))   = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_base"))   = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_base_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								
+							} else if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){
+								
+								if (tmpPcnt == 36){
+									//datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l")) = Math.round((qty * 16) / 4000 * eval(pyung) );
+									//datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) = Math.round((qty * 16) / 4000 * eval(pyung) * 1.015);
+									//datagrid2.valueMatrix(i, datagrid2.colRef("c_base_l")) = Math.round((qty * 16) / 4000 * eval(pyung) );
+									//datagrid2.valueMatrix(i, datagrid2.colRef("c_base")) = Math.round((qty * 16) / 4000 * eval(pyung) * 1.015);
+									
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l"))   = Math.round((qty * Math.floor(tmpPcnt % 8)) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt"))     = Math.round((qty * Math.floor(tmpPcnt % 8)) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_base_l")) = Math.round((qty * Math.floor(tmpPcnt % 8)) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_base"))   = Math.round((qty * Math.floor(tmpPcnt % 8)) / 4000 * eval(pyung) * 1.015);
+								} else {
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l"))   = Math.round((qty * Math.floor(tmpPcnt % 8)) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt"))     = Math.round((qty * Math.floor(tmpPcnt % 8)) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_base_l")) = Math.round((qty * Math.floor(tmpPcnt % 8)) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_base"))   = Math.round((qty * Math.floor(tmpPcnt % 8)) / 4000 * eval(pyung) * 1.015);
+								}
+							} else{
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt"))     = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l"))   = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_base"))   = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_base_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+							}
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_roll")) = Math.ceil(eval(datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))) / eval(datagrid2.valueMatrix(i, datagrid2.colRef("a_rwgt"))));
+							datagrid2.valueMatrix(i, datagrid2.colRef("b_roll")) = Math.ceil(eval(datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"))) / eval(datagrid2.valueMatrix(i, datagrid2.colRef("b_rwgt"))));
+							datagrid2.valueMatrix(i, datagrid2.colRef("c_roll")) = Math.ceil(eval(datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt"))) / eval(datagrid2.valueMatrix(i, datagrid2.colRef("c_rwgt"))));
+								
+						}*/
+					} else { //값이 있으면
+						//alert("조회..");
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){ //스포츠
+							//datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							//datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"));
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+							
+						} else if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){ //포커스
+							if (tmpPcnt == 36){
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * 32) / 4000 * eval(pyung));
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * 32) / 4000 * eval(pyung));
+							} else {
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+							}
+						} else {
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+							datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+						}
+						
+						if ((tmpPcnt  % 8) != 0 && (tmpPcnt % 8) != 4) {		//B권
+							datagrid2.valueMatrix(i, datagrid2.colRef("chk_b")) = "1";
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){ //스포츠
+								//datagrid2.valueMatrix(i, datagrid2.colRef("b_base")) = datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"));
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l")) = datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"));
+								//datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_base")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_base_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								
+							} else if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){ //포커스
+								if (tmpPcnt == 36){
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * 24) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * 24) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * 24) / 4000 * eval(pyung) );
+								} else {
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								}
+							} else {
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_base")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("b_base_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+							}
+						} 
+					
+						if (tmpPcnt % 8 == 4) {		//C권셋팅
+							datagrid2.valueMatrix(i, datagrid2.colRef("chk_c")) = "1";
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){ //스포츠
+								//datagrid2.valueMatrix(i, datagrid2.colRef("c_base")) = datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt"));
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l")) = datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt"));
+								//datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_base")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_base_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								
+							} else if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){ //포커스
+								if (tmpPcnt == 36){
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * 16) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * 16) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * 16) / 4000 * eval(pyung) * 1.015);
+								} else {
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_base")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								}
+							} else{
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_base")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) );
+								datagrid2.valueMatrix(i, datagrid2.colRef("c_base_l")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+							}
+						}
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("coll_yn")) == "1"){
+							setCollValue(i, true);
+						}
+					}
+					datagrid2.colHidden(datagrid2.colRef("chk_a")) = true;
+					datagrid2.colHidden(datagrid2.colRef("a_wgt")) = false;
+					datagrid2.colHidden(datagrid2.colRef("chk_b")) = true;
+					datagrid2.colHidden(datagrid2.colRef("b_wgt")) = false;
+					datagrid2.colHidden(datagrid2.colRef("chk_c")) = true;
+					datagrid2.colHidden(datagrid2.colRef("c_wgt")) = false;
+					datagrid2.valueMatrix(i, datagrid2.colRef("prt_wgt")) = eval(datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")));
+				}
+/*	
+				} else {
+
+					for (var i=1; i<datagrid2.rows; i++){
+						datagrid2.rowStatus(i) = 1;
+						qty = eval(datagrid2.valueMatrix(i, datagrid2.colRef("slip_qty")));
+						
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("pap_std")) == "T"){
+							tmpPcnt = eval(datagrid2.valueMatrix(i, datagrid2.colRef("issu_pcnt"))) / 2;
+						} else {
+							tmpPcnt = eval(datagrid2.valueMatrix(i, datagrid2.colRef("issu_pcnt")));
+						}
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) == "0" &&  datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) == "0" && datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) == "0") {
+							datagrid2.valueMatrix(i, datagrid2.colRef("chk_a")) = "1";
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){
+								if (tmpPcnt == 36){
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * 16) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * 16) / 4000 * eval(pyung) );
+								} else if (tmpPcnt == 40){
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * 32) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt_l")) = Math.round((qty * 32) / 4000 * eval(pyung) );
+								} else {
+									datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+								}
+								//datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round(qty * 16 * 4 /8000 * 19.791 * 1.015);
+							}
+							
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){
+								if (tmpPcnt == 36){
+									datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) = Math.round((qty * 12) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l")) = Math.round((qty * 12) / 4000 * eval(pyung) );
+								} else if (tmpPcnt == 40){
+									datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) = 0;
+									datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l")) = 0;
+								} else {
+									datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+								}
+								//datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015);
+							}
+						
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0008"){
+								//alert(tmpPcnt - (Math.floor(tmpPcnt / 8) * 8));
+								//datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015);
+								if (tmpPcnt == 36){
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l")) = Math.round((qty * 8) / 4000 * eval(pyung) );
+								} else if (tmpPcnt == 40){
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) = Math.round((qty * 8) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l")) = Math.round((qty * 8) / 4000 * eval(pyung) );
+								} else {
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt_l")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) );
+								}
+							}
+						}
+						datagrid2.colHidden(11) = true;
+						datagrid2.colHidden(12) = false;
+						datagrid2.colHidden(13) = true;
+						datagrid2.colHidden(14) = false;
+						datagrid2.colHidden(15) = true;
+						datagrid2.colHidden(16) = false;
+						datagrid2.valueMatrix(i, datagrid2.colRef("prt_wgt")) = eval(datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")));
+					}
+					
+					for (var i=1; i<datagrid2.rows; i++){
+						datagrid2.rowStatus(i) = 1;
+						qty = eval(datagrid2.valueMatrix(i, datagrid2.colRef("slip_qty")));
+						
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("pap_std")) == "T"){
+							tmpPcnt = eval(datagrid2.valueMatrix(i, datagrid2.colRef("issu_pcnt"))) / 2;
+						} else {
+							tmpPcnt = eval(datagrid2.valueMatrix(i, datagrid2.colRef("issu_pcnt")));
+						}
+	
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) == "0" &&  datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) == "0" && datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) == "0") {
+							datagrid2.valueMatrix(i, datagrid2.colRef("chk_a")) = "1";
+							if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							} else {
+								datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+							}
+							
+							if ((tmpPcnt  % 8) != 0 && (tmpPcnt % 8) != 4) {		//B
+								datagrid2.valueMatrix(i, datagrid2.colRef("chk_b")) = "1";
+								if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){
+									datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								} else {
+									datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								}
+							} 
+						
+							if (tmpPcnt % 8 == 4) {		//C
+								datagrid2.valueMatrix(i, datagrid2.colRef("chk_c")) = "1";
+								if (datagrid2.valueMatrix(i, datagrid2.colRef("sect_cd")) == "0001"){
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								} else{
+									datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								}
+							}
+						}
+						
+						datagrid2.colHidden(11) = true;
+						datagrid2.colHidden(12) = false;
+						datagrid2.colHidden(13) = true;
+						datagrid2.colHidden(14) = false;
+						datagrid2.colHidden(15) = true;
+						datagrid2.colHidden(16) = false;
+						datagrid2.valueMatrix(i, datagrid2.colRef("prt_wgt")) = eval(datagrid2.valueMatrix(i, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(i, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(i, datagrid2.colRef("c_wgt")));
+					}
+				}
+*/
+				button9.disabled = true;
+				/*
+				for (var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+					//alert(datagrid2.valueMatrix(i, 11) +"\n"+ datagrid2.valueMatrix(i, 13) + "\n" + datagrid2.valueMatrix(i, 15));
+					if (datagrid2.valueMatrix(i, datagrid2.colRef("chk_a")) == "0"){
+						datagrid2.isReadOnly(i, datagrid2.colRef("a_wgt"), i, datagrid2.colRef("a_wgt")) = true;
+					}
+					if (datagrid2.valueMatrix(i, datagrid2.colRef("chk_b")) == "0"){
+						datagrid2.isReadOnly(i, datagrid2.colRef("b_wgt"), i, datagrid2.colRef("b_wgt")) = true;
+					}
+					if (datagrid2.valueMatrix(i, datagrid2.colRef("chk_c")) == "0"){
+						datagrid2.isReadOnly(i, datagrid2.colRef("c_wgt"), i, datagrid2.colRef("c_wgt")) = true;
+					}
+				}
+				*/
+					 //datagrid1.refresh();
+				datagrid2.refresh();
+				
+				
+				for (var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+					datagrid1.rowStatus(i) = 1;
+					qty = eval(datagrid1.valueMatrix(i, datagrid1.colRef("slip_qty")));
+					
+					if (datagrid1.valueMatrix(i, datagrid1.colRef("pap_std")) == "T"){ //면수세팅
+						tmpPcnt = eval(datagrid1.valueMatrix(i, datagrid1.colRef("issu_pcnt"))) / 2;
+					} else {
+						tmpPcnt = eval(datagrid1.valueMatrix(i, datagrid1.colRef("issu_pcnt")));
+					}
+
+					
+					if (datagrid1.valueMatrix(i, datagrid1.colRef("sub_seq")) == "") {
+						datagrid1.valueMatrix(i, datagrid1.colRef("chk_a")) = "1";
+						if (datagrid1.valueMatrix(i, datagrid1.colRef("sect_cd")) == "0001"){
+							datagrid1.valueMatrix(i, datagrid1.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+						} else if (datagrid1.valueMatrix(i, datagrid1.colRef("sect_cd")) == "0008"){
+							datagrid1.valueMatrix(i, datagrid1.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * 1.015);
+						} else {
+							if(datagrid1.valueMatrix(i, datagrid1.colRef("medi_cd")) == "116"){ //맛있는한자
+								datagrid1.valueMatrix(i, datagrid1.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 12) * 8) / 4000 * eval(pyung));
+							}
+							else{
+								datagrid1.valueMatrix(i, datagrid1.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+							}
+						}
+						
+						if ((tmpPcnt  % 8) != 0 && (tmpPcnt % 8) != 4) {		//B
+							datagrid1.valueMatrix(i, datagrid1.colRef("chk_b")) = "1";
+							if (datagrid1.valueMatrix(i, datagrid1.colRef("sect_cd")) == "0001"){
+								datagrid1.valueMatrix(i, datagrid1.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							} else if (datagrid1.valueMatrix(i, datagrid1.colRef("sect_cd")) == "0008"){
+								datagrid1.valueMatrix(i, datagrid1.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015);
+							} else {
+								if(datagrid1.valueMatrix(i, datagrid1.colRef("medi_cd")) == "116"){ //맛있는한자
+									datagrid1.valueMatrix(i, datagrid1.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 4)) / 4000 * eval(pyung));
+								}
+								else{
+									datagrid1.valueMatrix(i, datagrid1.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								}
+							}
+						} 
+					
+						if (tmpPcnt % 8 == 4 || tmpPcnt % 8 == 2  ) {		//C
+						
+							datagrid1.valueMatrix(i, datagrid1.colRef("chk_c")) = "1";
+							if (datagrid1.valueMatrix(i, datagrid1.colRef("sect_cd")) == "0001"){
+								datagrid1.valueMatrix(i, datagrid1.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							} else if (datagrid1.valueMatrix(i, datagrid1.colRef("sect_cd")) == "0008"){
+								datagrid1.valueMatrix(i, datagrid1.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * 1.015);
+							} else {
+								if(datagrid1.valueMatrix(i, datagrid1.colRef("medi_cd")) == "116"){ //맛있는한자
+									datagrid1.valueMatrix(i, datagrid1.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 6)) / 4000 * eval(pyung));
+								}
+								else{
+									datagrid1.valueMatrix(i, datagrid1.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								}
+							}
+						}
+					}
+					datagrid1.colHidden(datagrid1.colRef("chk_a")) = true;
+					datagrid1.colHidden(datagrid1.colRef("a_roll")) = false;
+					datagrid1.colHidden(datagrid1.colRef("a_wgt")) = false;
+					datagrid1.colHidden(datagrid1.colRef("chk_b")) = true;
+					datagrid1.colHidden(datagrid1.colRef("b_roll")) = false;
+					datagrid1.colHidden(datagrid1.colRef("b_wgt")) = false;
+					datagrid1.colHidden(datagrid1.colRef("chk_c")) = true;
+					datagrid1.colHidden(datagrid1.colRef("c_roll")) = false;
+					datagrid1.colHidden(datagrid1.colRef("c_wgt")) = false;
+					datagrid1.valueMatrix(i, datagrid1.colRef("prt_wgt")) = eval(datagrid1.valueMatrix(i, datagrid1.colRef("a_wgt"))) + eval(datagrid1.valueMatrix(i, datagrid1.colRef("b_wgt"))) + eval(datagrid1.valueMatrix(i, datagrid1.colRef("c_wgt")));
+				}
+					
+				button5.disabled = true;
+				
+
+
+				for (var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+					//alert(datagrid2.valueMatrix(i, 11) +"\n"+ datagrid2.valueMatrix(i, 13) + "\n" + datagrid2.valueMatrix(i, 15));
+					if (datagrid1.valueMatrix(i, 12) == "0"){
+						datagrid1.isReadOnly(i, 13, i, 13) = true;
+					}
+					if (datagrid1.valueMatrix(i, 14) == "0"){
+						datagrid1.isReadOnly(i, 15, i, 15) = true;
+					}
+					if (datagrid1.valueMatrix(i, 16) == "0"){
+						datagrid1.isReadOnly(i, 17, i, 17) = true;
+					}
+				}
+				datagrid1.refresh();
+				
+				
+				model1.setValue("/root/resData/resForm/arvyul", model1.getValue("/root/tempData/arvyul"));
+				model1.setValue("/root/resData/resForm/pajiyul", model1.getValue("/root/tempData/pajiyul"));
+				model1.copyNode("/root/resData/roll_wgt", "/root/tempData/roll_wgt");
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" style="left:775px; top:49px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(!commGridReqCheck("datagrid2")) return;
+				if(!commGridReqCheck("datagrid1")) return;
+				
+				model1.makeNode("/root/reqData/searchData/muiltUpdate1");
+				model1.setValue("/root/reqData/searchData/muiltUpdate1", datagrid2.getUpdateData());
+				
+				model1.makeNode("/root/reqData/searchData/muiltUpdate2");
+				model1.setValue("/root/reqData/searchData/muiltUpdate2", datagrid1.getUpdateData());
+				
+				model1.send("mt_papinout_3102");
+				
+				if(submit_completed()) {
+					
+					datagrid2.clearStatus();
+					datagrid1.clearStatus();
+					
+					model1.destroy("/root/reqData/searchData/muiltUpdate1");
+					model1.destroy("/root/reqData/searchData/muiltUpdate2");
+					
+					button1.dispatch("onclick");
+				}
+					     
+				/*
+				var cnt = 0;
+				var strHead = "medi_cd#sect_cd#matr_cd#paper_clsf#use_qunt";
+				var strDataTmp = "";
+				            
+				for (var i = 5 ; i < datagrid1.cols; i++){
+					for ( var ii = 2 ; ii < datagrid1.rows; ii++){
+						if( Number(datagrid1.valueMatrix(ii, i )) > 0 ) {
+							cnt = cnt + 1;
+							strDataTmp = strDataTmp + "|" + multiupDateStr(ii, i );
+						}
+					}
+					i = i + 1;
+				}
+					     
+				if( cnt == 0 ){
+					alert("입력된 데이터가 없습니다.");
+					return ;
+				}
+					     
+					     var mulitUpdata = strHead + strDataTmp ;
+					     
+					     model1.makeNode("/root/reqData/searchData/muiltUpdate");
+					     model1.setValue("/root/reqData/searchData/muiltUpdate", mulitUpdata);
+					     
+					     model1.send("mt_papinout_3102");
+					     model1.destroy("/root/reqData/searchData/muiltUpdate");
+					     
+					     button1.dispatch("onclick");
+				*/
+				]]>
+			</script>
+		</button>
+		<button id="btnA4" class="btn02" style="left:885px; top:49px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:350px; height:27px; ">외간 선인쇄 자재 분리</caption>
+		<group id="group2" class="gro_sel" style="left:10px; top:80px; width:926px; height:30px; ">
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:80px; height:24px; text-align:center; ">인쇄일자</caption>
+			<caption id="caption5" class="list_cap02" style="left:79px; top:0px; width:847px; height:24px; text-align:center; "/>
+			<caption id="caption35" class="list_cap01" style="left:325px; top:0px; width:80px; height:24px; text-align:center; ">공  장</caption>
+			<input id="input1" ref="/root/reqData/searchData/issu_dt" class="req" inputtype="date" caption="입출고 일자" appearance="input" style="left:84px; top:3px; width:116px; height:18px; background-color:#ffffcc; border-color:#999999; "/>
+			<select1 id="combo1" ref="/root/reqData/searchData/fac_clsf" class="req" appearance="minimal" caption="공장" style="left:410px; top:3px; width:113px; height:18px; background-color:#ffffcc; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<datagrid id="datagrid2" nodeset="/root/resData/top_gridData/record" caption="구분^발행일자^매체^섹션^외간매체^규격^면수^컬러면수^흑백면수^부수^제지사^사용량A^사용량A^사용량A^사용량A^사용량C^사용량C^사용량C^사용량C^사용량B^사용량B^사용량B^사용량B^사용량^인쇄구분^occr_dt^seq^사용량A^사용량A^사용량B^사용량B^사용량C^사용량C^롤당중량A^롤당중량B^롤당중량C^총사용량|구분^발행일자^매체^섹션^외간매체^규격^면수^컬러면수^흑백면수^부수^제지사^사용여부^롤수^중량^사용량^사용여부^롤수^중량^사용량^사용여부^롤수^중량^사용량^사용량^인쇄구분^occr_dt^seq^사용량A^사용량A^사용량B^사용량B^사용량C^사용량C^롤당중량A^롤당중량B^롤당중량C^총사용량" colsep="#" colwidth="35, 80, 60, 60, 100, 40, 50, 55, 55, 60, 90, 60, 50, 70, 70, 60, 50, 70, 70, 60, 50, 70, 70, 70, 60, 70, 50, 70, 70, 70, 70, 70, 70, 60, 60, 60, 70" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:11px; top:145px; width:925px; height:130px; ">
+			<col checkvalue="1,0" ref="coll_yn" type="checkbox" visibility="hidden"/>
+			<col ref="issu_dt" format="yyyy-mm-dd"/>
+			<col ref="medi_cd" visibility="hidden"/>
+			<col ref="sect_cd" visibility="hidden"/>
+			<col ref="sect_nm"/>
+			<col ref="pap_std"/>
+			<col ref="issu_pcnt"/>
+			<col ref="clr_pcnt"/>
+			<col ref="bw_pcnt"/>
+			<col ref="slip_qty" format="#,###"/>
+			<col class="req" ref="papcmpy_cd" type="combo" caption="제지사" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/papcmpy_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col checkvalue="1,0" ref="chk_a" type="checkbox"/>
+			<col ref="a_roll" type="input" format="#,###"/>
+			<col ref="a_wgt" type="input" format="#,###"/>
+			<col ref="a_base" visibility="hidden" format="#,###"/>
+			<col checkvalue="1,0" ref="chk_c" type="checkbox"/>
+			<col ref="c_roll" type="input" format="#,###"/>
+			<col ref="c_wgt" type="input" format="#,###"/>
+			<col ref="c_base" visibility="hidden" format="#,###"/>
+			<col checkvalue="1,0" ref="chk_b" type="checkbox"/>
+			<col ref="b_roll" type="input" format="#,###"/>
+			<col ref="b_wgt" type="input" format="#,###"/>
+			<col ref="b_base" visibility="hidden" format="#,###"/>
+			<col ref="prt_wgt" format="#,###"/>
+			<col ref="prt_clsf" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="a_wgt_l" visibility="hidden" format="#,###"/>
+			<col ref="a_base_l" visibility="hidden" format="#,###"/>
+			<col ref="b_wgt_l" visibility="hidden" format="#,###"/>
+			<col ref="b_base_l" visibility="hidden" format="#,###"/>
+			<col ref="c_wgt_l" visibility="hidden" format="#,###"/>
+			<col ref="c_base_l" visibility="hidden" format="#,###"/>
+			<col ref="a_rwgt" visibility="hidden" format="#,###"/>
+			<col ref="b_rwgt" visibility="hidden" format="#,###"/>
+			<col ref="c_rwgt" visibility="hidden" format="#,###"/>
+			<col ref="tot_wgt_l" visibility="hidden" format="#,###"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var a_check	= "";
+					var b_check	= "";
+					var c_check	= "";
+					
+					var col			= datagrid2.col;
+					var row			= datagrid2.row;
+					var tmpVal	= 0;
+					var qty			= eval(datagrid2.valueMatrix(row, datagrid2.colRef("slip_qty")));
+					var tmpPcnt	= 0;
+					var pyung		= model.getValue("/root/tempData/arvyul");
+					var pajiyul		= model.getValue("/root/tempData/pajiyul");
+					var coll_yn	= 0;
+					var prt_wgt	= 0;
+					var prt_wgt_l	= 0;
+					var chk_cnt	= 0;
+					
+					if (datagrid2.valueMatrix(row, datagrid2.colRef("pap_std")) == "T"){
+						tmpPcnt = eval(datagrid2.valueMatrix(row, datagrid2.colRef("issu_pcnt"))) / 2;
+					} else {
+						tmpPcnt = eval(datagrid2.valueMatrix(row, datagrid2.colRef("issu_pcnt")));
+					}
+					//alert(datagrid2.valueMatrix(row, datagrid2.colRef("coll_yn")));
+					
+					/*총중량, 이론중량 구하기*/
+					if (datagrid2.valueMatrix(row, datagrid2.colRef("coll_yn")) == "1"){
+						if (datagrid2.valueMatrix(row, datagrid2.colRef("sect_cd")) == "0001"){ //스포츠
+							prt_wgt 		= Math.round(tmpPcnt * qty / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							prt_wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) );
+						} else if (datagrid2.valueMatrix(row, datagrid2.colRef("sect_cd")) == "0008"){ //포커스
+							prt_wgt 		= Math.round(tmpPcnt * qty / 4000 * eval(pyung) * 1.015);
+							prt_wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) );
+						} else {
+							prt_wgt 		= Math.round(tmpPcnt * qty / 4000 * eval(pyung) );
+							prt_wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) );
+						}
+					} else {
+						if (datagrid2.valueMatrix(row, datagrid2.colRef("sect_cd")) == "0001"){ //스포츠
+							prt_wgt 		= Math.round(tmpPcnt * qty / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+							prt_wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+						} else if (datagrid2.valueMatrix(row, datagrid2.colRef("sect_cd")) == "0008"){ //포커스
+							prt_wgt 		= Math.round(tmpPcnt * qty / 4000 * eval(pyung) * 1.015);
+							prt_wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) );
+						} else {
+							prt_wgt 		= Math.round(tmpPcnt * qty / 4000 * eval(pyung) );
+							prt_wgt_l	= Math.round(tmpPcnt * qty / 4000 * eval(pyung) );
+						}
+					}
+					
+					if (col == 1){
+						if (datagrid2.valueMatrix(row, col) == "1"){
+							if ( window.alert("컬렉트 런을 적용하시겠습니까?" ,  "조선일보 MIS" , 1) == 1 ){
+								coll_yn = 1;
+								setCollValue(row, true);
+								return;
+							} else {
+								coll_yn = 0;
+							}
+						} else {
+							if ( window.alert("컬렉트 런을 적용하지 않겠습니까?" ,  "조선일보 MIS" , 1) == 1 ){
+								coll_yn = 0;
+							} else {
+								coll_yn = 1;
+								setCollValue2(row, false);
+								return;
+							}
+						}
+					} else if (col == 12){ //a권 체크
+						if (datagrid2.valueMatrix(row, datagrid2.colRef("chk_a")) == "1"){
+							datagrid2.isReadOnly(row, datagrid2.colRef("a_wgt"), row, datagrid2.colRef("a_wgt")) = false;
+							datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))   = datagrid2.valueMatrix(row, datagrid2.colRef("a_base"));
+							datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt_l")) = datagrid2.valueMatrix(row, datagrid2.colRef("a_base_l"));
+						} else {
+							datagrid2.isReadOnly(row, datagrid2.colRef("a_wgt"), row, datagrid2.colRef("a_wgt")) = false;
+							datagrid2.valueMatrix(row, datagrid2.colRef("a_roll"))    = 0;
+							datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))   = 0;
+							datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt_l")) = 0;
+						}
+					} else if (col == 13){
+						datagrid2.valueMatrix(row, datagrid2.colRef("a_base")) = datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"));
+						datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt")) = eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")));
+					} else if (col == 20){
+						if (datagrid2.valueMatrix(row, datagrid2.colRef("chk_b")) == "1"){
+							datagrid2.isReadOnly(row, datagrid2.colRef("b_wgt"), row, datagrid2.colRef("b_wgt")) = false;
+							datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))   = datagrid2.valueMatrix(row, datagrid2.colRef("b_base"));
+							datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt_l")) = datagrid2.valueMatrix(row, datagrid2.colRef("b_base_l"));
+						} else {
+							datagrid2.isReadOnly(row, datagrid2.colRef("b_wgt"), row, datagrid2.colRef("b_wgt")) = false;
+							datagrid2.valueMatrix(row, datagrid2.colRef("b_roll"))    = 0;
+							datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))   = 0;
+							datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt_l")) = 0;
+						}
+						//datagrid2.valueMatrix(row, datagrid2.colRef("c_base")) = datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt"));
+						//datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt")) = eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")));
+					} else if (col == 19){
+						datagrid2.valueMatrix(row, datagrid2.colRef("b_base")) = datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"));
+						datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt")) = eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")));
+					} else if (col == 16){
+						if (datagrid2.valueMatrix(row, datagrid2.colRef("chk_c")) == "1"){
+							datagrid2.isReadOnly(row, datagrid2.colRef("c_wgt"), row, datagrid2.colRef("c_wgt")) = false;
+							datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")) = datagrid2.valueMatrix(row, datagrid2.colRef("c_base"));
+							datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt_l")) = datagrid2.valueMatrix(row, datagrid2.colRef("c_base_l"));
+						} else {
+							datagrid2.isReadOnly(row, datagrid2.colRef("c_wgt"), row, datagrid2.colRef("c_wgt")) = false;
+							datagrid2.valueMatrix(row, datagrid2.colRef("c_roll")) = 0;
+							datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")) = 0;
+							datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt_l")) = 0;
+						}
+					}
+					/* abc합계가 이론중량합과 다르면 차이를 a권에 더함 
+					   사용자가 정한값이 들어가지 않아 주석처리함 20100209이민효
+					if ( ( eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")))) != eval(datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt"))) ){
+						datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt")) = eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + (eval(datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt"))) - ( eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt"))) ) );
+						datagrid2.valueMatrix(row, datagrid2.colRef("a_roll")) = Math.ceil(eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) / eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_rwgt"))));
+					}*/
+					//datagrid2.refresh();
+					/*
+					
+					if (datagrid2.valueMatrix(row, datagrid2.colRef("chk_b")) == "1"){
+						datagrid2.isReadOnly(row, datagrid2.colRef("b_wgt"), row, datagrid2.colRef("b_wgt")) = false;
+						datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt")) = datagrid2.valueMatrix(row, datagrid2.colRef("b_base"));
+						datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt_l")) = datagrid2.valueMatrix(row, datagrid2.colRef("b_base_l"));
+					} else {
+						datagrid2.isReadOnly(row, datagrid2.colRef("b_wgt"), row, datagrid2.colRef("b_wgt")) = false;
+						datagrid2.valueMatrix(row, datagrid2.colRef("b_roll")) = 0;
+						datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt")) = 0;
+						datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt_l")) = 0;
+					}
+					if (datagrid2.valueMatrix(row, datagrid2.colRef("chk_c")) == "1"){
+						datagrid2.isReadOnly(row, datagrid2.colRef("c_wgt"), row, datagrid2.colRef("c_wgt")) = false;
+						datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")) = datagrid2.valueMatrix(row, datagrid2.colRef("c_base"));
+						datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt_l")) = datagrid2.valueMatrix(row, datagrid2.colRef("c_base_l"));
+					} else {
+						datagrid2.isReadOnly(row, datagrid2.colRef("c_wgt"), row, datagrid2.colRef("c_wgt")) = false;
+						datagrid2.valueMatrix(row, datagrid2.colRef("c_roll")) = 0;
+						datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")) = 0;
+						datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt_l")) = 0;
+					}
+					
+					//if ( ( eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")))) != prt_wgt ){
+					if ( ( eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")))) != eval(datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt"))) ){
+						if (datagrid2.valueMatrix(row, datagrid2.colRef("chk_a")) == "1"){
+							//alert(prt_wgt);
+							//alert(eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt"))));
+							datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt")) = prt_wgt;
+							datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt")) = ( eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt"))) ) - (eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt"))) );
+							datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt_l")) = ( eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt_l"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("tot_wgt_l"))) )  - (eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt_l"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt_l"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt_l"))) );
+							datagrid2.valueMatrix(row, datagrid2.colRef("a_roll")) = Math.ceil(eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) / eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_rwgt"))));
+						}
+						if (datagrid2.valueMatrix(row, datagrid2.colRef("chk_c")) == "1"){
+							datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt")) = prt_wgt;
+							datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")) = ( eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt"))) )  - (eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt"))) );
+							datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt_l")) = ( eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt_l"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("tot_wgt_l"))) )  - (eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt_l"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt_l"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt_l"))) );
+							datagrid2.valueMatrix(row, datagrid2.colRef("c_roll")) = Math.ceil(eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt"))) / eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_rwgt"))));
+						}
+					}
+					*/
+					datagrid2.valueMatrix(row, datagrid2.colRef("prt_wgt")) = eval(datagrid2.valueMatrix(row, datagrid2.colRef("a_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("b_wgt"))) + eval(datagrid2.valueMatrix(row, datagrid2.colRef("c_wgt")));
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				var col			= datagrid2.col;
+				var row			= datagrid2.row;
+				
+				if (col > 11 && col < 23){
+					datagrid2.colHidden(datagrid2.colRef("chk_a")) = false;
+					datagrid2.colHidden(datagrid2.colRef("chk_b")) = false;
+					datagrid2.colHidden(datagrid2.colRef("chk_c")) = false;
+					datagrid2.colHidden(datagrid2.colRef("a_roll")) = true;
+					datagrid2.colHidden(datagrid2.colRef("b_roll")) = true;
+					datagrid2.colHidden(datagrid2.colRef("c_roll")) = true;
+					datagrid2.colHidden(datagrid2.colRef("a_wgt")) = true;
+					datagrid2.colHidden(datagrid2.colRef("b_wgt")) = true;
+					datagrid2.colHidden(datagrid2.colRef("c_wgt")) = true;
+					
+					button9.disabled = false;
+				}
+				]]>
+			</script>
+		</datagrid>
+		<button id="button3" class="btn02" style="left:830px; top:49px; width:52px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model1.send("mt_papinout_3103");
+				
+				button1.dispatch("onclick");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" style="left:665px; top:49px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model1.reset();
+				//initGrid1Data();
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn_grid05" style="left:817px; top:120px; width:120px; height:17px; background-image:../../../images/btn_s_9.gif; ">
+			<caption>V표시후 사용량확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					for (var i=datagrid2.fixedRows; i<datagrid2.rows; i++){	
+						if (datagrid2.valueMatrix(i, datagrid2.colRef("chk_a")) != "1" && datagrid2.valueMatrix(i, datagrid2.colRef("chk_b")) != "1" && datagrid2.valueMatrix(i, datagrid2.colRef("chk_c")) != "1"){
+							alert("외간사용량에 대해서 A,B,C 중에서 한개는 선택해주십시오.");
+							return;
+						}
+					}
+					datagrid2.colHidden(datagrid2.colRef("chk_a")) = true;
+					datagrid2.colHidden(datagrid2.colRef("chk_b")) = true;
+					datagrid2.colHidden(datagrid2.colRef("chk_c")) = true;
+					datagrid2.colHidden(datagrid2.colRef("a_roll")) = false;
+					datagrid2.colHidden(datagrid2.colRef("b_roll")) = false;
+					datagrid2.colHidden(datagrid2.colRef("c_roll")) = false;
+					datagrid2.colHidden(datagrid2.colRef("a_wgt")) = false;
+					datagrid2.colHidden(datagrid2.colRef("b_wgt")) = false;
+					datagrid2.colHidden(datagrid2.colRef("c_wgt")) = false;
+					
+					button9.disabled = true;
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/pre_gridData/record" caption="발행일자^매체^매체^섹션^섹션^규격^면수^컬러면수^흑백면수^부수^제지사^사용량A^사용량A^사용량C^사용량C^사용량B^사용량B^사용량^인쇄구분^occr_dt^seq^sub_seq" colsep="#" colwidth="80, 60, 100, 60, 100, 40, 50, 55, 55, 60, 95, 75, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:11px; top:320px; width:925px; height:130px; ">
+			<col ref="issu_dt" format="yyyy-mm-dd"/>
+			<col ref="medi_cd" visibility="hidden"/>
+			<col ref="medi_nm"/>
+			<col ref="sect_cd" visibility="hidden"/>
+			<col ref="sect_nm"/>
+			<col ref="pap_std"/>
+			<col ref="issu_pcnt"/>
+			<col ref="clr_pcnt"/>
+			<col ref="bw_pcnt"/>
+			<col ref="slip_qty" format="#,###"/>
+			<col class="req" ref="papcmpy_cd" type="combo" caption="제지사" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/papcmpy_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col checkvalue="1,0" ref="chk_a" type="checkbox"/>
+			<col ref="a_wgt" type="input" format="#,###"/>
+			<col checkvalue="1,0" ref="chk_c" type="checkbox"/>
+			<col ref="c_wgt" type="input" format="#,###"/>
+			<col checkvalue="1,0" ref="chk_b" type="checkbox"/>
+			<col ref="b_wgt" type="input" format="#,###"/>
+			<col ref="prt_wgt" format="#,###"/>
+			<col ref="prt_clsf" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="sub_seq" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var a_check		= "";
+					var b_check		= "";
+					var c_check		= "";
+					
+					var col			= datagrid1.col;
+					var row			= datagrid1.row;
+					var tmpVal		= 0;
+					var qty			= eval(datagrid1.valueMatrix(row, datagrid1.colRef("slip_qty")));
+					var tmpPcnt		= 0;
+					var pyung		= model.getValue("/root/tempData/arvyul");
+					var pajiyul	= model.getValue("/root/tempData/pajiyul");
+				
+					if (datagrid1.valueMatrix(row, datagrid1.colRef("pap_std")) == "T"){
+						tmpPcnt = eval(datagrid1.valueMatrix(row, datagrid1.colRef("issu_pcnt"))) / 2;
+					} else {
+						tmpPcnt = eval(datagrid1.valueMatrix(row, datagrid1.colRef("issu_pcnt")));
+					}
+					
+					if (col == 12){
+						if (datagrid1.valueMatrix(row, col) == "1"){
+							datagrid1.isReadOnly(row, col + 1, row, col + 1) = false;
+							
+							if (datagrid1.valueMatrix(row, 16) == "1"){
+								if (datagrid1.valueMatrix(row, datagrid1.colRef("sect_cd")) == "0001"){
+									datagrid1.valueMatrix(row, datagrid1.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+									datagrid1.valueMatrix(row, datagrid1.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								} else {
+									datagrid1.valueMatrix(row, datagrid1.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+									datagrid1.valueMatrix(row, datagrid1.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								}
+							} else {
+								datagrid1.valueMatrix(row, datagrid1.colRef("a_wgt")) = eval(datagrid1.valueMatrix(row, 18)) - eval(datagrid1.valueMatrix(row, 15)) - eval(datagrid1.valueMatrix(row, 17));
+							}
+
+							//datagrid2.valueMatrix(row, col + 1) = tmpVal;
+						} else {
+							if (datagrid1.valueMatrix(row, 16) == "1"){
+								datagrid1.valueMatrix(row, 17) = eval(datagrid1.valueMatrix(row, 17)) + eval(datagrid1.valueMatrix(row, 13));
+							}
+							datagrid1.valueMatrix(row, col + 1) = 0;
+							datagrid1.isReadOnly(row, col + 1, row, col + 1) = true;
+						}
+					} else if (col == 14){
+						if (datagrid1.valueMatrix(row, col) == "1"){
+							datagrid1.isReadOnly(row, col + 1, row, col + 1) = false;
+							
+							if (datagrid1.valueMatrix(row, 12) == "1"){
+								if (datagrid1.valueMatrix(row, datagrid1.colRef("sect_cd")) == "0001"){
+									datagrid1.valueMatrix(row, datagrid1.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+									datagrid1.valueMatrix(row, datagrid1.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								} else {
+									datagrid1.valueMatrix(row, datagrid1.colRef("a_wgt")) = Math.round((qty * Math.floor(tmpPcnt / 8) * 8) / 4000 * eval(pyung));
+									datagrid1.valueMatrix(row, datagrid1.colRef("c_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								}
+							} else {
+								datagrid1.valueMatrix(row, datagrid1.colRef("c_wgt")) = eval(datagrid1.valueMatrix(row, 18)) - eval(datagrid1.valueMatrix(row, 13)) - eval(datagrid1.valueMatrix(row, 15));
+							}
+							
+							//datagrid2.valueMatrix(row, col + 1) = tmpVal;
+						} else {
+							if (datagrid1.valueMatrix(row, 12) == "1"){
+								datagrid1.valueMatrix(row, 13) = eval(datagrid1.valueMatrix(row, 13)) + eval(datagrid1.valueMatrix(row, 17));
+							}
+							datagrid1.valueMatrix(row, col + 1) = 0;
+							datagrid1.isReadOnly(row, col + 1, row, col + 1) = true;
+						}
+						
+					} else if (col == 16){
+						if (datagrid1.valueMatrix(row, col) == "1"){
+							datagrid1.isReadOnly(row, col + 1, row, col + 1) = false;
+							
+							if (datagrid1.valueMatrix(row, 12) == "1"){
+								if (datagrid1.valueMatrix(row, datagrid1.colRef("sect_cd")) == "0001"){
+									datagrid1.valueMatrix(row, datagrid1.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung) * (1 + eval(pajiyul)));
+								} else {
+									datagrid1.valueMatrix(row, datagrid1.colRef("b_wgt")) = Math.round(qty * (tmpPcnt - (Math.floor(tmpPcnt / 8) * 8)) / 4000 * eval(pyung));
+								}
+							} else {
+								datagrid1.valueMatrix(row, datagrid1.colRef("b_wgt")) = eval(datagrid1.valueMatrix(row, 18)) - eval(datagrid1.valueMatrix(row, 13)) - eval(datagrid1.valueMatrix(row, 17));
+							}
+							
+							//datagrid2.valueMatrix(row, col + 1) = tmpVal;
+						} else {
+							
+							datagrid1.valueMatrix(row, col + 1) = 0;
+							datagrid1.isReadOnly(row, col + 1, row, col + 1) = true;
+						}
+						
+					} 
+				]]>
+			</script>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				var col			= datagrid1.col;
+				var row			= datagrid1.row;
+				
+				//alert(col + "\n" + row);
+				if (col > 12 && col < 17){
+					datagrid1.colHidden(12) = false;
+					datagrid1.colHidden(14) = false;
+					datagrid1.colHidden(16) = false;
+					
+					datagrid1.colHidden(13) = true;
+					datagrid1.colHidden(15) = true;
+					datagrid1.colHidden(17) = true;
+				
+					button5.disabled = false;
+				}
+				]]>
+			</script>
+		</datagrid>
+		<button id="button5" class="btn_grid05" style="left:817px; top:295px; width:120px; height:17px; background-image:../../../images/btn_s_9.gif; ">
+			<caption>V표시후 사용량확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					for (var i=datagrid1.fixedRows; i<datagrid1.rows; i++){	
+						if (datagrid1.valueMatrix(i, 12) != "1" && datagrid1.valueMatrix(i, 14) != "1" && datagrid1.valueMatrix(i, 16) != "1"){
+							alert("선인쇄 사용량에 대해서 A,B,C 중에서 한개는 선택해주십시오.");
+							return;
+						}
+					}
+					datagrid1.colHidden(12) = true;
+					datagrid1.colHidden(14) = true;
+					datagrid1.colHidden(16) = true;
+					
+					datagrid1.colHidden(13) = false;
+					datagrid1.colHidden(15) = false;
+					datagrid1.colHidden(17) = false;
+					
+					button5.disabled = true;
+				]]>
+			</script>
+		</button>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:120px; width:195px; height:24px; text-align:center; ">외    간</caption>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:295px; width:195px; height:24px; text-align:center; ">선 인 쇄</caption>
+	</xhtml:body>
+</xhtml:html>

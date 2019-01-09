@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet_ad.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>마감전배포대금조회</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<is_sal_1800_m>
+								<dataSet>
+									<CURLIST1>
+										<record>
+											<cd/>
+											<cd_nm/>
+										</record>
+									</CURLIST1>
+								</dataSet>
+							</is_sal_1800_m>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<erplace_cd/>
+							<purc_frdt/>
+							<purc_todt/>
+							<purc_clsf/>
+							<purc_clsf_nm/>
+							<dlco_clsf_cd_seq/>
+							<dlco_nm/>
+							<asnt_dstc_cd/>
+							<asnt_dstc_cd_nm/>
+							<trc_yn/>
+							<type>1</type>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+								<asnt_dstc_cd_nm/>
+								<dlco_nm/>
+								<setl_bank_nm/>
+								<acct_no/>
+								<rcpm_main_nm/>
+								<purc_amt/>
+							</record>
+						</gridData1>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="is_sal_1800_m" action="/is/sal/1800" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/is_sal_1800_m/dataSet"/>
+			<submission id="is_sal_1810_l" action="/is/sal/1810" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1/record"/>
+			<submission id="is_com_1200_s" action="/is/com/1200" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<submission id="fc_co_8000_s" action="/fc/co8000/8000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/resData/resform2/dataSet"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				var curDate = getCurrentDate();
+				model.setValue("/root/reqData/searchData/purc_frdt", dateAdd("m", -1, curDate).substring(0,6) +"01");					/**일자(시작)**/
+				model.setValue("/root/reqData/searchData/purc_todt", dateAdd("m", -1, curDate).substring(0,6)+ "" + commLastDay(curDate)); /**일자(종료)**/
+				
+				model.send("is_sal_1800_m");
+				makeComboGubun("A","/root/initData/comboSet/is_sal_1800_m/dataSet/CURLIST1","record","cdnm", "cd"); //사업장콤보
+				model.refresh();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			/**거래처 팝업**/
+			function setDlcoInfo(menu_id, menu_nm){
+				model.setValue("/root/reqData/searchData/dlco_clsf_cd_seq", menu_id);
+				model.setValue("/root/reqData/searchData/dlco_nm", menu_nm);
+								
+				//menu_id.refresh();
+				//menu_nm.refresh();
+				model.refresh();	
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,935;2,61;2,71;2,143;2,137;2,147;2,146;2,699;" style="font-family:굴림; ">
+		<caption id="caption9" class="list_cap02" style="left:10px; top:98px; width:926px; height:28px; "/>
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:133px; width:926px; height:5px; "/>
+		<button id="button4" class="btn02" crud="R" style="left:775px; top:40px; width:50px; height:18px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.send("is_sal_1810_l");
+				
+				var type = model.getValue("/root/reqData/searchData/type");
+				
+				/**조회형태 조건에 따라 데이터그리드 보여주는 내용일 다름**/
+				if(type == "1"){
+					datagrid1.colHidden(1) = false;		/**지국명**/
+					datagrid1.colHidden(2) = false;		/**은행**/
+					datagrid1.colHidden(3) = false;		/**계좌번호**/
+					datagrid1.colHidden(4) = false;		/**예금주**/
+					
+					/**합계_색상 시작**/
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						var dlco_nm = datagrid1.valueMatrix(i, datagrid1.colRef("dlco_nm"));
+						var asnt_dstc_cd_nm = datagrid1.valueMatrix(i, datagrid1.colRef("asnt_dstc_cd_nm"));
+						if(asnt_dstc_cd_nm == "합계" ){
+							datagrid1.rowstyle( i, "data", "background-color" ) = "#838B8B";	 
+						}else if(dlco_nm == null || dlco_nm == "" ){
+							datagrid1.rowstyle( i, "data", "background-color" ) = "#C1CDCD";
+						}else{
+							datagrid1.rowstyle( i, "data", "background-color" ) = "#FFFFFF";	 
+						}
+					}
+					/**합계_색상 종료**/					
+				}else{
+					datagrid1.colHidden(1) = true;
+					datagrid1.colHidden(2) = true;
+					datagrid1.colHidden(3) = true;
+					datagrid1.colHidden(4) = true;
+					
+					/**합계_색상 시작**/
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						var asnt_dstc_cd_nm = datagrid1.valueMatrix(i, datagrid1.colRef("asnt_dstc_cd_nm"));
+						if(asnt_dstc_cd_nm == "합계" ){
+							datagrid1.rowstyle( i, "data", "background-color" ) = "#838B8B";	 
+						}else{
+							datagrid1.rowstyle( i, "data", "background-color" ) = "#FFFFFF";	 
+						}
+					}
+					/**합계_색상 종료**/
+				}				
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" crud="R" style="left:828px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" class="nobg" caption="구역^지국명^은행^계좌번호^예금주^공급금액" colsep="^" colwidth="175, 198, 111, 130, 149, 100" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="free" style="left:10px; top:150px; width:925px; height:555px; ">
+			<col ref="asnt_dstc_cd_nm" style="text-align:left; "/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="setl_bank_nm" style="text-align:left; "/>
+			<col ref="acct_no"/>
+			<col ref="rcpm_main_nm" style="text-align:left; "/>
+			<col ref="purc_amt" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:882px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));								
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:310px; top:71px; width:85px; height:28px; ">매입구분</caption>
+		<caption id="caption2" class="list_cap01" style="left:555px; top:71px; width:85px; height:28px; ">사업장</caption>
+		<caption id="caption3" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">일자</caption>
+		<caption id="caption4" style="left:188px; top:77px; width:15px; height:17px; ">~</caption>
+		<input id="input2" ref="/root/reqData/searchData/purc_todt" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:204px; top:76px; width:85px; height:18px; "/>
+		<input id="input4" ref="/root/reqData/searchData/purc_frdt" navindex="1" inputtype="date" format="yyyy-mm-dd" style="left:99px; top:76px; width:85px; height:18px; "/>
+		<select1 id="combo1" ref="/root/reqData/searchData/erplace_cd" appearance="minimal" style="left:644px; top:75px; width:133px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/is_sal_1800_m/dataSet/CURLIST1/record">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption7" class="list_cap01" style="left:310px; top:98px; width:85px; height:28px; text-align:center; ">구역</caption>
+		<caption id="caption5" class="list_cap01" style="left:10px; top:98px; width:85px; height:28px; text-align:center; ">거래처</caption>
+		<caption id="caption8" class="list_cap01" style="left:555px; top:98px; width:85px; height:28px; ">조회형태</caption>
+		<select1 id="radio1" ref="/root/reqData/searchData/type" appearance="full" cols="2" style="left:644px; top:105px; width:120px; height:15px; border-style:none; ">
+			<choices>
+				<item>
+					<label>지국별</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>구역별</label>
+					<value>2</value>
+				</item>
+			</choices>
+		</select1>
+		<caption id="caption10" class="list_cap01" style="left:783px; top:71px; width:85px; height:28px; ">이관</caption>
+		<select1 id="combo3" ref="/root/reqData/searchData/trc_yn" appearance="minimal" style="left:873px; top:76px; width:55px; height:18px; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value/>
+				</item>
+				<item>
+					<label>Y</label>
+					<value>Y</value>
+				</item>
+				<item>
+					<label>N</label>
+					<value>N</value>
+				</item>
+			</choices>
+		</select1>
+		<input id="inp_dlco_clsf_cd_seq" ref="/root/reqData/searchData/dlco_clsf_cd_seq" autonext="false" inputtype="button" style="left:99px; top:103px; width:85px; height:18px; text-align:left; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[				
+				model.makeNode("/root/reqData/fwdData/func_nm");
+				model.setValue("/root/reqData/fwdData/func_nm", "setDlcoInfo");//팝업에서 함수호출명 
+							
+				window.load("/xrw/is/com/IS_COM_1100.xrw"
+							,"mdichild"
+							, "is_com_1100"
+							, "align:center; caption:hidden;width:645px; height:480px;"
+							, "/root/reqData/fwdData"
+							, "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if (inp_dlco_clsf_cd_seq.value.length == 9) {
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/dlco_clsf_cd_seq");
+					model.setValue("/root/reqData/fwdData/dlco_clsf_cd_seq", inp_dlco_clsf_cd_seq.value);
+					model.send("is_com_1200_s");
+							
+					if (model.getValue("/root/tempData/record/dlco_clsf_cd_seq") != "") {
+						inp_dlco_nm.value = model.getValue("/root/tempData/record/dlco_nm");
+					}else {
+						inp_dlco_nm.value = "";
+						inp_dlco_clsf_cd_seq.value = "";
+					}
+				}else {
+					inp_dlco_nm.value = "";
+					inp_dlco_clsf_cd_seq.value = "";
+				}
+				model.refresh();			
+				]]>
+			</script>
+		</input>
+		<input id="inp_dlco_nm" ref="/root/reqData/searchData/dlco_nm" imemode="hangul" style="left:191px; top:103px; width:114px; height:18px; "/>
+		<input id="inp_asnt_dstc_cd" ref="/root/reqData/searchData/asnt_dstc_cd" inputtype="button" format="99999" style="left:400px; top:103px; width:60px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				var cd   =  "";
+				var cdnm =  "";
+									
+				var resultRef1 = "/root/reqData/searchData/asnt_dstc_cd";
+				var resultRef2 = "/root/reqData/searchData/asnt_dstc_cd_nm";
+				
+				showCommonCodePopup1("13", "04", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+				
+				model.refresh();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if(inp_asnt_dstc_cd.value.length == 5 ){
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/job_clsf");
+					model.makeNode("/root/reqData/fwdData/cd_clsf");
+					model.makeNode("/root/reqData/fwdData/cd");
+					model.setValue("/root/reqData/fwdData/job_clsf", "13");
+					model.setValue("/root/reqData/fwdData/cd_clsf", "04");
+					model.setValue("/root/reqData/fwdData/cd", inp_asnt_dstc_cd.value);
+					model.removeNodeset("/root/resData/resform2/dataSet/CURLIST1/record"); 
+					model.makeNode("/root/resData/resform2/dataSet/CURLIST1/record/cd");
+					model.makeNode("/root/resData/resform2/dataSet/CURLIST1/record/cdnm");
+					model.send("fc_co_8000_s");
+					if (model.getValue("/root/resData/resform2/dataSet/CURLIST1/record/cd").Trim() != "") {
+						inp_asnt_dstc_nm.value = model.getValue("/root/resData/resform2/dataSet/CURLIST1/record/cdnm");
+					}else{
+						inp_asnt_dstc_cd.value = "";
+						inp_asnt_dstc_nm.value = "";
+					}					
+				}else {
+					inp_asnt_dstc_cd.value = "";
+					inp_asnt_dstc_nm.value = "";
+				}
+				model.refresh();
+				]]>
+			</script>
+		</input>
+		<input id="inp_asnt_dstc_nm" ref="/root/reqData/searchData/asnt_dstc_cd_nm" style="left:466px; top:103px; width:84px; height:18px; "/>
+		<input id="inp_purc_clsf" ref="/root/reqData/searchData/purc_clsf" visibility="hidden" style="left:394px; top:71px; width:150px; height:18px; "/>
+		<input id="inp_purc_clsf_nm" ref="/root/reqData/searchData/purc_clsf_nm" inputtype="button" style="left:400px; top:76px; width:150px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				var cd   =  "";
+				var cdnm =  "";
+									
+				var resultRef1 = "/root/reqData/searchData/purc_clsf";
+				var resultRef2 = "/root/reqData/searchData/purc_clsf_nm";
+				
+				showCommonCodePopup3("13", "54", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+				
+				model.refresh();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var purc_clsf_nm = model.getValue("/root/reqData/searchData/purc_clsf_nm");
+				
+				if(purc_clsf_nm != ""){
+					alert("다중선택 팝업을 사용하세요.");
+					model.setValue("/root/reqData/searchData/purc_clsf_nm","");
+					model.refresh();
+					return;
+				}
+				
+				if(purc_clsf_nm == ""){
+					model.setValue("/root/reqData/searchData/purc_clsf_nm","");
+					model.refresh();
+					return;
+				}
+				]]>
+			</script>
+		</input>
+	</xhtml:body>
+</xhtml:html>

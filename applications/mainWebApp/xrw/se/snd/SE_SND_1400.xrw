@@ -1,0 +1,405 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_1400.xrw
+* 기능 : 판매 - 발송관리 - 노선별부수집계
+* 작성일자 : 2009.01.30
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var bgn_route_cd	= model.getValue("/root/reqData/searchData/bgn_route_cd");
+					var end_route_cd	= model.getValue("/root/reqData/searchData/end_route_cd");
+					var bgn_route_nm     = model.getValue("/root/reqData/searchData/bgn_route_nm");
+					
+					if ( bgn_route_cd == "" ){
+						commAlert("조회 시작 노선이 없습니다.");
+						model.setFocus("input1");
+						return;
+					}
+					
+					if ( end_route_cd != "" && bgn_route_cd > end_route_cd ){
+						commAlert("조회 시작 노선이 조회 종료 노선보다 클 수 없습니다.");
+						return;
+					}
+					
+					if ( end_route_cd == "" ) {
+						model.setValue("/root/reqData/searchData/end_route_cd", bgn_route_cd);
+						model.setValue("/root/reqData/searchData/end_route_nm", bgn_route_nm);
+					}
+					
+					se_cleargrid("datagrid1");
+					var sumRow = datagrid1.rows - datagrid1.fixedRows;
+					datagrid1.unmergeByFree(sumRow, 1);
+					
+					var action = "se_snd_1420_l";
+					model.send(action);
+					
+					datagrid1.rows = datagrid1.fixedRows;
+					/* 라이트 그리드는 인스터스와 매핑을 하지는 않지만
+					   실제 컬럼 수만큼 컬럼의 인스턴스는 생성되어져 있어야한다.
+					   기본 70개를 선언하여 놓고 많으면 삭제하고 모자라면 인스턴스를 추가한다.   
+					*/   
+					
+					var len = parseInt(model.getValue("/root/initData/rowInfo/rownum")) + 2;         //datagrid2의 실제 컬럼수
+					var colLen = datagrid1.cols;                                                   	       //datagrid2의 현재 선언된 컬럼수 
+					
+					
+					if ( colLen > len ){
+						datagrid1.addRow();
+						for ( var i = 0 ; i < colLen - len ; i++ ){
+							datagrid1.removeColumn();
+						}
+						datagrid1.removeRow();
+					} else if ( colLen < len ) {
+						datagrid1.addRow();
+						for ( var i = 0 ; i < len - colLen ; i++ ){
+							datagrid1.addColumn("ref:c" + colLen + i + ";");
+						}
+						datagrid1.removeRow();
+					}
+					var action = "se_snd_1410_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+
+					sumRow = datagrid1.rows - datagrid1.fixedRows;
+					if ( sumRow > datagrid1.fixedRows ){
+						datagrid1.mergeByFree(sumRow, 1, sumRow, 2);
+					}
+
+					model.refresh();
+				}
+				
+				function openRoutePopup(gubun){
+					
+					var root            = "/root/reqData/searchData";
+					var route_clsf	= model.getValue(root + "/route_clsf");
+					var nodecd		= "";
+					var nodenm		= "";
+					
+							 
+					
+					if ( event.currentTarget == "button1" || event.currentTarget == "input1" || event.currentTarget == "input3"){
+						nodecd		= "bgn_route_cd";
+						nodenm		= "bgn_route_nm";
+					} else {
+						nodecd		= "end_route_cd";
+						nodenm		= "end_route_nm";
+					}
+					
+					if ( gubun == ""){
+						var blank = root;					
+						if ( event.currentTarget == "input1" || event.currentTarget == "input2" ){
+							blank += "/" + nodenm;
+						} else if (event.currentTarget == "input3" || event.currentTarget == "input4") {
+							blank += "/" + nodecd;
+						} 
+						
+						
+						var code     = model.getValue(root + "/" + nodecd);				
+						 var codecnt = 0;
+						 for ( var i=0; i<code.length; i++ ) {
+						  ch = code.charAt(i);
+							if (! isNaN(ch)) {
+							  	codecnt++;
+							 }
+						 }	
+						 model.setValue(blank, "");							 
+						 if(codecnt !=3){						 	
+							model.setValue("/root/reqData/searchData/route_nm", model.getValue(root + "/" + nodecd));							
+						 	model.setValue("/root/reqData/searchData/route_cd", "");
+						 	
+					 		model.setValue(root + "/" + nodenm, model.getValue(root + "/" + nodecd));
+					 		model.setValue(root + "/" + nodecd, "");
+					 		
+						 
+						 		
+						 }else{
+						 	model.setValue("/root/reqData/searchData/route_cd", model.getValue(root + "/" + nodecd));
+							model.setValue("/root/reqData/searchData/route_nm", "");
+							
+							model.setValue(root + "/" + nodenm,"" );
+					 		model.setValue(root + "/" + nodecd, model.getValue(root + "/" + nodecd));
+						 }		 
+							 
+						
+						model.refresh();
+						
+					
+						se_getRouteCd("N", "/root/reqData/searchData", "/root/reqData/searchData", nodecd, nodenm, "", "");
+					} else {
+						model.property("route_cd") 		= model.getValue(root + "/" + nodecd)
+						model.property("route_nm") 		= model.getValue(root + "/" + nodenm)
+						model.property("route_clsf") 		= model.getValue(root + "/route_clsf");
+						model.property("route_cd_path") 	= root + "/" + nodecd;
+						model.property("route_nm_path") 	= root + "/" + nodenm;
+						model.property("route_rank_path") 	= "";
+						
+						window.load(
+								"/xrw/se/comm/SE_COMM_1200.xrw", 
+								"modal", 
+								"", 
+								"left:30px; top:200px; width:420px; height:420; align:center; caption:hidden;"
+								,""
+								,""
+							);
+					}
+					
+					/* 팝업을 위한 전역 변수를 사용하여 가져갈 코드값과 결과 값을 받을 경로를 지정한다. */
+					/*
+					model.property("route_cd") 			= route_cd;
+					model.property("route_clsf") 			= route_clsf;
+					model.property("route_cd_path") 	= root + nodecd;
+					model.property("route_nm_path") 	= root + nodenm;
+					model.property("route_rank_path") 	= "";
+					
+					window.load(
+							"/xrw/se/comm/SE_COMM_1200.xrw", 
+							"modal", 
+							"", 
+							"left:30px; top:200px; width:420px; height:420; align:center; resize:false;"
+							,""
+							,""
+						);
+					*/						
+				}
+					
+				function goCodeSearch(refNm){
+					modelSendNoMake("se_comm_1220_l", "/se/comm/1220", "/root/reqData/searchData", "/root/resData/code");
+					
+					var route_nm 	= model.getValue("/root/resData/code/record/route_nm");
+					
+					model.setValue(refNm	, route_nm);
+					
+					model.refresh();
+				}
+				
+				
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터 -->
+						<session/>
+						<!-- 서버의 세션 정보 -->
+						<comboSet>
+							<!-- 선택계열(콤보박스,체크박스,리스트박스,라디오버튼)의 정보 -->
+							<curlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</curlist>
+							<prtlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</prtlist>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영시 사용(화면ID등) -->
+						<rowInfo/>
+					</initData>
+					<reqData>
+						<!-- 서버에 전달하고자 하는 데이터 (submit시 처리) -->
+						<fwdData/>
+						<!-- popup등의 페이지전환시 데이타 입출력에 사용 -->
+						<searchData>
+							<prt_plac_cd/>
+							<route_clsf/>
+							<bgn_route_cd/>
+							<bgn_route_nm/>
+							<end_route_cd/>
+							<end_route_nm/>
+							<route_cd/>
+							<route_nm/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqform/>
+						<!-- 입력처리 formData 복수사용시 하위노드로 1,2,3으로 정의-->
+						<multiUpDate/>
+						<!-- Grid의 MultiUpDate유형 사용시 처리 -->
+					</reqData>
+					<resData>
+						<!-- 서버로부터 전달 받은 데이터 (submit의 결과) -->
+						<resform/>
+						<!-- (submit의 결과) formData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<gridData>
+							<curlist>
+								<record>
+								</record>
+							</curlist>
+						</gridData>
+						<!-- (submit의 결과) gridData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<MsgData/>
+						<!-- (submit의 결과) 전달 받은 MsgData -->
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+					<!-- 저장소 -->
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					
+					var action = "se_snd_1400_m";
+					model.send(action);
+
+					makeComboGubun("A", "/root/initData/comboSet/prtlist", "record", "cdnm", "cd");
+
+					combo2.select(0);
+					combo1.select(0);
+					
+					model.setFocus("combo2");
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_snd_1400_m" action="/se/snd/1400" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/initData/comboSet"/>
+			<submission id="se_snd_1410_l" action="/se/snd/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/curlist/record"/>
+			<submission id="se_snd_1420_l" action="/se/snd/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/initData/rowInfo"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,935;2,60;2,70;2,725;" style="font-family:돋움; font-size:12px; background-image:/html/images/bg_946.gif; ">
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="노선코드^노선명^본지^소년주간^전단지3P^전단지4P^행복플러스" colsep="#" colwidth="120, 120, 120, 140, 140, 120, 120" datatype="delimeter" mergecellsfixedrows="bycolrec" rowheader="seq" rows="0" rowsep="|" selectionmode="free" style="left:10px; top:116px; width:926px; height:610px; ">
+			<col ref="c1"/>
+			<col ref="c2"/>
+			<col ref="c3"/>
+			<col ref="c4"/>
+			<col ref="c5"/>
+			<col ref="c6"/>
+			<col ref="c7"/>
+		</datagrid>
+		<caption id="caption74" class="list_cap02" style="left:10px; top:70px; width:926px; height:28px; "/>
+		<button id="button7" class="btn03" crud="R" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				    goSearch();
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:105px; width:926px; height:5px; "/>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:70px; width:70px; height:28px; ">인쇄처</caption>
+		<select1 id="combo2" ref="/root/reqData/searchData/prt_plac_cd" class="req" navindex="1" appearance="minimal" caption="인쇄처" style="left:86px; top:74px; width:90px; height:22px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/prtlist/record">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption1" class="list_cap01" style="left:200px; top:70px; width:70px; height:28px; ">노선구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/route_clsf" class="req" navindex="1" appearance="minimal" caption="노선구분" style="left:276px; top:74px; width:90px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/curlist/record">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption12" class="list_cap01" style="left:387px; top:70px; width:70px; height:28px; ">노선</caption>
+		<caption id="caption3" style="left:665px; top:73px; width:15px; height:20px; ">~</caption>
+		<button id="button1" navindex="2" crud="R" style="left:547px; top:74px; width:20px; height:18px; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+			<caption>...</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					openRoutePopup("P");
+				]]>
+			</script>
+		</button>
+		<input id="input1" ref="/root/reqData/searchData/bgn_route_cd" class="req" navindex="1" caption="노선" style="left:463px; top:74px; width:77px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[		
+					if ( event.keyCode == 13 ){
+						goSearch();
+					}else{
+						model.setValue("/root/reqData/searchData/bgn_route_nm", "");	
+						input3.refresh();
+					}
+
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="DOMFocusOut">
+				<![CDATA[
+					if ( event.keyCode == 9 ){
+						var code = input1.currentText;
+						model.setValue("/root/reqData/searchData/bgn_route_cd", code);						
+						if ( code == "" ){
+							return;
+						}						
+						openRoutePopup("");
+						if(submit_completed()){								
+								model.setfocus("input1");
+							}
+					}
+				]]>
+			</script>
+		</input>
+		<output id="input3" ref="/root/reqData/searchData/bgn_route_nm" class="output" appearance="output" style="left:570px; top:74px; width:90px; height:18px; "/>
+		<button id="button2" navindex="2" crud="R" style="left:765px; top:74px; width:20px; height:18px; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+			<caption>...</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					openRoutePopup("P");
+				]]>
+			</script>
+		</button>
+		<input id="input2" ref="/root/reqData/searchData/end_route_cd" navindex="1" style="left:684px; top:74px; width:77px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[		
+					if ( event.keyCode == 13 ){
+						goSearch();
+					}else{
+						model.setValue("/root/reqData/searchData/end_route_nm", "");	
+						input4.refresh();
+					}
+
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="DOMFocusOut">
+				<![CDATA[
+					if ( event.keyCode == 9 ){
+						var code = input2.currentText;
+						model.setValue("/root/reqData/searchData/end_route_cd", code);						
+						if ( code == "" ){
+							return;
+						}						
+						openRoutePopup("");
+						if(submit_completed()){								
+								model.setfocus("input2");
+						}
+					}
+				]]>
+			</script>
+		</input>
+		<output id="input4" ref="/root/reqData/searchData/end_route_nm" class="output" appearance="output" style="left:788px; top:74px; width:90px; height:18px; "/>
+		<button id="btnClose" class="btn03" style="left:872px; top:44px; width:63px; height:20px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

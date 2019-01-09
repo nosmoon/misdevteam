@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>2차평가자 조정건의 의견등록 팝업화면</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<evlu_grad_cd>
+								<item/>
+							</evlu_grad_cd>
+							<evlu_grad_cd>
+								<item/>
+							</evlu_grad_cd>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchData>
+						</searchData>
+						<reqForm>
+							<evlu_yy/>
+							<tms_clsf/>
+							<emp_no/>
+							<evlu_pers_meda_opn_2tms/>
+							<evlu_pers_deci_grad_2tms/>
+							<remkbyte/>
+						</reqForm>
+						<multiUpDate/>
+						<fwdData/>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+							<evlu_pers_meda_opn_2tms/>
+							<evlu_pers_deci_grad_2tms/>
+						</resForm>
+						<gridData>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.setValue("/root/reqData/reqForm/evlu_yy",window.opener.model1.getValue("/root/reqData/fwdData/evlu_yy"));
+					model1.setValue("/root/reqData/reqForm/tms_clsf",window.opener.model1.getValue("/root/reqData/fwdData/tms_clsf"));
+					model1.setValue("/root/reqData/reqForm/emp_no",window.opener.model1.getValue("/root/reqData/fwdData/emp_no"));
+					model1.setValue("/root/reqData/reqForm/evlu_pers_deci_grad_2tms",window.opener.model1.getValue("/root/reqData/fwdData/evlu_pers_deci_grad_2tms"));				
+					model1.refresh();
+					
+					//평가등급 콤보박스 생성
+					model1.send("hd_evlu_1700_m");
+					model1.copyNode("/root/initData/comboSet/evlu_grad_cd", "/root/dataSet/CURLIST");
+					model1.removeNode("/root/dataSet");
+					//목록생성
+					searchList();
+					//길이셋팅
+					setLength();
+					//
+					model1.setValue("/root/resData/resForm/evlu_pers_deci_grad_2tms",model1.getValue("/root/reqData/reqForm/evlu_pers_deci_grad_2tms"));
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_evlu_1700_m" action="/servlet/hd/evlu/1700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_evlu_3401_s" action="/servlet/hd/evlu/3401" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_evlu_3402_u" action="/servlet/hd/evlu/3402" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				var msg_clock; //메시지창 처리_최호정_20141024
+				//평가그룹 목록생성
+				function searchList(){
+					//조정등급 이미지로 ... 
+					var  deci_grad =  model1.getValue("/root/reqData/reqForm/evlu_pers_deci_grad_2tms"); 
+					
+					
+					grad_img.src  =  "/images/hd/icon_list_result_"+deci_grad+".gif";
+					
+					
+					if(deci_grad == "10" ) 
+					{
+						caption7.text  =  "상위 20%";
+					}
+					if(deci_grad == "20" ) 
+					{
+						caption7.text = "차상위 10%";
+					}
+					if(deci_grad == "30" ) 
+					{
+						caption7.text  = "S 또는 A+ 아닌 인원";
+					}
+					if(deci_grad == "40" ) 
+					{
+						caption7.text  = "미흡, 평가(보정)점수 60점 미만";
+					}
+					if(deci_grad == "60" ) 
+					{
+						caption7.text  = "부적응, 평가(보정)점수 40점 이하";
+					}
+					
+					
+					//상태값 초기화
+					model1.removeNode("/root/resData/gridData1");
+					model1.makeNode("/root/resData/gridData1");
+					model1.refresh();
+					model1.send("hd_evlu_3401_s");
+					if(submit_completed()){
+						model1.setValue("/root/resData/resForm/evlu_pers_meda_opn_2tms",model1.getValue("/root/dataSet/evlu_pers_meda_opn_2tms"));
+						model1.setValue("/root/resData/resForm/evlu_pers_deci_grad_2tms",model1.getValue("/root/dataSet/evlu_pers_deci_grad_2tms"));
+						model1.removeNode("/root/dataSet");
+						model.refresh();
+					}
+				}
+				
+				function setLength(){
+					var remkCont = textarea1.currentText;
+					var length = calculate_msglen(remkCont);
+					var limitLength = length/2;
+					limitLength = parseInt(limitLength);
+					model1.setValue("/root/reqData/reqForm/remkbyte",limitLength);
+					output1.refresh();
+				}
+				
+				function checkByteCnt(restLength){
+                	var remk_chk = model1.getValue("/root/resData/resForm/evlu_pers_meda_opn_1tms");
+                	var length = calculate_msglen(remk_chk);
+					
+				    if( length > restLength){
+						alert("최대 한글["+(restLength/2)+"], 영문["+restLength+"]글자까지 입력하실 수 있습니다. \r\n초과된 글자는 자동으로 삭제됩니다.");
+				        var retRemk = fncom_chk_strlength_cut(restLength, remk_chk);
+				        model1.setValue("/root/resData/resForm/evlu_pers_meda_opn_1tms",retRemk);
+				        model1.refresh();
+				        return;
+				        }
+					}
+					
+				function calculate_msglen(message){
+					var nbytes = 0;
+					for (i=0; i<message.length; i++){
+						var ch = message.charAt(i);
+						if(escape(ch).length > 4){
+							nbytes += 2;
+						}else if(ch != '\r'){
+							nbytes++;
+						}
+					}
+					return nbytes;
+				}
+						
+				function fncom_chk_strlength_cut(vn_maxlength, vn_str){
+					var vn_sumlength=0;
+					var vn_restr='';
+					for(var i=0;i < vn_str.length; i++){
+						if( escape(vn_str.charAt(i)).length > 3 ){
+							vn_length = 2;
+						}else if (vn_str.charAt(i) == '<' || vn_str.charAt(i) == '>'){
+							vn_length = 4;
+						}else{
+							vn_length = 1 ;
+						}
+						if ( vn_maxlength < (vn_sumlength + vn_length) ) { break; }
+						vn_sumlength += vn_length;
+						vn_restr += vn_str.charAt(i);
+					}
+					return (vn_restr);
+				}
+				//메시지창 처리_최호정_20141024
+				function msg_close(){
+						group99.visible = false;
+						window.clearInterval(msg_clock);
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;2,30;2,39;2,746;2,59;1,437;2,353;2,357;" style="font-family:굴림; ">
+		<!-- 표준 항목. 타이틀, 기본버튼, 표시라인 -->
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<!-- 검색조건 항목 -->
+		<!-- 평가년도별 차수등록 -->
+		<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:11px; top:6px; width:430px; height:27px; ">평가대상자 등급조정</caption>
+		<caption id="caption1" class="list_cap01" style="left:2.22%; top:11.25%; width:95.11%; height:6.50%; text-align:center; ">평가대상자 등급조정</caption>
+		<caption id="caption2" class="list_cap02" style="left:2.22%; top:17.25%; width:95.11%; height:72.25%; "/>
+		<textarea id="textarea1" ref="/root/resData/resForm/evlu_pers_meda_opn_2tms" class="req" style="left:3.33%; top:24.75%; width:92.67%; height:63.00%; font-size:20; text-align:left; vertical-align:top; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					checkByteCnt(500);
+					textarea1.dispatch("onkeyup");
+					model1.setfocus("textarea1",true);
+					return;
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					setLength();
+				]]>
+			</script>
+		</textarea>
+		<caption id="caption5" class="list_cap02" style="left:2.22%; top:89.25%; width:95.11%; height:6.50%; "/>
+		<caption id="caption3" class="list_cap01" style="left:2.22%; top:89.25%; width:22.22%; height:6.50%; ">조정등급</caption>
+		<select1 id="combo1" ref="/root/resData/resForm/evlu_pers_deci_grad_2tms" class="req" disabled="true" visibility="hidden" appearance="minimal" style="left:76.67%; top:81.25%; width:14.44%; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/evlu_grad_cd/item">
+					<label ref="cdnm"/>
+					<value ref="cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<output id="output1" ref="/root/reqData/reqForm/remkbyte" style="left:3.78%; top:19.00%; width:22.22%; height:18px; text-align:right; "/>
+		<caption id="caption6" style="left:26.44%; top:19.00%; width:22.22%; height:5.00%; ">byte</caption>
+		<button id="button1" class="btn02" visibility="visible" style="left:85.56%; top:2.25%; width:52px; height:21px; ">
+			<caption>취소하기</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+							window.opener.model1.setValue("/root/reqData/fwdData/evlu_pers_meda_opn_2tms",model1.getValue("/root/reqData/reqForm/evlu_pers_meda_opn_2tms"));
+							var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+							eval("window.opener.javascript." + retFunc + "('" + combo1.label +"')");
+				       
+						window.close();		
+					]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" visibility="hidden" style="left:53.33%; top:2.25%; width:11.56%; height:21px; ">
+			<caption>취소</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+						model1.reset();
+					]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" visibility="hidden" style="left:41.11%; top:2.25%; width:11.56%; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+						if(window.alert("삭제 하시겠습니까?", "확인", 1)!=1) return;
+						model1.setValue("/root/reqData/reqForm/evlu_pers_meda_opn_2tms","");
+						model1.setValue("/root/reqData/reqForm/evlu_pers_deci_grad_2tms","");
+						model1.send("hd_evlu_3402_u");
+						if(submit_completed()){
+							window.opener.model1.setValue("/root/reqData/fwdData/evlu_pers_meda_opn_2tms",model1.getValue("/root/reqData/reqForm/evlu_pers_meda_opn_2tms"));
+							var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+							eval("window.opener.javascript." + retFunc + "('')");
+							searchList();
+						}
+					]]>
+			</script>
+		</button>
+		<button id="button5" class="evlu_btn02" visibility="visible" style="left:73.33%; top:2.25%; width:52px; height:21px; ">
+			<caption>조정하기</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+						if(model1.getValue("/root/resData/resForm/evlu_pers_meda_opn_2tms") == ""){
+							alert("조정건의 의견을 입력하세요.");
+							return;
+						}
+						if(model1.getValue("/root/resData/resForm/evlu_pers_deci_grad_2tms") == ""){
+							alert("평가등급을 입력하세요.");
+							return;
+						}
+						model1.setValue("/root/reqData/reqForm/evlu_pers_meda_opn_2tms",model1.getValue("/root/resData/resForm/evlu_pers_meda_opn_2tms"));
+						model1.setValue("/root/reqData/reqForm/evlu_pers_deci_grad_2tms",model1.getValue("/root/resData/resForm/evlu_pers_deci_grad_2tms"));
+						//최호정_20141024 메시지 삭제
+						//if(window.alert("등록 하시겠습니까?", "확인", 1)!=1) return;
+						model1.send("hd_evlu_3402_u");
+						if(submit_completed()){
+							//20141024_최호정
+							caption100.value="조정완료";
+							group99.visible= true;
+							msg_clock = window.setInterval("msg_close()",2000);
+						
+							window.opener.model1.setValue("/root/reqData/fwdData/evlu_pers_meda_opn_2tms",model1.getValue("/root/reqData/reqForm/evlu_pers_meda_opn_2tms"));
+							var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+							eval("window.opener.javascript." + retFunc + "('" + combo1.label +"')");
+						}
+						window.close();	
+					]]>
+			</script>
+		</button>
+		<img id="grad_img" style="left:25.33%; top:90.25%; width:30px; height:19px; background-stretch:no-stretch; "/>
+		<caption id="caption7" style="left:31.78%; top:90.25%; width:225px; height:20px; "/>
+		<group id="group99" visibility="hidden" style="left:40%; top:45%; width:215px; height:70px; border-style:none; ">
+			<caption id="caption100" style="left:8px; top:9px; width:200px; height:45px; font-size:10pt; font-weight:bolder; color:#000000; text-align:center; vertical-align:middle; background-color:#eee8aa; border-color:#c2cbfb; border-width:2px; border-style:solid; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

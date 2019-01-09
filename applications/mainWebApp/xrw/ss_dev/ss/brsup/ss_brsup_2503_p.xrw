@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<codeData/>
+						</comboSet>
+						<pageInfo/>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<afterForm/>
+							<afterSaveForm>
+								<deptcd/>
+								<partcd/>
+								<areacd/>
+								<bocd/>
+								<bonm/>
+								<quntSum/>
+								<uprc/>
+								<bns_itemcd/>
+								<seq/>
+								<inoutdt/>
+								<no_valqunt/>
+								<valqunt/>
+								<remk/>
+								<whcd/>
+								<nosumqunt/>
+								<sumqunt/>
+								<lastSum/>
+							</afterSaveForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<deptcd/>
+									<partcd/>
+									<areacd/>
+									<bonm/>
+									<no_valqunt>0</no_valqunt>
+									<valqunt>0</valqunt>
+									<afterSum/>
+									<afterMoney/>
+									<remk/>
+									<bocd/>
+									<check/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID2503init" action="/ss/brsup/2503" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/afterSaveForm" resultref="/root/initData/comboSet/codeData"/>
+			<submission id="PID2503save" action="/ss/brsup/2513" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/afterSaveForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				childValueCopy("/root/reqData/reqform/afterSaveForm", "/root/reqData/reqform/afterForm"); // 조회된 노드들을 대상에 한번에 전부 카피한다.	
+				model.setValue("/root/resData/gridData/listGrid/record/check", "Y");
+				
+				model.send("PID2503init", false);
+
+				modelCopyValue("/root/reqData/reqform/afterSaveForm/inoutdt", "/root/initData/comboSet/codeData/inoutdt"); //날자				
+				parseFloat(model.setValue("/root/reqData/reqform/afterSaveForm/quntSum", parseFloat(model.getValue("/root/reqData/reqform/afterSaveForm/no_valqunt"))+parseFloat(model.getValue("/root/reqData/reqform/afterSaveForm/valqunt"))));
+
+				PID2503group_scr.refresh();
+				
+			}
+			
+			function save1()
+			{
+				for(var i=1; i<PID2503datagrid1.rows; i++) 
+				{
+				       PID2503datagrid1.textMatrix(i, PID2503datagrid1.colRef("check")) = "Y";
+				}
+				
+				var nosumqunt = 0;
+				var sumqunt = 0;
+				
+				for(var i=1; i<PID2503datagrid1.rows; i++) {
+				       if(PID2503datagrid1.textMatrix(i, PID2503datagrid1.colRef("check")) == "Y"){
+						nosumqunt += parseFloat(PID2503datagrid1.textMatrix(i, PID2503datagrid1.colRef("no_valqunt")));
+						sumqunt += parseFloat(PID2503datagrid1.textMatrix(i, PID2503datagrid1.colRef("valqunt")));
+				       }
+				 }
+				 model.setValue("/root/reqData/reqform/afterSaveForm/nosumqunt", nosumqunt);
+				 model.setValue("/root/reqData/reqform/afterSaveForm/sumqunt", sumqunt);
+
+				if(!commValidate(PID2503datagrid1))
+					return;
+						 
+				 if(model.getValue("/root/reqData/reqform/afterSaveForm/quntSum") != (parseFloat(model.getValue("/root/reqData/reqform/afterSaveForm/nosumqunt"))+parseFloat(model.getValue("/root/reqData/reqform/afterSaveForm/sumqunt"))))
+				{
+					alert("수량이 일치하지 않습니다.");
+						return;
+				}
+				
+				makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+			
+				model.setValue("/root/reqData/reqform/afterSaveForm/deptcd", model.getValue("/root/tempData/gridTemp/deptcd"));
+				model.setValue("/root/reqData/reqform/afterSaveForm/partcd", model.getValue("/root/tempData/gridTemp/partcd"));
+				model.setValue("/root/reqData/reqform/afterSaveForm/areacd", model.getValue("/root/tempData/gridTemp/areacd"));
+				model.setValue("/root/reqData/reqform/afterSaveForm/bocd", model.getValue("/root/tempData/gridTemp/bocd"));
+				model.setValue("/root/reqData/reqform/afterSaveForm/no_valqunt", model.getValue("/root/tempData/gridTemp/no_valqunt"));
+				model.setValue("/root/reqData/reqform/afterSaveForm/valqunt", model.getValue("/root/tempData/gridTemp/valqunt"));
+				model.setValue("/root/reqData/reqform/afterSaveForm/remk", model.getValue("/root/tempData/gridTemp/remk"));
+				
+				model.send("PID2503save", false);
+
+				if(!submit_completed())
+					return;
+						
+				model.removenode("/root/tempData/resTemp");
+				close();
+			}
+			
+			function sumMoney()
+			{
+				var valqunt_ff = PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("valqunt")) ;
+				var no_valqunt_ff = PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("no_valqunt")) ;
+				
+				if(valqunt_ff =="")
+				{
+					PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("valqunt")) = 0; //valqunt_ff = 0;
+				}
+				
+				if(no_valqunt_ff =="")
+				{
+					PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("no_valqunt")) = 0; //no_valqunt_ff = 0;
+				}
+				
+				PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("afterSum"))  =  parseFloat(valqunt_ff) + parseFloat(no_valqunt_ff);
+				
+				PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("afterMoney")) = parseFloat(valqunt_ff)*parseFloat(model.getValue("/root/reqData/reqform/afterSaveForm/uprc")) ;
+				PID2503datagrid1.refresh();
+			}
+			
+			function onClickBranchPopup()
+			{
+				if(event.keyCode == 13)
+				{	
+					openBranch("/root/reqData/reqform/afterSaveForm", "/root/tempData/tempBranch");
+					
+					if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+						return;
+					
+					PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("bocd")) = model.getValue("/root/tempData/tempBranch/bocd");
+					PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("bonm")) = model.getValue("/root/tempData/tempBranch/bonm");
+					PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("deptcd")) = model.getValue("/root/tempData/tempBranch/deptcd");
+					PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("partcd")) = model.getValue("/root/tempData/tempBranch/partcd");
+					PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("areacd")) = model.getValue("/root/tempData/tempBranch/areacd")
+				}
+			}
+			
+			function onClickBranchPopup1()
+			{
+
+				openBranch("/root/reqData/reqform/afterSaveForm", "/root/tempData/tempBranch");
+				
+				if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+					return;
+				
+				PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("bocd")) = model.getValue("/root/tempData/tempBranch/bocd");
+				PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("bonm")) = model.getValue("/root/tempData/tempBranch/bonm");
+				PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("deptcd")) = model.getValue("/root/tempData/tempBranch/deptcd");
+				PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("partcd")) = model.getValue("/root/tempData/tempBranch/partcd");
+				PID2503datagrid1.textMatrix(PID2503datagrid1.row, PID2503datagrid1.colRef("areacd")) = model.getValue("/root/tempData/tempBranch/areacd")
+
+			}
+			
+			function close()
+			{
+				window.close();
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="450" idprefix="PID2503" style="font-family:굴림; ">
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:10px; width:926px; height:31px; ">
+			<caption id="PID2503caption7" class="tit01" style="left:5px; top:0px; width:920px; height:31px; font-weight:bold; ">사후배분</caption>
+		</group>
+		<group id="PID2503group_scr" class="gro_sel" style="left:10px; top:50px; width:926px; height:25px; ">
+			<caption id="PID2503caption1" class="list_cap01" style="left:225px; top:0px; width:75px; height:25px; ">수량</caption>
+			<caption id="PID2503caption2" class="list_cap01" style="left:0px; top:0px; width:85px; height:25px; ">날짜</caption>
+			<caption id="PID2503caption3" class="list_cap02" style="left:84px; top:0px; width:146px; height:25px; "/>
+			<input id="PID2503input2" ref="/root/reqData/reqform/afterSaveForm/inoutdt" class="req" inputtype="date" format="yyyy-mm-dd" caption="날짜" style="left:88px; top:3px; width:137px; height:18px; text-align:center; "/>
+			<caption id="PID2503caption5" class="list_cap02" style="left:299px; top:0px; width:191px; height:25px; "/>
+			<input id="PID2503input1" ref="/root/reqData/reqform/afterSaveForm/quntSum" disabled="true" format="#,###.99" style="left:304px; top:3px; width:180px; height:18px; text-align:center; "/>
+			<caption id="PID2503caption4" class="list_cap02" style="left:489px; top:0px; width:436px; height:25px; "/>
+		</group>
+		<datagrid id="PID2503datagrid1" nodeset="/root/resData/gridData/listGrid/record" autoresize="false" autosizemouse="false" caption="선택^팀^파트^지역^지국^무가수량^유가수량^수량^금액^비고" colsep="^" colwidth="100, 0, 0, 0, 150, 120, 120, 120, 120, 174" ellipsis="true" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:110px; width:926px; height:290px; ">
+			<col checkvalue="Y,N" ref="check" rowspan="2" type="checkbox" navindex="1"/>
+			<col ref="deptcd" type="combo" navindex="2"/>
+			<col ref="partcd" type="combo" style="text-align:left; "/>
+			<col ref="areacd" type="combo" style="text-align:left; "/>
+			<col ref="bonm" type="inputbutton" style="left:120px; top:20px; width:150px; height:20px; text-align:left; ">
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						onClickBranchPopup();				
+					]]>
+				</script>
+			</col>
+			<col class="req" ref="no_valqunt" type="input" format="#,###.99" caption="무가수량" style="width:80; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					sumMoney();
+					]]>
+				</script>
+			</col>
+			<col class="req" ref="valqunt" type="input" format="#,###.99" caption="유가수량" style="left:390px; top:20px; width:120px; height:20px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					sumMoney();
+					]]>
+				</script>
+			</col>
+			<col ref="afterSum" format="#,###.99"/>
+			<col ref="afterMoney" format="#,###.99"/>
+			<col ref="remk" type="input" style="text-align:left; "/>
+			<col ref="bocd" visibility="hidden"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				onClickBranchPopup1();
+				]]>
+			</script>
+		</datagrid>
+		<!--<group id="PID2503group2" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID2503iviewer1" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<button id="PID2503button3" class="btn_grid02" style="left:890px; top:84px; width:42px; height:17px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						delete1();
+					]]>
+			</script>
+		</button>
+		<caption id="PID2503caption6" class="list_cap03" style="left:10px; top:80px; width:926px; height:25px; text-align:left; "/>
+		<button id="PID2503button1" class="btn_grid02" style="left:890px; top:84px; width:42px; height:17px; ">
+			<caption>닫기</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				close();
+				]]>
+			</script>
+		</button>
+		<button id="PID2503button2" class="btn_grid03" style="left:789px; top:84px; width:53px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				for(var i=PID2503datagrid1.rows - 1; i > 0; i--) 
+				{
+				       if(PID2503datagrid1.textMatrix(i, PID2503datagrid1.colRef("check")) == "Y")
+				       {
+				      		PID2503datagrid1.deleteRow(i);
+				       }
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn_grid02" style="left:845px; top:84px; width:42px; height:17px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				save1();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn_grid03" style="left:734px; top:84px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				PID2503datagrid1.additem()
+				]]>
+			</script>
+		</button>
+		<group id="PID1055group_line" class="gro_line" style="left:10px; top:40px; width:926px; height:5px; "/>
+	</xhtml:body>
+</xhtml:html>

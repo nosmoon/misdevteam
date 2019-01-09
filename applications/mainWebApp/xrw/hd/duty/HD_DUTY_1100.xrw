@@ -1,0 +1,975 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<!--===========================================================================-->
+<!-- NAME : HD_DUTY_1100.xrw                                                   -->
+<!-- DESC : 일근태등록(개인)								   				   -->
+<!-- VER  : v1.0                                                               -->
+<!-- Copyright 2014 by CHOSUN MEDIA.                                           -->
+<!-- All rights reserved.                                                      -->
+<!--===========================================================================-->
+<!--               변         경         사         항                         -->
+<!--===========================================================================-->
+<!--   DATE      AUTHOR                   DESCRIPTION(요청자 정보)             -->
+<!--===========================================================================-->
+<!-- 20140922    최호정    TV조선-일근태 대휴관리_근태등록시 대휴예정일, 휴일근무사유 추가(김덕영) -->
+<!--===========================================================================-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>일근태등록(개인)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_duty_1101_m>
+							<dataSet>
+								<xx_duty_proc_stat_010/>
+								<xx_emp_no_010/>
+								<xx_duty_proc_stat_020/>
+								<xx_finish_dd_clsf_010/>
+								<xx_finish_dd_clsf_020/>
+								<xx_pr_job_clsf_20/>
+								<xx_annc_clsf/>
+								<XX_CD_LIST/>
+								<HODY_LIST>
+									<item>
+										<cd_nm/>
+										<cd/>
+									</item>
+								</HODY_LIST>
+							</dataSet>
+						</hd_duty_1101_m>
+						<session/>
+						<comboSet>
+							<finish_dd_clsf>
+								<item/>
+							</finish_dd_clsf>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<searchInfoData>
+							<emp_no/>
+							<nm_korn/>
+							<dept_nm/>
+							<posi_nm/>
+							<rotate_duty_yn/>
+						</searchInfoData>
+						<searchData>
+							<duty_dt/>
+							<prsnt_tm/>
+							<finish_tm/>
+							<finish_dd_clsf/>
+							<hody_clsf/>
+							<hody_clsf_nm/>
+							<duty_proc_stat/>
+							<duty_proc_stat_nm/>
+							<vaca_proc_stat/>
+							<vaca_proc_stat_nm/>
+							<alvc_plan_resn/>
+							<alvc_plan_dt/>
+							<addm_rest_minute/>
+							<duty_clsf/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<searchData2>
+							<fr_dt/>
+							<to_dt/>
+						</searchData2>
+						<multiUpDate/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<msg/>
+						<gridData2>
+							<record>
+								<emp_no/>
+								<duty_proc_stat/>
+								<duty_proc_stat_nm/>
+								<cancel_yn/>
+								<duty_dt/>
+								<clndr_wkdy/>
+								<hody_clsf/>
+								<hody_clsf_nm/>
+								<prsnt_tm/>
+								<finish_dd_clsf/>
+								<finish_dd_clsf_nm/>
+								<finish_dt/>
+								<finish_tm/>
+								<hody_proc_stat/>
+								<snkfee_proc_stat/>
+								<ddsub1_proc_stat/>
+								<ddsub2_proc_stat/>
+								<vglfee_proc_stat/>
+								<addm_rest_minute/>
+								<duty_clsf/>
+								<duty_clsf_nm/>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setEmp_no(emp_no, nm_korn){
+						model1.setValue("/root/reqData/searchInfoData/emp_no", emp_no);
+						//개인정보 가꼬오기.. 대표직책으로 
+						model1.send("hd_duty_1113");
+						model1.copyNode("/root/reqData/searchInfoData", "/root/dataSet/CURLIST/record");
+						model1.removenode("/root/dataSet");
+						group1.refresh();
+						
+						//결재자 셋팅
+						var obj = htmldocument.SessionInfo;
+
+						//session의 결재자 정보
+						//session의 결재자 정보
+						if(obj.cmpycd.value == "100" || obj.cmpycd.value == "344")
+						{
+							getApp_emp_no_getRef2(model1.getValue("/root/reqData/searchInfoData/emp_no")); // 2018.07.20 평션 변경  기존 getApp_emp_no_getRef // 조선일보일 경우 통합결재라인을 탈수 있도록 수정
+						}
+						else 
+						{
+							//getApp_emp_no_getRef(model1.getValue("/root/reqData/searchInfoData/emp_no"));
+							model1.makeNode("");
+							getApp_emp_no_getRef("/root/reqData/searchInfoData/emp_no");
+						}
+					//	else 
+					//	{
+					//		getApp_emp_no_getRef2(model1.getValue("/root/reqData/searchInfoData/emp_no")); // 2018.07.20 평션 변경  기존 getApp_emp_no_getRef // 조선일보일 경우 통합결재라인을 탈수 있도록 수정
+					//	}
+						
+						if(model1.getValue("/root/reqData/searchInfoData/rotate_duty_yn") == "Y")  //2018.10.24 교대근무일 경우 휴일구분을 선택 할수 있도록 활성화 함 
+						{
+							combo1.disabled = false;
+						}
+						else 
+						{
+							combo1.disabled = true;
+						}
+						
+						//달력 조회
+						calendar1.dispatch("ondayselect");
+						// 하단그리드 조회
+						button2.dispatch("onclick");
+					}
+					
+					function editable1(){
+						input2.attribute("editable")= "true";
+						input5.attribute("editable")= "true";
+						radio1.disabled = false;
+						input1.attribute("background-color") = "#fefae2";
+						input2.attribute("background-color") = "#fefae2";
+						input5.attribute("background-color") = "#fefae2";
+						radio1.attribute("background-color") = "#fefae2";
+						input7.attribute("background-color") = "#fefae2"; //20140922_대휴예정일_최호정
+						input10.attribute("background-color") = "#fefae2"; //20140922_휴일근무사유_최호정
+						input7.disabled = false;
+						input10.disabled = false;
+						button16.disabled = false;
+						button6.disabled = false;
+						group2.refresh();
+					}
+					
+					function editable2(){
+						input2.attribute("editable")= "false";
+						input5.attribute("editable")= "false";
+						radio1.disabled = true;
+						input1.attribute("background-color") = "#eaeaea";
+						input2.attribute("background-color") = "#eaeaea";
+						input5.attribute("background-color") = "#eaeaea";
+						radio1.attribute("background-color") = "#eaeaea";
+						input7.attribute("background-color") = "#eaeaea"; //20140922_대휴예정일_최호정
+						input10.attribute("background-color") = "#eaeaea"; //20140922_휴일근무사유_최호정
+						input7.disabled = true;
+						input10.disabled = true;
+						button16.disabled = true;
+						button6.disabled = true;
+						group2.refresh();
+					}
+					
+					function datagrid2_search(){
+						//색,이미지 초기화
+						for(i = datagrid2.fixedRows; i < datagrid2.rows; i++){
+							datagrid2.rowStyle(i,"all","color")="";	
+							datagrid2.cellstyle("background-image", i, datagrid2.colRef("cancel_yn")) = "";
+						}
+						
+						model1.send("hd_duty_1111");
+						model1.copyNode("/root/resData/gridData2","/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						datagrid2.refresh();
+						rowCnt.value = "총 "+ (parseInt(datagrid2.rows - datagrid2.fixedRows)) + " 건";
+						
+						changeGrid();
+					}
+					
+					function changeGrid(){
+						//진행상태 삭제가능할 시 파란색으로 
+						//삭제버튼 만들기
+						for(i = datagrid2.fixedRows; i < datagrid2.rows; i++){
+							var tmp1 = datagrid2.valueMatrix(i,datagrid2.colRef("duty_proc_stat"));
+							//if( tmp1 < "14" && tmp1 != ""){
+							if( tmp1 < model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_duty_proc_stat_010") && tmp1 != ""){
+								datagrid2.rowStyle(i,"all","color")="#0000FF";	
+								datagrid2.cellstyle("background-image", i, datagrid2.colRef("cancel_yn")) = "../../../images/btn_s_5.gif";
+							}
+						}
+					}
+					
+					function datagrid2_refresh(){
+						//하단 그리드부분 refresh
+						var tmp1 = model1.getValue("/root/reqData/searchData/duty_dt");
+						model1.setValue("/root/reqData/searchData2/fr_dt",    tmp1.substr(0,6)+"01" );
+						model1.setValue("/root/reqData/searchData2/to_dt",  tmp1.substr(0,6)+commLastDay(tmp1));
+						group3.refresh();
+						button2.dispatch("onclick");
+					}
+					
+					function 	emp_no_ready_duty()
+					{	
+						var obj = htmldocument.SessionInfo;
+						
+						
+						if(obj.cmpycd.value == "100")  // 조선일보일 경우 통합결재라인을 탈수 있도록 수정2018.07.22수정 이가연 
+						{
+							model1.send("hd_com_5004");
+						}
+						else 
+						{
+							model1.send("hd_duty_1114");
+						}
+						
+						model1.copyNode("/root/reqData/appData", "/root/dataSet/CURLIST1/record");
+						model1.makeNode("/root/reqData/appData/app_emp_no");
+						model1.makeNode("/root/reqData/appData/app_emp_nm");
+						model1.makeNode("/root/reqData/appData/app_posi_dty");
+						model1.makeNode("/root/reqData/appData/posi_nm");
+						model1.makeNode("/root/reqData/appData/dty_nm");
+						model1.makeNode("/root/reqData/appData/app_dept_cd");
+						
+						var appCnt = model.getValue("/root/dataSet/CURLIST1/totalcnt");
+						if(appCnt == "0"){
+							model.setValue("/root/reqData/appData/app_emp_no","");
+							model.setValue("/root/reqData/appData/app_emp_nm","");
+							model.setValue("/root/reqData/appData/app_posi_dty","");
+							model.removenode("/root/dataSet");
+							model.refresh();
+						}else if(appCnt == "1") {
+							model.setValue( "/root/reqData/appData/app_emp_no", model.getValue("/root/reqData/appData/emp_no") );
+							model.setValue( "/root/reqData/appData/app_emp_nm", model.getValue("/root/reqData/appData/nm_korn") );
+							var posi_nm = model.getValue("/root/reqData/appData/posi_nm");
+							var dty_nm = model.getValue("/root/reqData/appData/dty_nm");
+							model.setValue("/root/reqData/appData/app_posi_dty",posi_nm+"/"+dty_nm);
+							model.setValue("/root/reqData/appData/app_dept_cd",model.getValue("/root/dataSet/CURLIST2/record/dept_cd"));
+							model.removenode("/root/dataSet");
+							model.refresh();
+						//	model1.setValue("/root/reqData/appData/app_emp_nm",model1.getValue("/root/reqData/appData/emp_no"));
+						}
+						else 
+						{
+							alert("결재자 중복입니다.");
+							model.setValue("/root/reqData/appData/app_emp_no","");
+							model.setValue("/root/reqData/appData/app_emp_nm","");
+							model.setValue("/root/reqData/appData/app_posi_dty","");
+							model.removenode("/root/dataSet");
+							model.refresh();	
+						}
+						model1.removenode("/root/dataSet");
+						
+					}
+					
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("hd_duty_1101_m");
+					/*
+					alert(model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_duty_proc_stat_010"));
+					alert(model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_emp_no_010"));
+					alert(model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_duty_proc_stat_020"));
+					alert(model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_finish_dd_clsf_010"));
+					alert(model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_finish_dd_clsf_020"));
+					alert(model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_pr_job_clsf_20"));
+					alert(model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_annc_clsf"));
+					*/
+					
+					model.refresh();
+				
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "일근태등록(개인)";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					//node셋팅
+					setResetRef();
+					//session의 결재자 정보
+//					getApp_emp_no_ready_duty();
+					//session에따라 대상자변경가능자
+					var obj = htmldocument.SessionInfo;
+					model1.setValue("/root/reqData/searchInfoData/emp_no",obj.emp_no.value);
+					
+					emp_no_ready_duty();
+
+					output10.refresh();
+					//if(obj.emp_no.value =="it0022"||obj.emp_no.value =="202029"||obj.emp_no.value =="210035"||obj.emp_no.value =="211010"){
+					var pattern = ","+obj.emp_no.value+",";
+					var validation  = (","+model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_emp_no_010")+",").indexOf(pattern)>-1;
+					
+					if(validation){
+						//접근권한부서
+						setDeptCdCombo(combo200);
+						//부서정보 보이기
+						input100.visible = true;
+						caption203.visible = true;
+						combo200.visible = true;
+						caption204.visible = true;
+						//조회자 보이기
+						input8.visible = true;
+						//output1.visible = true;
+					}
+					//개인정보 가꼬오기.. 대표직책으로 
+					model1.send("hd_duty_1113");
+					model1.copyNode("/root/reqData/searchInfoData", "/root/dataSet/CURLIST/record");
+					model1.removenode("/root/dataSet");
+					group1.refresh();
+					
+					radio1.attribute("background-color") = "#eaeaea";
+					model1.setValue("/root/reqData/searchData2/fr_dt",commFirstDay() );
+					model1.setValue("/root/reqData/searchData2/to_dt",commCurDate("ymd") );
+					group3.refresh();
+					
+					if(obj.cmpycd.value == "100") 
+					{
+						caption20.visible = true; 
+						caption21.visible = true; 
+						input12.visible = true;
+						caption24.visible = true; 
+						caption31.visible = true; 
+						checkbox1.visible = true;  
+						caption32.visible = true;  
+		
+						datagrid2.resizeCells();
+					}
+					else 
+					{
+						datagrid2.colHidden(datagrid2.colRef("addm_rest_minute")) = true; 
+						datagrid2.colWidth(datagrid2.colRef("duty_proc_stat_nm")) = 120 ;  // 진행상태명 
+						datagrid2.colWidth(datagrid2.colRef("cancel_yn")) = 75 ; // 삭제 
+						datagrid2.colWidth(datagrid2.colRef("duty_dt")) = 110 ; // 근무일  
+						datagrid2.colWidth(datagrid2.colRef("clndr_wkdy")) = 60 ; // 요일 
+						datagrid2.colWidth(datagrid2.colRef("finish_dt")) = 110 ; // 퇴근일 
+						datagrid2.resizeCells();
+					}
+					combo1.refresh();
+					//달력 조회
+					calendar1.dispatch("ondayselect");
+					// 하단그리드 조회
+					button2.dispatch("onclick");
+				]]>
+			</script>
+			<submission id="hd_com_5004" action="/hd/com/5004" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1108" action="/hd/duty/1108" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1109" action="/hd/duty/1109" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1110" action="/hd/duty/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1111" action="/hd/duty/1111" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1112" action="/hd/duty/1112" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1113" action="/hd/duty/1113" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchInfoData/emp_no" resultref="/root/tempData"/>
+			<submission id="hd_duty_1114" action="/hd/duty/1114" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1101_m" action="/hd/duty/1101" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/hd_duty_1101_m/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/HD_Common.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,936;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<group id="group3" style="left:5px; top:377px; width:931px; height:328px; ">
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="사번^진행상태코드^진행상태^삭제^근무일^요일^휴일구분코드^휴일구분^출근시간^퇴근일구분코드^퇴근일구분^퇴근일^퇴근시간^추가휴게시간^출장여부코드^출장여부^휴일근무수당^간식비^취재활동비^회의비^야간당직비" colsep="#" colwidth="100, 50, 100, 72, 90, 50, 50, 70, 80, 50, 82, 90, 80, 80, 100, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" frozencols="5" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:5px; top:50px; width:820px; height:235px; ">
+				<col ref="emp_no" visibility="hidden"/>
+				<col ref="duty_proc_stat" visibility="hidden"/>
+				<col ref="duty_proc_stat_nm"/>
+				<col ref="cancel_yn"/>
+				<col ref="duty_dt" format="yyyy-mm-dd"/>
+				<col ref="clndr_wkdy"/>
+				<col ref="hody_clsf" visibility="hidden"/>
+				<col ref="hody_clsf_nm"/>
+				<col ref="prsnt_tm" format="hh:nn"/>
+				<col ref="finish_dd_clsf" visibility="hidden"/>
+				<col ref="finish_dd_clsf_nm"/>
+				<col ref="finish_dt" format="yyyy-mm-dd"/>
+				<col ref="finish_tm" format="hh:nn"/>
+				<col ref="addm_rest_minute" format="hh:nn"/>
+				<col ref="duty_clsf" visibility="hidden"/>
+				<col ref="duty_clsf_nm"/>
+				<col ref="hody_proc_stat" visibility="hidden"/>
+				<col ref="snkfee_proc_stat" visibility="hidden"/>
+				<col ref="ddsub1_proc_stat" visibility="hidden"/>
+				<col ref="ddsub2_proc_stat" visibility="hidden"/>
+				<col ref="vglfee_proc_stat" visibility="hidden"/>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var col = datagrid2.col;
+						var row = datagrid2.row;
+						
+						var duty_dt = datagrid2.valueMatrix(row, datagrid2.colRef("duty_dt") );
+						var duty_clsf  = datagrid2.valueMatrix(row, datagrid2.colRef("duty_clsf") );
+						
+						if(duty_dt=="") return;
+						
+						calendar1.year = duty_dt.substr(0,4);
+						var tmp1 = duty_dt.substr(4,1);
+						if(tmp1 == "0"){
+							calendar1.month = duty_dt.substr(5,1);
+						}else{
+							calendar1.month = duty_dt.substr(4,2);
+						}
+						var tmp2 = duty_dt.substr(6,1);
+						if(tmp2 == "0"){
+							calendar1.day = duty_dt.substr(7,1);
+						}else{
+							calendar1.day = duty_dt.substr(6,2);
+						}
+						calendar1.refresh();
+						
+						calendar1.dispatch("ondayselect");
+						
+						if(duty_clsf == "10")
+						{
+							input2.disabled = true; 
+							input5.disabled = true; 
+							radio1.disabled = true; 
+							input12.disabled = true;
+						}else 
+						{
+							input2.disabled = false; 
+							input5.disabled = false; 
+							radio1.disabled = false; 
+							input12.disabled =false;
+						}
+						
+						
+						if( col == datagrid2.colRef("cancel_yn") ){ //삭제버튼 클릭시.
+							//if( datagrid2.valueMatrix(row, datagrid2.colRef("duty_proc_stat")) < "14" ){
+							if( datagrid2.valueMatrix(row, datagrid2.colRef("duty_proc_stat")) < model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_duty_proc_stat_010") ){
+								datagrid2.rowStyle(row,"all","color")="#CC0000";
+								//삭제 실행한다...
+								if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+									return;
+								}
+								model1.send("hd_duty_1112");
+								if(submit_completed()) {
+									//달력 조회
+									calendar1.dispatch("ondayselect");
+									// 하단그리드 조회
+									button2.dispatch("onclick");
+								}
+							}
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="onmouseout">
+					<![CDATA[
+						changeGrid();
+					]]>
+				</script>
+			</datagrid>
+			<caption id="caption3" class="tit02" style="left:5px; top:0px; width:220px; height:20px; font-weight:bold; ">직전 출퇴근 정보 조회 및 삭제</caption>
+			<caption id="caption4" class="list_cap01" style="left:5px; top:20px; width:90px; height:26px; text-align:center; ">기     간</caption>
+			<caption id="caption6" class="list_cap02" style="left:94px; top:20px; width:301px; height:26px; text-align:center; "/>
+			<input id="input3" ref="/root/reqData/searchData2/fr_dt" class="req" inputtype="date" format="yyyy-mm-dd" style="left:100px; top:24px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if( input3.value < '2009' ){
+							alert("2009년 이후 부터 조회가 가능합니다.");
+							model1.setValue("/root/reqData/searchData2/fr_dt","");
+							input3.refresh();
+						}
+					]]>
+				</script>
+			</input>
+			<input id="input4" ref="/root/reqData/searchData2/to_dt" class="req" inputtype="date" format="yyyy-mm-dd" style="left:226px; top:24px; width:100px; height:18px; "/>
+			<caption id="caption11" style="left:200px; top:26px; width:25px; height:15px; text-align:center; ">~</caption>
+			<caption id="rowCnt" style="left:815px; top:295px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+			<button id="button2" class="btn02" style="left:334px; top:23px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var fr_dt = model1.getValue("/root/reqData/searchData2/fr_dt");
+						var to_dt = model1.getValue("/root/reqData/searchData2/to_dt");
+						if(fr_dt == "" || to_dt == ""){
+							alert("기간설정을 입력 후 조회해주세요.");
+							return;
+						}
+						if(fr_dt.length != 8 || to_dt.length != 8){
+							alert("기간설정을 정확히 입력해주세요.");
+							return;
+						}
+						if(fr_dt > to_dt){
+							alert("기간설정을 확인해 주세요.");
+							return;
+						}
+						datagrid2_search();
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA2" class="btn02" style="left:787px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						editable2();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:845px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+							viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" style="left:10px; top:180px; width:926px; height:180px; ">
+			<caption id="caption21" class="list_cap02" visibility="hidden" style="left:515px; top:49px; width:135px; height:26px; text-align:center; "/>
+			<caption id="caption15" class="list_cap02" style="left:300px; top:149px; width:135px; height:26px; text-align:center; "/>
+			<caption id="caption27" class="list_cap02" style="left:300px; top:124px; width:135px; height:26px; text-align:center; "/>
+			<caption id="caption12" class="list_cap02" style="left:300px; top:74px; width:135px; height:26px; text-align:center; "/>
+			<caption id="caption10" class="list_cap02" style="left:300px; top:49px; width:135px; height:26px; text-align:center; "/>
+			<caption id="caption8" class="list_cap02" style="left:300px; top:24px; width:135px; height:26px; text-align:center; "/>
+			<caption id="caption37" class="list_cap02" style="left:0px; top:0px; width:220px; height:175px; text-align:center; "/>
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:80px; height:26px; ">근무일</caption>
+			<calendar id="calendar1" style="left:0px; top:25px; width:220px; height:150px; text-align:center; ">
+				<script type="javascript" ev:event="ondayselect">
+					<![CDATA[
+						var year = calendar1.year;
+						if( year < '2009' ){
+							alert("2009년 이후 부터 조회가 가능합니다.");
+							return;
+						}
+						var month = "0"+calendar1.month;
+						if(month.length == 3){
+							month = month.substr(1,3);
+						}
+						var day = "0"+ calendar1.day;
+						if(day.length == 3){
+							day = day.substr(1,3);
+						}
+						//현재일 이후일경우
+						if( commCurDate("ymd") < year+month+day  ){
+							alert("현재일 이후의 일자는 등록하실 수 없습니다.");
+							model1.setValue("/root/reqData/searchData/duty_dt","");
+							model1.setValue("/root/reqData/searchData/prsnt_tm","");
+							model1.setValue("/root/reqData/searchData/finish_tm","");
+							model1.setValue("/root/reqData/searchData/finish_dd_clsf","");
+							model1.setValue("/root/reqData/searchData/hody_clsf","");
+							model1.setValue("/root/reqData/searchData/hody_clsf_nm","");
+							model1.setValue("/root/reqData/searchData/duty_proc_stat","");
+							model1.setValue("/root/reqData/searchData/duty_proc_stat_nm","");
+							model1.setValue("/root/reqData/searchData/vaca_proc_stat","");
+							model1.setValue("/root/reqData/searchData/vaca_proc_stat_nm","");
+							model1.setValue("/root/reqData/searchData/alvc_plan_resn",""); //20140922_휴일근무사유_최호정
+							model1.setValue("/root/reqData/searchData/alvc_plan_dt",""); //20140922_대휴예정일_최호정
+							model1.setValue("/root/reqData/searchData/addm_rest_minute",""); //20180625 추가휴게시간 이가연 
+							model1.setValue("/root/reqData/searchData/duty_clsf",""); //20180702  출장여부 이가연 
+							editable2();
+							return;
+						}
+						
+						model1.setValue("/root/reqData/searchData/duty_dt",year+month+day);
+						model1.setValue("/root/reqData/searchData/duty_clsf",""); // 출장여부체크로 인해 비활성화 되었던 것을 활성화 시킴
+						input2.disabled = false; 
+						input5.disabled = false; 
+						radio1.disabled = false; 
+						input12.disabled = false;
+						
+						input1.refresh();
+						//일근태 조회
+						model1.send("hd_duty_1109");
+						model1.copyNode("/root/reqData/searchData","/root/dataSet/CURLIST/record");
+						model1.removenode("/root/dataSet");
+						group2.refresh();
+						//버튼 disabled 여부
+						var duty_chk = model1.getValue("/root/reqData/searchData/duty_proc_stat");
+						var vaca_chk = model1.getValue("/root/reqData/searchData/vaca_proc_stat");
+						//if( duty_chk < "14" && vaca_chk == "" ){
+						if( duty_chk < model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_duty_proc_stat_010") && vaca_chk == "" ){
+							editable1();
+						}else{
+							editable2();
+						}
+						//20140922_TV조선일때 휴일인 경우 대휴 관련 컨트롤을 활성화 시킨다_최호정
+						//세션처리를 위해 ciis 와 eip 에 소스를 다르게 코딩하여 반영함
+						//ciis - model.property("ss_cmpycd") , eis - obj.cmpycd.value 사용
+						combo1.value = model.getValue("/root/reqData/searchData/hody_clsf");
+						combo1.refresh();
+						var obj = htmldocument.SessionInfo;
+						if(model.property("ss_cmpycd") == "100"){
+							if(model.getValue("/root/reqData/searchData/hody_clsf") == "40"){
+								checkbox1.disabled =false; 
+							}
+							else 
+							{
+								checkbox1.disabled =true; 
+							}
+						}
+
+						if(model.property("ss_cmpycd") == "500"){
+							if(model1.getValue("/root/reqData/searchData/alvc_plan_dt") == "" || model1.getValue("/root/reqData/searchData/alvc_plan_resn") == ""){
+								model1.setValue("/root/reqData/searchData/alvc_plan_dt", "");
+								model1.setValue("/root/reqData/searchData/alvc_plan_resn", "");
+							}
+							//해당 근무일이 휴일이면 컨트롤 활성화
+							if(model.getValue("/root/reqData/searchData/hody_clsf") == "30"){
+								caption14.visible = true;
+								caption16.visible = true;
+								caption17.visible = true;
+								caption18.visible = true;
+								caption19.visible = true;
+								input7.visible = true;  //대휴사용예정일
+								input10.visible = true; //휴일근무사유
+							} else {
+								caption14.visible = false; 
+								caption16.visible = false;
+								caption17.visible = false; 
+								caption18.visible = false;
+								caption19.visible = false;
+								input7.visible = false; 
+								input10.visible = false; 
+							}
+						}
+						
+						
+						//결재신청버튼 이름바꾸기
+						//if(duty_chk == "10"){
+						if(duty_chk == model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_duty_proc_stat_020")){
+							button16.value = "결재 수정신청";
+						}else{
+							button16.value = "결재 신청";
+						}
+						//임시저장버튼 disabled 여부
+						//if(duty_chk >= "10"){
+						if(duty_chk >= model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_duty_proc_stat_020")){
+							button6.disabled = true;
+						}
+					]]>
+				</script>
+			</calendar>
+			<input id="input1" ref="/root/reqData/searchData/duty_dt" class="req" editable="false" format="yyyy-mm-dd" caption="근무일" style="left:85px; top:4px; width:120px; height:18px; "/>
+			<caption id="caption2" class="list_cap03" style="left:221px; top:24px; width:80px; height:26px; ">출근시각</caption>
+			<caption id="caption5" class="list_cap03" style="left:221px; top:49px; width:80px; height:26px; ">퇴근시각</caption>
+			<caption id="caption7" class="list_cap03" style="left:221px; top:74px; width:80px; height:26px; ">퇴근일구분</caption>
+			<input id="input2" ref="/root/reqData/searchData/prsnt_tm" class="req" disabled="false" editable="false" format="hh:nn" caption="출근시각" style="left:306px; top:28px; width:120px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if(model1.getValue("/root/reqData/searchData/prsnt_tm").length != 4){
+							alert("출근시간을 확인해 주세요.");
+							model1.setValue("/root/reqData/searchData/prsnt_tm", "");
+							return;
+						}else{
+							var finish = model1.getValue("/root/reqData/searchData/finish_tm");
+							var prsnt = model1.getValue("/root/reqData/searchData/prsnt_tm");
+							if(prsnt != "" && finish != ""){
+								if(prsnt < finish){ 
+									//model1.setValue("/root/reqData/searchData/finish_dd_clsf", "10");
+									model1.setValue("/root/reqData/searchData/finish_dd_clsf", model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_finish_dd_clsf_010"));
+								}else if(prsnt >= finish){
+									//model1.setValue("/root/reqData/searchData/finish_dd_clsf", "20");
+									model1.setValue("/root/reqData/searchData/finish_dd_clsf", model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_finish_dd_clsf_020"));
+								}
+							}
+						}
+						group2.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input5" ref="/root/reqData/searchData/finish_tm" class="req" disabled="false" editable="false" format="hh:nn" caption="퇴근시각" style="left:306px; top:53px; width:120px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var finish = model1.getValue("/root/reqData/searchData/finish_tm");
+						if(finish.length != 4){
+							alert("퇴근시간을 확인해 주세요.");
+							model1.setValue("/root/reqData/searchData/finish_tm", "");
+							return;
+						}else{
+							var finish = model1.getValue("/root/reqData/searchData/finish_tm");
+							var prsnt = model1.getValue("/root/reqData/searchData/prsnt_tm");
+							if(prsnt != "" && finish != ""){
+								if(prsnt < finish){
+									//model1.setValue("/root/reqData/searchData/finish_dd_clsf", "10");
+									model1.setValue("/root/reqData/searchData/finish_dd_clsf", model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_finish_dd_clsf_010"));
+								}else if(prsnt >= finish){
+									//model1.setValue("/root/reqData/searchData/finish_dd_clsf", "20");
+									model1.setValue("/root/reqData/searchData/finish_dd_clsf", model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_finish_dd_clsf_020"));
+								}
+							}
+						}
+						group2.refresh();
+					]]>
+				</script>
+			</input>
+			<select1 id="radio1" ref="/root/reqData/searchData/finish_dd_clsf" class="req" disabled="true" appearance="full" cols="2" rows="1" overflow="visible" caption="퇴근일구분" style="left:306px; top:79px; width:100px; height:20px; border-style:none; ">
+				<choices>
+					<!--
+					<item>
+						<label>당일</label>
+						<value>10</value>
+					</item>
+					<item>
+						<label>익일</label>
+						<value>20</value>
+					</item>
+					-->
+					<itemset nodeset="/root/initData/hd_duty_1101_m/dataSet/XX_CD_LIST/record">
+						<label ref="cd_nm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<button id="button16" class="btn04" disabled="true" style="left:345px; top:0px; width:88px; height:21px; ">
+				<caption>결재신청</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						var finish = model1.getValue("/root/reqData/searchData/finish_tm"); // 2013.5.7 추가(수정자:이가연) : 퇴근일 구분이 당일이면서 퇴근시간이 출근일 보다 빠를 경우 에러 메세지 발생  
+						var prsnt = model1.getValue("/root/reqData/searchData/prsnt_tm");
+						var finish_dd_clsf = model1.getValue("/root/reqData/searchData/finish_dd_clsf");
+						var duty_clsf = model1.getValue("/root/reqData/searchData/duty_clsf"); 
+						
+						if(finish_dd_clsf == "10")
+						{
+							if(prsnt > finish)
+							{
+								alert("퇴근일 구분이 당일일 경우 퇴근시각이 출근시간 보다 빠를 수 없습니다.");
+								return;
+							}
+						}
+						
+						if(duty_clsf == "10")
+						{
+							alert("출장중인 근태일 경우는 결재신청을 할수 없습니다. 저장만 가능합니다.");
+							return;
+						}
+						if(!commReqCheck("group2")) return;
+						
+						//20140922_TV조선일때 휴일인 경우 휴일근무사유와 대휴예정일을 검증한다_최호정
+						//세션처리를 위해 ciis 와 eip 에 소스를 다르게 코딩하여 반영함
+						//ciis - model.property("ss_cmpycd") , eis - obj.cmpycd.value 사용
+						var obj = htmldocument.SessionInfo;
+						var chk_dept_cd = model.property("ss_deptcd").substring(0,2); //보도본부는 체크 제외
+						if(model.property("ss_cmpycd") == "500" && chk_dept_cd != 40){
+							if(model1.getValue("/root/reqData/searchData/hody_clsf") == "30"){
+								if(model1.getValue("/root/reqData/searchData/alvc_plan_resn") == ""){
+									model.alert("휴일근무사유(10자이내)를 입력하시기 바랍니다.");
+									return;
+								}
+								if(model1.getValue("/root/reqData/searchData/alvc_plan_dt") == ""){
+									model.alert("대휴 예정일을 입력하시기 바랍니다.");
+									return;
+								}
+								var curDate = commCurDate();
+								if(model1.getValue("/root/reqData/searchData/alvc_plan_dt") < curDate){
+									model.alert("현재일 이전의 일자는 대휴 예정일로 등록하실 수 없습니다.");
+									return;
+								}
+							}
+						}
+						
+						if (window.alert("결재신청 하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						model1.send("hd_duty_1108");
+						if(submit_completed()) {
+							//eip공지 신청
+							//noticeEipSub("HD_DUTY_1300", "일일출근정보승인", "/xrw/hd/duty/HD_DUTY_1300.xrw", "20", "일근태", "20");
+							noticeEipSub("HD_DUTY_1300", "일일출근정보승인", "/xrw/hd/duty/HD_DUTY_1300.xrw", model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_pr_job_clsf_20"), "일근태", model1.getValue("/root/initData/hd_duty_1101_m/dataSet/xx_annc_clsf"));
+							
+							//하단그리드 조회
+							datagrid2_refresh();
+						}
+					]]>
+				</script>
+			</button>
+			<caption id="caption22" class="list_cap03" style="left:221px; top:99px; width:80px; height:26px; ">휴일구분</caption>
+			<caption id="caption23" class="list_cap02" style="left:300px; top:99px; width:135px; height:26px; text-align:center; "/>
+			<input id="input9" ref="/root/reqData/searchData/hody_clsf_nm" class="req" disabled="false" editable="false" caption="휴일구분" style="left:361px; top:104px; width:64px; height:18px; "/>
+			<input id="input11" ref="/root/reqData/searchData/duty_proc_stat_nm" disabled="false" editable="false" style="left:306px; top:129px; width:120px; height:18px; "/>
+			<caption id="caption26" class="list_cap03" style="left:221px; top:124px; width:80px; height:26px; ">진행상태</caption>
+			<input id="input6" ref="/root/reqData/searchData/vaca_proc_stat_nm" disabled="false" editable="false" style="left:306px; top:154px; width:120px; height:18px; "/>
+			<caption id="caption13" class="list_cap03" style="left:221px; top:149px; width:80px; height:26px; ">휴가상태</caption>
+			<output id="output2" ref="/root/reqData/searchData/hody_clsf" visibility="hidden" style="left:658px; top:29px; width:70px; height:18px; "/>
+			<output id="output3" ref="/root/reqData/searchData/duty_proc_stat" visibility="hidden" style="left:736px; top:29px; width:70px; height:18px; "/>
+			<output id="output4" ref="/root/reqData/searchData/vaca_proc_stat" visibility="hidden" style="left:811px; top:29px; width:70px; height:18px; "/>
+			<button id="button6" class="btn04" disabled="true" style="left:252px; top:0px; width:88px; height:21px; ">
+				<caption>임시저장</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						var finish = model1.getValue("/root/reqData/searchData/finish_tm"); // 2013.5.7 추가(수정자:이가연) : 퇴근일 구분이 당일이면서 퇴근시간이 출근일 보다 빠를 경우 에러 메세지 발생  
+						var prsnt = model1.getValue("/root/reqData/searchData/prsnt_tm");
+						var finish_dd_clsf = model1.getValue("/root/reqData/searchData/finish_dd_clsf");
+						if(finish_dd_clsf == "10")
+						{
+							if(prsnt > finish)
+							{
+								alert("퇴근일 구분이 당일일 경우 퇴근시각이 출근시간 보다 빠를 수 없습니다.");
+								return;
+							}
+						}
+						
+						if(!commReqCheck("group2")) return;
+						
+						//20140922_TV조선일때 휴일인 경우 휴일근무사유와 대휴예정일을 검증한다_최호정
+						//세션처리를 위해 ciis 와 eip 에 소스를 다르게 코딩하여 반영함
+						//ciis - model.property("ss_cmpycd") , eis - obj.cmpycd.value 사용
+						var obj = htmldocument.SessionInfo;
+						var chk_dept_cd = model.property("ss_deptcd").substring(0,2); //보도본부는 체크 제외
+						if(model.property("ss_cmpycd") == "500" && chk_dept_cd != 40){
+							if(model1.getValue("/root/reqData/searchData/hody_clsf") == "30"){
+								if(model1.getValue("/root/reqData/searchData/alvc_plan_resn") == ""){
+									model.alert("휴일근무사유(10자이내)를 입력하시기 바랍니다.");
+									return;
+								}
+								if(model1.getValue("/root/reqData/searchData/alvc_plan_dt") == ""){
+									model.alert("대휴 예정일을 입력하시기 바랍니다.");
+									return;
+								}
+								var curDate = commCurDate();
+								if(model1.getValue("/root/reqData/searchData/alvc_plan_dt") < curDate){
+									model.alert("현재일 이전의 일자는 대휴 예정일로 등록하실 수 없습니다.");
+									return;
+								}
+							}
+						}
+						
+						model1.send("hd_duty_1110");
+						if(submit_completed()) {
+							//하단그리드 조회
+							datagrid2_refresh();
+						}
+					]]>
+				</script>
+			</button>
+			<caption id="caption14" class="list_cap03" visibility="hidden" style="left:436px; top:99px; width:80px; height:26px; ">휴일근무사유</caption>
+			<caption id="caption16" class="list_cap02" visibility="hidden" style="left:514px; top:99px; width:144px; height:26px; text-align:center; "/>
+			<caption id="caption17" class="list_cap03" visibility="hidden" style="left:657px; top:99px; width:76px; height:26px; ">대휴예정일</caption>
+			<caption id="caption18" class="list_cap02" visibility="hidden" style="left:730px; top:99px; width:97px; height:26px; text-align:center; "/>
+			<input id="input7" ref="/root/reqData/searchData/alvc_plan_dt" visibility="hidden" inputtype="date" format="yyyy-mm-dd" caption="대휴사용예정일" style="left:733px; top:103px; width:90px; height:18px; "/>
+			<input id="input10" ref="/root/reqData/searchData/alvc_plan_resn" disabled="false" visibility="hidden" imemode="hangul" maxlength="9" caption="대휴사유" style="left:518px; top:103px; width:135px; height:18px; "/>
+			<caption id="caption19" class="list_cap02" visibility="hidden" style="left:436px; top:74px; width:391px; height:26px; font-size:8pt; color:#ff0000; text-align:center; vertical-align:middle; ">휴일근무시 휴일근무사유와 대휴예정일을 입력하시기 바랍니다.</caption>
+			<input id="input12" ref="/root/reqData/searchData/addm_rest_minute" visibility="hidden" imemode="alpha" format="hh:nn" maxbyte="5" showmask="true" caption="추가휴게시간" style="left:521px; top:53px; width:120px; height:18px; "/>
+			<caption id="caption20" class="list_cap03" visibility="hidden" style="left:436px; top:49px; width:80px; height:26px; ">추가휴게시간</caption>
+			<caption id="caption24" class="list_cap03" visibility="hidden" style="left:436px; top:24px; width:80px; height:26px; ">출장여부</caption>
+			<caption id="caption31" class="list_cap02" visibility="hidden" style="left:515px; top:24px; width:135px; height:26px; text-align:center; "/>
+			<select id="checkbox1" ref="/root/reqData/searchData/duty_clsf" visibility="hidden" overflow="visible" appearance="full" style="left:520px; top:29px; width:100px; height:15px; border-style:none; ">
+				<choices>
+					<item>
+						<label>출장중입니다.</label>
+						<value>10</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-select">
+					<![CDATA[
+						model1.setValue("/root/reqData/searchData/prsnt_tm", "0930");
+						model1.setValue("/root/reqData/searchData/finish_tm", "1830"); 
+						model1.setValue("/root/reqData/searchData/addm_rest_minute", "");
+						model1.setValue("/root/reqData/searchData/finish_dd_clsf", "10");
+						input2.disabled = true; 
+						input5.disabled = true; 
+						radio1.disabled = true; 
+						input12.disabled = true;
+						model1.refresh();
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-deselect">
+					<![CDATA[
+						input2.disabled = false; 
+						input5.disabled = false; 
+						radio1.disabled = false; 
+						input12.disabled = false;
+					]]>
+				</script>
+			</select>
+			<caption id="caption32" visibility="hidden" style="left:436px; top:132px; width:481px; height:42px; font-size:9pt; font-weight:bold; text-align:left; padding:0; ">
+				<![CDATA[※출장 중 휴일근무:소속부서장 결재를 받은 출장 중 휴일 근무신청서를 작성하여
+    인사팀에 보내주시기 바랍니다. 인사팀장 승인 후 근무가 인정됩니다.  ]]>
+			</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/hody_clsf" class="req" disabled="true" appearance="minimal" style="left:306px; top:104px; width:119px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/hd_duty_1101_m/dataSet/HODY_LIST/item">
+						<label ref="cd_nm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:370px; width:926px; height:5px; "/>
+		<group id="group100" style="left:9px; top:75px; width:856px; height:29px; ">
+			<caption id="caption204" class="list_cap02" visibility="hidden" style="left:433px; top:0px; width:182px; height:26px; text-align:center; "/>
+			<caption id="caption100" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; text-align:center; ">결재자</caption>
+			<caption id="caption101" class="list_cap02" style="left:69px; top:0px; width:296px; height:26px; text-align:center; "/>
+			<input id="input100" visibility="hidden" inputtype="button" style="left:154px; top:4px; width:18px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no_tm");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+			</input>
+			<caption id="caption102" class="list_cap01" style="left:175px; top:0px; width:80px; height:26px; text-align:center; ">직책/직급</caption>
+			<output id="output100" ref="/root/reqData/appData/app_emp_nm" class="req" style="left:72px; top:4px; width:82px; height:18px; text-align:center; "/>
+			<output id="output101" ref="/root/reqData/appData/app_posi_dty" style="left:258px; top:4px; width:100px; height:18px; text-align:center; "/>
+			<caption id="caption203" class="list_cap01" visibility="hidden" style="left:364px; top:0px; width:70px; height:26px; text-align:center; ">부   서</caption>
+			<select1 id="combo200" ref="/root/reqData/appData/app_dept_cd" class="req" visibility="hidden" appearance="minimal" style="left:438px; top:4px; width:170px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/combo200/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-select">
+					<![CDATA[
+						getApp_emp_no("/root/reqData/appData/app_dept_cd");
+					]]>
+				</script>
+			</select1>
+			<output id="output1" ref="/root/reqData/appData/app_emp_no" visibility="hidden" style="left:625px; top:5px; width:100px; height:18px; "/>
+		</group>
+		<caption id="caption9" class="tit02" style="left:10px; top:107px; width:205px; height:20px; font-weight:bold; ">일일 출퇴근 신청</caption>
+		<group id="group1" style="left:6px; top:135px; width:915px; height:35px; ">
+			<caption id="caption29" class="list_cap02" style="left:20px; top:5px; width:675px; height:25px; "/>
+			<output id="output9" ref="/root/reqData/searchInfoData/posi_nm" style="left:582px; top:9px; width:98px; height:18px; text-align:center; "/>
+			<output id="output10" ref="/root/reqData/searchInfoData/emp_no" appearance="output" style="left:85px; top:9px; width:60px; height:18px; text-align:center; "/>
+			<output id="output11" ref="/root/reqData/searchInfoData/nm_korn" inputtype="button" appearance="output" style="left:150px; top:9px; width:69px; height:18px; text-align:center; "/>
+			<output id="output12" ref="/root/reqData/searchInfoData/dept_nm" style="left:331px; top:9px; width:135px; height:18px; text-align:center; "/>
+			<caption id="caption25" class="list_cap01" style="left:223px; top:5px; width:100px; height:25px; ">부    서</caption>
+			<caption id="caption28" class="list_cap01" style="left:475px; top:5px; width:100px; height:25px; ">직     책</caption>
+			<caption id="caption30" class="list_cap01" style="left:5px; top:5px; width:76px; height:25px; ">사번/성명</caption>
+			<input id="input8" visibility="hidden" inputtype="button" style="left:139px; top:9px; width:18px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+			</input>
+			<output id="output5" ref="/root/reqData/searchInfoData/rotate_duty_yn" style="left:705px; top:10px; width:30px; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

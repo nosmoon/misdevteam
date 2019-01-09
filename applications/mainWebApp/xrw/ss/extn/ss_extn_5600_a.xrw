@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<naviInfo/>
+						<gs_request>N</gs_request>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<reqform>
+							<search_form>
+								<dt_gb>I</dt_gb>
+								<fr_dt/>
+								<to_dt/>
+								<subscrpt_gb/>
+								<subscrpt_cd/>
+								<buyer_nm/>
+								<outyn/>
+							</search_form>
+							<out_form>
+								<subscrpt_cd/>
+								<subscrpt_gb>A</subscrpt_gb>
+								<buyer_cd/>
+								<buyer_nm/>
+								<buyer_cmpy/>
+								<buyer_team/>
+								<buy_amt/>
+								<out_dt/>
+								<gb/>
+							</out_form>
+							<upload_form>
+								<subscrpt_cd/>
+								<in_dt/>
+								<pub_dt/>
+								<gb/>
+							</upload_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<subscrpt_cd/>
+								</record>
+							</listGrid>
+							<listGrid2>
+								<record>
+									<subscrpt_cd/>
+									<subscrpt_gb/>
+									<in_dt/>
+									<in_pers/>
+									<out_dt/>
+									<out_pers/>
+									<pay_dt/>
+									<pay_pers/>
+									<pay_amt/>
+									<rdr_extndt/>
+									<rdr_extnno/>
+								</record>
+							</listGrid2>
+							<listGrid3>
+								<record>
+									<subscrpt_cd/>
+									<in_dt/>
+									<pub_dt/>
+								</record>
+							</listGrid3>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID5600list" action="/ss/extn/5610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID5600in_proc" action="/ss/extn/5620" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/upload_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID5600in_canc" action="/ss/extn/5620" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/upload_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID5600out_proc" action="/ss/extn/5630" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/out_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID5600out_canc" action="/ss/extn/5630" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/out_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{					
+				commEventHandler(PID5600group_scr);
+				
+				var d = new Date();
+				var month1;
+				var date1;
+					
+				if(d.getMonth()+1 < 10){
+					month1 = "0"+(d.getMonth()+1);
+				}else{
+					month1 = d.getMonth()+1;	
+				}
+					
+				if(d.getDate() < 10){
+					date1 = "0"+d.getDate();
+				}else{
+					date1 = d.getDate();	
+				}
+					
+				var yymm = d.getYear()+""+month1;
+					
+				var yymmdd = d.getYear()+""+month1+""+date1;
+					
+				model.setValue("/root/reqData/reqform/search_form/fr_dt", yymmdd);
+				model.setValue("/root/reqData/reqform/search_form/to_dt", yymmdd);
+				model.setValue("/root/reqData/reqform/out_form/out_dt", yymmdd);
+				
+				PID5600input6.disabled = true;
+				PID5600input7.disabled = true;
+				PID5600input8.disabled = true;
+				PID5600input9.disabled = true;
+				
+				btnA1.disabled = true;
+				btnA2.disabled = false;
+				btnA4.disabled = false;
+				btnA5.disabled = false;
+				btnA6.disabled = false;				
+				btnA8.disabled = true;
+				
+				PID5600datagrid1.fixedcellcheckbox(0, PID5600datagrid1.colRef("check"), true) = true;					
+								
+				remakeNode("/root/resData/gridData/listGrid");
+				remakeNode("/root/resData/gridData/listGrid2");
+				remakeNode("/root/resData/gridData/listGrid3");
+				
+				model.refresh();
+				
+			}
+			
+			function search()
+			{
+				if(!commValidate(PID5600group_scr))
+					return;        
+								
+				remakeNode("/root/tempData/resTemp");		
+				
+				model.send("PID5600list", false);
+					
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+								 	
+				if(instance1.selectNodes("/root/resData/gridData/listGrid/record/subscrpt_cd").length == 0)
+					model.alert("검색결과가 없습니다.");
+										
+				model.removenode("/root/tempData/resTemp");
+				
+				PID5600datagrid1.rebuild();					
+			}
+							
+			function Excel()
+			{
+				var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+				
+				if(filePath != "") {
+					PID5600datagrid1.saveExcel(filePath);
+					window.exec(filePath);
+				}
+			}
+			
+			function sub_search()
+			{
+				if(PID5600radio1.focusIndex == 0){
+					remakeNode("/root/tempData/tempUser");		
+					model.property("BRANCH_RES_XPATH") = "/root/tempData/tempUser";
+	   
+					window.load("/xrw/ss/extn/ss_extn_5601_p.xrw", "modal", "ZIPPOP", style="width:660px; height:410px; align:center; caption:hidden;", "/root/reqData/reqform/user_form", "/root/tempData/userForm");
+					
+					if(model.getValue("/root/tempData/tempUser/empseq") == "")
+						return;
+														
+				      	PID5600input6.value = model.getValue("/root/tempData/tempUser/empseq");
+				      	PID5600input7.value = model.getValue("/root/tempData/tempUser/extnnm");		
+				       PID5600input8.value = model.getValue("/root/tempData/tempUser/cmpynm");	
+				       PID5600input9.value = model.getValue("/root/tempData/tempUser/teamnm");
+				}else if(PID5600radio1.focusIndex == 2){
+					remakeNode("/root/tempData/tempDncomp");	
+					model.property("BRANCH_RES_XPATH") = "/root/tempData/tempDncomp";
+	   	   
+					window.load("/xrw/ss/extn/ss_extn_4602_p.xrw", "modal", "ZIPPOP", style="width:320px; height:430px; align:center; caption:hidden;", "/root/reqData/reqform/dncomp_form", "/root/tempData/dncompForm");
+					
+					if(model.getValue("/root/tempData/tempDncomp/dncomp") == "")
+						return;
+					
+					PID5600input6.value = model.getValue("/root/tempData/tempDncomp/dncomp");
+				      	PID5600input7.value = model.getValue("/root/tempData/tempDncomp/dncompnm");		
+				       PID5600input8.value = model.getValue("/root/tempData/tempDncomp/dncompnm");		
+				       PID5600input9.value = model.getValue("/root/tempData/tempDncomp/dncompnm");		
+				}
+			}
+						
+			function grid2_row_count()
+			{
+				var cnt = PID5600datagrid2.rows-1;
+				
+				PID5600caption17.value = "총 : "+ cnt + " 장";
+				
+				model.refresh();
+			}
+			
+			function in_canc(){
+				if(model.getValue("/root/resData/gridData/listGrid/record/subscrpt_cd")==""){
+					alert("조회 후 실행해주세요.");
+					return;
+				}
+				
+				var val = window.alert("입고취소 하시겠습니까?", "확인", 1) ;	
+				if ( val == 2 ){
+					return;
+				}
+				
+				makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "#", true);
+							
+				model.setValue("/root/reqData/reqform/upload_form/subscrpt_cd",model.getValue("/root/tempData/gridTemp/subscrpt_cd"));
+				model.setValue("/root/reqData/reqform/upload_form/gb","C");
+				
+				if(model.getValue("/root/reqData/reqform/upload_form/subscrpt_cd") == "")
+				{
+					alert("입고취소할 건을 1건이상 선택해주세요.");
+					return;
+				}
+									
+				model.send("PID5600in_canc", false);
+				
+				if(!submit_completed())
+					return;
+				
+				remakeNode("/root/resData/gridData/listGrid");
+				remakeNode("/root/resData/gridData/listGrid2");
+				search();
+				PID5600datagrid1.refresh();				
+				PID5600caption17.value = "총 : 0 장";		
+			}
+			
+			function out_proc(){
+				if(model.getValue("/root/resData/gridData/listGrid2/record/subscrpt_cd")==""){
+					alert("출고처리할 구독권을 선택해주세요.");
+					return;
+				}
+				
+				var val = window.alert("출고처리 하시겠습니까?", "확인", 1) ;	
+				if ( val == 2 ){
+					return;
+				}
+				
+				makeNodesetToAppendForm("/root/resData/gridData/listGrid2/record", "/root/tempData/gridTemp", "check", "", "#", true);
+							
+				model.setValue("/root/reqData/reqform/out_form/subscrpt_cd",model.getValue("/root/tempData/gridTemp/subscrpt_cd"));
+				model.setValue("/root/reqData/reqform/out_form/gb","O");
+													
+				model.send("PID5600out_proc", false);
+				
+				if(!submit_completed())
+					return;
+				
+				remakeNode("/root/resData/gridData/listGrid");
+				remakeNode("/root/resData/gridData/listGrid2");
+				search();
+				PID5600datagrid1.refresh();				
+				PID5600caption17.value = "총 : 0 장";
+				PID5600input6.value = "";
+				PID5600input7.value = "";
+				PID5600input8.value = "";
+				PID5600input9.value = "";
+				PID5600input10.value = "";
+				PID5600input11.value = "";
+			}
+			
+			function out_canc(){
+				if(model.getValue("/root/resData/gridData/listGrid/record/subscrpt_cd")==""){
+					alert("조회 후 실행해주세요.");
+					return;
+				}
+				
+				var val = window.alert("출고취소 하시겠습니까?", "확인", 1) ;	
+				if ( val == 2 ){
+					return;
+				}
+				
+				makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "#", true);
+							
+				model.setValue("/root/reqData/reqform/out_form/subscrpt_cd",model.getValue("/root/tempData/gridTemp/subscrpt_cd"));
+				model.setValue("/root/reqData/reqform/out_form/gb","C");
+				
+				if(model.getValue("/root/reqData/reqform/out_form/subscrpt_cd") == "")
+				{
+					alert("출고취소할 건을 1건이상 선택해주세요.");
+					return;
+				}
+									
+				model.send("PID5600out_canc", false);
+				
+				if(!submit_completed())
+					return;
+				
+				remakeNode("/root/resData/gridData/listGrid");
+				remakeNode("/root/resData/gridData/listGrid2");
+				search();
+				PID5600datagrid1.refresh();				
+				PID5600caption17.value = "총 : 0 장";		
+			}
+			
+			function grid_switch(rp_clsf){
+				var grid = null;
+				switch(rp_clsf)
+				{
+					case '1' : model.toggle("PID5600case1");	
+							btnA1.disabled = true;
+							btnA2.disabled = false;
+							btnA4.disabled = false;
+							btnA5.disabled = false;
+							btnA6.disabled = false;							
+							btnA8.disabled = true;
+							break;
+					case '2' : model.toggle("PID5600case2");
+							//grid = PID5600datagrid2;							
+							btnA1.disabled = false;
+							btnA2.disabled = true;
+							btnA4.disabled = true;
+							btnA5.disabled = true;
+							btnA6.disabled = true;							
+							btnA8.disabled = false;
+							break;	
+					default : model.toggle("PID5600case1");														
+							//grid = PID5600datagrid1;							
+							btnA1.disabled = true;
+							btnA2.disabled = false;
+							btnA4.disabled = false;
+							btnA5.disabled = false;
+							btnA6.disabled = false;							
+							btnA8.disabled = true;
+							break;
+				}
+				PID5600switch1.refresh();				
+			}
+			
+			function upload()
+			{							
+				var filename = window.fileDialog("open", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+						if(filename!="")				
+				{
+					PID5600datagrid3.loadExcel(filename);						
+				}
+			}
+				
+			function in_proc()
+			{			
+				var rows = PID5600datagrid3.rows - 1;
+				var vat;
+					
+				if(rows <= 0){
+					alert("먼저 엑셀파일을 업로드하세요.");
+					return;
+				}
+					
+				for ( var i = 1 ; i <= rows ; i++ ){
+					vat = PID5600datagrid3.valueMatrix(i, PID5600datagrid3.colRef("subscrpt_cd"));
+					if ( vat == "" ){
+						commAlert(i + "행의 구독권번호 값이 없습니다.");
+						return false;
+					}
+					
+					vat = PID5600datagrid3.valueMatrix(i, PID5600datagrid3.colRef("in_dt"));
+					if ( vat == "" ){
+						commAlert(i + "행의 입고일자 값이 없습니다.");
+						return false;
+					}
+					
+					vat = PID5600datagrid3.valueMatrix(i, PID5600datagrid3.colRef("pub_dt"));
+					if ( vat == "" ){
+						commAlert(i + "행의 발행일자 값이 없습니다.");
+						return false;
+					}
+				}
+								
+				makeNodesetToAppendForm("/root/resData/gridData/listGrid3/record", "/root/tempData/gridTemp", "check", "", "#", true);
+										
+				childValueCopy("/root/reqData/reqform/upload_form","/root/tempData/gridTemp");
+				model.setValue("/root/reqData/reqform/upload_form/gb","I");
+				
+				model.send("PID5600in_proc", false);
+				
+				if(submit_completed())
+					return;
+					
+				//remakeNode("/root/resData/gridData/listGrid3");				
+				//model.refresh();
+			}
+						
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="1100" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA5" class="btn02" style="left:549px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();						
+					]]>
+				</script>
+			</button>
+			<button id="btnA8" class="btn02" style="left:604px; top:0px; width:52px; height:21px; ">
+				<caption>업로드</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						upload();
+					]]>
+				</script>
+			</button>
+			<button id="btnA1" class="btn02" style="left:658px; top:0px; width:52px; height:21px; ">
+				<caption>입고</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//window.load("/xrw/ss/extn/ss_extn_5602_p.xrw", "new", "ZIPPOP", style="width:460px; height:410px; align:center; caption:hidden;", "/root/reqData/reqform/upload_form", "/root/tempData/resTemp");
+						in_proc();
+					]]>
+				</script>
+			</button>
+			<button id="btnA2" class="btn02" style="left:712px; top:0px; width:52px; height:21px; ">
+				<caption>입고취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						in_canc();
+					]]>
+				</script>
+			</button>
+			<!--button id="btnA3" class="btn02" style="left:712px; top:0px; width:52px; height:21px; ">
+				<caption>출고</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						out_list();
+					]]>
+				</script>
+			</button-->
+			<button id="btnA4" class="btn02" style="left:766px; top:0px; width:52px; height:21px; ">
+				<caption>출고취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						out_canc();
+					]]>
+				</script>
+			</button>
+			<button id="btnA6" class="btn02" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						Excel();
+					]]>
+				</script>
+			</button>
+			<button id="btnA7" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID5600group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:49px; ">
+			<caption id="PID5600caption2" class="list_cap02" style="left:49px; top:24px; width:877px; height:25px; "/>
+			<caption id="caption1" class="list_cap02" style="left:49px; top:24px; width:877px; height:25px; "/>
+			<caption id="caption2" class="list_cap02" style="left:49px; top:0px; width:877px; height:25px; "/>
+			<caption id="PID5600caption14" class="list_cap01" style="left:0px; top:24px; width:50px; height:25px; ">구매자</caption>
+			<caption id="PID5600caption15" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">기간</caption>
+			<select1 id="PID5600combo2" ref="/root/reqData/reqform/search_form/dt_gb" class="req" appearance="minimal" caption="기간" style="left:54px; top:4px; width:50px; height:18px; ">
+				<choices>
+					<item>
+						<label>선택</label>
+						<value/>
+					</item>
+					<item>
+						<label>입고</label>
+						<value>I</value>
+					</item>
+					<item>
+						<label>출고</label>
+						<value>O</value>
+					</item>
+				</choices>
+			</select1>
+			<input id="PID5600input1" ref="/root/reqData/reqform/search_form/fr_dt" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID5600input2" style="left:108px; top:4px; width:90px; height:18px; "/>
+			<input id="PID5600input2" ref="/root/reqData/reqform/search_form/to_dt" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="종료일자" setHandler="true" relid="PID5600input1" style="left:213px; top:4px; width:100px; height:18px; "/>
+			<input id="PID5600input3" ref="/root/reqData/reqform/search_form/buyer_nm" style="left:54px; top:28px; width:100px; height:18px; "/>
+			<caption id="PID5600caption12" class="list_cap01" style="left:317px; top:0px; width:100px; height:25px; ">구독권유형</caption>
+			<select1 id="PID5600combo7" ref="/root/reqData/reqform/search_form/subscrpt_gb" appearance="minimal" style="left:421px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>개인구독권(사원)</label>
+						<value>A</value>
+					</item>
+					<item>
+						<label>개인구독권(일반)</label>
+						<value>B</value>
+					</item>
+					<item>
+						<label>기업구독권</label>
+						<value>C</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="PID5600caption16" class="list_cap01" style="left:525px; top:0px; width:100px; height:25px; ">구독권번호</caption>
+			<input id="PID5600input4" ref="/root/reqData/reqform/search_form/subscrpt_cd" style="left:629px; top:4px; width:130px; height:18px; "/>
+			<caption id="PID5600caption6" class="list_cap01" style="left:158px; top:24px; width:70px; height:25px; ">출고여부</caption>
+			<caption id="PID5600caption84" style="left:201px; top:4px; width:10px; height:20px; ">-</caption>
+			<select1 id="PID5600combo4" ref="/root/reqData/reqform/search_form/outyn" appearance="minimal" style="left:232px; top:28px; width:80px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>출고</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>미출고</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<group id="PID5600group_line" class="gro_line" style="left:10px; top:128px; width:926px; height:5px; "/>
+		<group id="PID5600group_btnT" class="gro_tab" style="left:10px; top:137px; width:926px; height:25px; ">
+			<caption id="PID5600caption37" class="tabline" style="left:0px; top:22px; width:925px; height:1px; "/>
+			<button id="PID5600btnT1" class="tab05" group="tab" selected="true" style="left:1px; top:0px; width:92px; height:23px; ">
+				<caption>관리</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						grid_switch('1');
+					]]>
+				</script>
+			</button>
+			<button id="PID5600btnT2" class="tab05" group="tab" style="left:96px; top:0px; width:92px; height:23px; ">
+				<caption>업로드</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						grid_switch('2');
+					]]>
+				</script>
+			</button>
+		</group>
+		<switch id="PID5600switch1" style="left:10px; top:157px; width:926px; height:600px; ">
+			<case id="PID5600case1" selected="true" style="left:0px; top:0px; width:926px; height:600px; ">
+				<datagrid id="PID5600datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="^구독권번호^입고일^발행일^출고일^구독권유형^구매금액^구매자정보1^구매자정보2^구매자정보3^구매자정보4^구매자정보5" colsep="#" colwidth="30,120,80,80,80,100,100,100,100,100,100,100" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:0px; top:0px; width:926px; height:250px; ">
+					<col checkvalue="Y,N" ref="check" type="checkbox">
+						<script type="javascript" ev:event="xforms-select">
+							<![CDATA[						
+								var subscrpt_cd = PID5600datagrid1.valueMatrix(PID5600datagrid1.row, PID5600datagrid1.colRef("subscrpt_cd"));					
+								var grid2rows = PID5600datagrid2.rows;
+								
+								PID5600datagrid2.addRow(true,true);										
+								PID5600datagrid2.valueMatrix(grid2rows,1) = subscrpt_cd;
+								
+								grid2_row_count();	
+							]]>
+						</script>
+						<script type="javascript" ev:event="xforms-deselect">
+							<![CDATA[		
+								var subscrpt_cd = PID5600datagrid1.valueMatrix(PID5600datagrid1.row, PID5600datagrid1.colRef("subscrpt_cd"));
+								var grid2rows = PID5600datagrid2.rows;				
+								var grid2_subscrpt_cd;
+														
+								for(var i=0 ; i< grid2rows ; i++){
+									grid2_subscrpt_cd = PID5600datagrid2.valueMatrix(i, PID5600datagrid2.colRef("subscrpt_cd"));
+									if(subscrpt_cd == grid2_subscrpt_cd){
+										PID5600datagrid2.deleteRow(i,true);			
+									}
+								}
+								grid2_row_count();					
+							]]>
+						</script>
+					</col>
+					<col ref="subscrpt_cd"/>
+					<col ref="in_dt" format="yyyy-mm-dd"/>
+					<col ref="pub_dt" format="yyyy-mm-dd"/>
+					<col ref="out_dt" format="yyyy-mm-dd"/>
+					<col ref="subscrpt_gb"/>
+					<col ref="buy_amt" format="#,###"/>
+					<col ref="buyer_info1"/>
+					<col ref="buyer_info2"/>
+					<col ref="buyer_info3"/>
+					<col ref="buyer_info4"/>
+					<col ref="buyer_info5"/>
+					<script type="javascript" ev:event="xforms-select">
+						<![CDATA[
+							if(PID5600datagrid1.col == 1 && PID5600datagrid1.row == 0) {										
+								for(var i=1; i<PID5600datagrid1.rows; i++) {									
+									PID5600datagrid1.valueMatrix(i,1) = "Y";		
+									
+									var subscrpt_cd = PID5600datagrid1.valueMatrix(i, PID5600datagrid1.colRef("subscrpt_cd"));					
+									var grid2rows = PID5600datagrid2.rows;
+									var dup_cnt = 0;
+									
+									for(var j=0 ; j< grid2rows ; j++) {
+										grid2_subscrpt_cd = PID5600datagrid2.valueMatrix(j, PID5600datagrid2.colRef("subscrpt_cd"));
+										if(subscrpt_cd == grid2_subscrpt_cd){
+											dup_cnt = 1;
+										}								
+									}
+									if(dup_cnt == 0)	{
+										PID5600datagrid2.addRow(true,true);										
+										PID5600datagrid2.valueMatrix(grid2rows,1) = subscrpt_cd;					
+									}
+								}
+							}
+							grid2_row_count();						
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-deselect">
+						<![CDATA[
+							if(PID5600datagrid1.col == 1 && PID5600datagrid1.row == 0) {
+								for(var i=1; i<PID5600datagrid1.rows; i++) {
+									PID5600datagrid1.valueMatrix(i,1) = "N";
+								}
+								for(var j=1; j<PID5600datagrid1.rows; j++) {							
+									PID5600datagrid2.deleteRow(1,true);
+								}			
+							}
+							grid2_row_count();	
+						]]>
+					</script>
+				</datagrid>
+			</case>
+			<case id="PID5600case2">
+				<datagrid id="PID5600datagrid3" nodeset="/root/resData/gridData/listGrid3/record" caption="구독권번호^입고일자^발행일자" colsep="^" colwidth="180,100,100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:0px; top:0px; width:420px; height:250px; ">
+					<col ref="subscrpt_cd" type="input"/>
+					<col ref="in_dt" type="inputdate"/>
+					<col ref="pub_dt" type="inputdate"/>
+				</datagrid>
+				<button id="button1" class="btn_grid03" style="left:430px; top:10px; width:53px; height:17px; background-image:/images/btn_s_3.gif; ">
+					<caption>행추가</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+							PID5600datagrid3.addRow();							
+							PID5600datagrid3.refresh();
+						]]>
+					</script>
+				</button>
+				<button id="button2" class="btn_grid03" style="left:430px; top:40px; width:53px; height:17px; background-image:/images/btn_s_3.gif; ">
+					<caption>행삭제</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+							PID5600datagrid3.deleteRow(PID5600datagrid3.row);
+							PID5600datagrid3.refresh();
+						]]>
+					</script>
+				</button>
+			</case>
+		</switch>
+		<datagrid id="PID5600datagrid2" nodeset="/root/resData/gridData/listGrid2/record" caption="구독권번호" colsep="^" colwidth="150" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:434px; width:200px; height:250px; ">
+			<col ref="subscrpt_cd"/>
+		</datagrid>
+		<caption id="PID5600caption17" style="left:70px; top:694px; width:100px; height:25px; ">총 : 장</caption>
+		<caption id="PID5600caption18" class="list_cap01" style="left:230px; top:434px; width:100px; height:25px; ">구독권유형</caption>
+		<caption id="PID5600caption19" class="list_cap02" style="left:329px; top:434px; width:400px; height:25px; "/>
+		<select1 id="PID5600radio1" ref="/root/reqData/reqform/out_form/subscrpt_gb" appearance="full" cols="3" rows="1" overflow="visible" style="left:333px; top:438px; width:300px; height:20px; border-style:none; ">
+			<choices>
+				<item>
+					<label>개인구독권(사원)</label>
+					<value>A</value>
+				</item>
+				<item>
+					<label>개인구독권(일반)</label>
+					<value>B</value>
+				</item>
+				<item>
+					<label>기업구독권</label>
+					<value>C</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[					
+					var index = PID5600radio1.focusIndex;
+					
+					if(index == 1){
+						//PID5600input6.value = "";
+						//PID5600input7.value = "";
+						//PID5600input8.value = "";
+						//PID5600input9.value = "";						
+						model.setValue("/root/reqData/reqform/out_form/buyer_cd","");
+						model.setValue("/root/reqData/reqform/out_form/buyer_nm","");
+						model.setValue("/root/reqData/reqform/out_form/buyer_cmpy","");
+						model.setValue("/root/reqData/reqform/out_form/buyer_team","");
+						PID5600input7.disabled = false;
+						PID5600input8.disabled = false;
+						buyer_search_btn.disabled = true;
+						
+						model.refresh();
+					}else{
+						//PID5600input6.value = "";
+						//PID5600input7.value = "";
+						//PID5600input8.value = "";
+						//PID5600input9.value = "";						
+						model.setValue("/root/reqData/reqform/out_form/buyer_cd","");
+						model.setValue("/root/reqData/reqform/out_form/buyer_nm","");
+						model.setValue("/root/reqData/reqform/out_form/buyer_cmpy","");
+						model.setValue("/root/reqData/reqform/out_form/buyer_team","");
+						PID5600input7.disabled = true;
+						PID5600input8.disabled = true;
+						buyer_search_btn.disabled = false;
+						
+						model.refresh();
+					}
+					
+					
+				]]>
+			</script>
+		</select1>
+		<caption id="PID5600caption20" class="list_cap01" style="left:230px; top:458px; width:499px; height:25px; text-align:left; ">구매자정보</caption>
+		<button id="buyer_search_btn" class="btn02" style="left:670px; top:460px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					sub_search();
+				]]>
+			</script>
+		</button>
+		<caption id="PID5600caption21" class="list_cap01" style="left:230px; top:482px; width:150px; height:25px; text-align:left; ">구매자코드</caption>
+		<caption id="PID5600caption22" class="list_cap02" style="left:379px; top:482px; width:350px; height:25px; text-align:left; "/>
+		<input id="PID5600input6" ref="/root/reqData/reqform/out_form/buyer_cd" style="left:383px; top:486px; width:200px; height:18px; "/>
+		<caption id="PID5600caption23" class="list_cap01" style="left:230px; top:506px; width:150px; height:25px; text-align:left; ">구매자명</caption>
+		<caption id="PID5600caption24" class="list_cap02" style="left:379px; top:506px; width:350px; height:25px; text-align:left; "/>
+		<input id="PID5600input7" ref="/root/reqData/reqform/out_form/buyer_nm" style="left:383px; top:510px; width:200px; height:18px; "/>
+		<caption id="PID5600caption25" class="list_cap01" style="left:230px; top:530px; width:150px; height:25px; text-align:left; ">구매자회사</caption>
+		<caption id="PID5600caption26" class="list_cap02" style="left:379px; top:530px; width:350px; height:25px; text-align:left; "/>
+		<input id="PID5600input8" ref="/root/reqData/reqform/out_form/buyer_cmpy" style="left:383px; top:534px; width:200px; height:18px; "/>
+		<caption id="PID5600caption27" class="list_cap01" style="left:230px; top:554px; width:150px; height:25px; text-align:left; ">구매자팀</caption>
+		<caption id="PID5600caption28" class="list_cap02" style="left:379px; top:554px; width:350px; height:25px; text-align:left; "/>
+		<input id="PID5600input9" ref="/root/reqData/reqform/out_form/buyer_team" style="left:383px; top:558px; width:200px; height:18px; "/>
+		<caption id="PID5600caption29" class="list_cap01" style="left:230px; top:578px; width:150px; height:25px; text-align:left; ">구매금액</caption>
+		<caption id="PID5600caption30" class="list_cap02" style="left:379px; top:578px; width:350px; height:25px; text-align:left; "/>
+		<input id="PID5600input10" ref="/root/reqData/reqform/out_form/buy_amt" format="#,###" style="left:383px; top:582px; width:100px; height:18px; "/>
+		<caption id="PID5600caption31" class="list_cap01" style="left:230px; top:602px; width:150px; height:25px; text-align:left; ">출고일자</caption>
+		<caption id="PID5600caption32" class="list_cap02" style="left:379px; top:602px; width:350px; height:25px; text-align:left; "/>
+		<input id="PID5600input11" ref="/root/reqData/reqform/out_form/out_dt" inputtype="date" format="yyyy-mm-dd" caption="출고일자" setHandler="true" style="left:383px; top:606px; width:100px; height:18px; "/>
+		<button id="button3" class="btn02" style="left:670px; top:604px; width:52px; height:21px; ">
+			<caption>출고처리</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					out_proc();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

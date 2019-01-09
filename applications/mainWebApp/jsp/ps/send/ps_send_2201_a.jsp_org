@@ -1,0 +1,220 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<!--JSP COMMENT START------------------------------------------------------------------------------->
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_send_2201_a.jsp
+* 기능 : 발송집계 초기 화면
+* 작성일자 : 2005-10-01
+* 작성자 : 전현표
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<!--JSP COMMENT END--------------------------------------------------------------------------------->
+<%
+    String records_per_page = "5";
+    //  dataset 인스턴스 선언부분
+    PS_S_SEND_LUMP_PROCDataSet ds = (PS_S_SEND_LUMP_PROCDataSet)request.getAttribute("ds");  // request dataset
+
+    // 화면당 보여줄 Row수
+    int li_per = 10;
+%>
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"-->
+<html>
+<head>
+
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+    // 화면 open시 event설정
+    function init(){
+        setEventHandler();
+        //setEnterKeyEventHandler();
+        setInputBackgroundColor();
+    }
+
+// 일괄발송 리스트 인쇄
+function send_clos_print() {
+    var lo_form1 = document.send_clos_form;
+
+    if(!validate(lo_form1)) { return false; }
+    else{
+        makeValue(lo_form1);
+    }
+
+ 	lo_form1.send_clos_option.value       =  jsGetCheckedGroupValues(lo_form1,"option","##");
+//    lo_form1.send_clos_option.value = concat(lo_form1.send_clos_option, "##", lo_form1.send_clos_option);
+
+    lo_form1.action = "/ps/send/2206";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+    setEventHandler();
+}
+
+// 통합발송명세서 인쇄
+function combi_send_detail() {
+    var lo_form1 = document.send_clos_form;
+     if(!validate(lo_form1)) { return false; }
+    else{
+        makeValue(lo_form1);
+    }
+
+//	  lo_form1.send_clos_option.value       =  jsGetCheckedGroupValues(lo_form1,"option","##");
+//    lo_form1.send_clos_option.value = concat(lo_form1.send_clos_option, "##", lo_form1.send_clos_option);
+
+    lo_form1.action = "/ps/send/2211";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+    setEventHandler();
+}
+
+// 해당 인덱스의 key_obj가 체크되어있는지에 따라서 concat_str로 연결된 문자열을 조합한다.
+// array_obj는 collection type이다.
+function concat(array_obj, concat_str, key_obj) {
+    var ls_ret_str = "";
+    var ls_obj_val;
+
+    if(!array_obj.length) {
+        if(key_obj.checked) {
+            return array_obj.value;
+        } else {
+            return "";
+        }
+    }
+
+    for(var i=0; i<array_obj.length; i++) {
+        if(key_obj[i].checked) {
+            ls_obj_val = array_obj[i].value;
+            //if(ls_obj_val=="") ls_obj_val = null;
+            ls_ret_str += (concat_str + ls_obj_val);
+        }
+    }
+
+    ls_ret_str = ls_ret_str.substr(concat_str.length);
+
+    return ls_ret_str;
+}
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray" onload="init()">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >발송
+      &gt; </b> 발송집계 </td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <form name="send_clos_form" method="post" action="">
+	<input type="hidden" name="send_clos_option" value="">
+  <tr>
+    <td>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+        <tr>
+          <td class="title">
+            <table width="830" border="0" cellspacing="0" cellpadding="2">
+              <tr bgcolor="#EBE9DC">
+                <td width="80" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">확인일자 <font color="red">*</font></td>
+                <td width="150">
+                  <input type="text" name="senddt_fr" size="10" class="text_box" caption="마감일자(From)" dataType="date" notEmpty>
+                  <input type="text" name="senddt_to" size="10" class="text_box" caption="마감일자(To)" dataType="date" notEmpty>
+                </td>
+                <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송지사</td>
+                <td width="150">
+                  <select name="sendbrch" size="1"  class="sel_all"  style="width:150;" >
+                    <option value=""  selected  >전체</option>
+                    <%= ds.bocdcurOptHtml("") %>
+                  </select>
+                </td>
+                <td width="50" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">선택</td>
+                <td width="100">
+                  <select name="medicd" size="1"  class="sel_all">
+                    <option value="ALL"  selected >전체</option>
+                    <option value="MEDI" >매체</option>
+                    <option value="BNS"  >보너스북</option>
+                  </select>
+                </td>
+                <td width="50" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">선택</td>
+                <td width="150">
+                  <select name="cmpycd_option" size="1"  class="sel_all" style="width:150;" >
+                    <option value="ALL"  selected  >전체</option>
+                    <%= ds.cmpycdcurOptHtml("") %>
+                  </select>
+                </td>
+			   </tr>
+			   <tr bgcolor="#EBE9DC">
+                <td width="80" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">출력옵션</td>
+                <td colspan="7">
+					<input type="checkbox" name="option" value="SENDDT"> 발송일별
+					<input type="checkbox" name="option" value="MEDICD"> 매체별
+					<input type="checkbox" name="option" value="SENDTYPE"> 발송구분
+					<input type="checkbox" name="option" value="MEDISER_NO"> 호수별
+					<input type="checkbox" name="option" value="SENDKINDCD"> 단체구분
+					<input type="checkbox" name="option" value="SENDMTHDCD"> 배송종류
+<!--
+					<input type="checkbox" name="option" value="APLCPATHCD"> 확장경로
+					<input type="checkbox" name="option" value="RDR_EXTNTYPECD"> 확장유형
+
+				</td>
+			   <tr bgcolor="#EBE9DC">
+				<td colspan="8" align="right">
+<!--                 </td>
+
+                <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7">매체종류</td>
+                <td width="210">
+                  <select name="medicd" size="1" class="sel_all" notEmpty>
+                    <%--= ds.medicdcurOptHtml("") --%>
+                  </select>
+                </td>
+			   <td colspan="2">
+-->
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  <input type="image" src="/html/comm_img/bu1_print02.gif"  width="117" height="22" border="0" align="absmiddle" onclick="javascript:combi_send_detail();window.event.returnValue=false;" style="cursor:hand">
+                  <input type="image" src="/html/comm_img/bu1_print.gif"    width="60"  height="22" border="0" align="absmiddle" onclick="javascript:send_clos_print();window.event.returnValue=false;" style="cursor:hand">
+                </td>
+              </tr>
+<!--
+                <td width="80" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">매체호수 <font color="red">*</font></td>
+                <td width="200">
+                  <input type="text" name="mediser_no" size="6" class="text_box" caption="매체호수" notEmpty>
+                </td>
+                <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송방법</td>
+                <td width="200">
+                  <select name="sendmthdcd" size="1" class="sel_all" notEmpty>
+                    <%--= ds.sendclsfcurOptHtml("") --%>
+                  </select>
+                </td>
+                <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7">발송종류</td>
+                <td width="210">
+                  <select name="sendkindcd" size="1" class="sel_all" notEmpty>
+                    <%--= ds.sendkindcurOptHtml("") --%>
+                  </select>
+                </td>
+              </tr>
+-->
+
+            </table>
+          </td>
+        </tr>
+      </table>
+      <!--검색끝-->
+    </td>
+  </tr>
+  </form>
+</table>
+<iframe name="ifrm" width=800 height=0></iframe>
+<!--발송내역 상세 끝-->
+</body>
+</html>

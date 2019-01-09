@@ -1,0 +1,269 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_code_1501_a.jsp
+* 기능 : 지사계좌관리 초기화면
+* 작성일자 : 2006-11-09
+* 작성자 : 전현표
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    // 페이지당 보여줄 라인수
+    String records_per_page = "15";
+    int li_per = Integer.parseInt(records_per_page) ;
+    //	dataset 인스턴스 선언부분
+    PS_L_BOACCTDataSet ds = (PS_L_BOACCTDataSet)request.getAttribute("ds");  // request dataset
+%>
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"-->
+<html>
+<head>
+
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+	setInputBackgroundColor();
+}
+
+// 매체단가 내역 조회처리
+function list_search(){
+    var lo_form1 = list_form;
+	var lo_from2 = detail_form;
+
+    if(!validate(list_form)) { return false; }
+    else{
+        makeValue(list_form);
+    }
+    lo_form1.action = "/ps/code/1506";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// navigator선택시 페이지 move처리
+function page_move(curr_page_no) {
+    var lo_form = document.list_form;
+
+    if(!curr_page_no) {
+        lo_form.curr_page_no.value = '1';
+    } else {
+        lo_form.curr_page_no.value = curr_page_no;
+    }
+
+    list_search();
+}
+
+
+
+// 상세정보를 표기한다
+function detail_view(str1,str2,str3,str4,str5,str6,str7) {
+    var lo_form1 = document.detail_form;
+
+    lo_form1.asinbocd.value = str1;			//지국지사명
+    lo_form1.bankcd.value = str2;		    //은행명
+    lo_form1.acctitem.value = str3;		    //계좌항목
+    lo_form1.deps_persnm.value = str4;		//예금주명
+    lo_form1.acctno.value = str5;			//계좌번호
+    lo_form1.remk.value = str6;			    //비고
+    lo_form1.seq.value = str7;
+
+    // Background 색상을 지정한다
+    //lo_form1.asinbocd.disabled = true;
+    lo_form1.asinbocd.readOnly = true;
+
+	setEventHandler();
+}
+
+// 상세정보를 신규등록 처리한다
+function detail_access(flag) {
+    var lo_form1 = document.detail_form;
+
+    if(!validate(detail_form)) { return false; }
+    else{
+        makeValue(detail_form);
+    }
+    if(flag == "I" && lo_form1.seq.value =="") {
+      lo_form1.accflag.value ="I";
+      var ls_check = confirm("저장 하시겠습니까?");
+      if(!ls_check) return ;
+
+    } else if(flag == "I" &&  lo_form1.seq.value !="") {
+      lo_form1.accflag.value ="U";
+      var ls_check = confirm("저장 하시겠습니까?");
+      if(!ls_check) return ;
+    } else {
+      lo_form1.accflag.value ="D";
+      var ls_check = confirm("삭제 하시겠습니까?");
+      if(!ls_check) return ;
+    }
+
+    lo_form1.method = "post";
+    lo_form1.action = "/ps/code/1511";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+
+}
+
+
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onload="init()">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+<tr>
+  <td bgcolor="#797777" height="25" class="home"><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" onload="init()"><b>코드
+    &gt; </b>지사계좌관리</td>
+</tr>
+<tr>
+  <td height="10">
+    <!--내용을 위한 여백-->
+  </td>
+</tr>
+</table>
+
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+<!--등록?-->
+<form name="detail_form" method="post" action="">
+<input type="hidden" name="accflag" value="I">
+<input type="hidden" name="seq"     value="">
+<tr>
+   <td valign="top" align="center">
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td bgcolor="#EBE9DC" class="title"><b>출판지사계좌관리</b></td>
+          <td bgcolor="#EBE9DC" class="title" align="right" width="250">
+            <img src="/html/comm_img/bu_save.gif" width="39"  align="absmiddle" border="0" style="cursor:hand"
+		 onclick="detail_access('I');window.event.returnValue=false;">
+            <img src="/html/comm_img/bu_del.gif" width="39"  align="absmiddle" border="0" style="cursor:hand"
+		 onclick="detail_access('D');window.event.returnValue=false;">
+        </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="2">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0"  cellpadding="1" cellspacing="0" bgcolor="#FFFFFF" class="gray">
+        <tr>
+          <td  width="110" bgcolor="#dddddd" class="gray">지사 <font color="red">*</font></td>
+          <td class="gray" width="100" >
+            <select name="asinbocd" class="sel_all" caption="지사" notEmpty >
+            <option value="" >선택</option>
+            <%=ds.asinbocdcurOptHtml("")%>
+            </select>
+          </td>
+          <td  width="110" bgcolor="#dddddd" class="gray">은행 <font color="red">*</font></td>
+          <td class="gray" width="100" >
+            <select name="bankcd" class="sel_all" caption="은행" notEmpty >
+            <option value="" >선택</option>
+            <%=ds.bankcurOptHtml("")%>
+            </select>
+          </td>
+          <td  width="110" bgcolor="#dddddd" class="gray">계좌항목 <font color="red">*</font></td>
+          <td class="gray" width="100" >
+            <select name="acctitem" class="sel_all" caption="계좌항목" notEmpty >
+            <option value="" >선택</option>
+            <%=ds.accitmcurOptHtml("")%>
+            </select>
+          </td>
+
+        </tr>
+        <tr>
+          <td  width="110" bgcolor="#dddddd" class="gray">예금주명 <font color="red">*</font></td>
+          <td class="gray" width="100" >
+            <input type="text" name="deps_persnm" size="10" caption="예금주명" notEmpty>
+          </td>
+          <td  width="110" bgcolor="#dddddd" class="gray">계좌번호 <font color="red">*</font></td>
+          <td class="gray" width="100" >
+            <input type="text" name="acctno" size="20" dataType="number" caption="계좌번호" notEmpty>
+          </td>
+          <td  width="110" bgcolor="#dddddd" class="gray">비고</td>
+          <td class="gray" width="100" >
+            <input type="text" name="remk" size="50" caption="비고">
+          </td>
+        </tr>
+      </table>
+    </td>
+    </tr>
+    </form>
+      <tr>
+        <td height="10">
+          <!------여백--- -->
+        </td>
+      </tr>
+      <!--search -->
+    <form name="list_form" method="post" action="">
+      <input name="curr_page_no" type="hidden" value ="1"><!--//현재페이지-->
+      <input name="records_per_page" type="hidden" value ="<%=records_per_page%>"> <!--//화면에 보여줄  ROW수-->
+      <input name="js_fn_nm" type="hidden" value ="page_move">
+      <table width="830" border="0" align="center" cellspacing="0" cellpadding="2">
+        <tr bgcolor="#EBE9DC">
+          <td  class="title" width="100"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">출판본사/지사</td>
+          <td  class="title" width="100">
+            <select name="slt_bocd" class="sel_all" caption="지사"  >
+            <option value="ALL" >전체</option>
+            <%=ds.asinbocdcurOptHtml("")%>
+            </select>
+
+          </td>
+          <td  class="title" >
+            <input type="image" src="/html/comm_img/bu_search.gif" width="36"  align="absmiddle" border="0" style="cursor:hand"
+				 onclick="list_search();window.event.returnValue=false;">
+          </td>
+        </tr>
+        <tr>
+          <td height="3" colspan="4">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list -->
+      <table width="830" border="0"  cellpadding="1" align="center"  cellspacing="0" bgcolor="#FFFFFF" class="gray" id="list_info">
+        <tr align="center" bgcolor="#dddddd" >
+          <td width="120" class="gray">지국지사명</td>
+          <td width="120" class="gray">발송통합여부</td>
+          <td width="120" class="gray">수금통합여부</td>
+          <td width="120" class="gray">수당통합여부</td>
+          <td width="120" class="gray">지사수당지급시점</td>
+          <td width="120" class="gray">본사수당지급시점</td>
+        </tr>
+<%
+	for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+        <tr>
+          <td  class="gray">&nbsp;</td>
+          <td  class="gray">&nbsp;</td>
+          <td  align="center" class="gray">&nbsp;</td>
+          <td  align="center" class="gray">&nbsp;</td>
+          <td  align="center" class="gray">&nbsp;</td>
+          <td  align="center" class="gray">&nbsp;</td>
+        </tr>
+<%
+	}
+%>
+
+      </table>
+      <!---button-->
+
+    </td>
+  </tr>
+  </form>
+</table>
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="iframe" width=100 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+</body>
+</html>

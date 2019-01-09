@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>상품매출</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<work_yymm/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData1/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+								<checked/>
+								<sale_yymm/>
+								<dlco_no/>
+								<dlco_nm/>
+								<sale_item/>
+								<sale_cost/>
+								<qunt/>
+								<clamt_mthd/>
+								<suply_amt/>
+								<vat_amt/>
+								<ordr_amt/>
+								<ipln_amt/>
+								<ipln_meda_amt/>
+								<ordr_dt/>
+								<suply_pers_ern/>
+								<gds_no/>
+								<gds_nm/>
+								<seq/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record>
+								<sale_yymm/>
+								<dlco_cd/>
+								<sale_item/>
+								<ordr_no/>
+								<sale_cost/>
+								<qunt/>
+								<clamt_mthd/>
+								<suply_amt/>
+								<vat_amt/>
+								<ordr_amt/>
+								<ipln_amt/>
+								<ipln_meda_amt/>
+								<gds_no/>
+								<gds_nm/>
+								<ordr_dt/>
+								<suply_pers_ern/>
+								<suply_pers_nm/>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="sp_sal_1110_l" action="/sp/sal/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1/record"/>
+			<submission id="sp_sal_1120_a" action="/sp/sal/1120" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="sp_sal_1130_d" action="/sp/sal/1130" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.setValue("/root/reqData/searchData/work_yymm", getCurrentMonth());
+				
+				datagrid1.fixedcellcheckbox(0, datagrid1.colRef("checked"), false) = true;
+				model.refresh();	
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function dg_sum(){
+				if(datagrid1.rows > datagrid1.fixedRows){ 
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("sale_cost"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("qunt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("suply_amt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("vat_amt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("ordr_amt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("ipln_amt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+					datagrid1.subtotal("sum", -1, datagrid1.colRef("ipln_meda_amt"),"#,###", "background-color:#FFFFCC", 1, "합계");
+				}
+			}
+			
+			// 그리드 선택항목 특정로우만 체크하여 그리드모드 변경
+			function chkValu_change(gridID, row){				
+				var grid = document.all(gridID);
+				var chk = grid.valueMatrix(row, grid.colRef("checked"));
+			
+					if(chk == "Y")
+					{
+						grid.addStatus(grid.row, "delete");
+						
+						var seq = grid.valueMatrix(grid.row,grid.colRef("seq"));
+						makeNodeValue("/root/reqData/seq"			, seq );
+						
+						grid.refresh();
+					}
+					else if(chk == "N" || chk == null)
+					{	
+						cancelRow(grid);
+						makeNodeValue("/root/reqData/seq"			, "" );
+						grid.refresh();
+					}
+			}
+			
+			// 그리드 선택항목 전체 체크하여 그리드모드 변경
+			function chkValu_changeAll(gridID){				
+				var grid = document.all(gridID);
+				
+				for( i=grid.fixedRows;i<grid.rows; i++ ){					
+					var chk = grid.valueMatrix(i, grid.colRef("checked"));
+				
+						if(chk == "Y")
+						{
+							grid.addStatus(i, "delete");
+							
+							var seq = grid.valueMatrix(i,grid.colRef("seq"));
+							makeNodeValue("/root/reqData/seq"			, seq );							
+						}
+						else if(chk == "N" || chk == null)
+						{				
+							grid.removeStatus(i, "delete");  //상태 변경
+							makeNodeValue("/root/reqData/seq"			, "" );
+						}
+				}
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,935;2,61;2,71;2,126;2,105;2,115;2,120;2,699;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:108px; width:926px; height:5px; "/>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">작업월</caption>
+		<button id="button1" class="btn02" crud="R" style="left:828px; top:40px; width:50px; height:18px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				datagrid1.fixedcellischeck(0, datagrid1.colRef("checked")) = false;
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" class="nobg" caption="^매출월^지국코드^지국명^매출항목^매출원가^수량^수금방법^공급가액^부가세액^매출액^할부액^할부조정액^주문일자^공급자사업자번호^제품코드^제품명^seq" colsep="#" colwidth="42, 80, 80, 100, 80, 80, 80, 80, 75, 70, 80, 80, 80, 80, 120, 100, 100, 100" frozencols="1" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" subtotalposition="below" style="left:10px; top:126px; width:925px; height:574px; ">
+			<col checkvalue="Y,N" ref="checked" type="checkbox"/>
+			<col ref="sale_yymm" format="yyyy-mm"/>
+			<col ref="dlco_no"/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="sale_item"/>
+			<col ref="sale_cost" format="#,###" style="text-align:right; "/>
+			<col ref="qunt" format="#,###" style="text-align:right; "/>
+			<col ref="clamt_mthd"/>
+			<col ref="suply_amt" format="#,###" style="text-align:right; "/>
+			<col ref="vat_amt" format="#,###" style="text-align:right; "/>
+			<col ref="ordr_amt" format="#,###" style="text-align:right; "/>
+			<col ref="ipln_amt" format="#,###" style="text-align:right; "/>
+			<col ref="ipln_meda_amt" format="#,###" style="text-align:right; "/>
+			<col ref="ordr_dt" format="yyyy-mm-dd"/>
+			<col ref="suply_pers_ern"/>
+			<col ref="gds_no"/>
+			<col ref="gds_nm"/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					//chkValu_change("datagrid1", datagrid1.row);				
+				]]>
+			</script>
+		</datagrid>
+		<script type="javascript" ev:event="xforms-select">
+			<![CDATA[			
+			
+				chkValu_changeAll("datagrid1");				
+				datagrid1.refresh();
+				
+				/*
+				datagrid1.addStatus(datagrid1.row, "delete");
+				
+				var seq = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("seq"));
+				makeNodeValue("/root/reqData/seq"			, seq );
+				
+				datagrid1.refresh();
+				*/
+			]]>
+		</script>
+		<script type="javascript" ev:event="xforms-deselect">
+			<![CDATA[
+			
+				chkValu_changeAll("datagrid1");				
+				datagrid1.refresh();
+				
+				/*			
+				//datagrid1.addStatus(datagrid1.row, "");  //상태 변경
+				
+				cancelRow(datagrid1);
+				makeNodeValue("/root/reqData/seq"			, "" );
+				datagrid1.refresh();
+				*/
+			]]>
+		</script>
+		<button id="btnClose" class="btn02" style="left:882px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));								
+				]]>
+			</script>
+		</button>
+		<input id="inp_work_yymm" ref="/root/reqData/searchData/work_yymm" navindex="1" inputtype="date" format="yyyy-mm" style="left:103px; top:76px; width:85px; height:18px; "/>
+		<button id="button2" class="btn02" crud="C" style="left:655px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.send("sp_sal_1110_l");
+				datagrid1.fixedcellischeck(0, datagrid1.colRef("checked")) = false;								
+				dg_sum();
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" crud="C" style="left:773px; top:40px; width:50px; height:21px; ">
+			<caption>엑셀반입</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[								
+				var i;
+				var headName;
+				var filename = window.fileDialog("open", ",", false, "", "xls*", "Excel File(*.xls*)|*.xls*");
+				if( filename!="" ){
+					model.removeNodeset("/root/resData/datagrid2");
+					
+					datagrid2.loadExcel(filename, 1, true); 
+					
+					for( i=datagrid2.fixedRows+1;i<datagrid2.rows; i++ ){
+						datagrid2.addStatus(i, "insert");
+					}
+					
+					if( !isDataGridUpdated(datagrid2) )	{
+						alert("저장할 내역이 없습니다.");
+						return;
+					}
+					
+					if( commGridReqCheck(datagrid2) ){
+						if( window.alert("저장하시겠습니까?", "확인", 1) == 1 )	{
+							
+							var work_yymm = model.getValue("/root/reqData/searchData/work_yymm");
+							if(work_yymm == ""){
+								alert("작업월을 입력하세요.");
+								return;
+							}
+							
+							makeNodeValue("/root/reqData/work_yymm"			, work_yymm );
+							
+							model1.setValue("/root/reqData/multiUpdateData1", datagrid2.getUpdateData());
+							model.send("sp_sal_1120_a");
+							if( submit_completed() ){
+								model.send("sp_sal_1110_l");
+								
+								dg_sum();
+							}
+						}
+					}	
+				}				
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" class="nobg" visibility="hidden" caption="매출월^지국번호^항목번호^주문번호^매출원가^수량^수금방법^공급가액^부가세액^매출액^할부액^할부조정액^상품번호^상품명^주문일자^공급자사업자등록번호^공급자명" colsep="#" colwidth="100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:105px; top:240px; width:720px; height:195px; ">
+			<col ref="sale_yymm"/>
+			<col ref="dlco_cd"/>
+			<col ref="sale_item"/>
+			<col ref="ordr_no"/>
+			<col ref="sale_cost"/>
+			<col ref="qunt"/>
+			<col ref="clamt_mthd"/>
+			<col ref="suply_amt"/>
+			<col ref="vat_amt"/>
+			<col ref="ordr_amt"/>
+			<col ref="ipln_amt"/>
+			<col ref="ipln_meda_amt"/>
+			<col ref="gds_no"/>
+			<col ref="gds_nm"/>
+			<col ref="ordr_dt"/>
+			<col ref="suply_pers_ern"/>
+			<col ref="suply_pers_nm"/>
+		</datagrid>
+		<button id="button3" class="btn02" crud="C" style="left:715px; top:40px; width:50px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var val = window.alert("삭제하시겠습니까?", "확인", 1) ;
+				var selected1 = 0;
+				// 1은 확인 2는 취소
+				if ( val == 2 ){
+					return;
+				}
+				
+				var work_yymm = model.getValue("/root/reqData/searchData/work_yymm");
+				if(work_yymm == ""){
+					alert("작업월을 입력하세요.");
+					return;
+				}
+
+				for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++) {
+					if(datagrid1.valueMatrix(i, datagrid1.colRef("checked")) == 'Y'){
+						selected1++;
+						datagrid1.addStatus(i, "update");
+					}else{
+						datagrid1.removeStatus(i, "update");
+					}
+				}	
+				
+				if(selected1 == 0){
+					alert("삭제할 행을 선택하세요.");
+					return;
+				}
+						
+				makeNodeValue("/root/reqData/work_yymm"			, work_yymm );
+				
+				model1.setValue("/root/reqData/multiUpdateData1", datagrid1.getUpdateData());
+				model.send("sp_sal_1130_d");
+				
+				if( submit_completed() ){
+					//model.reset();
+					model.send("sp_sal_1110_l");
+					datagrid1.fixedcellischeck(0, datagrid1.colRef("checked")) = false;
+					dg_sum(); 
+				}
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<resData1>
+						<gridData>
+							<curlist1>
+								<sel_chk/>
+								<nm_korn/>
+							</curlist1>
+						</gridData>
+					</resData1>
+					<resData2>
+						<gridData>
+							<curlist1>
+								<sel_chk/>
+								<nm_korn/>
+							</curlist1>
+						</gridData>
+					</resData2>
+				</root>
+			</instance>
+			<submission id="submission1" action="/jsp/hd/evlu/grid_sample1.jsp" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData1"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.send("submission1");
+					model1.send("submission2");
+				]]>
+			</script>
+			<submission id="submission2" action="/jsp/hd/evlu/grid_sample2.jsp" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData2"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body>
+		<datagrid id="datagrid1" nodeset="/root/resData1/gridData/curlist1" caption="a^b" colwidth="100, 100" mergecellsfixedrows="bycolrec" rowsep="|" colsep="^" style="left:185px; top:145px; width:200px; height:265px; ">
+			<col ref="sel_chk" type="checkbox"/>
+			<col ref="nm_korn" type="input"/>
+		</datagrid>
+		<datagrid id="datagrid2" nodeset="/root/resData2/gridData/curlist1" caption="a^b" colwidth="100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" colsep="^" style="left:510px; top:145px; width:200px; height:265px; ">
+			<col ref="sel_chk" type="checkbox"/>
+			<col ref="nm_korn" type="input"/>
+		</datagrid>
+		<button id="button1" style="left:395px; top:190px; width:105px; height:65px; ">
+			<caption>
+				<![CDATA[>>>>>]]>
+			</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				
+					// datagrid2 노드 추가
+					var node1 = instance1.selectSingleNode("/root/resData1/gridData");
+					var node2 = instance1.selectSingleNode("/root/resData2/gridData");
+					var d1_nodelist = instance1.selectNodes(datagrid1.nodeset);
+					//1. datagrid1의 sel_chk 노드가 체크된 행을 찾는다.
+					for(var i=0; i<d1_nodelist.length; i++){
+						var d1c1_node = d1_nodelist.item(i);
+						var d1c1s1_nodelist = d1c1_node.getElementsByTagName("sel_chk");
+						var d1c1s1_node = d1c1s1_nodelist.item(0);
+						//2. sel_chk 노드가 체크된 행이라면 datagrid2에 새로운 행을 삽입하고, datagrid1의 행을 삭제한다.
+						if(d1c1s1_node.value == 'true'){
+							//datagrid2에 노드 삽입
+							var newNode = d1c1_node.cloneNode(true);	//노드이름은 같은것으로 간주
+							node2.appendChild(newNode);
+						}
+					}
+					datagrid2.rebuild();
+
+					//datagrid1 노드 삭제
+					for(var i=0; i<d1_nodelist.length; i++){
+						var d1c1_node = d1_nodelist.item(i);
+						var d1c1s1_nodelist = d1c1_node.getElementsByTagName("sel_chk");
+						var d1c1s1_node = d1c1s1_nodelist.item(0);
+						//2. sel_chk 노드가 체크된 행이라면 datagrid1의 행을 삭제한다.
+						if(d1c1s1_node.value == 'true'){
+							node1.removeChild(d1c1_node);
+						}
+					}
+					datagrid1.rebuild();
+										
+					//datagrid2 상태값을 모두 초기화 후 "insert" 형태로 변경
+					for(var i=datagrid2.fixedRows; i<=(datagrid2.rows-datagrid2.fixedRows); i++){
+						datagrid2.rowStatus(i) = 1;
+					}
+
+					alert(datagrid2.getUpdateData());
+				]]>
+			</script>
+		</button>
+		<button id="button2" style="left:395px; top:270px; width:105px; height:65px; ">
+			<caption>
+				<![CDATA[<<<<<]]>
+			</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					/*****
+						좌측이동 로직
+					*****/
+					
+					//1. datagrid1 노드 추가
+					var node1 = instance1.selectSingleNode("/root/resData1/gridData");
+					var node2 = instance1.selectSingleNode("/root/resData2/gridData");
+					var d2_nodelist = instance1.selectNodes(datagrid2.nodeset);
+					//1. datagrid2의 sel_chk 노드가 체크된 행을 찾는다.
+					for(var i=0; i<d2_nodelist.length; i++){
+						var d2c1_node = d2_nodelist.item(i);
+						var d2c1s1_nodelist = d2c1_node.getElementsByTagName("sel_chk");
+						var d2c1s1_node = d2c1s1_nodelist.item(0);
+						//2. sel_chk 노드가 체크된 행이라면 datagrid1에 새로운 행을 삽입한다.
+						if(d2c1s1_node.value == 'true'){
+							//datagrid1에 노드 삽입
+							var newNode = d2c1_node.cloneNode(true);	//노드이름은 같은것으로 간주
+							node1.appendChild(newNode);
+						}
+					}
+					datagrid1.rebuild();
+
+					//datagrid2 노드 삭제
+					for(var i=0; i<d2_nodelist.length; i++){
+						var d2c1_node = d2_nodelist.item(i);
+						var d2c1s1_nodelist = d2c1_node.getElementsByTagName("sel_chk");
+						var d2c1s1_node = d2c1s1_nodelist.item(0);
+						//2. sel_chk 노드가 체크된 행이라면 datagrid2의 행을 삭제한다.
+						if(d2c1s1_node.value == 'true'){
+							node2.removeChild(d2c1_node);
+						}
+					}
+					datagrid2.rebuild();
+										
+					//datagrid2 상태값을 모두 초기화 후 "insert" 형태로 변경
+					for(var i=datagrid2.fixedRows; i<=(datagrid2.rows-datagrid2.fixedRows); i++){
+						datagrid2.rowStatus(i) = 1;
+					}
+
+					alert(datagrid2.getUpdateData());
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

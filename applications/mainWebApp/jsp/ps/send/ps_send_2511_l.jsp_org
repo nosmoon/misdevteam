@@ -1,0 +1,120 @@
+<%@ page contentType="text/html; charset=KSC5601" %>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_send_2511_l.jsp
+* 기능 : 배달비마감-마감내역 조회화면
+* 작성일자 : 2008-07-29
+* 작성자 : 김재일
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    // dataset 인스턴스 선언부분
+	PS_L_WEEKSND_CLOSPTCRDataSet ds = (PS_L_WEEKSND_CLOSPTCRDataSet)request.getAttribute("ds");
+
+    // 화면에 보여줄 라인수
+    String pagesize			=	request.getParameter("pagesize");
+    String curr_page_no		=	request.getParameter("curr_page_no");
+    String totalcnt			=	String.valueOf(ds.getTotalcnt());
+    String js_fn_nm			=	request.getParameter("js_fn_nm");
+
+	int no_pagesize			=	Integer.parseInt(pagesize) - ds.closptcrcur.size();
+%>
+
+      <table width="830" border="0" cellspacing="0" cellpadding="1" bgcolor="#FFFFFF" class="gray" id="clos_lst1">
+        <tr align="center" bgcolor="#dddddd">
+          <td width="100" height="23" class="gray" >정산년월</td>
+          <td width="100" height="23" class="gray" >정산일자</td>
+          <td width="100" height="23" class="gray" >일괄건수</td>
+          <td width="100" height="23" class="gray" >반송건수</td>
+          <td width="100" height="23" class="gray" >총건수</td>
+          <td width="100" height="23" class="gray" >일괄금액</td>
+          <td width="100" height="23" class="gray" >반송금액</td>
+          <td width="*"   height="23" class="gray" >총금액</td>
+        </tr>
+
+<%
+	for(int i=0; i<ds.closptcrcur.size(); i++){
+		PS_L_WEEKSND_CLOSPTCRCLOSPTCRCURRecord closptcrcurRec = (PS_L_WEEKSND_CLOSPTCRCLOSPTCRCURRecord)ds.closptcrcur.get(i);
+%>
+        <tr onmouseover="mouse_in(this);" onmouseout="mouse_out(this);">
+          <td width="100" height="23" align="center" class="gray"><%= Util.convertMonthS(closptcrcurRec.closyymm)%></td>
+          <td width="100" height="23" align="center" class="gray"><%= Util.convertS(closptcrcurRec.closdt)%></td>
+          <td width="100" height="23" align="right"  class="gray"><%= Util.comma(closptcrcurRec.lumpcnt)%></td>
+          <td width="100" height="23" align="right"  class="gray"><%= Util.comma(closptcrcurRec.addcnt)%></td>
+          <td width="100" height="23" align="right"  class="gray"><b><%= Util.comma(closptcrcurRec.totcnt)%></b></td>
+          <td width="100" height="23" align="right"  class="gray"><%= Util.comma(closptcrcurRec.lumpamt)%></td>
+          <td width="100" height="23" align="right"  class="gray"><%= Util.comma(closptcrcurRec.addamt)%></td>
+          <td width="*"   height="23" align="right"  class="gray"><b><%= Util.comma(closptcrcurRec.totamt)%></b></td>
+        </tr>
+<%
+    }
+%>
+
+<%-- 빈레코드 --%>
+<%
+    for(int j=0; j<no_pagesize; j++){
+%>
+        <tr>
+          <td width="100" height="23" align="center" class="gray">&nbsp;</td>
+          <td width="100" height="23" align="center" class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="100" height="23" align="right"  class="gray">&nbsp;</td>
+          <td width="*"   height="23" align="right"  class="gray">&nbsp;</td>
+        </tr>
+<%
+    }
+%>
+<%-- 빈레코드 끝 --%>
+        <tr align="right" height="23">
+          <td colspan="8" bgcolor="#dddddd" class="gray">
+            <img src="/html/comm_img/ic_arr06.gif" width="7" height="7"> <b> 총건수 <%= Util.comma(ds.getTotalcnt()) %> 건 </b>
+          </td>
+        </tr>
+      </table>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" id="page_move">
+        <tr>
+          <td align="center" height="2">
+          <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td align="center" height="24" bgcolor="#E8E8E8">
+          <!--JSP PAGE START---------------------------------------------------------------------------------->
+          <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+          <jsp:param name = "curr_page_no"     value="<%=curr_page_no%>"/>
+          <jsp:param name = "total_records"    value="<%=totalcnt%>"/>
+          <jsp:param name = "js_fn_nm"         value="<%=js_fn_nm%>"/>
+          <jsp:param name = "records_per_page" value="<%=pagesize%>"/>
+          <jsp:param name = "page_set_gubun"   value="0"/>
+          </jsp:include>
+          <!--JSP PAGE END------------------------------------------------------------------------------------>
+          </td>
+        </tr>
+      </table>
+
+<script language="JavaScript">
+<!--
+    parent.document.all.clos_lst1.outerHTML	=	clos_lst1.outerHTML;
+    parent.document.all.page_move.outerHTML =	page_move.outerHTML;
+
+    // 화면 초기화
+    parent.jsInit();
+
+<%
+	if(ds.closptcrcur.size() == 0){
+%>
+    	alert("검색결과가 없습니다.");
+<%
+	}
+%>
+//-->
+</script>

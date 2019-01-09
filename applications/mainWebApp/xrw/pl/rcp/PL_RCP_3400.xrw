@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_RCP_3400.xrw
+* 기능 : 입금관리-미수일람표
+* 작성일자 :2009-04-20
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>미수일람표(PL_RCP_3400)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</medi_clsf>
+							<dlco_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</dlco_clsf>
+							<area>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</area>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<basi_yymm/>
+								<medi_clsf/>
+								<dlco_clsf/>
+								<area/>
+								<dlco_cd/>
+								<dlco_seq/>
+								<dlco_nm/>
+							</searchTop>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdate>
+						</multiUpdate>
+					</reqData>
+					<resData>
+						<comboSet/>
+						<resform>
+						</resform>
+						<gridData>
+							<PTCRLIST>
+								<record>
+									<dlco_clsf_nm/>
+									<area_nm/>
+									<dlco_nm/>
+									<cyov_bal/>
+									<sale_amt/>
+									<bal_sum/>
+									<rcpm_amt/>
+									<thmm_bal/>
+									<meda_bal/>
+									<tot_bal/>
+									<dlco_cd/>
+									<dlco_seq/>
+									<dlco_abrv_nm/>
+								</record>
+							</PTCRLIST>
+						</gridData>
+						<resultData/>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<btState/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="pl_rcp_3400_m" action="/pl/rcp/3400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/comboSet"/>
+			<submission id="pl_rcp_3410_l" action="/pl/rcp/3410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+			<bind id="thmm_bal" ref="/root/resData/gridData/PTCRLIST/record/thmm_bal" calculate="../sale_amt - ../rcpm_amt"/>
+			<bind id="tot_bal" ref="/root/resData/gridData/PTCRLIST/record/tot_bal" calculate="../bal_sum - ../rcpm_amt + ../meda_bal"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					model.send("pl_rcp_3400_m",true);
+
+					model.copyNode("/root/initData/comboSet/medi_clsf","/root/resData/comboSet/medi_clsf");				//매체구분 copy
+					model.copyNode("/root/initData/comboSet/dlco_clsf","/root/resData/comboSet/dlco_clsf");				//거래처구분 copy
+					model.copyNode("/root/initData/comboSet/area","/root/resData/comboSet/area");						//지역 copy
+
+					//콤보 초기구분값 세팅(전체(A), 선택(S), 공백("") -> value는 "")
+					makeComboGubun("A", "/root/initData/comboSet/dlco_clsf", "item", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/area", "item", "cdnm", "cd");
+
+					model.setValue("/root/tempData/btState","RE");			//버튼제어상태 (RE:초기화)
+
+					model.refresh();
+				}
+
+				//조회
+				function srcRetrieve(){
+					//필수체크
+					if(!commReqCheck(group1)) {
+						return;
+					}
+					
+					model.send("pl_rcp_3410_l");						//Submission
+
+					var rowcnt = datagrid1.rows - datagrid1.fixedRows;
+
+					//셀병합처리					
+					if(rowcnt > 0){
+						//일자별 소계
+						datagrid1.subtotalposition = "below";
+						datagrid1.subtotal("sum", 0, 3, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffccff; color:#0000ff; font-weight:bold; ", 0, "거래처구분 계"); 
+						datagrid1.subtotal("sum", 0, 4, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffccff; color:#0000ff; font-weight:bold; ", 0, "거래처구분 계"); 
+						datagrid1.subtotal("sum", 0, 5, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffccff; color:#0000ff; font-weight:bold; ", 0, "거래처구분 계"); 
+						datagrid1.subtotal("sum", 0, 6, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffccff; color:#0000ff; font-weight:bold; ", 0, "거래처구분 계"); 
+						datagrid1.subtotal("sum", 0, 7, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffccff; color:#0000ff; font-weight:bold; ", 0, "거래처구분 계"); 
+						datagrid1.subtotal("sum", 0, 8, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffccff; color:#0000ff; font-weight:bold; ", 0, "거래처구분 계"); 
+						datagrid1.subtotal("sum", 0, 9, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffccff; color:#0000ff; font-weight:bold; ", 0, "거래처구분 계"); 
+
+						datagrid1.subtotal("sum", 1, 3, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffff00; color:#0000ff; font-weight:bold; ", 1, "지역 소계"); 
+						datagrid1.subtotal("sum", 1, 4, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffff00; color:#0000ff; font-weight:bold; ", 1, "지역 소계"); 
+						datagrid1.subtotal("sum", 1, 5, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffff00; color:#0000ff; font-weight:bold; ", 1, "지역 소계"); 
+						datagrid1.subtotal("sum", 1, 6, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffff00; color:#0000ff; font-weight:bold; ", 1, "지역 소계"); 
+						datagrid1.subtotal("sum", 1, 7, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffff00; color:#0000ff; font-weight:bold; ", 1, "지역 소계"); 
+						datagrid1.subtotal("sum", 1, 8, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffff00; color:#0000ff; font-weight:bold; ", 1, "지역 소계"); 
+						datagrid1.subtotal("sum", 1, 9, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#ffff00; color:#0000ff; font-weight:bold; ", 1, "지역 소계"); 
+
+						datagrid1.subtotal("sum", -1, 3, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#939EF8; color:#F90521; font-weight:bold; ", 0, "합계"); 
+						datagrid1.subtotal("sum", -1, 4, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#939EF8; color:#F90521; font-weight:bold; ", 0, "합계"); 
+						datagrid1.subtotal("sum", -1, 5, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#939EF8; color:#F90521; font-weight:bold; ", 0, "합계"); 
+						datagrid1.subtotal("sum", -1, 6, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#939EF8; color:#F90521; font-weight:bold; ", 0, "합계"); 
+						datagrid1.subtotal("sum", -1, 7, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#939EF8; color:#F90521; font-weight:bold; ", 0, "합계"); 
+						datagrid1.subtotal("sum", -1, 8, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#939EF8; color:#F90521; font-weight:bold; ", 0, "합계"); 
+						datagrid1.subtotal("sum", -1, 9, "format:(-)###,###,###,###; roundmode:round; roundpostion:2", "background-color:#939EF8; color:#F90521; font-weight:bold; ", 0, "합계"); 
+						datagrid1.attribute("frozenbottomrows") = 1
+
+						grid_Merge_hight("datagrid1","0#1","#");			//셀병합
+					}
+
+					model.setValue("/root/tempData/btState","RT");			//버튼제어상태 (RT:조회)
+				}
+
+				//출력
+				function printProcess(){
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					//오즈데이타 설정 set
+					makeNodeValue("/root/oz_data/preview","");
+					makeNodeValue("/root/oz_data/printsize","");
+
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "pl/SP_PL_RCP_3420_P");
+					makeNodeValue("/root/oz_data/conParam/sv_url","");
+					makeNodeValue("/root/oz_data/conParam/sv_uid");	
+					makeNodeValue("/root/oz_data/conParam/sv_bonm");
+					makeNodeValue("/root/oz_data/conParam/uv_line");
+					makeNodeValue("/root/oz_data/conParam/uv_summary");
+
+					var root			= "/root/reqData/searchData/searchTop";
+					var iv_basi_yymm	= model.getValue(root + "/basi_yymm");
+					var iv_medi_clsf	= model.getValue(root + "/medi_clsf");
+					var iv_dlco_clsf		= model.getValue(root + "/dlco_clsf");
+					var iv_area		= model.getValue(root + "/area");
+					var iv_dlco_cd		= model.getValue(root + "/dlco_cd");
+					var iv_dlco_seq		= model.getValue(root + "/dlco_seq");
+													
+					//필수체크
+					if(!commReqCheck(group1)) {
+						return;
+					}
+					
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));
+					makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers",model.property("ss_emp_no"));
+					makeNodeValue("/root/oz_data/odiParam/iv_basi_yymm",iv_basi_yymm);
+					makeNodeValue("/root/oz_data/odiParam/iv_medi_clsf",iv_medi_clsf);
+					makeNodeValue("/root/oz_data/odiParam/iv_dlco_clsf",iv_dlco_clsf);
+					makeNodeValue("/root/oz_data/odiParam/iv_area",iv_area);
+					makeNodeValue("/root/oz_data/odiParam/iv_dlco_cd",iv_dlco_cd);
+					makeNodeValue("/root/oz_data/odiParam/iv_dlco_seq",iv_dlco_seq);
+				
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;2,64;2,70;1,936;2,725;" style="font-family:굴림; vertical-align:top; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnReset" class="btn03" style="left:653px; top:45px; width:63px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnRetrieve" class="btn03" crud="R" style="left:722px; top:45px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					srcRetrieve();
+				]]>
+			</script>
+		</button>
+		<button id="btnPrint" class="btn03" crud="R" style="left:791px; top:45px; width:63px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					printProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnColse" class="btn03" style="left:860px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group1" style="left:10px; top:70px; width:926px; height:55px; ">
+			<caption id="caption11" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:70px; height:26px; ">기준년월</caption>
+			<caption id="caption10" class="list_cap03" style="left:252px; top:0px; width:70px; height:26px; ">매체구분</caption>
+			<caption id="caption3" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption4" class="list_cap03" style="left:0px; top:25px; width:70px; height:26px; ">거래처구분</caption>
+			<caption id="caption5" class="list_cap03" style="left:252px; top:25px; width:70px; height:26px; ">지역</caption>
+			<caption id="caption13" class="list_cap03" style="left:512px; top:25px; width:70px; height:26px; ">거래처</caption>
+			<input id="input5" ref="/root/reqData/searchData/searchTop/basi_yymm" class="req" inputtype="date" format="yyyy-mm" caption="기준년월" style="left:73px; top:4px; width:100px; height:18px; text-align:left; "/>
+			<select1 id="combo4" ref="/root/reqData/searchData/searchTop/medi_clsf" class="req" appearance="minimal" caption="매체구분" style="left:325px; top:4px; width:100px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo1" ref="/root/reqData/searchData/searchTop/dlco_clsf" appearance="minimal" style="left:73px; top:29px; width:100px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dlco_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo2" ref="/root/reqData/searchData/searchTop/area" appearance="minimal" style="left:325px; top:29px; width:100px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/area/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="dlco_cd_s" ref="/root/reqData/searchData/searchTop/dlco_cd" disabled="true" style="left:585px; top:29px; width:60px; height:18px; text-align:center; "/>
+			<output id="output1" ref="/root/reqData/searchData/searchTop/dlco_seq" visibility="hidden" style="left:895px; top:29px; width:20px; height:18px; "/>
+			<input id="dlco_nm_s" ref="/root/reqData/searchData/searchTop/dlco_nm" inputtype="button" style="left:647px; top:29px; width:200px; height:18px; text-align:left; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var dlco_nm = dlco_nm_s.currentText;	
+
+						//거래처명 체크
+						if(dlco_nm == ""){
+							model.setValue("/root/reqData/searchData/searchTop/dlco_cd","");		//거래처코드 초기화
+							model.setValue("/root/reqData/searchData/searchTop/dlco_seq","");	//거래처순번 초기화
+						}
+
+						//거래처검색 Call
+						pl_getDlcoInfo_p("B",
+									"N",
+									"/root/reqData/searchData/searchTop",
+									"",
+									"dlco_cd",
+									"dlco_seq",
+									"dlco_nm",
+									"dlco_clsf",
+									"area",
+									"")
+						 /*
+						 * - btnChk(버튼체크) : B-버튼클릭, P-버튼클릭외(INPUT BOX OR ENTER)
+						 * - flag(형태구분)   : N-일반 컴포넌트, G-그리드 컴퍼넌트
+						 * - rootPath         : 상위노드 xpath  
+						 * - grid             : grid 호출일경우 grid id명(String)
+						 * - dlco_cdReq       : 거래처코드 Element명
+						 * - dlco_seqReq      : 거래처순번 Element명
+						 * - dlco_nmReq       : 거래처명 Element명
+						 * - dlco_clsfReq     : 거래처구분 Element명
+						 * - areaReq          : 지역 Element명
+						 * - prv_curr_clsfReq : 전현임구분 Element명
+						*/
+
+						//refresh
+						group1.refresh();
+					]]>
+				</script>
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						//엔터키 체크
+						if(event.keyCode == 13) {
+							var dlco_nm = dlco_nm_s.currentText;										//거래처명
+							if(dlco_nm == ""){
+								model.setValue("/root/reqData/searchData/searchTop/dlco_cd","");				//거래처코드 초기화
+								model.setValue("/root/reqData/searchData/searchTop/dlco_seq","");			//거래처순번 초기화
+								group1.refresh();
+								return;
+							}else{
+								model.setValue("/root/reqData/searchData/searchTop/dlco_nm",dlco_nm);		//거래처명 초기화
+							}
+							
+							//거래처검색 Call
+							pl_getDlcoInfo_p("P",
+										"N",
+										"/root/reqData/searchData/searchTop",
+										"",
+										"dlco_cd",
+										"dlco_seq",
+										"dlco_nm",
+										"dlco_clsf",
+										"area",
+										"")
+							
+							//refresh
+							group1.refresh();
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var dlco_nm = model.getValue("/root/reqData/searchData/searchTop/dlco_nm");	//거래처명
+					
+						//거래처명 null인 경우 코드 초기화
+						if(dlco_nm == ""){
+							model.setValue("/root/reqData/searchData/searchTop/dlco_cd","");			//거래처명 초기화
+							model.setValue("/root/reqData/searchData/searchTop/dlco_seq","");		//거래처순번 초기화
+							group1.refresh();
+							return;
+						}
+
+						//refresh
+						group1.refresh();
+					]]>
+				</script>
+			</input>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:126px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/PTCRLIST/record" caption="거래처구분^지역^거래처^이월잔액^당월매출^잔액합계^당월입금^당월미수^잔액조정^총미수금^거래처코드^거래처순번^거래처약칭" colsep="^" colwidth="70, 70, 150, 90, 90, 90, 90, 90, 90, 90, 100, 100, 100" mergecellsfixedrows="bycolrec" rowsep="|" subtotalposition="below" style="left:10px; top:136px; width:926px; height:589px; ">
+			<col ref="dlco_clsf_nm" style="text-align:center; "/>
+			<col ref="area_nm" style="text-align:center; "/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="cyov_bal" format="(-)###,###,###,###" style="text-align:right; "/>
+			<col ref="sale_amt" format="(-)###,###,###,###" style="text-align:right; "/>
+			<col ref="bal_sum" format="(-)###,###,###,###" style="text-align:right; "/>
+			<col ref="rcpm_amt" format="(-)###,###,###,###" style="text-align:right; "/>
+			<col ref="thmm_bal" format="(-)###,###,###,###" style="text-align:right; "/>
+			<col ref="meda_bal" format="(-)###,###,###,###" style="text-align:right; "/>
+			<col ref="tot_bal" format="(-)###,###,###,###" style="text-align:right; "/>
+			<col ref="dlco_cd" visibility="hidden"/>
+			<col ref="dlco_seq" visibility="hidden"/>
+			<col ref="dlco_abrv_nm" visibility="hidden"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

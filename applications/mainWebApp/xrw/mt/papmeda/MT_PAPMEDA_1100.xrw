@@ -1,0 +1,500 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<session>
+						</session>
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</fac_clsf>
+							<papcmpy_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</papcmpy_cd>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+						</comboSet>
+					</initData>
+					<reqData>
+						<searchData>
+							<meda_yymm/>
+							<slip_proc_occr_dt/>
+							<slip_occr_dt/>
+							<slip_clsf_cd/>
+							<slip_seqfr/>
+							<slip_seqto/>
+						</searchData>
+						<multiUpData/>
+						<reqForm>
+							<slip_occr_dt/>
+							<slip_clsf_cd/>
+							<slip_seqfr/>
+							<slip_seqto/>
+							<clgbcd/>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<fac_clsf/>
+								<papcmpy_cd/>
+								<eps_no/>
+								<medi_cd/>
+								<cnsm_wgt/>
+								<hdqt_paper_uprc/>
+								<hdqt_amt/>
+								<meda_amt/>
+								<meda_vat/>
+								<basi_amt/>
+								<occr_dt/>
+								<seq/>
+							</record>
+						</gridData>
+						<dataSet/>
+						<resForm>
+							<fc_acct_2272_s>
+								<dataSet/>
+							</fc_acct_2272_s>
+						</resForm>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="mt_papmeda_1000_m" action="/mt/papmeda/1000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_papmeda_1100_l" action="/mt/papmeda/1100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2/papcmpy_cd" resultref="/root/tempData"/>
+			<submission id="mt_papmeda_1101_a" action="/mt/papmeda/1101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papmeda_1104_m" action="/mt/papmeda/1104" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papmeda_1102_l" action="/mt/papmeda/1102" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="fc_acct_2263_i" action="/fc/acct2000/2263" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/resData/dataSet"/>
+			<submission id="fc_acct_2272_s" action="/fc/acct2000/2272" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resForm/fc_acct_2272_s/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//최초 호출시 실행
+				function initBody() {
+					model1.copyNode("/root/initData/pageInfo",parent.root.initData.pageInfo);
+					
+					model1.setValue("/root/reqData/searchData/slip_proc_occr_dt", getCurrentDate());
+					//model1.setValue("/root/reqData/searchData/meda_yymm", getDate("yyyymm"));
+					var d = new Date();
+					var mm= "";
+					var rec = "";
+					mm = d.getMonth() ;
+					if(mm< 10 )  mm = "0" + (mm) ;
+					else if (mm>= 10 )mm = (mm) ;
+					if(mm == "12"){
+						rec =  "" + (new Date(d.getYear(),0 ,0)).getYear();
+					}else{
+						rec =  "" + d.getYear();
+					}
+					model1.setValue("/root/reqData/searchData/meda_yymm", rec+mm);
+					
+					
+					funCombo();
+					
+					//datagrid1.isReadOnly(1, 1, 1, 10)  = false;
+					model1.removenode("/root/resData/gridData/record");
+					datagrid1.refresh();
+					
+					button1.disabled = false;
+				        //button9.disabled = false;
+				        //button10.disabled = false;
+				}
+				
+				//콤보 생성
+				function funCombo() {
+					model1.send("mt_papmeda_1000_m");
+					
+					model1.copyNode("/root/initData/comboSet/fac_clsf"  ,"/root/tempData/fac_clsf"  );	//위탁처콤보
+					model1.copyNode("/root/initData/comboSet/papcmpy_cd","/root/tempData/papcmpy_cd");	//제지사콤보
+					model1.copyNode("/root/initData/comboSet/medi_cd"   ,"/root/tempData/medi_cd"   );	//매체콤보
+					
+					model1.refresh();
+				}
+				
+				//행추가
+				function addRow() {
+						var rowCnt      = 0;
+						var selectedIdx = datagrid1.rows-1;
+
+						if(datagrid1.isReadOnly(1,1) == true) {
+							datagrid1.isReadOnly(1, 1, 1, 10)  = false;
+							datagrid1.addStatus(selectedIdx, "insert");
+						} else {
+							datagrid1.addRow(true, true);
+						}
+				}
+				
+				//사업자등록번호, 기준금액 조회
+				function funEpsCd(iSelectedRow, sPapCmpyCd) {
+					var sEpsNo = "";
+					var sBasiAmt = "";
+					
+					model1.makeNode("/root/reqData/searchData2/papcmpy_cd");
+					model1.setValue("/root/reqData/searchData2/papcmpy_cd", sPapCmpyCd);
+					
+					model1.send("mt_papmeda_1100_l");
+					sEpsNo = model1.getValue("/root/tempData/eps_no");
+					sBasiAmt =  model1.getValue("/root/tempData/paper_amt");
+					model1.setValue("/root/resData/gridData/record[" + iSelectedRow + "]/eps_no", sEpsNo);
+					model1.setValue("/root/resData/gridData/record[" + iSelectedRow + "]/basi_amt", sBasiAmt);
+					
+					datagrid1.refresh();
+				}
+				
+				
+				//본사적용금액, 조정금액계산
+				function funAmt(sWgt, sAmt, sBaisAmt, iSelectedRow) {
+					var iAmt = 0;
+					var medaAmt = 0;
+					var medaVat = 0;
+					
+					iAmt = parseInt(sWgt) * parseInt(sAmt);
+					medaAmt = (eval(sWgt) * eval(sAmt)) - eval(sBaisAmt);
+					if ( Number(medaAmt) > 0 ) {						
+						medaVat = Math.floor(medaAmt * 0.1) ;
+					} else {
+						medaVat = Math.round(medaAmt * 0.1) ;
+					}
+					
+					model1.setValue("/root/resData/gridData/record[" + iSelectedRow + "]/hdqt_amt", iAmt);
+					model1.setValue("/root/resData/gridData/record[" + iSelectedRow + "]/meda_amt", medaAmt);
+					model1.setValue("/root/resData/gridData/record[" + iSelectedRow + "]/meda_vat", medaVat);
+					//funVat(iSelectedRow, iAmt);
+					
+					datagrid1.refresh();
+				}
+				
+				//부가세계산
+				function funVat(iSelectedRow, iAmt) {
+					var iVat = 0;
+					iVat = Math.floor(iAmt * 0.1);
+					model1.setValue("/root/resData/gridData/record[" + iSelectedRow + "]/meda_vat", iVat);
+				}
+				
+				//저장
+				function funSave() {
+					if(  commReqCheck(group2) == false ) return;
+					
+					if(!commGridReqCheck("datagrid1")) return;
+					
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					model1.makeNode("/root/reqData/searchData/multiUpData");
+					
+					model1.setValue("/root/reqData/searchData/multiUpData",datagrid1.getUpdateData());
+					
+					model1.send("mt_papmeda_1101_a");
+					
+					model1.destroy("/root/reqData/searchData/multiUpData");
+					if(submit_completed()) {
+						btnA1.dispatch("onclick");
+						datagrid1.rowStatus(1) = 0; 
+					}
+				}
+				
+				//조회
+				function funSearch() {
+					
+					model1.send("mt_papmeda_1102_l");
+					model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+					
+					if(Number(model1.getValue("/root/tempData/gridData/totalcnt")) > 0 ) {
+						datagrid1.isReadOnly(1, 1, datagrid1.rows- 1, datagrid1.cols-1)  = false;
+					       //button1.disabled = true;
+					       //button9.disabled = true;
+					       //button10.disabled = true;
+					}
+					else {
+						datagrid1.isReadOnly(1, 1, datagrid1.rows- 1, datagrid1.cols-1)  = false;
+					       //button1.disabled = false;
+					       //button9.disabled = false;
+					       //button10.disabled = false;
+					}
+					
+					var seq = model.getValue("/root/tempData/gridData/record/seq");
+					
+					if (seq == ""){
+						datagrid1.rowStatus(1) = 2;
+					}else{
+						datagrid1.rowStatus(1) = 0;
+					}
+
+					datagrid1.refresh();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="890" pageheight="575" guideline="2,82;1,10;1,879;2,108;">
+		<group id="group1" class="gro_sel" style="left:10px; top:20px; width:870px; height:27px; ">
+			<button id="btnA1" class="btn02" style="left:556px; top:3px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSearch();
+						
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:765px; top:3px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						//model1.copyNode("/root/resData/gridData/record","");
+						datagrid1.clearStatus();
+						initBody();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:817px; top:3px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						parent.window.javaScript.winClose();
+						
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:608px; top:3px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSave();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:713px; top:3px; width:52px; height:21px; ">
+				<caption>인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var srch_slip_seq = model.getValue("/root/resData/gridData/record/slip_proc_seq");
+					var srch_slip_cd = "40";
+					var srch_slip_dt = model.getValue("/root/resData/gridData/record/slip_proc_occr_dt");
+					var ss_cmpy_cd = getProperty("ss_cmpycd");
+					
+					
+					if (srch_slip_seq == ""){
+						alert("해당 정보에 대한 전표가 발생되지 않았습니다. 인쇄할 수 없습니다.");
+						return;
+					}
+					//alert(srch_slip_seq);
+					
+					model1.setValue("/root/reqData/reqForm/slip_occr_dt", srch_slip_dt);
+					model1.setValue("/root/reqData/reqForm/slip_clsf_cd", srch_slip_cd);
+					model1.setValue("/root/reqData/reqForm/slip_seqfr", srch_slip_seq);
+					model1.setValue("/root/reqData/reqForm/slip_seqto", srch_slip_seq);
+					model1.setValue("/root/reqData/reqForm/clgbcd","D");
+
+					model.send("fc_acct_2263_i");
+
+					if(submit_completed()){
+						resetOznode();
+						
+						model1.setValue("/root/reqData/searchData/slip_occr_dt",	srch_slip_dt);
+						model1.setValue("/root/reqData/searchData/slip_clsf_cd",	srch_slip_cd);
+						model1.setValue("/root/reqData/searchData/slip_seqfr",	srch_slip_seq);
+						model1.setValue("/root/reqData/searchData/slip_seqto",	srch_slip_seq);	
+						
+						model.send("fc_acct_2272_s");
+						var cnt = 0;
+						cnt = model1.getValue("/root/resData/resForm/fc_acct_2272_s/dataSet/CURLIST/record/cnt");
+						
+						if(cnt == 0){
+							alert("출력할 자료가 존재하지 않습니다.");
+							return;
+						}
+
+						makeNodeValue("/root/oz_data/ozrName","fcmc/SP_FC_ACCT_2262_P")						
+
+						// connection 파라미터 설정.
+						makeNodeValue("/root/oz_data/conParam/uv_flag", "1");
+							
+						// odi 파라미터 설정.
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",		ss_cmpy_cd);
+						makeNodeValue("/root/oz_data/odiParam/iv_slip_occr_dt", 	srch_slip_dt);					
+						makeNodeValue("/root/oz_data/odiParam/iv_slip_clsf_cd", 	srch_slip_cd);
+						makeNodeValue("/root/oz_data/odiParam/iv_slip_seqfr", 		srch_slip_seq);	
+						makeNodeValue("/root/oz_data/odiParam/iv_slip_seqto", 		srch_slip_seq);
+						
+						makeNodeValue("/root/oz_data/childCount","1");			
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)
+						makeNodeValue("/root/oz_data/child1/ozrName","fcmc/SP_FC_ACCT_2271_P")												
+						
+						// odi 파라미터 설정.
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd",		ss_cmpy_cd);
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_slip_occr_dt", 	srch_slip_dt);					
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_slip_clsf_cd", 	srch_slip_cd);
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_slip_seqfr", 	srch_slip_seq);														
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_slip_seqto",	srch_slip_seq);
+						
+						//makeNodeValue("/root/oz_data/preview", "print");
+						
+						// 레포트뷰어 호출.
+						openOzwin("/root/oz_data");
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:660px; top:3px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					         
+					         var jo_yyyymm = model1.getValue("/root/reqData/searchData/meda_yymm");
+					         if( window.alert("[삭제 경고] 조정년월 (" + jo_yyyymm + ") 전표 \n삭제 및 데이터 삭제 하시겠습니까?", "확인", 1) != 1){
+					         	return ;
+					         } 
+					         
+					         if( jo_yyyymm == '' ){
+					         	alert("삭제하고자 하는 조정년월을 입력해주세요");
+					         	return;
+					         }
+					         
+						 model1.send("mt_papmeda_1104_m");
+						 if(submit_completed()) {
+						          btnA1.dispatch("onclick");
+						}
+						 
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" class="gro_sel" style="left:10px; top:53px; width:870px; height:24px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:870px; height:24px; text-align:center; "/>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:120px; height:24px; text-align:center; ">조정년월</caption>
+			<caption id="caption12" tyle="left:644px; top:48px; width:17px; height:16px; text-align:center;">~</caption>
+			<caption id="caption3" class="list_cap01" style="left:420px; top:0px; width:120px; height:24px; text-align:center; ">전표일자</caption>
+			<input id="input1" ref="/root/reqData/searchData/meda_yymm" class="req" format="yyyy-mm" caption="조정년월" style="left:125px; top:3px; width:110px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/slip_proc_occr_dt" class="req" inputtype="date" caption="전표일자" style="left:545px; top:3px; width:110px; height:18px; "/>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="위탁처^제지사^사업자등록번호^매체구분^소모량^본사단가^본사적용금액^조정금액^부가세^기준금액^caption1^caption2^caption3^caption4^caption5" colsep="#" colwidth="100, 140, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:9px; top:107px; width:870px; height:428px; ">
+			<col ref="fac_clsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="papcmpy_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/papcmpy_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="eps_no"/>
+			<col itemcount="8" ref="medi_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="cnsm_wgt" type="input" format="#,###"/>
+			<col ref="hdqt_paper_uprc" type="input" format="(-)#,###"/>
+			<col ref="hdqt_amt" format="#,###"/>
+			<col ref="meda_amt" type="input" format="(-)#,###"/>
+			<col ref="meda_vat" type="input" format="(-)#,###"/>
+			<col ref="basi_amt" format="#,###"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="slip_proc_seq" visibility="hidden"/>
+			<col ref="slip_proc_occr_dt" visibility="hidden"/>
+			<col ref="slip_clsf_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var iSelectedRow = 0;
+					var sValue       = "";
+					
+					iSelectedRow = datagrid1.row;
+					
+					if(datagrid1.col == 2) {	//제지사선택시 사업자등록번호, 기준금액 조회
+						sValue = model1.getValue("/root/resData/gridData/record[" + iSelectedRow + "]/papcmpy_cd");
+						funEpsCd(iSelectedRow, sValue);	//사업자등록번호
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onendedit">
+				<![CDATA[
+					var iSelectedRow = 0;
+					var sWgt = "";	//소모량
+					var sAmt = "";	//본사단가
+					var iAmt = 0;	//조정금액
+					var basiAmt = 0;
+					
+					iSelectedRow = datagrid1.row;
+					
+					if(datagrid1.col == 5 || datagrid1.col == 6) {
+						sWgt = model1.getValue("/root/resData/gridData/record[" + iSelectedRow + "]/cnsm_wgt");
+						sAmt = model1.getValue("/root/resData/gridData/record[" + iSelectedRow + "]/hdqt_paper_uprc");
+						basiAmt = model1.getValue("/root/resData/gridData/record[" + iSelectedRow + "]/basi_amt");
+						
+						if(sWgt != "" && sAmt != "") {
+							funAmt(sWgt, sAmt, basiAmt, iSelectedRow);
+						}
+					} else if(datagrid1.col == 8) {
+						iAmt = parseInt(model1.getValue("/root/resData/gridData/record[" + iSelectedRow + "]/meda_amt"));
+						funVat(iSelectedRow, iAmt);
+					}
+				]]>
+			</script>
+		</datagrid>
+		<!--
+		<button id="button9" class="btn_grid03" style="left:770px; top:84px; width:52px; height:17px; ">
+			<caption>행입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var iSelectedRow = 0;
+					addRow();
+
+ 				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn_grid03" style="left:825px; top:84px; width:52px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var iSelectedRow = 0;
+					var sDelGubun = "";
+					
+					iSelectedRow = datagrid1.selectedRow(0);
+					
+					sDelGubun = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/seq");
+					
+					if(sDelGubun != "") {
+						datagrid1.addStatus(datagrid1.row, "delete");
+					} else {
+						datagrid1.deleteRow(iSelectedRow,true);
+					}
+				]]>
+			</script>
+		</button>
+		-->
+	</xhtml:body>
+</xhtml:html>

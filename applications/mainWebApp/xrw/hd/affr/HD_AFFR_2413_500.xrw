@@ -1,0 +1,498 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>학자금신청</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_affr_1610_m>
+							<dataSet>
+								<xx_scl_exps_clsf/>
+							</dataSet>
+						</hd_affr_1610_m>
+						<session/>
+						<comboSet>
+							<scl_exps_clsf>
+								<value/>
+								<item/>
+							</scl_exps_clsf>
+							<hospz_med_exam_pers_flnm>
+								<item/>
+								<label/>
+							</hospz_med_exam_pers_flnm>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<cmpy_cd/>
+							<flnm/>
+							<emp_no/>
+							<grid_emp_no/>
+							<hospz_med_exam_pers_flnm/>
+						</searchData>
+						<multiUpData/>
+						<reqForm>
+							<cmpy_cd/>
+							<emp_no/>
+							<occr_dt/>
+							<seq/>
+							<flnm/>
+							<dept_cd/>
+							<dty_cd/>
+							<posi_cd/>
+							<remk/>
+							<slip_proc_mang_dt/>
+							<slip_proc_mang_seq/>
+							<aplc_dt/>
+							<aplc_seq/>
+							<incmg_pers_ipadd/>
+							<incmg_pers/>
+							<incmg_dt_tm/>
+							<chg_pers/>
+							<chg_dt_tm/>
+							<emp_clsf/>
+							<hospz_med_exam_pers_flnm/>
+							<faml_rshp_nm/>
+							<faml_rshp_cd/>
+							<faml_prn/>
+							<chk_hosp_nm/>
+							<real_chk_fee/>
+							<sply_chk_fee/>
+							<chk_dt/>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<remk/>
+								<seq/>
+								<cmpy_cd/>
+								<occr_dt/>
+								<flnm/>
+								<emp_no/>
+								<dept_cd/>
+								<dty_cd/>
+								<posi_cd/>
+								<slip_proc_mang_dt/>
+								<slip_proc_mang_seq/>
+								<aplc_dt/>
+								<aplc_seq/>
+								<emp_clsf/>
+								<faml_prn/>
+								<chk_hosp_nm/>
+								<real_chk_fee/>
+								<sply_chk_fee/>
+								<chk_dt/>
+							</record>
+						</gridData>
+						<resForm>
+							<temp/>
+						</resForm>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function sendfuc(emp_no,flnm,dept_cd,dty_cd,posi_cd,emp_clsf){
+						if(emp_clsf == 10){
+							emp_clsf = 10;	
+						}else{
+							emp_clsf = 20;	
+						}
+						model1.setValue("/root/reqData/reqForm/emp_no",emp_no);
+						model1.setValue("/root/reqData/reqForm/flnm",flnm);
+						model1.setValue("/root/reqData/reqForm/dept_cd",dept_cd);
+						model1.setValue("/root/reqData/reqForm/dty_cd",dty_cd);
+						model1.setValue("/root/reqData/reqForm/posi_cd",posi_cd);
+						model1.setValue("/root/reqData/reqForm/emp_clsf",emp_clsf);
+						model1.setValue("/root/reqData/searchData/emp_no",emp_no);
+						model1.refresh();
+						model1.removenode("/root/dataSet");	
+						
+		
+						model1.send("hd_affr_1610_m");
+						model1.refresh();
+					//	model1.removenode("/root/initData/comboSet");
+						model1.removenodeSet("/root/initData/comboSet");
+
+
+						model1.send("hd_affr_2413");
+						datagrid2.addStatus(1, "insert");
+						//model.refresh();
+						model1.refresh();
+
+					}
+					function resetData(){
+						model1.reset();
+						datagrid2.clearStatus();
+						datagrid2.addStatus(1, "insert");
+					}
+				
+					//오늘 날짜
+					function todaydate(val){
+						var e_date = new Date();
+						var year = e_date.getFullYear(); 
+						var month = e_date.getMonth() + 1;
+						var day = e_date.getDate();
+						if (("" + month).length==1){month = "0"+month;}
+						if (("" + day).length==1){day = "0"+day;}
+						if(val == '-'){
+							e_date = year+""+month+""+day;
+						}
+						else{
+							e_date = year+"-"+month+"-"+day;
+						}
+						return e_date;
+					}		
+						
+					function dayDiff(v1,v2){ 
+						if(v1 != "" && v2 != ""){
+							var sdate = new Date(v1.substring(0,4),v1.substring(4,6),v1.substring(6,8));  
+						 	var edate = new Date(v2.substring(0,4),v2.substring(4,6),v2.substring(6,8));  
+							return  Math.ceil((edate - sdate) / 1000 / 24 / 60 / 60); 
+						}
+					}				
+					  			
+					function roomDay(){	
+						var v1 = model1.getValue("/root/reqData/reqForm/use_frdt");
+						var v2 = model1.getValue("/root/reqData/reqForm/use_todt");
+						if(v1 < v2 ){
+							var day_dds = dayDiff(v1,v2);
+							model1.setValue("/root/reqData/reqForm/use_dds",day_dds);
+							model1.refresh();
+						}else{
+							model1.setValue("/root/reqData/reqForm/use_dds","0");
+							model1.refresh();
+						}								  
+					}
+					
+					
+					//수검자 검색
+					function chkfamlflnm(){
+						
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						if(emp_no  == ""){
+							alert("사번을 입력하십시오.");
+							model1.setValue("/root/reqData/searchData/emp_no","" );
+							return;
+						}else{
+							model1.setValue("/root/reqData/searchData/grid_emp_no",emp_no );	
+						}	
+						var hospz_med_exam_pers_flnm = model1.getValue("/root/reqData/reqForm/hospz_med_exam_pers_flnm");
+
+						model1.setValue("/root/reqData/searchData/hospz_med_exam_pers_flnm",hospz_med_exam_pers_flnm );
+						model1.setValue("/root/reqData/searchData/flnm",hospz_med_exam_pers_flnm );
+
+						model1.send("hd_affr_2404");	
+						var faml_rshp_nm = model1.getValue("/root/tempData/record/faml_rshp_nm");
+						var faml_rshp_cd = model1.getValue("/root/tempData/record/faml_rshp_cd");
+						var faml_seq = model1.getValue("/root/tempData/record/faml_seq");
+						var sply_ward_fee = model1.getValue("/root/tempData/record/sply_ward_fee");
+						var faml_prn   = model1.getValue("/root/tempData/record/faml_prn");    
+						var totalcnt = model1.getValue("/root/tempData/totalcnt");
+						
+						if(totalcnt == 0){
+							alert("검색결과가 없습니다");
+//							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/faml_rshp_nm","" );
+//							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/faml_rshp_cd","");
+							return;
+						}									
+						model1.setValue("/root/reqData/reqForm/faml_rshp_nm",faml_rshp_nm );
+						model1.setValue("/root/reqData/reqForm/faml_rshp_cd",faml_rshp_cd );
+						model1.setValue("/root/reqData/reqForm/faml_prn",faml_prn );
+
+						model1.removenode("/root/tempData");
+					    model1.refresh();						
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				//	model.send("hd_affr_1610_m");
+				//	model.refresh();
+					//alert(model.getValue("/root/initData/hd_affr_1610_m/dataSet/xx_scl_exps_clsf"));
+
+					var obj = htmldocument.SessionInfo;
+	    	 			setProperty("ss_emp_no"   , obj.emp_no.value);
+				  // alert(model1.getValue("/root/reqData/reqForm/emp_no"));
+				 
+					var emp_no = model1.getValue("/root/reqData/reqForm/emp_no")
+				//	model1.removenode("/root/dataSet");	
+				//	model1.setValue("/root/reqData/searchData/emp_no",emp_no);		
+				//	model.send("hd_affr_1610_m");
+				//	model.refresh();
+				///	model1.removenode("/root/dataSet");	
+					model1.send("hd_affr_2413");
+					datagrid2.addStatus(1, "insert");
+					parent.model.dispatch("xforms-ready");
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_affr_1610_m" action="/hd/affr/1610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/initData/hd_affr_1610_m/dataSet"/>
+			<submission id="hd_affr_2411" action="/hd/affr/2411/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_affr_2404" action="/hd/affr/2404/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_2413" action="/hd/affr/2413/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="950" pageheight="1400" guideline="2,201;2,293;">
+		<button id="button3" class="btn02" visibility="hidden" style="left:810px; top:10px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.reset();
+					datagrid2.clearStatus();
+					datagrid2.addStatus(1, "insert");
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" visibility="hidden" caption="부서^사번^직급^수검자^가족관계^주민번호^검진기관^실비^지원비^비고" colsep="#" colwidth="100, 100, 120, 100, 100, 100, 100, 100, 100, 200" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:172px; width:905px; height:118px; ">
+			<col ref="dept_cd"/>
+			<col ref="emp_no"/>
+			<col ref="posi_cd"/>
+			<col ref="hospz_med_exam_pers_flnm"/>
+			<col ref="faml_rshp_cd"/>
+			<col ref="faml_prn" style="text-align:right; "/>
+			<col ref="chk_hosp_nm"/>
+			<col ref="real_chk_fee" format="#,###"/>
+			<col ref="sply_chk_fee" format="#,###"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="cmpy_cd"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="flnm"/>
+			<col ref="emp_no"/>
+			<col ref="dty_cd" visibility="hidden"/>
+			<col ref="posi_cd" visibility="hidden"/>
+			<col ref="slip_proc_mang_dt" visibility="hidden"/>
+			<col ref="slip_proc_mang_seq" visibility="hidden"/>
+			<col ref="aplc_dt" visibility="hidden"/>
+			<col ref="aplc_seq" visibility="hidden"/>
+			<col ref="emp_clsf" visibility="hidden"/>
+			<col ref="chk_dt" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var row = datagrid2.row;		
+							
+					if (row == 0) return;		
+					
+					if (datagrid2.col == 0) {
+						rowStatus(datagrid2);
+					} else {
+						var obj_pers_prn = model1.getValue("/root/resData/gridData/record["+ row +"]/obj_pers_prn");
+						model1.copyNode("/root/reqData/reqForm", "/root/resData/gridData/record["+ row +"]");
+						model1.setValue("/root/reqData/reqForm/obj_pers_flnm" ,obj_pers_prn);
+					}
+					model1.refresh();
+				]]>
+			</script>
+		</datagrid>
+		<group id="group1" class="gro_btn" style="left:10px; top:155px; width:905px; height:17px; ">
+			<button id="button5" class="btn_grid03" visibility="hidden" style="left:666px; top:0px; width:57px; height:17px; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+ 						datagrid2.addStatus(datagrid2.row, "delete");
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn_grid03" visibility="hidden" style="left:605px; top:0px; width:57px; height:17px; ">
+				<caption>행수정</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var selectedIdx = datagrid2.row;
+						var name = combo3.label;
+						var combo2Label = combo2.label; 
+						
+						if(datagrid2.row == -1){return;}
+						
+						model1.copyNode("/root/resData/gridData/record["+ selectedIdx +"]","/root/reqData/reqForm");
+						model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/obj_pers_flnm",name);
+						model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/scl_exps_clsf_nm",combo2Label);
+						model1.resetInstanceNode("/root/reqData/reqForm");
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn_grid03" visibility="hidden" style="left:852px; top:0px; width:53px; height:17px; ">
+				<caption>행입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					//	var in2 = input2.currentText;
+					//	var in3= input3.currentText;
+					//	var cm2 = input3.value;
+					//	var cm3 = combo3.value;
+
+						if (!commReqCheck("group2"))
+							return;
+						
+						
+						//var combo2Label = combo2.label; 
+						var name = input3.value;
+						var flnm  =model1.getValue("/root/reqData/reqForm/flnm");
+						var emp_no = model1.getValue("/root/reqData/reqForm/emp_no");
+						var dept_cd  =model1.getValue("/root/reqData/reqForm/dept_cd");
+						var dty_cd = model1.getValue("/root/reqData/reqForm/dty_cd");
+						var posi_cd  =model1.getValue("/root/reqData/reqForm/posi_cd");
+						
+						if (datagrid2.rows == 1)
+							datagrid2.addRow(true, true);
+							
+						if(datagrid2.valueMatrix(1, 1) == "") {
+							datagrid2.rowStatus(1) = 3;
+							model1.copyNode("/root/resData/gridData/record[1]","/root/reqData/reqForm");
+							model1.setValue("/root/resData/gridData/record[1]/flnm",flnm);		
+						}else{
+							datagrid2.addRow(true, true);
+							datagrid2.rowStatus(datagrid2.rows-1) = 3;
+							var selectValue = "";
+							var selectedIdx = datagrid2.row;
+							model1.copyNode("/root/resData/gridData/record["+ selectedIdx +"]","/root/reqData/reqForm");
+							model1.setValue("/root/resData/gridData/record["+ selectedIdx +"]/flnm",flnm);
+							var chkrow = datagrid2.row;
+						}
+						model1.resetInstanceNode("/root/reqData/reqForm");
+						parent.model.dispatch("xforms-ready");
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn_grid02" visibility="hidden" style="left:725px; top:0px; width:54px; height:17px; background-image:../../../images/btn_s_3.gif; ">
+				<caption>행취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					//cancelRow(datagrid2);
+					var firstRow = datagrid2.selectedRow(0);
+					var lastRow  = datagrid2.selectedRow(datagrid2.selectedRows-1);				
+					
+					for(var i=firstRow;i<=lastRow;i++){
+						if(datagrid2.rowStatus(i) == "1" || datagrid2.rowStatus(i) == "3"){
+							datagrid2.removeRow(i);
+							i--;
+						}else if(datagrid2.rowStatus(i) == "4"){
+							datagrid2.rowStatus(i) = "0";
+						}else{
+							datagrid2.rowStatus(i) = "0";
+						}
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:0px; height:0px; "/>
+		<group id="group2" style="left:10px; top:39px; width:905px; height:55px; ">
+			<caption id="caption5" class="list_cap02" style="left:79px; top:0px; width:826px; height:26px; text-align:center; "/>
+			<caption id="caption4" class="list_cap02" style="left:79px; top:25px; width:826px; height:26px; text-align:center; "/>
+			<caption id="caption41" class="list_cap01" style="left:2px; top:0px; width:80px; height:26px; text-align:center; ">검진일자</caption>
+			<caption id="caption43" class="list_cap01" style="left:2px; top:25px; width:80px; height:26px; text-align:center; ">검진기관</caption>
+			<caption id="caption11" class="list_cap01" style="left:226px; top:25px; width:80px; height:26px; text-align:center; ">실제검진비</caption>
+			<caption id="caption24" class="list_cap01" style="left:672px; top:25px; width:80px; height:26px; text-align:center; ">비 고</caption>
+			<input id="input1" ref="/root/reqData/reqForm/remk" navindex="8" right="105px" style="left:756px; top:28px; width:145px; height:18px; text-align:left; "/>
+			<caption id="caption16" class="list_cap01" style="left:448px; top:0px; width:80px; height:26px; text-align:center; ">가족관계</caption>
+			<input id="input3" ref="/root/reqData/reqForm/chk_dt" class="req" inputtype="date" caption="검진일자" style="left:87px; top:4px; width:101px; height:18px; text-align:left; "/>
+			<caption id="caption17" class="list_cap01" style="left:448px; top:25px; width:80px; height:26px; text-align:center; ">지원검진비</caption>
+			<caption id="caption2" class="list_cap01" style="left:672px; top:0px; width:80px; height:26px; text-align:center; ">주민번호</caption>
+			<input id="input10" ref="/root/reqData/reqForm/faml_prn" navindex="-1" editable="false" maxlength="50" format="999999-9999999" style="left:755px; top:4px; width:146px; height:18px; text-align:center; "/>
+			<output id="input2" ref="/root/reqData/reqForm/faml_rshp_nm" navindex="7" appearance="output" style="left:533px; top:4px; width:110px; height:18px; text-align:center; "/>
+			<output id="output1" ref="/root/reqData/reqForm/faml_rshp_cd" navindex="7" visibility="hidden" appearance="output" style="left:642px; top:4px; width:30px; height:18px; "/>
+			<input id="input4" ref="/root/reqData/reqForm/chk_hosp_nm" class="req" navindex="2" caption="검진기관" style="left:88px; top:29px; width:126px; height:18px; "/>
+			<input id="input6" ref="/root/reqData/reqForm/real_chk_fee" class="req" navindex="2" format="###,###" caption="실제검진비" style="left:310px; top:29px; width:126px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var real_fee = 0 ;
+						var chk_fee = 400000;
+						real_fee = input6.value;
+						
+						if(real_fee >= chk_fee)
+						{
+							model1.setValue("/root/reqData/reqForm/sply_chk_fee",chk_fee);
+						}
+						else 
+						{
+							model1.setValue("/root/reqData/reqForm/sply_chk_fee",real_fee);
+						}
+						model1.refresh();
+						
+					]]>
+				</script>
+			</input>
+			<input id="input5" ref="/root/reqData/reqForm/sply_chk_fee" class="req" navindex="2" format="###,###" caption="지원검진비" style="left:533px; top:28px; width:126px; height:18px; text-align:right; "/>
+			<caption id="caption1" class="list_cap01" style="left:226px; top:0px; width:80px; height:26px; text-align:center; ">수검자</caption>
+			<select1 id="combo3" ref="/root/reqData/reqForm/hospz_med_exam_pers_flnm" class="req" navindex="4" appearance="minimal" caption="수검자" style="left:311px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/hospz_med_exam_pers_flnm/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					chkfamlflnm();
+					//var comvalue = combo3.value;
+					//model1.setValue("/root/reqData/reqForm/faml_prn",comvalue);
+					//model1.refresh();
+				]]>
+				</script>
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					 if (event.keyCode == 46){
+					 	combo3.deselect(); // 적용시킬 콤보명
+					 }
+				]]>
+				</script>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var totalcnt = model1.getValue("/root/initData/comboSet/hospz_med_exam_pers_flnm/totalcnt");
+						
+						if(totalcnt == 0){
+							alert("가족사항에 등록된 데이터가 없습니다. \n 등록 후 이용해 주십시오.");
+							model1.setValue("/root/reqData/reqForm/faml_rshp_nm","" );
+							model1.setValue("/root/reqData/reqForm/faml_rshp_cd","" );
+							model1.setValue("/root/reqData/reqForm/faml_prn","" );
+							model1.refresh();
+							return;
+						}				
+					]]>
+				</script>
+			</select1>
+		</group>
+		<button id="button1" class="btn02" style="left:865px; top:10px; width:50px; height:21px; ">
+			<caption>신청</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				      
+					button4.dispatch("onclick")
+				
+					if (!rowInSubmit(datagrid2))
+						return;
+					
+					if (window.alert("신청하시겠습니까?", "신청", 1) != 1)
+						return;
+					
+						
+					model1.setValue("/root/reqData/multiUpData", datagrid2.getUpdateData());
+					model1.send("hd_affr_2411");
+					if(submit_completed()) {
+						button3.dispatch("onclick");
+					//	alert("[학자금 납부고지서 및 증빙자료를 총무팀으로 제출해주시기 바랍니다.]");
+						model1.refresh();
+					}						
+				]]>
+			</script>
+		</button>
+		<caption id="caption8" style="left:48px; top:353px; width:275px; height:20px; font-weight:bold; ">[ 건강검진 신청 시 유의사항 및 증빙서류 ]</caption>
+		<caption id="caption10" style="left:56px; top:416px; width:518px; height:25px; ">1. 지원한도:40만원 한도내에서 실비로 지원되며, 한도초과분은 본인이 부담</caption>
+		<caption id="caption13" style="left:592px; top:446px; width:278px; height:25px; ">· 영수증 원본과 건강검진 결과표</caption>
+		<shape id="rectangle1" appearance="rectangle" style="left:44px; top:378px; width:845px; height:30px; "/>
+		<shape id="rectangle2" appearance="rectangle" style="left:44px; top:407px; width:845px; height:116px; "/>
+		<line id="line1" style="x1:578px; y1:379px; x2:578px; y2:524px; "/>
+		<caption id="caption12" style="left:602px; top:380px; width:235px; height:25px; font-weight:bold; text-align:center; ">증빙서류</caption>
+		<caption id="caption14" style="left:181px; top:381px; width:235px; height:25px; font-weight:bold; text-align:center; ">유의사항</caption>
+		<caption id="caption15" style="left:57px; top:440px; width:510px; height:25px; ">2.본인이 검진비를 지불한 후 영수증과 검진결과서를 검진 후 총무팀에 제출</caption>
+		<caption id="caption19" style="left:67px; top:464px; width:496px; height:25px; ">☞ 산업안전보건법의 관련규정에 따름</caption>
+		<caption id="caption23" style="left:56px; top:488px; width:516px; height:25px; ">3.검진비 영수증 :검진비는 반드시 신용카드로 계산(영수증으로는 신용카드전표를 제출)</caption>
+	</xhtml:body>
+</xhtml:html>

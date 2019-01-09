@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<!--===========================================================================-->
+	<!-- NAME : HD_VACA_2300.xrw                                                   -->
+	<!-- DESC : 부서원 휴가(신청)일 조회										   -->
+	<!-- VER  : v1.0                                                               -->
+	<!-- Copyright 2014 by CHOSUN MEDIA.                                           -->
+	<!-- All rights reserved.                                                      -->
+	<!--===========================================================================-->
+	<!--               변         경         사         항                         -->
+	<!--===========================================================================-->
+	<!--    DATE      AUTHOR                   DESCRIPTION(요청자 정보)            -->
+	<!--===========================================================================-->
+	<!-- 20150202   최호정    부서원 휴가 사용내역 조회결과를 년도별 동적으로 조회되도록 변경한다(강승훈요청) -->
+	<!--===========================================================================-->
+	<xhtml:head>
+		<xhtml:title>부서원 휴가(신청)일 조회</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<pageInfo/>
+						<comboSet>
+							<xx_proc_stat_010/>
+							<combo1>
+								<item/>
+							</combo1>
+							<combo2>
+								<item/>
+							</combo2>
+							<emp_clsf>
+								<item/>
+							</emp_clsf>
+							<xx_curlist3>
+								<item/>
+							</xx_curlist3>
+						</comboSet>
+						<hd_duty_1304_m>
+							<dataSet>
+								<xx_emp_no_010/>
+							</dataSet>
+						</hd_duty_1304_m>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<emp_no/>
+							<nm_korn/>
+							<dept_cd/>
+							<dept_nm/>
+							<fr_dt/>
+							<to_dt/>
+							<proc_stat/>
+							<emp_clsf/>
+							<vaca_clsf/>
+						</searchData>
+						<multiUpData/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<reqForm>
+						</reqForm>
+						<searchData2>
+							<emp_no/>
+							<vaca_fr_dt/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<checked/>
+								<vaca_clsf_nm/>
+								<vaca_frdt/>
+								<vaca_todt/>
+								<vaca_dds/>
+								<dept_nm/>
+								<emp_no/>
+								<nm_korn/>
+								<posi_nm/>
+								<vaca_dtls_clsf_nm/>
+								<remk/>
+								<alvc_use_dt/>
+								<incmg_nm_korn/>
+								<proc_stat_nm/>
+								<occr_dt/>
+								<seq/>
+							</record>
+						</gridData>
+						<resForm>
+							<record>
+							</record>
+						</resForm>
+						<gridData2>
+							<record>
+								<vaca_frdt/>
+								<vaca_todt/>
+								<vaca_dds/>
+								<vaca_clsf_nm/>
+								<vaca_dtls_clsf_nm/>
+							</record>
+						</gridData2>
+						<gridData1>
+							<record>
+								<dept_cd/>
+								<dept_nm/>
+								<emp_no/>
+								<nm_korn/>
+								<posi_nm/>
+								<year_add_vaca_dds/>
+								<use_vaca_dds/>
+								<duty_vaca_dds/>
+								<rmn_vaca_dds/>
+							</record>
+						</gridData1>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[	
+					model.send("hd_duty_1304_m");
+					//alert(model1.getValue("/root/initData/hd_duty_1304_m/dataSet/xx_emp_no_010"));
+					model.refresh();
+					// 권한관리
+					var obj = htmldocument.SessionInfo;
+						//setProperty("ss_posicd"   , obj.posicd.value);
+						
+					if(obj.emp_no.value == ""){
+						alert("세션 정보가 없습니다. 다시 ESS 로그인 후 사용해주세요.");
+						button4.dispatch("onclick");
+					}
+					model1.send("hd_duty_1205");
+					var dept  = model1.getValue("/root/dataSet/CURLIST2/record/dept_cd");
+					model1.setValue("/root/reqData/searchData/dept_cd", dept);
+					model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/dataSet/CURLIST2/record/dept_nm"));
+						
+					var pattern = ","+obj.emp_no.value+",";
+					var validation  = (","+model.getValue("/root/initData/hd_duty_1304_m/dataSet/xx_emp_no_010")+",").indexOf(pattern)==-1;
+					
+					//if(obj.emp_no.value != model1.getValue("/root/dataSet/CURLIST1/record/emp_no") && validation ){
+    	 			//	alert("사용 권한이 없습니다.");
+    	 			//	button6.dispatch("onclick");
+					//}else
+					//{
+						if(validation == false)
+						{
+							input4.disabled = false;
+							input3.disabled = false;
+						}
+						model1.removenode("/root/dataSet");
+						
+						datagrid1.fixedcellcheckbox(0, datagrid1.colRef("checked"), false) = true;
+						model1.send("hd_vaca_1850_m");
+
+						model1.copyNode("/root/initData/comboSet/combo2","/root/dataSet/CURLIST2");
+						model1.copyNode("/root/initData/comboSet/combo1","/root/dataSet/CURLIST");
+						model1.copyNode("/root/initData/comboSet/emp_clsf","/root/dataSet/CURLIST1");
+						model1.copyNode("/root/initData/comboSet/xx_curlist3","/root/dataSet/XX_CURLIST3");
+						model1.setValue("/root/initData/comboSet/xx_proc_stat_010", model1.getValue("/root/dataSet/xx_proc_stat_010"));
+						//alert(model1.getValue("/root/initData/comboSet/xx_proc_stat_010"));
+						
+						model1.removenode("/root/dataSet");
+						model1.setValue("/root/reqData/searchData/fr_dt",DateDemo2());
+						model1.setValue("/root/reqData/searchData/to_dt",DateDemo());
+						//combo1.select(0);
+						model1.setValue("/root/reqData/searchData/proc_stat", "");
+						combo2.select(0);
+						model1.refresh();
+					//}
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					//현재 날짜 
+					function DateDemo()
+					{
+						var now_dt = "";
+						var now_date = new Date();
+						var year = now_date.getYear();
+						var month = now_date.getMonth() + 1;
+						var day = now_date.getDate();    
+						var month_tm = '0' + month;
+						var day_tm = '0' + day;  
+						if(month_tm.length == 3){
+							month_tm = month_tm.substring(1, 3);
+						}
+						if(day_tm.length == 3){
+							day_tm = day_tm.substring(1, 3);
+						}
+						now_dt = year + month_tm + day_tm;
+					       return(now_dt);
+						/*var s="";
+						var mydate=new Date() 
+						var year=mydate.getYear() 
+						    if (year < 1000) 
+						        year+=1900 
+						
+						var day=mydate.getDay() 
+						var month=mydate.getMonth()+1 
+						    if (month<10) 
+						        month="0"+month 
+						
+						var daym=mydate.getDate() 
+						    if (daym<10) 
+						        daym="0"+daym 
+						s  = year+month+daym;
+					       return(s);*/
+					}	
+					
+					//월초 날짜 
+					function DateDemo2()
+					{
+						var now_dt = "";
+						var now_date = new Date();
+						var year = now_date.getYear();
+						var month = now_date.getMonth() + 1;
+						var day = now_date.getDate();    
+						var month_tm = '0' + month;
+						var day_tm = '0' + day;  
+						if(month_tm.length == 3){
+							month_tm = month_tm.substring(1, 3);
+						}
+						if(day_tm.length == 3){
+							day_tm = day_tm.substring(1, 3);
+						}
+						var now_dt_sub = year + month_tm + "01";
+					       return(now_dt_sub);
+						/*var s="";
+						var mydate=new Date() 
+						var year=mydate.getYear() 
+						    if (year < 1000) 
+						        year+=1900 
+						
+						var day=mydate.getDay() 
+						var month=mydate.getMonth()+1 
+						    if (month<10) 
+						        month="0"+month 
+						
+						var daym=mydate.getDate() 
+						    if (daym<10) 
+						        daym="0"+daym 
+						s  = year+month+daym;
+					       return(s);*/
+					}	
+					
+					function searchList(){
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						//model1.send("hd_vaca_1851_l");
+						model1.send("hd_vaca_2300_l");
+						model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST4");
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+						
+						rowCnt.value = "총 "+ (parseInt(datagrid1.rows)- datagrid1.fixedRows) + " 건";
+						
+						var tmp1 = combo1.value;
+						//if (tmp1 != "15" ){
+						if (tmp1 != model1.getValue("/root/initData/comboSet/xx_proc_stat_010") ){
+							for(var i=datagrid1.fixedRows-1; i<datagrid1.rows; i++){
+								datagrid1.isReadOnly(i,datagrid1.colRef("checked")) = true;
+								datagrid1.fixedcellcheckbox(0, datagrid1.colRef("checked"), false) = false;
+							}
+						//	button3.disabled="false";
+						//	button4.disabled="true";
+						//}else if (tmp1 == "15"){
+						}else if (tmp1 == model1.getValue("/root/initData/comboSet/xx_proc_stat_010")){
+							for(var i=datagrid1.fixedRows-1; i<datagrid1.rows; i++){
+								datagrid1.isReadOnly(i,datagrid1.colRef("checked")) = false;
+								datagrid1.fixedcellcheckbox(0, datagrid1.colRef("checked"), false) = true;
+							}
+						//	button3.disabled="true";
+						//	button4.disabled="false";
+						}
+						
+						model1.send("hd_vaca_2302_l");
+						model1.copyNode("/root/resData/gridData1", "/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						rowCnt.value = "총 "+ (parseInt(datagrid1.rows - datagrid1.fixedRows)) + " 건";
+						model1.refresh();
+					}
+					function setEmp_no(emp_no, nm_korn, dept_cd, dept_nm)
+					{
+						setInfoSearchInput(emp_no, "", "", "setEmp_no");
+						model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/tempData/dept_cd")); // 부서코드
+						model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/tempData/dept_nm")); // 부서명
+						model1.refresh();
+					}
+					function setDept_cd(dept_cd, dept_nm) {
+						model1.setValue("/root/reqData/searchData/dept_cd", dept_cd);
+						model1.setValue("/root/reqData/searchData/dept_nm", dept_nm);
+						model1.refresh(); 
+					} 		
+				]]>
+			</script>
+			<submission id="hd_vaca_1850_m" action="/hd/vaca/1850/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_2300_l" action="/hd/vaca/2300/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_com_1103" action="/hd/com/1103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/dept_cd" resultref="/root/tempData"/>
+			<submission id="hd_vaca_2302_l" action="/hd/vaca/2302" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_vaca_2303_l" action="/hd/vaca/2303" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,8;1,934;2,700;" style="font-family:굴림; ">
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_ActionBtn" style="left:10px; top:39px; width:926px; height:21px; ">
+			<button id="button1" class="btn02" style="left:670px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						model1.reset();
+						rowCnt.value = "";
+						model1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:723px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn04" style="left:776px; top:0px; width:90px; height:21px; ">
+				<caption>엑셀다운로드</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						//excel 파일로 저장한다
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						if(filePath != "") {
+							datagrid1.saveExcel(filePath);
+							window.exec(filePath);
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn02" style="left:865px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					    //window.close();
+							viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="caption2" class="list_cap01" style="left:10px; top:69px; width:100px; height:26px; ">휴가신청기간</caption>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:94px; width:100px; height:26px; ">결제상태</caption>
+		<caption id="caption3" class="list_cap02" style="left:109px; top:69px; width:221px; height:26px; "/>
+		<caption id="caption4" class="list_cap02" style="left:109px; top:94px; width:827px; height:26px; "/>
+		<input id="input1" ref="/root/reqData/searchData/fr_dt" inputtype="date" format="yyyy-mm-dd" style="left:114px; top:73px; width:90px; height:18px; "/>
+		<input id="input2" ref="/root/reqData/searchData/to_dt" inputtype="date" format="yyyy-mm-dd" style="left:228px; top:73px; width:90px; height:18px; "/>
+		<caption id="caption5" style="left:210px; top:75px; width:25px; height:20px; ">~</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/proc_stat" appearance="minimal" style="left:114px; top:98px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/combo1/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var tmp1 = combo1.value;
+					//if (tmp1 != "15" ){
+					if (tmp1 != model1.getValue("/root/initData/comboSet/xx_proc_stat_010") ){
+						for(var i=datagrid1.fixedRows-1; i<datagrid1.rows; i++){
+							datagrid1.isReadOnly(i,datagrid1.colRef("checked")) = true;// readonly로 바꾸기
+							datagrid1.fixedcellcheckbox(0, datagrid1.colRef("checked"), false) = false;
+						}
+					//}else if (tmp1 == "15"){
+					}else if (tmp1 == model1.getValue("/root/initData/comboSet/xx_proc_stat_010")){
+						for(var i=datagrid1.fixedRows-1; i<datagrid1.rows; i++){
+							datagrid1.isReadOnly(i,datagrid1.colRef("checked")) = false;// readonly로 바꾸기
+							datagrid1.fixedcellcheckbox(0, datagrid1.colRef("checked"), false) = true;
+						}
+					}
+					model1.removenode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					model1.refresh();
+				]]>
+			</script>
+		</select1>
+		<caption id="caption6" class="list_cap01" style="left:329px; top:69px; width:100px; height:26px; ">부      서</caption>
+		<caption id="caption7" class="list_cap02" style="left:428px; top:69px; width:209px; height:26px; "/>
+		<caption id="caption8" class="list_cap01" style="left:636px; top:69px; width:100px; height:26px; ">사번/성명</caption>
+		<caption id="caption9" class="list_cap02" style="left:735px; top:69px; width:201px; height:26px; "/>
+		<input id="input3" ref="/root/reqData/searchData/dept_cd" disabled="true" inputtype="button" maxlength="6" appearance="input" style="left:434px; top:74px; width:90px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					model1.setValue("/root/reqData/fwdData/func_nm", "setDept_cd");
+     				window.load("/xrw/hd/com/HD_COM_1100.xrw","mdichild", "hd_com_1100", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");	
+				]]>
+			</script>
+			<script type="javascript" ev:event="onmaxlength">
+				<![CDATA[
+						model1.setValue("/root/reqData/searchData/dept_cd", input3.currentText);
+						model1.send("hd_com_1103");
+						if(model1.getValue("/root/dataSet/CURLIST/record/cnt") != "1"){
+							alert("없는 부서이거나 사용중이 아닌 부서 입니다.");
+							model1.setValue("/root/reqData/searchData/dept_cd", "");
+							model1.setValue("/root/reqData/searchData/dept_nm", "");
+							model1.removenode("/root/dataSet");
+							model1.refresh();
+							return;
+						}
+						model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/dataSet/CURLIST/record/dept_cd"));
+						model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/dataSet/CURLIST/record/abrv_nm"));
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+				]]>
+			</script>
+		</input>
+		<output id="input4" ref="/root/reqData/searchData/dept_nm" appearance="output" style="left:528px; top:74px; width:102px; height:18px; "/>
+		<input id="input5" ref="/root/reqData/searchData/emp_no" imemode="hangul" inputtype="button" maxlength="6" appearance="input" style="left:741px; top:73px; width:90px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					model1.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+					window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode ==13){
+						if(input5.currentText==""){
+							alert("조회할 사번이 없습니다.");
+							model1.reset();
+							return;
+						}else{
+							model1.removenode("/root/tempData");
+							model1.makeNode("/root/tempData");
+							setInfoSearchInput(input5.currentText, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+							if(model1.getValue("/root/tempData/totalcnt") != 1){
+								model1.removenode("/root/tempData");
+								model1.makeNode("/root/tempData");
+								return;
+							}else{
+								model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+								model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+								model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/tempData/dept_cd")); // 부서코드
+								model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/tempData/dept_nm")); // 부서명
+								model1.refresh();
+							}
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onmaxlength">
+				<![CDATA[
+						if(input5.currentText==""){
+							alert("조회할 사번이 없습니다.");
+							model1.reset();
+							return;
+						}else{
+							model1.removenode("/root/tempData");
+							model1.makeNode("/root/tempData");
+							setInfoSearchInput(input5.currentText, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+							if(model1.getValue("/root/tempData/totalcnt") != 1){
+								model1.removenode("/root/tempData");
+								model1.makeNode("/root/tempData");
+								return;
+							}else{
+								model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+								model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+								model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/tempData/dept_cd")); // 부서코드
+								model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/tempData/dept_nm")); // 부서명
+								model1.refresh();
+							}
+						}
+				]]>
+			</script>
+		</input>
+		<input id="input6" ref="/root/reqData/searchData/nm_korn" style="left:835px; top:73px; width:90px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode ==13){
+						if(input6.currentText==""){
+							alert("조회할 이름이 없습니다.");
+							model1.reset();
+							return;
+						}else{
+							model1.removenode("/root/tempData");
+							model1.makeNode("/root/tempData");
+							setInfoSearchInput("", input6.currentText, "","setEmp_no"); // 사번, 성명, 주민번호
+							if(model1.getValue("/root/tempData/totalcnt") != 1){	
+								model1.removenode("/root/tempData");
+								model1.makeNode("/root/tempData");
+								return;
+							}else{
+								model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+								model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+								model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/tempData/dept_cd")); // 부서코드
+								model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/tempData/dept_nm")); // 부서명
+								model1.refresh();
+							}
+						}
+					}
+				]]>
+			</script>
+		</input>
+		<group id="group1" class="gro_btn" style="left:8px; top:130px; width:926px; height:20px; ">
+			<caption id="caption10" class="tit02" style="left:2px; top:0px; width:335px; height:20px; font-weight:bold; ">휴가(대휴) 신청내역</caption>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="휴가구분^휴가시작일^휴가종료일^휴가일수^부서^사번^성명^직급^세부구분^비고^휴일근무일^신청자^신청상태^occr_dt^seq" colsep="#" colwidth="70, 80, 80, 60, 120, 80, 80, 80, 80, 200, 80, 100, 100, 0, 0" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:8px; top:150px; width:926px; height:275px; ">
+			<col ref="vaca_clsf_nm"/>
+			<col ref="vaca_frdt" format="yyyy-mm-dd"/>
+			<col ref="vaca_todt" format="yyyy-mm-dd"/>
+			<col ref="vaca_dds"/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="emp_no"/>
+			<col ref="nm_korn"/>
+			<col ref="posi_nm"/>
+			<col ref="vaca_dtls_clsf_nm"/>
+			<col ref="remk" style="text-align:left; "/>
+			<col ref="alvc_use_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="incmg_nm_korn"/>
+			<col ref="proc_stat_nm"/>
+			<col ref="occr_dt"/>
+			<col ref="seq"/>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if(datagrid1.col == datagrid1.colRef("checked") ){
+						if(event.target == "datagrid1"){						
+							for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++)	{
+								datagrid1.addStatus(i,"update");
+							}
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-deselect">
+				<![CDATA[
+					if(datagrid1.col == datagrid1.colRef("checked") ){
+						if(event.target == "datagrid1"){				
+							for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++)	{
+								datagrid1.rowstatus(i) = 0;
+							}
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(datagrid1.col == datagrid1.colRef("checked") ){
+						if(datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("checked"))=="false"){
+							datagrid1.rowstatus(datagrid1.row) = 0;
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var tmp1 = combo1.value;
+					//if(tmp1 != "15"){
+					if(tmp1 != model1.getValue("/root/initData/comboSet/xx_proc_stat_010")){
+						rowStatus(datagrid1);
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="rowCnt" style="left:808px; top:674px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="caption11" class="list_cap01" style="left:329px; top:94px; width:100px; height:26px; ">사원구분</caption>
+		<select1 id="combo2" ref="/root/reqData/searchData/emp_clsf" appearance="minimal" style="left:434px; top:98px; width:100px; height:18px; ">
+			<choices>
+				<!--
+				<item>
+					<label>전체</label>
+					<value/>
+				</item>
+				<item>
+					<label>정사원</label>
+					<value>10</value>
+				</item>
+				<item>
+					<label>파견사원</label>
+					<value>20</value>
+				</item>
+				-->
+				<itemset nodeset="/root/initData/comboSet/xx_curlist3/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption12" class="list_cap01" style="left:636px; top:94px; width:100px; height:26px; ">휴가구분</caption>
+		<select1 id="combo3" ref="/root/reqData/searchData/vaca_clsf" appearance="minimal" style="left:741px; top:98px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/combo2/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData1/record" caption="부서코드^부서^사번^성명^직책^발생연차^사용연차^의무휴가^잔여연차" colsep="^" colwidth="110, 100, 69, 75, 60, 55, 55, 55, 55" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" tooltip="true" style="left:8px; top:466px; width:557px; height:235px; ">
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="dept_nm"/>
+			<col ref="emp_no"/>
+			<col ref="nm_korn"/>
+			<col ref="posi_nm"/>
+			<col ref="year_add_vaca_dds"/>
+			<col ref="use_vaca_dds"/>
+			<col ref="duty_vaca_dds"/>
+			<col ref="rmn_vaca_dds"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					row = datagrid2.row;
+					if(row != 0){
+						datagrid3.visible = true;
+						caption3.visible = true;
+						var tmp_nm_nm_korn = datagrid2.valueMatrix(row,datagrid2.colRef("nm_korn"));
+						var tmp_posi_nm = datagrid2.valueMatrix(row,datagrid2.colRef("posi_nm"));
+						model1.setValue("/root/reqData/searchData2/emp_no",datagrid2.valueMatrix(row,datagrid2.colRef("emp_no")));
+						model1.setValue("/root/reqData/searchData2/vaca_fr_dt",model.getValue("/root/reqData/searchData/fr_dt"));
+						model1.send("hd_vaca_2303_l");
+						model1.copyNode("/root/resData/gridData2","/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						datagrid3.refresh();
+					}
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="datagrid3" nodeset="/root/resData/gridData2/record" visibility="hidden" caption="휴가시작일^휴가종료일^휴가일수^휴가구분^세부구분" colsep="^" colwidth="75, 75, 58, 58, 55" ellipsis="true" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" tooltip="true" style="left:575px; top:465px; width:359px; height:235px; ">
+			<col ref="vaca_frdt" format="yyyy-mm-dd"/>
+			<col ref="vaca_todt" format="yyyy-mm-dd"/>
+			<col ref="vaca_dds"/>
+			<col ref="vaca_clsf_nm" style="text-align:left; "/>
+			<col ref="vaca_dtls_clsf_nm" style="text-align:left; "/>
+		</datagrid>
+		<group id="group2" class="gro_btn" style="left:8px; top:440px; width:926px; height:20px; ">
+			<caption id="caption13" class="tit02" style="left:2px; top:0px; width:456px; height:20px; font-weight:bold; ">부서원 휴가 사용내역 ( 부서원 더블클릭시 세부정보 보여줍니다 )</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

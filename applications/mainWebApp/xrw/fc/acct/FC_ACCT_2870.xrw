@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>입금표List출력(FC_ACCT_2870)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData/>
+						<searchData>
+							<frrcpm_shet_dlv_dt/>
+							<torcpm_shet_dlv_dt/>
+							<retn_dt/>
+							<emp_no/>
+							<emp_nm/>
+							<dept_cd/>
+							<dept_nm/>
+							<bf_dept_cd/>
+						</searchData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<fc_acct_2873_s>
+								<dataSet>
+									<CURLIST>
+										<record>
+											<rcpm_shet_kind_nm/>
+										</record>
+									</CURLIST>
+								</dataSet>
+							</fc_acct_2873_s>
+							<fc_co_1101_l>
+								<dataSet>
+									<CURLIST1>
+										<record>
+											<cmpy_cd/>
+											<dept_cd/>
+											<dept_team_clsf/>
+											<abrv_nm/>
+											<offi_nm/>
+											<dept_team_nm/>
+											<part_nm/>
+											<part_dn_nm/>
+										</record>
+									</CURLIST1>
+								</dataSet>
+							</fc_co_1101_l>
+						</resForm>
+						<gridData>
+						</gridData>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<MsgData/>
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+				</root>
+			</instance>
+			<submission id="hd_com_1002" action="/hd/com/1002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="fc_co_1101" action="/fc/co1000/1101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/resData/resForm/fc_co_1101_l/dataSet"/>
+			<submission id="fc_acct_2873_s" action="/fc/acct2000/2873" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resForm/fc_acct_2873_s/dataSet"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var curDate = commCurDate();
+					//model.setValue("/root/reqData/searchData/frrcpm_shet_dlv_dt", curDate);
+					//model.setValue("/root/reqData/searchData/torcpm_shet_dlv_dt", curDate);
+					model.setValue("/root/reqData/searchData/retn_dt", curDate);
+					group_scr.refresh();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/fcmc_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+				function setEmp_no(emp_no, nm_korn, dept_cd, dept_nm){
+
+					model.setValue("/root/reqData/searchData/emp_no", emp_no);
+					model.setValue("/root/reqData/searchData/emp_nm", nm_korn);
+//					model.setValue("/root/reqData/searchData/dept_cd", dept_cd);					
+//					model.setValue("/root/reqData/searchData/dept_nm", dept_nm);
+					srch_emp_no.refresh();
+					srch_emp_nm.refresh();
+//					srch_dept_cd.refresh()
+//					srch_dept_nm.refresh();
+
+					model.send("hd_com_1002");
+					srch_emp_nm.value = model.getValue("/root/tempData/record/nm_korn");
+					srch_dept_cd.value = model.getValue("/root/tempData/record/dept_cd");
+					srch_dept_nm.value = model.getValue("/root/tempData/record/dept_nm");					
+
+				}
+				
+				function send_fc_acct_2871_p() {
+					if (!check_reqItem(srch_frrcpm_shet_dlv_dt,"trim","focus","교부일자 시작일자는 필수 항목입니다.")) { return false; }
+					if (!check_reqItem(srch_torcpm_shet_dlv_dt,"trim","focus","교부일자 종료일자는 필수 항목입니다.")) { return false; }
+					if (!check_reqItem(srch_retn_dt,"trim","focus","반환일자는 필수 항목입니다."	)) { return false; }
+					if (!check_reqItem(srch_emp_no,"trim","focus","수령자 사번은 필수 항목입니다.")) { return false; }
+					
+					var date_diff;
+					date_diff = get_datediff(srch_frrcpm_shet_dlv_dt.value,srch_torcpm_shet_dlv_dt.value);
+					
+					if(date_diff > 366){
+						show_message("1년이 초과하는 자료는 출력할 수 없습니다.");
+						return;
+					}
+					
+					var dept_nm;
+					
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/dept_cd");
+					model.makeNode("/root/reqData/fwdData/select_ch");
+					model.makeNode("/root/reqData/fwdData/use_end_dt");
+					model.setValue("/root/reqData/fwdData/dept_cd", srch_dept_cd.value);
+					model.setValue("/root/reqData/fwdData/select_ch", "S");
+					model.setValue("/root/reqData/fwdData/use_end_dt", "");
+					model.send("fc_co_1101");	
+
+					//dept_nm = model.getValue("/root/resData/resForm/fc_co_1101_l/dataSet/CURLIST1/record/offi_nm");
+					dept_nm = model.getValue("/root/resData/resForm/fc_co_1101_l/dataSet/CURLIST1/record/dept_team_nm");
+					resetOznode();
+					makeNodeValue("/root/oz_data/childCount","1");
+					
+					if (fn_cmpcMgmt(srch_dept_cd.value) == false) { return; }
+					
+					model.send("fc_acct_2873_s");
+					
+					var totalcnt = get_refvalue("/root/resData/resForm/fc_acct_2873_s/dataSet/CURLIST/totalcnt");
+					
+					if(totalcnt == 0){
+						show_message("출력할 자료가 존재하지 않습니다.");
+						return false;
+					}
+					
+					var rcpm_shet_kind_nm = "";
+					if(totalcnt == 1){
+						rcpm_shet_kind_nm = get_refvalue("/root/resData/resForm/fc_acct_2873_s/dataSet/CURLIST/record["+totalcnt+"]/rcpm_shet_kind_nm");
+					}else{					
+						for(var i =1; i<totalcnt; i++){
+							rcpm_shet_kind_nm = rcpm_shet_kind_nm + "  " + get_refvalue("/root/resData/resForm/fc_acct_2873_s/dataSet/CURLIST/record["+i+"]/rcpm_shet_kind_nm");
+						}
+					}
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName","fcmc/SP_FC_ACCT_2871_P")
+					
+					// connection 파라미터 설정.
+//					makeNodeValue("/root/oz_data/conParam/sv_url","19110");
+//					makeNodeValue("/root/oz_data/conParam/sv_uid");
+//					makeNodeValue("/root/oz_data/conParam/sv_bonm");
+//					makeNodeValue("/root/oz_data/conParam/uv_line");
+//					makeNodeValue("/root/oz_data/conParam/uv_summary");
+					
+					makeNodeValue("/root/oz_data/conParam/uv_dept_nm", dept_nm + "장");
+					makeNodeValue("/root/oz_data/conParam/uv_rcpm_shet_kind_nm", rcpm_shet_kind_nm);
+					
+					// odi 파라미터 설정.
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", getProperty("ss_cmpycd"));
+					makeNodeValue("/root/oz_data/odiParam/iv_frrcpm_shet_dlv_dt", srch_frrcpm_shet_dlv_dt.value);
+					makeNodeValue("/root/oz_data/odiParam/iv_torcpm_shet_dlv_dt", srch_torcpm_shet_dlv_dt.value);
+					makeNodeValue("/root/oz_data/odiParam/iv_dept_cd", srch_dept_cd.value);
+					makeNodeValue("/root/oz_data/odiParam/iv_emp_no", srch_emp_no.value);
+					makeNodeValue("/root/oz_data/odiParam/iv_bef_dept_cd", srch_bef_dept_cd.value);
+					makeNodeValue("/root/oz_data/odiParam/iv_retn_dt", srch_retn_dt.value);
+					
+					//makeNodeValue("/root/oz_data/preview", "print");
+
+					makeNodeValue("/root/oz_data/child1/ozrName","fcmc/SP_FC_ACCT_2871_P_AD")
+					makeNodeValue("/root/oz_data/child1/conParam/uv_dept_nm", dept_nm + "장");
+					makeNodeValue("/root/oz_data/child1/conParam/uv_rcpm_shet_kind_nm", rcpm_shet_kind_nm);
+					
+					// odi 파라미터 설정.
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd", getProperty("ss_cmpycd"));
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_frrcpm_shet_dlv_dt", srch_frrcpm_shet_dlv_dt.value);
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_torcpm_shet_dlv_dt", srch_torcpm_shet_dlv_dt.value);
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_dept_cd", srch_dept_cd.value);
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_emp_no", srch_emp_no.value);
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_bef_dept_cd", srch_bef_dept_cd.value);
+					makeNodeValue("/root/oz_data/child1/odiParam/iv_retn_dt", srch_retn_dt.value);					
+					// 레포트뷰어 호출.
+					openOzwin("/root/oz_data");	
+		        }				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="640" pageheight="480" guideline="2,34;2,39;2,40;2,49;2,70;2,78;2,80;2,103;2,105;2,112;2,113;2,117;2,118;2,132;2,133;2,157;2,158;2,366;2,377;2,376;2,393;2,408;2,409;1,936;1,927;1,926;2,755;1,630;1,10;2,470;1,319;1,173;">
+		<!--import id="iv_Title" src="/common/xrw/iv_TitleBar_Pop400.xrw" style="left:10px; top:5px; width:385px; height:29px; "/-->
+		<group id="group2" style="left:15px; top:45px; width:615px; height:25px; ">
+			<button id="btn_select" class="btn02" navindex="6" crud="R" style="left:505px; top:0px; width:52px; height:21px; ">
+				<caption>출력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						send_fc_acct_2871_p();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" navindex="10" style="left:559px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						formClose();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="caption6" class="list_cap02" style="left:85px; top:120px; width:460px; height:255px; text-align:center; "/>
+		<group id="group_scr" class="gro_sel" style="left:120px; top:183px; width:385px; height:126px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:385px; height:26px; text-align:center; "/>
+			<caption id="caption3" class="list_cap03" style="left:0px; top:0px; width:120px; height:26px; text-align:center; ">입금표번호</caption>
+			<caption id="caption1" class="list_cap02" style="left:0px; top:25px; width:385px; height:26px; text-align:center; "/>
+			<caption id="caption2" class="list_cap03" style="left:0px; top:25px; width:120px; height:26px; text-align:center; ">반환일자</caption>
+			<input id="srch_retn_dt" ref="/root/reqData/searchData/retn_dt" class="req" navindex="3" inputtype="date" style="left:123px; top:29px; width:100px; height:18px; "/>
+			<input id="srch_frrcpm_shet_dlv_dt" ref="/root/reqData/searchData/frrcpm_shet_dlv_dt" class="req" navindex="1" style="left:124px; top:5px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="DOMFocusOut">
+					<![CDATA[
+					var from_rcpm_shet_no = model.getValue("/root/reqData/searchData/frrcpm_shet_dlv_dt");
+					model.setValue("/root/reqData/searchData/frrcpm_shet_dlv_dt",lpad(from_rcpm_shet_no.toString(), 7, "0"));
+					group_scr.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="srch_torcpm_shet_dlv_dt" ref="/root/reqData/searchData/torcpm_shet_dlv_dt" class="req" navindex="2" style="left:250px; top:5px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="DOMFocusOut">
+					<![CDATA[
+					var to_rcpm_shet_no = model.getValue("/root/reqData/searchData/torcpm_shet_dlv_dt");
+					model.setValue("/root/reqData/searchData/torcpm_shet_dlv_dt",lpad(to_rcpm_shet_no.toString(), 7, "0"));
+					group_scr.refresh();				
+					]]>
+				</script>
+			</input>
+			<caption id="caption4" style="left:232px; top:8px; width:18px; height:15px; font-weight:bold; ">~</caption>
+			<caption id="caption7" class="list_cap02" style="left:0px; top:50px; width:385px; height:26px; text-align:center; "/>
+			<caption id="caption8" class="list_cap02" style="left:0px; top:75px; width:385px; height:26px; text-align:center; "/>
+			<caption id="caption9" class="list_cap02" style="left:0px; top:100px; width:385px; height:26px; text-align:center; "/>
+			<caption id="caption10" class="list_cap03" style="left:0px; top:50px; width:120px; height:26px; text-align:center; ">수령자사번</caption>
+			<caption id="caption11" class="list_cap03" style="left:0px; top:75px; width:120px; height:26px; text-align:center; ">수령부서</caption>
+			<caption id="caption12" class="list_cap03" style="left:0px; top:100px; width:120px; height:26px; text-align:center; ">구부서코드</caption>
+			<input id="srch_emp_no" ref="/root/reqData/searchData/emp_no" class="req" navindex="4" inputtype="button" style="left:123px; top:55px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+							model.removeNodeset("/root/reqData/fwdData");  
+							model.makeNode("/root/reqData/fwdData/func_nm");
+							model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+							window.load("/xrw/hd/com/HD_COM_1010.xrw","mdichild", "hd_com_1002", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+						]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+							if (srch_emp_no.value.length== 6) {
+								model.setValue("/root/reqData/searchData/emp_no", srch_emp_no.value); // 검색조건에 셋팅
+								model.setValue("/root/reqData/searchData/dept_cd", ""); // 검색조건에 셋팅
+								model.setValue("/root/reqData/searchData/dept_nm", ""); // 검색조건에 셋팅								
+								
+								model.send("hd_com_1002");
+								
+								srch_emp_nm.value = model.getValue("/root/tempData/record/nm_korn");
+								srch_dept_cd.value = model.getValue("/root/tempData/record/dept_cd");	
+								srch_dept_nm.value = model.getValue("/root/tempData/record/dept_nm");
+							}		
+							else {
+								srch_emp_no.value =  "";								
+								srch_emp_nm.value = "";
+								srch_dept_cd.value = "";
+								srch_dept_nm.value = "";
+							}
+						]]>
+				</script>
+			</input>
+			<input id="srch_emp_nm" ref="/root/reqData/searchData/emp_nm" editable="false" appearance="input" style="left:228px; top:55px; width:100px; height:18px; "/>
+			<input id="srch_dept_cd" ref="/root/reqData/searchData/dept_cd" editable="false" appearance="input" style="left:123px; top:79px; width:100px; height:18px; "/>
+			<input id="srch_bef_dept_cd" ref="/root/reqData/searchData/bf_dept_cd" style="left:124px; top:104px; width:100px; height:18px; "/>
+			<caption id="caption13" style="left:235px; top:107px; width:130px; height:15px; color:#0000ff; ">교부당시의 부서코드</caption>
+			<input id="srch_dept_nm" ref="/root/reqData/searchData/dept_nm" editable="false" appearance="input" style="left:228px; top:79px; width:100px; height:18px; "/>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar_Pop640.xrw" style="left:10px; top:5px; width:620px; height:29px; "/>
+	</xhtml:body>
+</xhtml:html>

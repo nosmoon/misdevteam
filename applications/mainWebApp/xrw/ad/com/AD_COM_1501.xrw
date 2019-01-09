@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<fwdData/>
+						<!-- 검색조건 처리 -->
+						<searchData>
+						</searchData>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<reqform/>
+						<multiupdateData>
+							<multiUpDate/>
+							<dt/>
+						</multiupdateData>
+						<!-- MultiUpDate유형 사용시 처리 -->
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<yyyy/>
+							<seq/>
+							<rcv_plac/>
+							<zip1/>
+							<zip2/>
+							<addr/>
+							<dtls_addr/>
+							<tel_no>+82-2-531-9000</tel_no>
+							<fax_no>+82-2-531-9002</fax_no>
+							<send_plac/>
+							<titl/>
+							<cont/>
+							<flag/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+						</gridData>
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+					</resData>
+					<tempData>
+						<keyData>
+						</keyData>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				var yyyy = model.getValue("/root/reqData/fwdData/yyyy");
+				var seq  = model.getValue("/root/reqData/fwdData/seq");
+				
+				if(yyyy != "" && seq != ""){
+					model.send("ad_com_1520_s");
+				}				
+				
+				]]>
+			</script>
+			<submission id="ad_com_1510_l" action="/ad/com/1510" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="ad_com_1530_a" action="/ad/com/1530" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm" resultref="/root/msgData"/>
+			<submission id="ad_com_1520_s" action="/ad/com/1520" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/resData/resForm"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function loadList(){
+				window.load("./AD_COM_1500.xrw");
+			}
+			
+			function goReport(gubun){
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_COM_1520_P");											
+					
+					var yyyy,seq;
+					
+					yyyy	= 	model.getValue("/root/resData/resForm/yyyy");
+					seq	=	model.getValue("/root/resData/resForm/seq");
+												
+			
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	//테스트는 100 고정  계발기에서는 model.property("ss_cmpycd")
+					makeNodeValue("/root/oz_data/odiParam/iv_yyyy", yyyy);
+					makeNodeValue("/root/oz_data/odiParam/iv_seq", seq);
+				
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+				/**
+				 * 우편번호 호출
+				 * parameter
+				 *  - bogb : 지국명 보일지여부(L이면 안보임)
+				 *  - zip1Ref : 우편번호1 xPath
+				 *  - zip2Ref : 우편번호2 xPath
+				 *  - addrRef : 주소 xPath
+				*/
+				function se_openZip(bogb, zip1Ref, zip2Ref, addrRef)
+				{
+					var tempReq = "/root/tempData/posttemp";
+					if(instance1.selectSingleNode(tempReq) == null){
+						model.makeNode(tempReq);
+					}
+					tempReq = "/root/tempData/posttemp/send";
+					if(instance1.selectSingleNode(tempReq) == null){
+						model.makeNode(tempReq);
+					}
+					tempReq = "/root/tempData/posttemp/recv";
+					if(instance1.selectSingleNode(tempReq) == null){
+						model.makeNode(tempReq);
+					}
+					tempReq = "/root/tempData/posttemp/send/disp_flag";
+					if(instance1.selectSingleNode(tempReq) == null){
+						model.makeNode(tempReq);
+					}
+					tempReq = "/root/tempData/posttemp/send/zip";
+					if(instance1.selectSingleNode(tempReq) == null){
+						model.makeNode(tempReq);
+					}
+					
+					//"L"이면 지국항목 안보임
+					model.setValue("/root/tempData/posttemp/send/disp_flag"	, bogb);
+					model.setValue("/root/tempData/posttemp/send/zip"		, model.getValue(zip1Ref)+model.getValue(zip2Ref));
+
+					openZip("/root/tempData/posttemp/send", "/root/tempData/posttemp/recv");
+
+					model.setValue(zip1Ref, model.getValue("/root/tempData/posttemp/recv/zip1"));
+					model.setValue(zip2Ref, model.getValue("/root/tempData/posttemp/recv/zip2"));
+					model.setValue(addrRef, model.getValue("/root/tempData/posttemp/recv/addr"));
+					
+					model.refresh();
+				}	
+				/**
+				 *  우편번호 검색 공통 팝업
+				 * _ref : request data node path
+				          zip - 검색단어, job_flag - 특정지국/전체우편번호 검색범위 지정
+				 * _resRef : 검색결과 데이터를 저장할 data node path
+				 */
+				function openZip(_ref, _resRef)
+				{//alert("1");
+				   var style = "width:560px; height:480; align:center; caption:hidden";
+				   model.property("ZIP_RES_XPATH") = _resRef;
+				   
+				   remakeNode(_resRef);
+				   //window.load("/xrw/ss/common/ss_common_1150_p.xrw", "modal", "ZIPPOP", style, _ref, "/root/tempData/zipForm");
+				   //window.load("/xrw/co/post/co_common_1150_p.xrw", "modal", "ZIPPOP", style, _ref, "/root/tempData/zipForm");
+				   window.load("/xrw/co/cocd/CO_COCD_2000.xrw", "modal", "ZIPPOP", style, _ref, "/root/tempData/zipForm");
+				
+				}							
+		]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,70;" style="font-family:굴림; ">
+		<caption id="caption14" class="list_cap02" style="left:10px; top:171px; width:926px; height:26px; "/>
+		<caption id="caption11" class="list_cap02" style="left:10px; top:246px; width:926px; height:496px; "/>
+		<caption id="caption10" class="list_cap02" style="left:10px; top:221px; width:926px; height:26px; "/>
+		<caption id="caption8" class="list_cap02" style="left:10px; top:196px; width:926px; height:26px; "/>
+		<caption id="caption6" class="list_cap02" style="left:10px; top:120px; width:926px; height:52px; "/>
+		<caption id="caption4" class="list_cap02" style="left:10px; top:95px; width:926px; height:26px; "/>
+		<caption id="caption3" class="list_cap02" style="left:10px; top:70px; width:926px; height:26px; "/>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button8" class="btn02" crud="C" style="left:556px; top:40px; width:50px; height:21px; ">
+			<caption>등록</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					if(windowConfirm("등록하시겠습니까?")){
+						model.setValue("/root/resData/resForm/flag", "I");
+						model.send("ad_com_1530_a");
+						if(submit_completed()){
+							loadList();
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" style="left:886px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn02" crud="R" style="left:776px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<caption id="caption2" class="list_cap03" style="left:10px; top:70px; width:100px; height:26px; ">문서번호</caption>
+		<button id="button2" class="btn02" crud="U" style="left:611px; top:40px; width:50px; height:21px; ">
+			<caption>수정</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					if(windowConfirm("수정하시겠습니까?")){
+						model.setValue("/root/resData/resForm/flag", "U");
+						model.send("ad_com_1530_a");
+						if(submit_completed()){							
+							loadList();
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" crud="R" style="left:721px; top:40px; width:50px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				goReport("P");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" crud="D" style="left:666px; top:40px; width:50px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					if(windowConfirm("삭제하시겠습니까?")){
+						model.setValue("/root/resData/resForm/flag", "D");
+						model.send("ad_com_1530_a");
+						if(submit_completed()){
+							loadList();
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<output id="input1" ref="/root/resData/resForm/yyyy" class="req" navindex="1" imemode="hangul" caption="문서번호" appearance="output" style="left:115px; top:74px; width:40px; height:18px; text-align:center; "/>
+		<caption id="caption1" class="list_cap03" style="left:10px; top:95px; width:100px; height:26px; ">수신처</caption>
+		<input id="input2" ref="/root/resData/resForm/rcv_plac" class="req" navindex="1" imemode="hangul" caption="수신처" style="left:115px; top:99px; width:245px; height:18px; text-align:left; "/>
+		<caption id="caption5" class="list_cap03" style="left:10px; top:120px; width:100px; height:52px; ">주 소</caption>
+		<input id="input3" ref="/root/resData/resForm/zip1" class="req" navindex="2" caption="우편번호" style="left:115px; top:124px; width:35px; height:18px; "/>
+		<input id="input4" ref="/root/resData/resForm/zip2" class="req" navindex="3" inputtype="button" caption="우편번호" style="left:155px; top:124px; width:60px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				//openZipCode("", "/root/resData/resForm/zip1", "/root/resData/resForm/zip2", "/root/resData/resForm/addr");
+				se_openZip("", "/root/resData/resForm/zip1", "/root/resData/resForm/zip2", "/root/resData/resForm/addr");
+				]]>
+			</script>
+		</input>
+		<input id="input5" ref="/root/resData/resForm/addr" class="req" navindex="4" imemode="hangul" caption="주소" style="left:115px; top:147px; width:385px; height:18px; text-align:left; "/>
+		<input id="input6" ref="/root/resData/resForm/dtls_addr" navindex="5" imemode="hangul" style="left:508px; top:147px; width:345px; height:18px; text-align:left; "/>
+		<caption id="caption7" class="list_cap03" style="left:10px; top:196px; width:100px; height:26px; ">발신처</caption>
+		<input id="input7" ref="/root/resData/resForm/send_plac" class="req" navindex="8" imemode="hangul" caption="발신처" style="left:115px; top:200px; width:245px; height:18px; text-align:left; "/>
+		<input id="input8" ref="/root/resData/resForm/titl" class="req" navindex="9" imemode="hangul" caption="제목" style="left:115px; top:225px; width:810px; height:18px; text-align:left; "/>
+		<caption id="caption9" class="list_cap03" style="left:10px; top:221px; width:100px; height:26px; ">제 목</caption>
+		<caption id="caption12" class="list_cap03" style="left:10px; top:246px; width:100px; height:496px; ">내 용</caption>
+		<textarea id="textarea1" ref="/root/resData/resForm/cont" class="req" navindex="10" imemode="hangul" caption="내용" style="left:115px; top:251px; width:815px; height:485px; text-align:left; vertical-align:top; padding:2; "/>
+		<button id="button5" class="btn02" crud="R" style="left:831px; top:40px; width:50px; height:21px; ">
+			<caption>목록</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				window.load("./AD_COM_1500.xrw");
+				]]>
+			</script>
+		</button>
+		<input id="input9" ref="/root/resData/resForm/tel_no" class="req" navindex="6" caption="발신처" style="left:115px; top:175px; width:135px; height:18px; text-align:left; "/>
+		<caption id="caption13" class="list_cap03" style="left:10px; top:171px; width:100px; height:26px; ">전화번호</caption>
+		<input id="input10" ref="/root/resData/resForm/fax_no" class="req" navindex="7" caption="발신처" style="left:425px; top:175px; width:135px; height:18px; text-align:left; "/>
+		<caption id="caption15" class="list_cap03" style="left:320px; top:171px; width:100px; height:26px; ">팩스번호</caption>
+		<output id="input11" ref="/root/resData/resForm/seq" appearance="output" style="left:160px; top:74px; width:30px; height:18px; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

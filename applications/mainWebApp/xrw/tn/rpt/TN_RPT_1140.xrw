@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>일별문자전송현황</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<fr_dt/>
+							<to_dt/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<sms_send_date/>
+								<cnt/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				
+					function dateSrch()
+					{
+						var now_dt = "";
+						var now_date = new Date();
+						var year = now_date.getYear();
+						var month = now_date.getMonth() + 1;
+						var day = now_date.getDate();    
+						var month_tm = '0' + month;
+						var day_tm = '0' + day;  
+						if(month_tm.length == 3){
+							month_tm = month_tm.substring(1, 3);
+						}
+						if(day_tm.length == 3){
+							day_tm = day_tm.substring(1, 3);
+						}
+						now_dt = year + month_tm + day_tm;
+					       return(now_dt);
+					
+					}
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.setValue("/root/reqData/searchData/fr_dt", dateSrch());
+					model1.setValue("/root/reqData/searchData/to_dt", dateSrch());
+					
+					datagrid1.removeRow();
+					model1.refresh();	
+				]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<submission id="tn_rpt_1141_l" action="/tn/rpt/1141" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="760" guideline="2,706;" style="font-family:굴림; padding-right:20ox; ">
+		<group id="group_scr" class="gro_sel" style="left:1.06%; top:9.21%; width:97.89%; height:3.29%; ">
+			<caption id="caption4" class="list_cap02" style="left:8.53%; top:0.00%; width:91.47%; height:100.00%; text-align:center; "/>
+			<caption id="caption2" class="list_cap01" style="left:0.00%; top:0.00%; width:8.64%; height:100.00%; text-align:center; ">조회날짜</caption>
+			<input id="input6" ref="/root/reqData/searchData/fr_dt" inputtype="date" format="yyyy-mm-dd" style="left:9.83%; top:16.00%; width:11.88%; height:72.00%; text-align:center; "/>
+			<input id="input1" ref="/root/reqData/searchData/to_dt" inputtype="date" format="yyyy-mm-dd" style="left:24.84%; top:16.00%; width:11.88%; height:18px; text-align:center; "/>
+			<caption id="caption6" style="left:22.68%; top:20.00%; width:2.16%; height:80.00%; ">~</caption>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:99%; height:29px; background-stretch:stretch; "/>
+		<button id="btnA1" class="btn02" style="left:78.75%; top:5.26%; width:5.50%; height:2.76%; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.removeNodeset("/root/resData/gridData/record");  
+
+					if(model.getValue("/root/reqData/searchData/fr_dt") == "" || model.getValue("/root/reqData/searchData/to_dt") == ""){
+						model.alert("조회 기간을 선택해 주세요.");
+						return;
+					} 
+
+					
+					model1.send("tn_rpt_1141_l");
+					model1.copyNode("/root/resData/gridData","/root/tempData/dataSet/CURLIST");
+					output1.value = model.getValue("/root/tempData/dataSet/CURLIST/totalcnt");
+					//model1.copyNode("/root/resData/gridData","/root/tempData/dataSet/CURLIST");
+			
+					model1.refresh();	
+				]]>
+			</script>
+		</button>
+		<button id="btnA4" class="btn02" style="left:93.66%; top:5.26%; width:5.50%; height:2.76%; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				  viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn04" style="left:84.25%; top:5.26%; width:9.30%; height:2.76%; ">
+			<caption>엑셀다운로드</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var filename = window.fileDialog("save", ",", false, "일별문자전송현황", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){						
+						datagrid1.saveExcel(filename, "sheetname: 일별문자전송현황");
+					}	
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="전송일자^건수" colsep="#" colwidth="270,250" explorerbar="sortshowmove" extendlastcol="scroll" mergecells="byrow" mergecellsfixedrows="byrow" rowheader="seq" rowsep="|" subtotalposition="below" style="left:15px; top:18.42%; width:575px; height:75.13%; ">
+			<col ref="sms_send_date" format="yyyy-mm-dd" caption="전송일자" style="text-align:center; "/>
+			<col ref="cnt" format="(-)#,###" caption="건수" style="text-align:right; padding-right:10px; "/>
+		</datagrid>
+		<caption id="caption1" style="left:415px; top:13.82%; width:60px; height:20px; ">총 건수:</caption>
+		<output id="output1" format="#,###" style="left:470px; top:13.82%; width:100px; height:18px; font-weight:bold; text-align:right; padding-right:5px; "/>
+		<caption id="caption3" style="left:575px; top:13.82%; width:40px; height:20px; ">건</caption>
+	</xhtml:body>
+</xhtml:html>

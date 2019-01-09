@@ -1,0 +1,122 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<!--JSP COMMENT START------------------------------------------------------------------------------->
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_code_1306_l.jsp
+* 기능 : 보너스북관리 리스트
+* 작성일자 : 2004-01-12
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    // 화면에 보여줄 라인수
+    String records_per_page =   request.getParameter("records_per_page");
+    // dataset 인스턴스 선언부분
+    PS_L_BNSBKDataSet ds = (PS_L_BNSBKDataSet)request.getAttribute("ds");  // request dataset
+	int no_data_page = Integer.parseInt(request.getParameter("records_per_page")) - ds.curcommlist.size();
+%>
+<script language="javascript">
+parent.setEventHandler();
+</script>
+
+<table width="830" border="0" cellpadding="1" cellspacing="0" align="center" bgcolor="#FFFFFF" class="gray" id="list_info" >
+  <tr align="center">
+    <td width="110" class="gray" bgcolor="#dddddd">매체명</td>
+    <td width="40" class="gray" bgcolor="#dddddd">보너스북코드</td>
+    <td width="170" class="gray" bgcolor="#dddddd">보너스북명</td>
+    <td width="150" class="gray" bgcolor="#dddddd">발행처</td>
+<!--
+    <td width="80" class="gray" bgcolor="#dddddd">유효기간From</td>
+    <td width="80" class="gray" bgcolor="#dddddd">유효기간To</td>
+-->
+    <td width="220" class="gray" bgcolor="#dddddd">주요내용</td>
+    <td width="140" bgcolor="#dddddd" class="gray">비고</td>
+  </tr>
+    <%
+    // 코드리스트 가져 오는 부분
+    for(int i=0 ; i< ds.curcommlist.size(); i++) {
+        PS_L_BNSBKCURCOMMLISTRecord rec = (PS_L_BNSBKCURCOMMLISTRecord)ds.curcommlist.get(i);
+
+        String str1 = rec.getBns_bookcd();					//보너스북코드
+        String str2 = Util.checkString(rec.getBns_booknm());//보너스북명
+        String str3 = rec.getCmpynm();					    //로그인회사명
+        String str4 = Util.convertS(rec.getBgnvdtydt());    //적용시작일자
+        String str5 = Util.convertS(rec.getEndvdtydt());	//적용마지막일자
+        String str6 = Util.replace(Util.checkString(Util.convertNull(rec.getVipcont(),"&nbsp;")),"\r\n","<BR>");    //주요내용
+        String str61 =Util.replace(Util.checkString(Util.convertNull(rec.getVipcont(),"&nbsp;")),"\r\n","@@");
+        String str7 = Util.checkString(Util.convertNull(rec.getRemk(),"&nbsp;"));		//비고
+        String str8 = Util.checkString(Util.convertNull(rec.getMedicd(),"&nbsp;"));		//매체코드
+        String str9 = Util.checkString(Util.convertNull(rec.getMedinm(),"&nbsp;"));		//매체명
+   %>
+
+  <tr onmouseover="this.style.backgroundColor='#EDFFF1'" onmouseout="this.style.backgroundColor=''"  onClick="detail_view('<%=str1%>','<%=str2%>','<%=str3%>','<%=str4%>','<%=str5%>','<%=str61%>','<%=str7%>','<%=str8%>')"  style="cursor:hand;">
+      <td  class="gray" align="center"><%=str9%></td>
+      <td  class="gray" align="center"><%=str1%></td>
+      <td  class="gray" align="left" ><%=str2%></td>
+      <td  class="gray" align="center"><%=str3%></td>
+<!--
+      <td  align="center" class="gray"></td>
+      <td  align="center" class="gray"></td>
+-->
+      <td  align="left"  class="gray"><%=str6%></td>
+      <td  align="left"  class="gray"><%=str4%>~<%=str5%> <% if(!str7.equals("&nbsp;")) { out.print("<BR>"); }%> <%=str7%></td>
+  </tr>
+
+    <%
+     }
+	for(int i=0; i < no_data_page; i++) {
+    %>
+
+  <tr>
+    <td class="gray" >&nbsp;</td>
+    <td class="gray" >&nbsp;</td>
+    <td class="gray" >&nbsp;</td>
+<!--
+    <td class="gray" align="center">&nbsp;</td>
+    <td class="gray" align="center">&nbsp;</td>
+-->
+    <td class="gray" >&nbsp;</td>
+    <td class="gray" >&nbsp;</td>
+    <td class="gray" >&nbsp;</td>
+  </tr>
+<%
+	}
+%>
+</table>
+<!---button-->
+<table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center" id="navi">
+  <tr>
+    <td align="center" height="2">
+      <!--여백-->
+    </td>
+  </tr>
+  <tr>
+     <td colspan=5 align="center" bgcolor="#E8E8E8">
+              <!--JSP PAGE START---------------------------------------------------------------------------------->
+              <%
+              String curr_page_no = request.getParameter("curr_page_no");
+              String total_records = String.valueOf(ds.getTotalcnt());
+              String js_fn_nm = request.getParameter("js_fn_nm");
+              %>
+              <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+              <jsp:param name = "curr_page_no" 		value="<%=curr_page_no%>"/>
+              <jsp:param name = "total_records" 	value="<%=total_records%>"/>
+              <jsp:param name = "js_fn_nm" 			value="<%=js_fn_nm%>"/>
+              <jsp:param name = "records_per_page" 	value="<%=records_per_page%>"/>
+              <jsp:param name = "page_set_gubun" 	value="0"/>
+              </jsp:include>
+
+              <!--JSP PAGE END------------------------------------------------------------------------------------>
+      </td>
+  </tr>
+</table>
+
+<script>
+    parent.document.all.list_info.outerHTML = list_info.outerHTML;
+    parent.document.all.navi.outerHTML = navi.outerHTML;
+</script>

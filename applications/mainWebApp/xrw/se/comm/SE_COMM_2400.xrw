@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_COMM_2400.xrw
+* 기능 : 수송업자 조회
+* 작성일자 : 2009.06.09
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					
+					var action = "se_comm_2410_l";
+					model.send(action);
+					
+					//datagrid1.fixedcellcheckbox(1, 1, false) = true;				
+
+					
+					reonly();
+					
+					model.refresh();
+				}
+				
+				function setValue(){
+					var rows	= datagrid1.rows;
+					var lenArr	= new Array();
+					var yn;
+					var arrIn	= 0;
+					for ( var i = 1 ; i < rows ; i++ ){
+						yn	= datagrid1.valueMatrix(i, 1);
+						if ( yn == "Y" ){
+							lenArr[arrIn] = i;
+							arrIn++;
+						}
+					}
+					
+					var len	= lenArr.length;
+					
+					if ( len < 1 ) {
+						alert("선택된 셀이 없습니다.");
+						return;
+					}
+					
+					var path		= model.property("path_2400");
+					var item		= model.property("item_2400");
+					var indexPro 	= model.property("index_2400");
+					
+					if ( indexPro != "" && len != 1 ){
+						commAlert("하나의 셀만 선택하여야 합니다.");
+						return;
+					}
+					
+					var gridLen  = datagrid1.rows;
+					var par, sub, srcNode ,node, index;
+					//그리드 아래로 여러 건을 보내는 경우
+					if ( indexPro == "" ){
+						par 			= window.opener.instance1.selectSingleNode(path);
+						
+						if ( len == 1 ){
+							index = lenArr[0];
+							if ( datagrid1.rows == datagrid1.fixedRows + 1 ){
+								index = "";
+							} else {
+								index = "[" + index + "]";
+							}
+							srcNode = model.instances(0).selectSingleNode("/root/resData/gridData/record" + index);
+							par.appendChild(srcNode);
+						} else {
+							for ( var i = 0 ; i < len ; i++ ){
+								index = lenArr[i];
+								srcNode = model.instances(0).selectSingleNode("/root/resData/gridData/record[" + index + "]");
+								par.appendChild(srcNode);
+							}
+						}				
+					//그리드의 선택된 셀에 내용을 넣는 경우
+					} else {
+						par			= window.opener.instance1.selectSingleNode(path);
+						sub			= par.getElementsByTagName(item);
+
+						if ( sub.length == 1 ){
+							indexPro = "";
+						} else {
+							indexPro = "[" + indexPro + "]";
+						}
+						
+						sub			= par.getElementsByTagName(item + indexPro);
+						
+						index = datagrid1.selectedRow(0);
+						if ( datagrid1.rows == datagrid1.fixedRows + 1 ){
+							index = "";
+						} else {
+							index = "[" + index + "]";
+						}
+
+						var root = "/root/resData/gridData/record" + index + "/";
+						var arr = new Array("tran_uprc_clas", "route_clsf", "tran_uprc_cd", "tran_uprc_route_nm", "prt_plac_cd ", "medi_cd", "sect_cd", "dlco_no", "tran_cmpy_cd ", "tran_cmpy_nm", "corp_clsf", "eps_no", "bank_cd", "acct_no", "zip", "addr", "dtls_addr", "tel_no", "car_no", "pay_tran_uprc", "work_dds", "pay_tran_cost", "sect_nm");
+						var detail = sub.nextNode();
+						var detail_path = path + "/" + item + indexPro;
+						var value;
+						for ( var i = 0 ; i <= arr.length ; i++ ){
+							value = model.getValue(root + arr[i]);
+							if ( detail.getElementsByTagName(arr[i]).length < 1 ){
+								opener.model.makeNode(detail_path + "/" + arr[i]);
+							}
+							opener.model.setValue(detail_path + "/" + arr[i], value);
+						}
+					}
+					opener.model.refresh();
+					window.close();
+				}
+				
+				function reonly(){
+					var row	= datagrid1.rows-1;
+					var col 	= datagrid1.cols-1;
+					var stCol	= 1;
+					
+					if ( row > 0 ){
+						stCol = 2;
+					}
+					
+					datagrid1.isReadOnly(1, stCol, row, col) = true;
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터 -->
+						<session/>
+						<!-- 서버의 세션 정보 -->
+						<comboSet>
+							<!-- 선택계열(콤보박스,체크박스,리스트박스,라디오버튼)의 정보 -->
+							<curlist/>
+							<prtlist/>
+							<routelist/>
+							<medilist/>
+							<sectlist/>
+							<corplist/>
+							<banklist/>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영시 사용(화면ID등) -->
+					</initData>
+					<reqData>
+						<!-- 서버에 전달하고자 하는 데이터 (submit시 처리) -->
+						<fwdData/>
+						<!-- popup등의 페이지전환시 데이타 입출력에 사용 -->
+						<searchData>
+							<prt_plac_cd/>
+							<route_clsf/>
+							<tran_uprc_cd/>
+							<tran_uprc_route_nm/>
+							<tran_uprc_clas/>
+							<yymm/>
+							<bgn_dt/>
+							<end_dt/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqform>
+						</reqform>
+						<!-- 입력처리 formData 복수사용시 하위노드로 1,2,3으로 정의-->
+						<multiUpDate/>
+						<!-- Grid의 MultiUpDate유형 사용시 처리 -->
+					</reqData>
+					<resData>
+						<!-- 서버로부터 전달 받은 데이터 (submit의 결과) -->
+						<resform>
+							<record>
+								<tran_uprc_cd/>
+							</record>
+						</resform>
+						<!-- (submit의 결과) formData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<gridData>
+							<record>
+								<yymm/>
+								<pay_seq/>
+								<bo_nm/>
+								<recp_pers_nm/>
+								<prn/>
+								<qty/>
+								<uprc/>
+								<sub_dept_nm/>
+								<area_nm/>
+								<bo_cd/>
+								<bo_seq/>
+								<acct_no/>
+								<rcpm_main_nm/>
+								<setl_bank_nm/>
+								<rmks/>
+								<dlco_no/>
+								<setl_bank/>
+							</record>
+						</gridData>
+						<!-- (submit의 결과) gridData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<MsgData/>
+						<!-- (submit의 결과) 전달 받은 MsgData -->
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+						<allClk/>
+					</tempData>
+					<!-- 저장소 -->
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					
+					var action	= "se_comm_2400_m";
+					model.send(action);
+					
+					model.makeNode("/root/initData/comboSet/curlist2");
+					model.copyNode("/root/initData/comboSet/curlist2", "/root/initData/comboSet/curlist");
+					model.makeNode("/root/initData/comboSet/prtlist2");
+					model.copyNode("/root/initData/comboSet/prtlist2", "/root/initData/comboSet/prtlist");
+					model.makeNode("/root/initData/comboSet/routelist2");
+					model.copyNode("/root/initData/comboSet/routelist2", "/root/initData/comboSet/routelist");
+					
+					makeComboGubun("A", "/root/initData/comboSet/curlist", "record", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/routelist", "record", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/prtlist", "record", "cdnm", "cd");
+					
+					var tran_uprc_clas		= model.property("tran_uprc_clas_2400");
+					var prt_plac_cd			= model.property("prt_plac_cd_2400");
+					var route_clsf			= model.property("route_clsf_2400");
+					var bgn_dt				= model.property("bgn_dt_2400");
+					var end_dt				= model.property("end_dt_2400");
+					
+					var root	= "/root/reqData/searchData";
+					if ( tran_uprc_clas != "" ){
+						model.setValue(root + "/tran_uprc_clas", tran_uprc_clas);
+						combo3.disabled	= true;
+					}
+					
+					if ( prt_plac_cd != "" ){
+						model.setValue(root + "/prt_plac_cd", prt_plac_cd);
+						combo1.disabled	= true;
+					}
+					
+					if ( route_clsf != "" ){
+						model.setValue(root + "/route_clsf", route_clsf);
+						combo2.disabled	= true;
+					}
+					
+					if ( bgn_dt  != "" ){
+						model.setValue(root + "/bgn_dt", bgn_dt);
+					}
+					
+					if ( end_dt  != "" ){
+						model.setValue(root + "/end_dt", end_dt);
+					}
+					
+					datagrid1.fixedcellcheckbox(0, datagrid1.colRef("chk"), false) = true;
+					
+					goSearch();
+				
+				
+				]]>
+			</script>
+			<submission id="se_comm_2400_m" action="/se/comm/2400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData"/>
+			<submission id="se_comm_2410_l" action="/se/comm/2410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="640" pageheight="480" guideline="2,34;2,39;2,40;2,50;2,366;2,377;2,376;2,393;2,408;2,409;1,936;1,927;1,926;" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:60px; width:620px; height:80px; ">
+			<caption id="caption17" class="list_cap02" style="left:407px; top:29px; width:210px; height:25px; "/>
+			<caption id="caption25" class="list_cap01" style="left:0px; top:29px; width:110px; height:25px; ">단가노선</caption>
+			<caption id="caption26" class="list_cap02" style="left:109px; top:29px; width:200px; height:25px; "/>
+			<caption id="caption10" class="list_cap02" style="left:407px; top:5px; width:210px; height:25px; "/>
+			<caption id="caption12" class="list_cap01" style="left:308px; top:29px; width:110px; height:25px; ">단가노선명</caption>
+			<caption id="caption2" class="list_cap02" style="left:109px; top:5px; width:200px; height:25px; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:53px; width:110px; height:25px; ">수송단가분류</caption>
+			<caption id="caption4" class="list_cap02" style="left:109px; top:53px; width:508px; height:25px; "/>
+			<select1 id="combo3" ref="/root/reqData/searchData/tran_uprc_clas" navindex="1" appearance="minimal" style="left:117px; top:57px; width:90px; height:22px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo2" ref="/root/reqData/searchData/route_clsf" navindex="1" appearance="minimal" style="left:425px; top:9px; width:90px; height:22px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/routelist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption9" class="list_cap01" style="left:308px; top:5px; width:110px; height:25px; ">노선구분</caption>
+			<input id="input4" ref="/root/reqData/searchData/tran_uprc_cd" navindex="3" style="left:117px; top:33px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+						if ( event.keyCode == 13 ){
+							model.setValue("/root/reqData/searchData/bo_nm", input4.currentText);
+							goSearch();
+						}
+					]]>
+				</script>
+			</input>
+			<caption id="caption3" class="list_cap01" style="left:0px; top:5px; width:110px; height:25px; ">인쇄처</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/prt_plac_cd" navindex="1" appearance="minimal" style="left:117px; top:9px; width:90px; height:22px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/prtlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input1" ref="/root/reqData/searchData/tran_uprc_route_nm" navindex="3" style="left:425px; top:33px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+						if ( event.keyCode == 13 ){
+							model.setValue("/root/reqData/searchData/bo_nm", input4.currentText);
+							goSearch();
+						}
+					]]>
+				</script>
+			</input>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:143px; width:620px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="선택^분류^노선구분^단가명^인쇄처^업자명^단가코드^일수^매체^섹션^거래처번호^수송업자코드^업체구분^사업자번호^은행^계좌번호^우편번호^주소^상세주소^전화번호^차량번호" colsep="^" colwidth="45, 80, 100, 83, 84, 84, 74, 53, 100, 100, 90, 90, 90, 90, 90, 90, 70, 120, 120, 90, 90, 100, 100, 100, 100" extendlastcol="scroll" frozencols="1" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:10px; top:151px; width:620px; height:270px; text-align:center; ">
+			<col checkvalue="Y,N" ref="chk" type="checkbox"/>
+			<col ref="tran_uprc_clas" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist2/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="route_clsf" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/routelist2/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="tran_uprc_route_nm" style="text-align:left; "/>
+			<col ref="prt_plac_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/prtlist2/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="tran_cmpy_nm" style="text-align:left; "/>
+			<col ref="tran_uprc_cd"/>
+			<col ref="work_dds"/>
+			<col ref="medi_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medilist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="sect_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/sectlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="dlco_no"/>
+			<col ref="tran_cmpy_cd"/>
+			<col ref="dlco_clsf" type="combo">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/corplist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="eps_no"/>
+			<col ref="bank_cd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/banklist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="acct_no"/>
+			<col ref="zip"/>
+			<col ref="addr" style="text-align:left; "/>
+			<col ref="dtls_addr" style="text-align:left; "/>
+			<col ref="tel_no"/>
+			<col ref="car_no" style="text-align:left; "/>
+			<col ref="pay_tran_uprc" visibility="hidden"/>
+			<col ref="work_dds" visibility="hidden"/>
+			<col ref="pay_tran_cost" visibility="hidden"/>
+			<col ref="sect_nm" visibility="hidden"/>
+		</datagrid>
+		<button id="button7" class="btn03" style="left:568px; top:35px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" style="left:501px; top:35px; width:63px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					setValue();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" style="left:434px; top:35px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<caption id="caption8" class="tit01" style="left:15px; top:10px; width:620px; height:27px; ">수송업자 조회</caption>
+	</xhtml:body>
+</xhtml:html>

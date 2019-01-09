@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>우편번호검색</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<codeData/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<zipForm>
+								<job_flg>P</job_flg>
+								<search_word/>
+								<addr3/>
+								<zip/>
+								<pageno>1</pageno>
+								<bocd/>
+								<pagesize>10000</pagesize>
+								<sido/>
+								<gugun/>
+								<rdnm/>
+								<bldgnm/>
+								<juso_gb/>
+							</zipForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<gridZip>
+								<record>
+									<zip/>
+									<addr/>
+									<bgnn/>
+									<endn/>
+									<bocd/>
+									<bonm/>
+									<telno1/>
+									<telno2/>
+									<telno3/>
+									<zip1/>
+									<zip2/>
+									<addrFull/>
+								</record>
+							</gridZip>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<zipForm/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="subSearchZip" ref="/root/reqData/reqform/zipForm" action="/ss/common/1154" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/gridData/gridZip"/>
+			<submission id="subSearchZipNew" ref="/root/reqData/reqform/zipForm" action="/ss/common/1118" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/gridData/gridZip"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				radio1.select(0);
+				
+				if(model.getValue("/root/tempData/zipForm/disp_flag") == "L")
+				{
+					datagrid1.colHidden(datagrid1.colRef("bonm")) = true;
+					datagrid2.colHidden(datagrid2.colRef("bonm")) = true;
+				}
+				
+				var zip = model.getValue("/root/tempData/zipForm/zip");
+				if(zip != "")
+				{
+					if(validate_zip(zip)){
+						model.setValue("/root/reqData/reqform/zipForm/zip", zip);
+						input1.value = zip;
+				       	}else{
+				            	model.setValue("/root/reqData/reqform/zipForm/addr3", zip);
+				            	model.setValue("/root/reqData/reqform/zipForm/rdnm", zip);
+				            	input1.value = zip;	//search_word
+						input2.value = zip;
+				       }
+				
+			   		if(model.getValue("/root/tempData/zipForm/job_flag") == "A"){ // 특정 지국 코드를 입력하지 않으면 전체 우편번호내에서 검색
+			            		model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+			            	}
+			
+					model.send("subSearchZip", false);
+					datagrid1.refresh();
+					
+					if((instance1.selectNodes("/root/resData/gridData/gridZip/record/zip")).length == 0)
+						model.toggle("case2");
+					else
+						model.toggle("case1");
+				}
+				
+				if(model.getValue("/root/tempData/zipForm/apt") == "APT")
+				{
+					PID1901caption4.value = "센터 검색";
+				}
+				
+				
+			}
+			
+			function search()
+			{
+				var word = input1.value; 	//search_word
+				
+				if(model.getValue("/root/tempData/zipForm/job_flag") == "A"){ // 특정 지국 코드를 입력하지 않으면 전체 우편번호내에서 검색
+		            		model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+		            	}
+		            	
+		            	if(validate_zip(word)){
+					model.setValue("/root/reqData/reqform/zipForm/zip", word);
+			       	}else{
+			            	model.setValue("/root/reqData/reqform/zipForm/addr3", word);
+			       }
+			       
+			       model.setValue("/root/reqData/reqform/zipForm/sido", "");
+			       model.setValue("/root/reqData/reqform/zipForm/gugun", "");
+			       model.setValue("/root/reqData/reqform/zipForm/rdnm", "");
+			       model.setValue("/root/reqData/reqform/zipForm/bldgnm", "");
+				
+				model.send("subSearchZip", true);
+				
+				datagrid1.refresh();
+				
+				if((instance1.selectNodes("/root/resData/gridData/gridZip/record/zip")).length == 0)
+					model.toggle("case2");
+				else
+					model.toggle("case1");
+				
+				//나머지처리
+				model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+				model.setValue("/root/reqData/reqform/zipForm/zip", "");
+				model.setValue("/root/reqData/reqform/zipForm/addr3", "");
+				if(validate_zip(input1.value))
+					insertDash(input1, 3);
+			}
+			
+			function search2()
+			{
+				
+				var rdnm = input2.value; 	//search_word
+				var bldgnm = input3.value; 	//search_word
+				
+				if(model.getValue("/root/tempData/zipForm/job_flag") == "A"){ // 특정 지국 코드를 입력하지 않으면 전체 우편번호내에서 검색
+		            		model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+		            	}
+		              
+		               model.setValue("/root/reqData/reqform/zipForm/addr3","");
+		               model.setValue("/root/reqData/reqform/zipForm/zip","");
+			       model.setValue("/root/reqData/reqform/zipForm/rdnm", rdnm);
+			       model.setValue("/root/reqData/reqform/zipForm/bldgnm", bldgnm);
+				
+				model.send("subSearchZipNew", true);
+				
+				if((instance1.selectNodes("/root/resData/gridData/gridZip/record/zip")).length == 0)
+					model.toggle("case5");
+				else
+					model.toggle("case4");
+					
+				datagrid2.refresh();
+				
+				//나머지처리
+				model.setValue("/root/reqData/reqform/zipForm/bocd", "");
+				model.setValue("/root/reqData/reqform/zipForm/zip", "");
+				model.setValue("/root/reqData/reqform/zipForm/addr3", "");
+				if(validate_zip(input1.value))
+					insertDash(input1, 3);
+			}
+			
+			function onKeyDown()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("button2");
+					search();
+				}
+			}
+			
+			function onKeyDown2()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("button3");
+					search2();
+				}
+			}
+			
+			function onRowChange()
+			{
+				if(event.button == 1)
+				{
+					var resPath = model.property("ZIP_RES_XPATH");
+
+					window.opener.javaScript.remakeNode(resPath);
+					window.opener.javaScript.makeValueNode(resPath+"/zip", curRowRefColValue(datagrid1, "zip"));
+					window.opener.javaScript.makeValueNode(resPath+"/addr", curRowRefColValue(datagrid1, "addr"));
+					window.opener.javaScript.makeValueNode(resPath+"/bgnn", curRowRefColValue(datagrid1, "bgnn"));
+					window.opener.javaScript.makeValueNode(resPath+"/endn", curRowRefColValue(datagrid1, "endn"));
+					window.opener.javaScript.makeValueNode(resPath+"/bocd", curRowRefColValue(datagrid1, "bocd"));
+					window.opener.javaScript.makeValueNode(resPath+"/bonm", curRowRefColValue(datagrid1, "bonm"));
+					window.opener.javaScript.makeValueNode(resPath+"/telno1", curRowRefColValue(datagrid1, "telno1"));
+					window.opener.javaScript.makeValueNode(resPath+"/telno2", curRowRefColValue(datagrid1, "telno2"));
+					window.opener.javaScript.makeValueNode(resPath+"/telno3", curRowRefColValue(datagrid1, "telno3"));
+					window.opener.javaScript.makeValueNode(resPath+"/zip1", curRowRefColValue(datagrid1, "zip1"));
+					window.opener.javaScript.makeValueNode(resPath+"/zip2", curRowRefColValue(datagrid1, "zip2"));
+					window.opener.javaScript.makeValueNode(resPath+"/addrFull", curRowRefColValue(datagrid1, "addrFull"));
+			
+					close();
+				}
+			}
+			
+			function onRowChange2()
+			{
+				if(event.button == 1)
+				{
+					var resPath = model.property("ZIP_RES_XPATH");
+
+					window.opener.javaScript.remakeNode(resPath);
+					window.opener.javaScript.makeValueNode(resPath+"/zip", curRowRefColValue(datagrid2, "zip"));
+					window.opener.javaScript.makeValueNode(resPath+"/addr", curRowRefColValue(datagrid2, "addr"));
+					window.opener.javaScript.makeValueNode(resPath+"/bgnn", curRowRefColValue(datagrid2, "bgnn"));
+					window.opener.javaScript.makeValueNode(resPath+"/endn", curRowRefColValue(datagrid2, "endn"));
+					window.opener.javaScript.makeValueNode(resPath+"/bocd", curRowRefColValue(datagrid2, "bocd"));
+					window.opener.javaScript.makeValueNode(resPath+"/bonm", curRowRefColValue(datagrid2, "bonm"));
+					window.opener.javaScript.makeValueNode(resPath+"/telno1", curRowRefColValue(datagrid2, "telno1"));
+					window.opener.javaScript.makeValueNode(resPath+"/telno2", curRowRefColValue(datagrid2, "telno2"));
+					window.opener.javaScript.makeValueNode(resPath+"/telno3", curRowRefColValue(datagrid2, "telno3"));
+					window.opener.javaScript.makeValueNode(resPath+"/zip1", curRowRefColValue(datagrid2, "zip1"));
+					window.opener.javaScript.makeValueNode(resPath+"/zip2", curRowRefColValue(datagrid2, "zip2"));
+					window.opener.javaScript.makeValueNode(resPath+"/addrFull", curRowRefColValue(datagrid2, "addrFull"));
+			
+					close();
+				}
+			}
+			
+			function close()
+			{
+				window.close();
+			}
+			
+			function list_chg(){
+				if(radio1.value == "1"){
+					group_juso_old.visible = true;
+					group_juso_new.visible = false;
+				}else{
+					group_juso_old.visible = false;
+					group_juso_new.visible = true;
+				}
+			}
+			
+			function gugun_chg(){
+				modelSendNoMake("getGugunList", "/ss/common/1117", "/root/reqData/reqform/zipForm", "/root/initData/comboSet/codeData/gugunlist");
+				combo2.refresh();
+				combo2.select(0);
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="410" pageheight="440" style="font-family:굴림; ">
+		<caption id="PID1901caption4" class="tit01" style="left:10px; top:15px; width:390px; height:25px; text-align:left; ">우편번호 검색</caption>
+		<group id="group_juso_old" class="gro_sel" style="left:0px; top:40px; width:390px; height:380px; ">
+			<group id="group_scr" class="gro_sel" style="left:10px; top:25px; width:390px; height:25px; ">
+				<caption id="caption20" class="list_cap02" style="left:0px; top:0px; width:390px; height:25px; "/>
+				<input id="input1" ref="/root/reqData/reqform/zipForm/search_word" imemode="hangul" style="left:60px; top:4px; width:120px; height:18px; ">
+					<script type="javascript" ev:event="onkeydown">
+						<![CDATA[
+					onKeyDown();
+					]]>
+					</script>
+				</input>
+				<button id="button2" class="btn_grid02" style="left:183px; top:5px; width:42px; height:17px; ">
+					<caption>찾기</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+					search(1);		
+					]]>
+					</script>
+				</button>
+				<caption id="caption2" style="left:5px; top:4px; width:50px; height:17px; ">읍/면/동</caption>
+			</group>
+			<group id="group2" style="left:10px; top:330px; width:390px; height:25px; ">
+				<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:390px; height:25px; text-align:left; "/>
+				<button id="button1" class="btn_grid02" style="left:175px; top:4px; width:42px; height:17px; ">
+					<caption>닫기</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+					close();		
+					]]>
+					</script>
+				</button>
+			</group>
+			<switch id="switch1" style="left:10px; top:50px; width:390px; height:280px; border-width:0; ">
+				<case id="case1">
+					<datagrid id="datagrid1" nodeset="/root/resData/gridData/gridZip/record" caption="우편번호^주소^센터명" colwidth="60, 247, 70" mergecellsfixedrows="bycolrec" rowsep="|" colsep="^" style="left:0px; top:2px; width:380px; height:275px; ">
+						<col ref="zip" format="999-999"/>
+						<col ref="addrFull"/>
+						<col ref="bonm"/>
+						<col ref="addr" visibility="hidden"/>
+						<col ref="bgnn" visibility="hidden"/>
+						<col ref="endn" visibility="hidden"/>
+						<col ref="bocd" visibility="hidden"/>
+						<col ref="telno1" visibility="hidden"/>
+						<col ref="telno2" visibility="hidden"/>
+						<col ref="telno3" visibility="hidden"/>
+						<col ref="zip1" visibility="hidden"/>
+						<col ref="zip2" visibility="hidden"/>
+						<script type="javascript" ev:event="onrowchanged">
+							<![CDATA[
+						onRowChange();
+						]]>
+						</script>
+					</datagrid>
+				</case>
+				<case id="case2">
+					<caption id="caption3" style="left:5px; top:35px; width:370px; height:20px; font-weight:bold; text-align:center; background-color:#E7E7E7; ">
+						<![CDATA[입력하신 '우편번호 혹은 읍/면/동 '이 없습니다.]]>
+					</caption>
+					<caption id="caption4" style="left:5px; top:55px; width:370px; height:30px; text-align:center; background-color:#E7E7E7; ">
+						<![CDATA[거주하시는 지역의 '우편번호 혹은 읍/면/동 이름'이 정확하게 입력되었는지 다시 확인해주시기 바랍니다.]]>
+					</caption>
+					<line id="line1" style="x1:5px; y1:35px; x2:620px; y2:35px; border-color:#979596; "/>
+					<line id="line2" style="x1:5px; y1:85px; x2:620px; y2:85px; border-color:#979596; "/>
+				</case>
+				<case id="case3" selected="true"/>
+			</switch>
+			<group id="group3" style="left:10px; top:0px; width:390px; height:25px; ">
+				<caption id="caption5" style="left:0px; top:0px; width:390px; height:25px; ">
+					<![CDATA[ "읍/면/동"을 제외하고 입력 (예) 상현동 -> 상현)후 검색버튼 클릭]]>
+				</caption>
+			</group>
+		</group>
+		<group id="group_juso_new" class="gro_sel" style="left:0px; top:40px; width:390px; height:380px; ">
+			<group id="group1" class="gro_sel" style="left:10px; top:25px; width:380px; height:50px; ">
+				<caption id="caption6" class="list_cap02" style="left:0px; top:0px; width:380px; height:50px; "/>
+				<input id="input2" ref="/root/reqData/reqform/zipForm/rdnm" imemode="hangul" style="left:60px; top:30px; width:100px; height:18px; ">
+					<script type="javascript" ev:event="onkeydown">
+						<![CDATA[
+					onKeyDown2();
+					]]>
+					</script>
+				</input>
+				<button id="button3" class="btn_grid02" style="left:335px; top:30px; width:42px; height:17px; ">
+					<caption>찾기</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+					search2();		
+					]]>
+					</script>
+				</button>
+				<caption id="caption7" style="left:5px; top:30px; width:50px; height:17px; ">도로명</caption>
+				<input id="input3" ref="/root/reqData/reqform/zipForm/bldgnm" imemode="hangul" style="left:230px; top:30px; width:100px; height:18px; ">
+					<script type="javascript" ev:event="onkeydown">
+						<![CDATA[
+					onKeyDown2();
+					]]>
+					</script>
+				</input>
+				<caption id="caption8" style="left:175px; top:30px; width:50px; height:17px; ">건물명</caption>
+				<caption id="caption9" style="left:5px; top:3px; width:50px; height:17px; ">시/도</caption>
+				<caption id="caption10" style="left:175px; top:5px; width:50px; height:17px; ">구/군</caption>
+				<select1 id="combo1" ref="/root/reqData/reqform/zipForm/sido" appearance="minimal" style="left:60px; top:5px; width:100px; height:18px; ">
+					<choices>
+						<item>
+							<label>시/도</label>
+							<value/>
+						</item>
+						<item>
+							<label>서울특별시</label>
+							<value>서울</value>
+						</item>
+						<item>
+							<label>부산광역시</label>
+							<value>부산</value>
+						</item>
+						<item>
+							<label>대구광역시</label>
+							<value>대구</value>
+						</item>
+						<item>
+							<label>인천광역시</label>
+							<value>인천</value>
+						</item>
+						<item>
+							<label>광주광역시</label>
+							<value>광주</value>
+						</item>
+						<item>
+							<label>대전광역시</label>
+							<value>대전</value>
+						</item>
+						<item>
+							<label>울산광역시</label>
+							<value>울산</value>
+						</item>
+						<item>
+							<label>경기도</label>
+							<value>경기</value>
+						</item>
+						<item>
+							<label>강원도</label>
+							<value>강원</value>
+						</item>
+						<item>
+							<label>충청북도</label>
+							<value>충북</value>
+						</item>
+						<item>
+							<label>충청남도</label>
+							<value>충남</value>
+						</item>
+						<item>
+							<label>전라북도</label>
+							<value>전북</value>
+						</item>
+						<item>
+							<label>전라남도</label>
+							<value>전남</value>
+						</item>
+						<item>
+							<label>경상북도</label>
+							<value>경북</value>
+						</item>
+						<item>
+							<label>경상남도</label>
+							<value>경남</value>
+						</item>
+						<item>
+							<label>제주특별자치도</label>
+							<value>제주</value>
+						</item>
+						<item>
+							<label>세종특별자치시</label>
+							<value>세종</value>
+						</item>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[				
+						gugun_chg();
+					]]>
+					</script>
+				</select1>
+				<select1 id="combo2" ref="/root/reqData/reqform/zipForm/gugun" appearance="minimal" style="left:230px; top:5px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/gugunlist/record">
+							<label ref="gugun_nm"/>
+							<value ref="gugun_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+			</group>
+			<group id="group4" style="left:10px; top:330px; width:380px; height:25px; ">
+				<caption id="caption11" class="list_cap03" style="left:0px; top:0px; width:380px; height:25px; text-align:left; "/>
+				<button id="button4" class="btn_grid02" style="left:175px; top:4px; width:42px; height:17px; ">
+					<caption>닫기</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+					close();		
+					]]>
+					</script>
+				</button>
+			</group>
+			<switch id="switch2" style="left:10px; top:75px; width:390px; height:250px; border-width:0; ">
+				<case id="case4" selected="true">
+					<datagrid id="datagrid2" nodeset="/root/resData/gridData/gridZip/record" caption="우편번호^주소^지국명" colwidth="60, 247, 70" mergecellsfixedrows="bycolrec" rowsep="|" colsep="^" style="left:0px; top:2px; width:380px; height:248px; ">
+						<col ref="zip" format="999-999"/>
+						<col ref="addrFull"/>
+						<col ref="bonm"/>
+						<col ref="addr" visibility="hidden"/>
+						<col ref="bgnn" visibility="hidden"/>
+						<col ref="endn" visibility="hidden"/>
+						<col ref="bocd" visibility="hidden"/>
+						<col ref="telno1" visibility="hidden"/>
+						<col ref="telno2" visibility="hidden"/>
+						<col ref="telno3" visibility="hidden"/>
+						<col ref="zip1" visibility="hidden"/>
+						<col ref="zip2" visibility="hidden"/>
+						<script type="javascript" ev:event="onrowchanged">
+							<![CDATA[
+						onRowChange2();
+						]]>
+						</script>
+					</datagrid>
+				</case>
+				<case id="case5">
+					<caption id="caption12" style="left:5px; top:35px; width:370px; height:20px; font-weight:bold; text-align:center; background-color:#E7E7E7; ">
+						<![CDATA[입력하신 '도로명'이 없습니다.]]>
+					</caption>
+					<caption id="caption13" style="left:5px; top:55px; width:370px; height:30px; text-align:center; background-color:#E7E7E7; ">
+						<![CDATA[거주하시는 지역의 '도로명'이 정확하게 입력되었는지 다시 확인해주시기 바랍니다.]]>
+					</caption>
+					<line id="line3" style="x1:5px; y1:35px; x2:620px; y2:35px; border-color:#979596; "/>
+					<line id="line4" style="x1:5px; y1:85px; x2:620px; y2:85px; border-color:#979596; "/>
+				</case>
+				<case id="case6"/>
+			</switch>
+			<group id="group5" style="left:10px; top:0px; width:380px; height:25px; ">
+				<caption id="caption14" style="left:0px; top:0px; width:380px; height:25px; ">
+					<![CDATA[ "지역 선택, 도로명 입력 ( 예) 공항대로65길 ) 후 검색버튼 클릭]]>
+				</caption>
+			</group>
+		</group>
+		<select1 id="radio1" ref="/root/reqData/reqform/zipForm/juso_gb" overflow="visible" appearance="full" cols="2" style="left:215px; top:22px; width:170px; height:20px; border-style:none; ">
+			<choices>
+				<item>
+					<label>기존주소</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>신주소</label>
+					<value>2</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+						list_chg();
+						model.resetInstanceNode("/root/resData/gridData/gridZip/record");
+						datagrid1.refresh();
+						datagrid2.refresh();
+					]]>
+			</script>
+		</select1>
+	</xhtml:body>
+</xhtml:html>

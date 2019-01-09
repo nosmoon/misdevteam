@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<branchCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</branchCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<reqform>
+								<normsend_form>
+									<girosenddt/>
+									<js_fn_nm/>
+									<curr_page_no/>
+									<y/>
+									<sendbrch/>
+									<records_per_page/>
+									<x/>
+								</normsend_form>
+							</reqform>
+						</searchData>
+						<reqform/>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<sendInfoGrid>
+								<record>
+									<rdr_no/>
+									<medicd/>
+									<termsubsno/>
+									<agrmntseq/>
+									<rdrnm/>
+									<medinm/>
+									<bonm/>
+									<agrmnt_dt/>
+									<agrmntamt/>
+								</record>
+							</sendInfoGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1901subInit" action="/ps/send/1901" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1906search" action="/ps/send/1906" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/normsend_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1911print" action="/ps/send/1911" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/normsend_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1916print" action="/ps/send/1916" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/normsend_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1921print" action="/ps/send/1921" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/normsend_form" resultref="/root/tempData/dataTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					model.send("PID1901subInit", false);
+
+					//model.setValue("/root/reqData/searchData/reqform/normsend_form/records_per_page", model.getValue("/root/tempData/initTemp/recordPerPage"));
+					model.setValue("/root/reqData/searchData/reqform/normsend_form/records_per_page", "5000");
+					model.setValue("/root/reqData/searchData/reqform/normsend_form/curr_page_no", "1");
+					model.setValue("/root/reqData/searchData/reqform/normsend_form/js_fn_nm", model.getValue("/root/tempData/initTemp/js_fn_nm"));
+					model.setValue("/root/reqData/searchData/reqform/normsend_form/girosenddt", model.getValue("/root/tempData/initTemp/yesterday"));
+					model.copyNode("/root/initData/comboSet/branchCombo", "/root/tempData/initTemp/branchCombo");
+
+					model.removenode("/root/tempData/initTemp");
+					
+					model.refresh();
+					PID1901combo1.select(0);
+				}
+				
+				function search()
+				{
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID1906search", false);
+					
+				       model.copyNode("/root/resData/gridData/sendInfoGrid", "/root/tempData/dataTemp/sendInfoGrid");
+					model.removenode("/root/tempData/dataTemp");
+					
+					if(instance1.selectNodes("/root/resData/gridData/sendInfoGrid/record/bonm").length == 0)
+						model.alert("검색결과가 없습니다.");
+
+					PID1901datagrid1.rebuild();
+				}
+				
+				function close()
+				{
+					window.close();
+				}
+				
+				function print_case()
+				{
+					//model.send("PID1916print", false);
+					
+					// 기존 오즈관련 jsp를 그대로 이용하기 위한 공통 모듈
+					callServletPrintPub("/ps/send/1916","/root/reqData/searchData/reqform/normsend_form");
+				}
+				
+				function print_ocr()
+				{
+					//model.send("PID1921print", false);
+					
+					// 기존 오즈관련 jsp를 그대로 이용하기 위한 공통 모듈
+					callServletPrintPub("/ps/send/1921","/root/reqData/searchData/reqform/normsend_form");
+				}
+				
+				function print_list()
+				{
+					//model.send("PID1911print", false);
+					
+					// 기존 오즈관련 jsp를 그대로 이용하기 위한 공통 모듈
+					callServletPrintPub("/ps/send/1911","/root/reqData/searchData/reqform/normsend_form");
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1901" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="grpCommonBtn" class="gro_btn" style="left:10px; top:50px; width:926px; height:21px; ">
+			<button id="btnCommonSearch" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="btnCommonClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1901group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:26px; ">
+			<caption id="PID1901caption14" class="list_cap01" style="left:188px; top:0px; width:80px; height:25px; ">발송지사</caption>
+			<caption id="PID1901caption15" class="list_cap01" style="left:0px; top:0px; width:80px; height:25px; ">발송일자</caption>
+			<caption id="PID1901caption20" class="list_cap02" style="left:79px; top:0px; width:110px; height:25px; "/>
+			<caption id="PID1901caption1" class="list_cap02" style="left:267px; top:0px; width:659px; height:25px; "/>
+			<input id="PID1901input1" ref="/root/reqData/searchData/reqform/normsend_form/girosenddt" class="req" autonext="false" inputtype="date" caption="발송일자" style="left:83px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnCommonSearch");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<select1 id="PID1901combo1" ref="/root/reqData/searchData/reqform/normsend_form/sendbrch" appearance="minimal" style="left:271px; top:4px; width:150px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/branchCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="PID1901group3" style="left:10px; top:105px; width:926px; height:25px; ">
+			<caption id="PID1901caption57" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">정상발송목록</caption>
+			<button id="PID1901button7" class="btn_grid04" style="left:747px; top:4px; width:64px; height:17px; ">
+				<caption>봉투인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						print_case();										
+					]]>
+				</script>
+			</button>
+			<button id="PID1901button1" class="btn_grid02" style="left:879px; top:4px; width:42px; height:17px; ">
+				<caption>인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						print_list();										
+					]]>
+				</script>
+			</button>
+			<button id="PID1901button2" class="btn_grid04" style="left:813px; top:4px; width:64px; height:17px; ">
+				<caption>지로인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						print_ocr();										
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="PID1901datagrid1" nodeset="/root/resData/gridData/sendInfoGrid/record" caption="발송지사^독자번호^성명^매체종류^약정일^약정금액" colsep="^" colwidth="149, 150, 180, 140, 140, 144, 0, 0, 0" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:135px; width:926px; height:580px; ">
+			<col ref="bonm"/>
+			<col ref="rdrno_detail"/>
+			<col ref="rdrnm"/>
+			<col ref="medinm"/>
+			<col ref="agrmnt_dt" format="yyyy-mm-dd"/>
+			<col ref="agrmntamt" format="#,###" style="text-align:right; "/>
+			<col ref="medicd" visibility="hidden"/>
+			<col ref="termsubsno" visibility="hidden"/>
+			<col ref="agrmntseq" visibility="hidden"/>
+		</datagrid>
+		<!--<group id="PID1901group2" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID1901paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+	</xhtml:body>
+</xhtml:html>

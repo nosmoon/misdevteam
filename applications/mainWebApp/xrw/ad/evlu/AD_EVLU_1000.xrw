@@ -1,0 +1,493 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<score>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</score>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<search_ymd/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+							<record/>
+						</resForm>
+						<gridData>
+							<record>
+								<team_cd/>
+								<dept_nm/>
+								<acct_id/>
+								<nm_korn/>
+								<posi_cd/>
+								<posi_nm/>
+								<paper_scor/>
+								<chk1/>
+								<paper_remk/>
+								<pubsh_scor/>
+								<chk2/>
+								<pubsh_remk/>
+								<pric_scor/>
+								<chk3/>
+								<pric_remk/>
+								<spcl_scor/>
+								<chk4/>
+								<spcl_remk/>
+								<adj_evlu_scor/>
+								<chk5/>
+								<adj_evlu_remk/>
+							</record>
+						</gridData>
+					</resData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[	
+					//session 전역변수
+					var obj = htmldocument.SessionInfo;
+					var ss_emp_no = obj.emp_no.value;
+					var ss_dept_cd = obj.deptcd.value;
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[	
+					//오늘 날짜
+					var ymd = commCurDate("ymd");
+					model1.setValue("/root/reqData/searchData/search_ymd",ymd);
+					caption1.value = "("+commGetDay(ymd)+")";
+					input1.refresh();
+					//점수콤보셋
+					model1.send("ad_evlu_1001_m");
+					model1.copyNode("/root/initData/comboSet/score","/root/dataSet/score");
+					model1.removenode("/root/dataSet");
+					//각팀장 조회 ('541100','540600','541600')
+					model1.send("ad_evlu_1020_l");
+					model1.copyNode("/root/resData/resForm","/root/dataSet/CURLIST");
+					model1.removenode("/root/dataSet");
+					//조회시작 
+					searchList();
+				]]>
+			</script>
+			<submission id="ad_evlu_1000_l" action="/ad/evlu/1000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/search_ymd" resultref="/root/temp"/>
+			<submission id="ad_evlu_1020_l" action="/ad/evlu/1020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/search_ymd" resultref="/root/temp"/>
+			<submission id="ad_evlu_1001_m" action="/ad/evlu/1001" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/temp"/>
+			<submission id="ad_evlu_1010_a" action="/ad/evlu/1010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/temp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript">
+			<![CDATA[	
+				function searchList(){
+					//조회
+					model1.removenode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					model1.send("ad_evlu_1000_l");
+					model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					var tmp = model1.getValue("/root/dataSet/CURLIST2/record/rvis_end_yn");
+					//완료유무 버튼
+					if(tmp == "Y"){
+						button11.disabled = true;
+					}
+					model1.removeNode("/root/dataSet");
+					
+					datagrid1.refresh();
+					//이미지 설정
+					chkImage();
+					//셀병합
+					datagrid1.mergeCol(datagrid1.colRef("team_cd")) = true;	
+					datagrid1.mergeCol(datagrid1.colRef("dept_nm")) = true;	
+					datagrid1.refresh();
+					//일단 전부 막고
+					for(i=datagrid1.fixedRows;i<=datagrid1.rows;i++){
+						datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "false";
+						datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pubsh_scor")) = "false";
+						datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pric_scor")) = "false";
+						datagrid1.cellAttribute("editable", i,  datagrid1.colRef("spcl_scor")) = "false";
+						datagrid1.cellAttribute("editable", i, datagrid1.colRef("adj_evlu_scor")) = "false";								
+					}
+					if((chkemp_no(ss_emp_no))){	//팀장일경우
+						//해당팀원의 가감평가를 푼다, 해당팀 푼다
+						for(i=datagrid1.fixedRows;i<=datagrid1.rows;i++){
+							if((datagrid1.valueMatrix(i,datagrid1.colRef("team_cd"))=="540600")&&(ss_dept_cd=="540600")){//애드마케팅
+								datagrid1.cellAttribute("editable", i, datagrid1.colRef("adj_evlu_scor")) = "true";
+								
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pubsh_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pric_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("spcl_scor")) = "true";
+								
+								datagrid1.cellstyle("color", i, datagrid1.colRef("dept_nm")) = "blue";
+							}
+							if((datagrid1.valueMatrix(i,datagrid1.colRef("team_cd"))=="541100")&&(ss_dept_cd=="541100")){//애드플래닝
+								datagrid1.cellAttribute("editable", i, datagrid1.colRef("adj_evlu_scor")) = "true";
+								
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pubsh_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pric_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("spcl_scor")) = "true";
+								
+								datagrid1.cellstyle("color", i, datagrid1.colRef("dept_nm")) = "blue";
+							}
+							if((datagrid1.valueMatrix(i,datagrid1.colRef("team_cd"))=="541600")&&(ss_dept_cd=="541600")){//애드뉴미디어
+								datagrid1.cellAttribute("editable", i, datagrid1.colRef("adj_evlu_scor")) = "true";
+								
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pubsh_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pric_scor")) = "true";
+								datagrid1.cellAttribute("editable", i,  datagrid1.colRef("spcl_scor")) = "true";
+								
+								datagrid1.cellstyle("color", i, datagrid1.colRef("dept_nm")) = "blue";
+							}
+						}
+						button11.disabled = false;
+					}
+					if((chkemp_no(ss_emp_no))&&(ss_dept_cd=="541100")){	//플래닝 팀장일경우
+						for(i=datagrid1.fixedRows;i<=datagrid1.rows;i++){
+							datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "true";
+							datagrid1.cellAttribute("editable", i,  datagrid1.colRef("paper_scor")) = "true";
+							datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pubsh_scor")) = "true";
+							datagrid1.cellAttribute("editable", i,  datagrid1.colRef("pric_scor")) = "true";
+							datagrid1.cellAttribute("editable", i,  datagrid1.colRef("spcl_scor")) = "true";
+						}
+					}
+				}
+				//이미지 설정
+				function chkImage(){
+					var fixrow = datagrid1.fixedRows;
+					var rows = datagrid1.rows;
+					for (var i = fixrow; i <= rows; i++  ) {
+						if ( datagrid1.valueMatrix(i,datagrid1.colRef("paper_remk")) == "" ){
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk1")) = "/images/leaf_no.gif";
+						}else{
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk1")) = "/images/leaf.gif";	
+						}
+						if ( datagrid1.valueMatrix(i,datagrid1.colRef("pubsh_remk")) == "" ){
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk2")) = "/images/leaf_no.gif";
+						}else{
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk2")) = "/images/leaf.gif";	
+						}
+						if ( datagrid1.valueMatrix(i,datagrid1.colRef("pric_remk")) == "" ){
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk3")) = "/images/leaf_no.gif";
+						}else{
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk3")) = "/images/leaf.gif";	
+						}
+						if ( datagrid1.valueMatrix(i,datagrid1.colRef("spcl_remk")) == "" ){
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk4")) = "/images/leaf_no.gif";
+						}else{
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk4")) = "/images/leaf.gif";	
+						}
+						if ( datagrid1.valueMatrix(i,datagrid1.colRef("adj_evlu_remk")) == "" ){
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk5")) = "/images/leaf_no.gif";
+						}else{
+							datagrid1.cellstyle("background-image", i, datagrid1.colRef("chk5")) = "/images/leaf.gif";	
+						}
+					}
+				}
+				//sessio check emp_no
+				function chkemp_no(chk){
+					var chkValue = false;
+					for(i=1;i<=3;i++ ){
+						if(chk == model1.getValue("/root/resData/resForm/record["+i+"]/emp_no") ){
+							chkValue = true;
+							break;
+						}
+					}
+					return chkValue;
+				}
+				//sessio check dept_cd
+				function chkdept_cd(chk){
+					var chkValue = false;
+					for(i=1;i<=3;i++ ){
+						if(chk == model1.getValue("/root/resData/resForm/record["+i+"]/dept_cd") ){
+							chkValue = true;
+							break;
+						}
+					}
+					return chkValue;
+				}
+				//허용점수 check
+				function chkValue(chk){
+					var chkValue = false;
+					for(i=1;i<=model1.getValue("/root/initData/comboSet/score/totalcnt");i++ ){
+						if(chk == model1.getValue("/root/initData/comboSet/score/item["+i+"]/value") ){
+							chkValue = true;
+							break;
+						}
+					}
+					return chkValue;
+				}
+				//비고 받는 함수
+				function setRemk1(){
+					var row = datagrid1.row;
+					var col = datagrid1.col;
+					var resRemk = model1.getValue("/root/reqData/fwdData/resRemk");
+					if(resRemk != ""){
+						datagrid1.addStatus(row,"update");
+					}
+					datagrid1.valueMatrix(row,col+1)= resRemk;
+					chkImage();
+				}
+				//child에 날짜 보내기
+				function getSearch_ym(){
+					return input1.value.substr(0,6);
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,936;2,61;2,71;2,710;2,106;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:104px; width:926px; height:3px; "/>
+		<button id="button4" class="btn02" crud="R" style="left:682px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[			
+					searchList();
+				]]>
+			</script>
+		</button>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">게재일자</caption>
+		<button id="button1" class="btn02" visibility="hidden" crud="R" style="left:628px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="btn02" disabled="true" crud="C" style="left:736px; top:40px; width:50px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					for(i=0;i<=datagrid1.rows;i++){
+						datagrid1.addStatus(i,"insert");
+					}
+					if(window.alert("저장 하시겠습니까?", "확인", 1)!=1) return;
+					model1.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+					model1.send("ad_evlu_1010_a");
+					if(submit_completed()){
+						model1.removeNode("/root/dataSet");
+						searchList();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="subtitle" class="tit02" style="left:10px; top:114px; width:130px; height:20px; ">일일 평가 관리</caption>
+		<input id="input1" ref="/root/reqData/searchData/search_ymd" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" caption="발행년월" style="left:98px; top:76px; width:100px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					//요일설정
+					var ymd = model1.getValue("/root/reqData/searchData/search_ymd");
+					caption1.value = "("+commGetDay(ymd)+")";
+					//조회
+					searchList();
+				]]>
+			</script>
+		</input>
+		<button id="button6" class="btn04" crud="A" style="left:791px; top:40px; width:88px; height:21px; ">
+			<caption>일별평가상세</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.load("/xrw/ad/evlu/AD_EVLU_1100.xrw","mdichild","mdi1","width:970;height:450;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn02" style="left:883px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" style="left:205px; top:76px; width:35px; height:20px; font-size:10pt; font-weight:bolder; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="팀코드^팀명^사번^담당자^직책코드^직책^지면기여^지면기여^지면기여^단독/선게재^단독/선게재^단독/선게재^단가인상^단가인상^단가인상^특집.기타^특집.기타^특집.기타^가감평가^가감평가^가감평가^caption3^caption2" colsep="#" colwidth="50, 120, 50, 100, 50, 70, 50, 50, 25, 50, 50, 25, 50, 50, 25, 50, 50, 25, 50, 50, 25" ellipsis="false" extendlastcol="false" mergecells="byrestriccol" mergecellsfixedrows="bycolrec" rowheader="update" rowheight="35" rowsep="|" tooltip="true" style="left:12px; top:140px; width:924px; height:550px; font-weight:bolder; ">
+			<col ref="team_cd" visibility="hidden"/>
+			<col ref="dept_nm" style="font-weight:normal; "/>
+			<col ref="acct_id" visibility="hidden"/>
+			<col ref="nm_korn" style="font-weight:normal; "/>
+			<col ref="posi_cd" visibility="hidden"/>
+			<col ref="posi_nm" style="font-weight:normal; "/>
+			<col ref="paper_scor" type="input" style="font-weight:normal; "/>
+			<col ref="chk1" style="font-weight:normal; background-position:center; "/>
+			<col ref="paper_remk" visibility="hidden"/>
+			<col ref="pubsh_scor" type="input" style="font-weight:normal; "/>
+			<col ref="chk2" style="background-position:center; "/>
+			<col ref="pubsh_remk" visibility="hidden"/>
+			<col ref="pric_scor" type="input" style="font-weight:normal; "/>
+			<col ref="chk3" style="font-weight:normal; background-position:center; "/>
+			<col ref="pric_remk" visibility="hidden"/>
+			<col ref="spcl_scor" type="input" style="font-weight:normal; "/>
+			<col ref="chk4" style="font-weight:normal; background-position:center; "/>
+			<col ref="spcl_remk" visibility="hidden"/>
+			<col ref="adj_evlu_scor" type="input" style="font-weight:normal; "/>
+			<col ref="chk5" style="font-weight:normal; background-position:center; "/>
+			<col ref="adj_evlu_remk" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					var row = datagrid1.row;
+					var col = datagrid1.col;
+					if(col == datagrid1.colRef("chk1")){
+						model1.removenode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/maintitle");
+						model1.makeNode("/root/reqData/fwdData/remk");
+						model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+						model1.makeNode("/root/reqData/fwdData/maxlength");
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.makeNode("/root/reqData/fwdData/readonly");
+						model1.setValue("/root/reqData/fwdData/readonly","true");
+						//session에 따라 읽기만...가능하게..
+						if(chkemp_no(ss_emp_no)){
+							if(ss_dept_cd=="541100"){//애드플래닝팀장만 푼다
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+							if(ss_dept_cd==datagrid1.valueMatrix(row,datagrid1.colRef("team_cd"))){//해당 부서면 풀도록..
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+						}
+						model1.setValue("/root/reqData/fwdData/maintitle","[광고평가] 지면기여 비고");
+						model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("paper_remk")));
+						model1.setValue("/root/reqData/fwdData/maxlength", "500");
+						model1.setValue("/root/reqData/fwdData/func_nm","setRemk1");
+						window.load("/xrw/ad/evlu/AD_EVLU_1001.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if(col == datagrid1.colRef("chk2")){
+						model1.removenode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/maintitle");
+						model1.makeNode("/root/reqData/fwdData/remk");
+						model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+						model1.makeNode("/root/reqData/fwdData/maxlength");
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.makeNode("/root/reqData/fwdData/readonly");
+						model1.setValue("/root/reqData/fwdData/readonly","true");
+						//session에 따라 읽기만...가능하게..
+						if(chkemp_no(ss_emp_no)){
+							if(ss_dept_cd=="541100"){
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+							if(ss_dept_cd==datagrid1.valueMatrix(row,datagrid1.colRef("team_cd"))){//해당 부서면 풀도록..
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+						}
+						model1.setValue("/root/reqData/fwdData/maintitle","[광고평가] 단독/선게재 비고");
+						model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("pubsh_remk")));
+						model1.setValue("/root/reqData/fwdData/maxlength", "500");
+						model1.setValue("/root/reqData/fwdData/func_nm","setRemk1");
+						window.load("/xrw/ad/evlu/AD_EVLU_1001.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if(col == datagrid1.colRef("chk3")){
+						model1.removenode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/maintitle");
+						model1.makeNode("/root/reqData/fwdData/remk");
+						model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+						model1.makeNode("/root/reqData/fwdData/maxlength");
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.makeNode("/root/reqData/fwdData/readonly");
+						model1.setValue("/root/reqData/fwdData/readonly","true");
+						//session에 따라 읽기만...가능하게..
+						if(chkemp_no(ss_emp_no)){
+							if(ss_dept_cd=="541100"){
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+							if(ss_dept_cd==datagrid1.valueMatrix(row,datagrid1.colRef("team_cd"))){//해당 부서면 풀도록..
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+						}
+						model1.setValue("/root/reqData/fwdData/maintitle","[광고평가] 단가인상 비고");
+						model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("pric_remk")));
+						model1.setValue("/root/reqData/fwdData/maxlength", "500");
+						model1.setValue("/root/reqData/fwdData/func_nm","setRemk1");
+						window.load("/xrw/ad/evlu/AD_EVLU_1001.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if(col == datagrid1.colRef("chk4")){
+						model1.removenode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/maintitle");
+						model1.makeNode("/root/reqData/fwdData/remk");
+						model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+						model1.makeNode("/root/reqData/fwdData/maxlength");
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.makeNode("/root/reqData/fwdData/readonly");
+						model1.setValue("/root/reqData/fwdData/readonly","true");
+						//session에 따라 읽기만...가능하게..
+						if(chkemp_no(ss_emp_no)){
+							if(ss_dept_cd=="541100"){
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+							if(ss_dept_cd==datagrid1.valueMatrix(row,datagrid1.colRef("team_cd"))){//해당 부서면 풀도록..
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+						}
+						model1.setValue("/root/reqData/fwdData/maintitle","[광고평가] 특집.기타 비고");
+						model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("spcl_remk")));
+						model1.setValue("/root/reqData/fwdData/maxlength", "500");
+						model1.setValue("/root/reqData/fwdData/func_nm","setRemk1");
+						window.load("/xrw/ad/evlu/AD_EVLU_1001.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if(col == datagrid1.colRef("chk5")){
+						model1.removenode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData");
+						model1.makeNode("/root/reqData/fwdData/maintitle");
+						model1.makeNode("/root/reqData/fwdData/remk");
+						model1.makeNode("/root/reqData/fwdData/resRemk"); //리턴받는 임시변수
+						model1.makeNode("/root/reqData/fwdData/maxlength");
+						model1.makeNode("/root/reqData/fwdData/func_nm");
+						model1.makeNode("/root/reqData/fwdData/readonly");
+						model1.setValue("/root/reqData/fwdData/readonly","true");
+						//session에 따라 읽기만...가능하게..
+						if(chkemp_no(ss_emp_no)){
+							if(ss_dept_cd==datagrid1.valueMatrix(row,datagrid1.colRef("team_cd"))){//가감평가는 해당 부서면 풀도록..
+								model1.setValue("/root/reqData/fwdData/readonly","");
+							}
+						}
+						model1.setValue("/root/reqData/fwdData/maintitle","[광고평가] 가감평가 비고");
+						model1.setValue("/root/reqData/fwdData/remk",datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("adj_evlu_remk")));
+						model1.setValue("/root/reqData/fwdData/maxlength", "500");
+						model1.setValue("/root/reqData/fwdData/func_nm","setRemk1");
+						window.load("/xrw/ad/evlu/AD_EVLU_1001.xrw","mdichild","mdi1","width:455;height:400;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var row = datagrid1.row;
+					var col = datagrid1.col;
+					if(col == datagrid1.colRef("paper_scor") || col == datagrid1.colRef("pubsh_scor") || col == datagrid1.colRef("pric_scor") || col == datagrid1.colRef("spcl_scor") || col == datagrid1.colRef("adj_evlu_scor")   ){
+						chk = datagrid1.valueMatrix(row,col);
+						if(!chkValue(chk)){
+							alert("허용점수를 입력해주세요!");
+							datagrid1.valueMatrix(row,col) = "";
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//alert("row : "+datagrid1.row);
+					//alert("col : "+datagrid1.col);
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

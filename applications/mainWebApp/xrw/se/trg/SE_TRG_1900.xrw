@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_TRG_1900.xrw
+* 기능 : 목표관리-부실확장저장
+* 작성일자 : 2009-04-09
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team_cd/>
+							<part_cd/>
+							<area_cd/>
+							<yymm1/>
+							<yymm2/>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<colcnt/>
+							<clos_yymm/>
+						</resform>
+						<gridData>
+							<record>
+								<yymm/>
+								<dept_nm/>
+								<part_nm/>
+								<area_nm/>
+								<bo_cd/>
+								<bo_nm/>
+								<chrg_pers_nm/>
+								<ufth_dedu/>
+								<remk/>
+							</record>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<boinfo>
+							<send>
+								<bo_cd/>
+								<bo_seq/>
+							</send>
+							<recv>
+								<team_nm/>
+								<part_nm/>
+								<area_nm/>
+							</recv>
+						</boinfo>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_trg_1910_l" action="/se/trg/1910" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+			<submission id="se_trg_1915_s" action="/se/trg/1915" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/tempData/boinfo/send" resultref="/root/tempData/boinfo/recv"/>
+			<submission id="se_trg_1920_a" action="/se/trg/1920" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					
+					makeTeamSearch(
+						   "se_trg_1900_m"
+						  , "/se/trg/1900"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+						  
+					model.setValue("/root/reqData/searchData/yymm1", dateAdd('m', -1, getCurrentDate()).substring(0,6));
+					model.setValue("/root/reqData/searchData/yymm2", getCurrentMonth());
+							
+					ipt_yymm1.refresh();
+					ipt_yymm2.refresh();
+					
+//					datagrid1.rowStatus(1) = 1;
+					var rows	= datagrid1.rows;
+					var status;
+
+					if ( rows == datagrid1.fixedRows + 1 ){
+						status = datagrid1.rowStatus(rows - 1);
+						if ( status == 0 && datagrid1.valueMatrix(1, 1) == "" ){
+							model.removeNodeset("/root/resData/gridData/record");
+							datagrid1.refresh();
+						}
+					}
+					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//지국선택(팝업에서 호출)
+				function jsGetBocdSeq(bo_cd,bo_seq,bo_nm,callgb){
+					var rowCnt = datagrid1.row;
+					datagrid1.valueMatrix(rowCnt,5) = bo_cd;
+					datagrid1.valueMatrix(rowCnt,6) = bo_nm;
+					
+					var rStatus = datagrid1.rowStatus(rowCnt);
+					if(rStatus == 0) datagrid1.rowStatus(rowCnt) = 2;
+					jsGetBoDeptnm();
+					
+				}
+				
+				//지국의 팀,파트,지역명
+				function jsGetBoDeptnm(){
+					var rNum = datagrid1.row;
+					var bo_cd = datagrid1.valueMatrix(rNum,5);
+					if(bo_cd == "" ) return;
+					
+					model.setValue("/root/tempData/boinfo/send/bo_cd", bo_cd);
+					model.attribute("showProgressbar") = "false";
+					model.send("se_trg_1915_s");
+					model.attribute("showProgressbar") = "true";
+					if(!submit_completed()) return;
+					datagrid1.valueMatrix(rNum,2) = model.getValue("/root/tempData/boinfo/recv/team_nm");
+					datagrid1.valueMatrix(rNum,3) = model.getValue("/root/tempData/boinfo/recv/part_nm");
+					datagrid1.valueMatrix(rNum,4) = model.getValue("/root/tempData/boinfo/recv/area_nm");
+					datagrid1.refresh();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="R" style="left:510px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!commReqCheck(group_scr)) return;
+				var strdt1 = model.getValue("/root/reqData/searchData/yymm1")+"01";
+				var strdt2 = model.getValue("/root/reqData/searchData/yymm2")+"30";
+				if(!se_chkOverDate(strdt1,strdt2)) return;
+				model.send("se_trg_1910_l");					
+				se_chkGridCnt("datagrid1");			
+				
+				var rowCnt = datagrid1.rows;
+				datagrid1.isReadOnly(1,1,rowCnt-1,5) = true;
+				
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area_cd" appearance="minimal" style="left:381px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:154px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team_cd" appearance="minimal" style="left:49px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part_cd" appearance="minimal" style="left:228px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:332px; top:0px; width:45px; height:26px; ">지역</caption>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:45px; height:26px; ">팀</caption>
+			<caption id="caption8" class="list_cap01" style="left:486px; top:0px; width:45px; height:26px; ">년월</caption>
+			<caption id="caption2" style="left:617px; top:5px; width:15px; height:20px; ">~</caption>
+			<input id="ipt_yymm1" ref="/root/reqData/searchData/yymm1" class="req" format="yyyy-mm" caption="년월1" style="left:535px; top:4px; width:80px; height:18px; "/>
+			<input id="ipt_yymm2" ref="/root/reqData/searchData/yymm2" class="req" format="yyyy-mm" caption="년월2" style="left:630px; top:4px; width:80px; height:18px; "/>
+			<input id="input1" style="left:740px; top:5px; width:160px; height:20px; "/>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="년월^팀^파트^지역^센터코드^센터명^담당자명^부수^비고" colsep="#" colwidth="90, 90, 80, 80, 100, 100, 100, 80, 170" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:125px; width:926px; height:585px; ">
+			<col class="req" ref="yymm" type="input" format="yyyy-mm" caption="년월"/>
+			<col ref="dept_nm" format="99999-999"/>
+			<col ref="part_nm" format="yyyy-mm-dd"/>
+			<col ref="area_nm"/>
+			<col class="req" ref="bo_cd" type="inputbutton" format="99999" caption="센터코드"/>
+			<col ref="bo_nm"/>
+			<col ref="chrg_pers_nm"/>
+			<col class="req" ref="ufth_dedu" type="input" format="#,###" caption="부수" style="text-align:right; "/>
+			<col ref="remk" type="input" style="text-align:left; "/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					window.load(
+						"/xrw/se/comm/SE_COMM_1100.xrw", 
+						"modal", 
+						"", 
+						"left:30px; top:100px; width:660px; height:500; align:center; caption:hidden;"
+						,""
+						,""
+					);		
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				
+					if(datagrid1.col == 5){
+						var rCnt = datagrid1.row;
+						datagrid1.valueMatrix(rCnt,6) = "";
+						se_getBocdnm("/root/resData/gridData/record"
+									,"bo_cd"
+									,"bo_nm"
+									,"G"
+									,"datagrid1");		
+						datagrid1.valueMatrix(rCnt,5) = datagrid1.valueMatrix(rCnt,5).substring(0,5);
+						jsGetBoDeptnm();										
+					}		
+				]]>
+			</script>
+		</datagrid>
+		<button id="button3" class="btn03" crud="D" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				se_grid_delete("datagrid1");
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" crud="C" style="left:578px; top:44px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					datagrid1.addRow();
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn03" crud="U" style="left:737px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(!commConfirmBox("저장 하시겠습니까?")) return;		
+				if(!commGridReqCheck("datagrid1")) return;				
+				if(!checkChg("datagrid1")){
+					commAlert("변경된 내역이 없습니다.");
+					return;
+				}				
+				
+				model.setValue("/root/reqData/reqform/multiUpDate",datagrid1.getUpdateData());				
+				model.send("se_trg_1920_a");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn04" style="left:646px; top:44px; width:86px; height:21px; ">
+			<caption>엑셀불러오기</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				/*
+				var dir = window.fileDialog("open", "|", false, "", "", "Excel Files(*.xls)");
+				datagrid1.loadExcel(dir);
+
+				for(var i=1; i<datagrid1.rows; i++){
+					datagrid1.rowStatus(i) = 1;							
+				}
+				var rowCnt = datagrid1.rows;
+				datagrid1.isReadOnly(1,1,rowCnt-1,5) = false;
+				
+				*/
+				 try
+					  {
+					  var xObj = new ActiveXObject("excel.application");
+					
+					  if(xObj)
+					      Installed = true;
+					    else
+					       Installed = false;
+					  }
+					  catch(ex)
+					  {
+					    Installed = false;
+					  }
+					
+					  if(Installed == true)
+					  {
+					  //  alert("ActiveX Control이 설치되었음");
+					  }
+					  else
+					  {
+					    alert("엑셀이 설치 되지 않았습니다. 설치후 실행하시길 바랍니다.");
+					    return;
+					  }
+					  
+				
+				var upfile = window.fileDialog("open", "|", false, "", "", "Excel Files(*.xls)");		
+				
+				
+				if(upfile==""){return;}
+				//엑셀용 변수 선언
+				var Excel,oRange;				
+				// 엑셀 객체생성				
+				Excel = new ActiveXObject("Excel.Application");				
+				Excel.Application.Workbooks.Open(upfile);				
+				//엑셀표시
+				Excel.Application.Visible = false;				
+				//sheet1 선택				
+				Excel.Application.Worksheets("sheet1").Activate;				
+				// sheet1내 작업영역을 객체에 저장				
+				oRange = Excel.Application.ActiveSheet.UsedRange;		
+				//oRange에는 현재 내용이 있는 부분만 선택됨.				
+				//oRange부분을 선택표시				
+				oRange.Select();			 				
+				//oRange부분을 브라우저에 출력
+				var rows = datagrid1.rows;
+
+				for ( var i= 4; i < (oRange.Rows.count)-2 ; i ++ )   //Rows
+				{
+								 
+				   //    document.write( oRange.Cells( i, j ) + "/" );  //Cell 선택				    				       		  
+				       	datagrid1.addRow();			      
+				       	datagrid1.valueMatrix(rows,1)= model.getValue(" /root/reqData/searchData/yymm1")  ; //년월
+				       	datagrid1.valueMatrix(rows,2)= oRange.Cells( i, 1 )   ; //팀
+//				       	datagrid1.valueMatrix(rows,3)=oRange.Cells( i, 1 )   ; //파트
+				       	datagrid1.valueMatrix(rows,4)= oRange.Cells( i, 2 )   ; //지역
+				       	datagrid1.valueMatrix(rows,5)=oRange.Cells( i, 5)  ; //지국코드
+				       	datagrid1.valueMatrix(rows,6)=oRange.Cells( i, 3 )  ; //지국명
+//				       	datagrid1.valueMatrix(rows,7)= oRange.Cells( i, 1 )  ; //담당자명
+				       	datagrid1.valueMatrix(rows,8)= oRange.Cells( i, 25 )  ; //부수
+//				       	datagrid1.valueMatrix(rows,9)= oRange.Cells( i, 1 )  ; //비고				    			       	   	
+				       	 rows = rows +1;
+				       				
+				
+				}
+				Excel.Application.close;	
+				Excel.Application.Quit();	
+				
+
+
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

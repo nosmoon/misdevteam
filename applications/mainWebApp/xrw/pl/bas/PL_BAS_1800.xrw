@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_BAS_1800.xrw
+* 기능 : 기초관리-발행사코드관리
+* 작성일자 : 2009-06-22
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>발행사코드관리(PL_BAS_1800)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<issu_cmpy>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</issu_cmpy>
+							<hndlmedi_clsf1>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</hndlmedi_clsf1>
+							<hndlmedi_clsf2>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</hndlmedi_clsf2>
+							<rate_basi>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</rate_basi>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<issu_cmpy/>
+								<hndlmedi_clsf/>
+							</searchTop>
+						</searchData>
+						<reqForm>
+							<acc_flag/>
+							<cd/>
+							<cdnm/>
+							<cd_abrv_nm/>
+							<mang_cd_1/>
+							<mang_cd_2/>
+							<mang_cd_3>Y</mang_cd_3>
+							<use_yn>Y</use_yn>
+						</reqForm>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<PTCRLIST>
+								<record>
+									<cd/>
+									<cdnm/>
+									<cd_abrv_nm/>
+									<hndlmedi_clsf/>
+									<rate_basi/>
+									<mang_cd_3/>
+									<use_yn/>
+									<mang_cd_1/>
+									<mang_cd_2/>
+								</record>
+							</PTCRLIST>
+						</gridData>
+						<MsgData/>
+						<resultData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<btState/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="pl_bas_1800_m" action="/pl/bas/1800" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/comboSet"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+			<submission id="pl_bas_1810_l" action="/pl/bas/1810" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData"/>
+			<submission id="pl_bas_1820_a" action="/pl/bas/1820" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/resData/resultData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					model.send("pl_bas_1800_m");						//Submission
+
+					model.copyNode("/root/initData/comboSet/issu_cmpy","/root/resData/comboSet/issu_cmpy");			//발행사 copy
+					model.copyNode("/root/initData/comboSet/hndlmedi_clsf1","/root/resData/comboSet/hndlmedi_clsf");		//취급매체구분 copy
+					model.copyNode("/root/initData/comboSet/hndlmedi_clsf2","/root/resData/comboSet/hndlmedi_clsf");		//취급매체구분 copy
+					model.copyNode("/root/initData/comboSet/rate_basi","/root/resData/comboSet/rate_basi");				//단행본할제적용기준 copy
+
+					//콤보 초기구분값 세팅(전체(A), 선택(S), 공백("") -> value는 "")
+					makeComboGubun("A", "/root/initData/comboSet/issu_cmpy", "item", "cdnm", "cd");
+					makeComboGubun("A", "/root/initData/comboSet/hndlmedi_clsf1", "item", "cdnm", "cd");
+
+					model.setValue("/root/tempData/btState","RE");			//버튼제어상태 (RE:초기화)
+
+					model.setFocus("combo2");
+					model.refresh();
+				}
+
+				//조회
+				function srcRetrieve(){
+					model.send("pl_bas_1810_l");						//Submission
+
+					dtlReset();
+
+					model.setValue("/root/tempData/btState","RT");			//버튼제어상태 (RT:조회)
+					input1.disabled = false;							//코드활성화
+					
+					model.setFocus("combo2");
+					model.refresh();
+				}
+
+				//상세검색 Set
+				function serchDtl(){
+					var rownum = datagrid1.row;
+					
+					if(rownum > 0){
+						var rownumstr = "["+rownum+"]/";
+						var cd = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"cd");
+						var cdnm = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"cdnm");
+						var cd_abrv_nm = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"cd_abrv_nm");
+						var mang_cd_1 = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"mang_cd_1");
+						var mang_cd_2 = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"mang_cd_2");
+						var mang_cd_3 = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"mang_cd_3");
+						var use_yn = model.getValue("/root/resData/gridData/PTCRLIST/record"+rownumstr+"use_yn");
+
+						if(cd != ""){
+							input1.disabled  = true;
+						}
+
+						model.setValue("/root/reqData/reqForm/cd",cd);					//코드
+						model.setValue("/root/reqData/reqForm/cdnm",cdnm);				//코드명
+						model.setValue("/root/reqData/reqForm/cd_abrv_nm",cd_abrv_nm);		//약어명
+						model.setValue("/root/reqData/reqForm/mang_cd_1",mang_cd_1);		//관리코드1
+						model.setValue("/root/reqData/reqForm/mang_cd_2",mang_cd_2);		//관리코드2
+						model.setValue("/root/reqData/reqForm/mang_cd_3",mang_cd_3);		//관리코드3
+						model.setValue("/root/reqData/reqForm/use_yn",use_yn);			//사용여부
+
+						model.setValue("/root/tempData/btState","DT");						//버튼제어상태 (DT:상세조회)
+					}
+					
+					model.setFocus("input2");
+					group2.refresh();
+				}
+
+				//저장처리
+				function saveProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 get
+					
+					//Confirm체크
+					if(!commConfirmBox("저장 하시겠습니까?", "저장")){
+						return;
+					}
+
+					//필수체크
+					if(!commReqCheck(group2)) {
+						return;
+					}
+					
+					model.setValue("/root/reqData/reqForm/acc_flag","S");	//처리구분 Set(S:저장)
+
+					model.send("pl_bas_1820_a");
+
+					//에러체크
+					if(submit_completed()){
+						model.send("pl_bas_1810_l")
+						dtlReset();
+						input1.disabled  = false;
+						model.setValue("/root/tempData/btState","SA");		//버튼제어상태 (SA:저장)
+					}
+					model.setFocus("combo2");
+				}
+
+				//삭제처리
+				function deleteProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 get
+					
+					//Confirm체크
+					if(!commConfirmBox("삭제 하시겠습니까?", "삭제")){
+						return;
+					}
+
+					//필수체크
+					if(!commReqCheck(group2)) {
+						return;
+					}
+					
+					//버튼체크
+					if(btnctl != "DT"){
+						commAlert("상세조회 후 삭제할 수 있습니다.");
+						return;
+					}
+
+					model.setValue("/root/reqData/reqForm/acc_flag","D");					//처리구분 Set(D:삭제)
+
+					model.send("pl_bas_1820_a");
+
+					//에러체크
+					if(submit_completed()){
+						model.send("pl_bas_1810_l")
+						dtlReset();
+						input1.disabled  = false;
+						model.setValue("/root/tempData/btState","DE");		//버튼제어상태 (DE:삭제)
+					}
+					model.setFocus("combo2");
+				}
+
+				//상세내역 초기화 처리
+				function dtlReset(){
+					model.setValue("/root/reqData/reqForm/cd","");			//코드
+					model.setValue("/root/reqData/reqForm/cdnm","");			//코드명
+					model.setValue("/root/reqData/reqForm/cd_abrv_nm","");		//약어명
+					model.setValue("/root/reqData/reqForm/mang_cd_1","");		//관리코드1
+					model.setValue("/root/reqData/reqForm/mang_cd_2","");		//관리코드2
+					model.setValue("/root/reqData/reqForm/mang_cd_3","");		//관리코드3
+					model.setValue("/root/reqData/reqForm/use_yn","");			//사용여부
+					
+					group2.refresh();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;2,64;2,71;1,936;2,725;" style="font-family:굴림; vertical-align:top; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnReset" class="btn03" style="left:584px; top:45px; width:63px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+					
+					model.setFocus("combo2");
+					input1.disabled  = false;
+				]]>
+			</script>
+		</button>
+		<button id="btnRetrive" class="btn03" crud="R" style="left:653px; top:45px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					srcRetrieve();
+				]]>
+			</script>
+		</button>
+		<button id="btnInsert" class="btn03" crud="C" style="left:722px; top:45px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					saveProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnDelete" class="btn03" crud="D" style="left:791px; top:45px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					deleteProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:860px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group1" style="left:10px; top:71px; width:926px; height:30px; ">
+			<caption id="caption4" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="combo2" ref="/root/reqData/searchData/searchTop/issu_cmpy" appearance="minimal" style="left:103px; top:4px; width:200px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/issu_cmpy/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption5" class="list_cap03" style="left:0px; top:0px; width:100px; height:26px; ">발행사</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/searchTop/hndlmedi_clsf" appearance="minimal" style="left:513px; top:4px; width:120px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/hndlmedi_clsf1/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap03" style="left:410px; top:0px; width:100px; height:26px; ">취급매체구분</caption>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/PTCRLIST/record" caption="코드^코드명^약어^취급매체구분^할제적용기준^조선일보&#xA;계열사여부^사용여부^관리코드1^관리코드2" colsep="^" colwidth="100, 204, 180, 100, 120, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowheight="35" rowsep="|" style="left:10px; top:112px; width:926px; height:443px; ">
+			<col ref="cd" style="text-align:center; "/>
+			<col ref="cdnm" style="text-align:left; "/>
+			<col ref="cd_abrv_nm" style="text-align:left; "/>
+			<col ref="hndlmedi_clsf" style="text-align:left; "/>
+			<col ref="rate_basi" style="text-align:center; "/>
+			<col ref="mang_cd_3" style="text-align:center; "/>
+			<col ref="use_yn" style="text-align:center; "/>
+			<col ref="mang_cd_1" visibility="hidden"/>
+			<col ref="mang_cd_2" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					serchDtl();
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:10px; top:571px; width:217px; height:20px; ">발행사코드 상세 내역</caption>
+		<group id="group2" style="left:10px; top:595px; width:926px; height:130px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap03" style="left:0px; top:0px; width:150px; height:26px; ">코드</caption>
+			<caption id="caption6" class="list_cap03" style="left:410px; top:0px; width:150px; height:26px; ">코드명</caption>
+			<caption id="caption8" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption10" class="list_cap03" style="left:0px; top:25px; width:150px; height:26px; ">약어</caption>
+			<caption id="caption9" class="list_cap03" style="left:410px; top:25px; width:150px; height:26px; ">취급매체구분</caption>
+			<caption id="caption12" class="list_cap02" style="left:0px; top:50px; width:926px; height:26px; "/>
+			<caption id="caption11" class="list_cap03" style="left:0px; top:50px; width:150px; height:26px; ">할제적용기준</caption>
+			<caption id="caption15" class="list_cap02" style="left:0px; top:75px; width:926px; height:26px; "/>
+			<caption id="caption14" class="list_cap03" style="left:0px; top:75px; width:150px; height:26px; ">조선일보계열사여부</caption>
+			<caption id="caption19" class="list_cap02" style="left:0px; top:100px; width:926px; height:26px; "/>
+			<caption id="caption24" class="list_cap03" style="left:0px; top:100px; width:150px; height:26px; ">사용여부</caption>
+			<input id="input1" ref="/root/reqData/reqForm/cd" class="req" format="A99" caption="코드" style="left:153px; top:4px; width:100px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/reqForm/cdnm" class="req" caption="코드명" style="left:563px; top:4px; width:200px; height:18px; "/>
+			<input id="input3" ref="/root/reqData/reqForm/cd_abrv_nm" class="req" caption="약어" style="left:153px; top:29px; width:200px; height:18px; "/>
+			<select1 id="combo3" ref="/root/reqData/reqForm/mang_cd_1" class="req" appearance="minimal" caption="취급매체구분" style="left:563px; top:29px; width:150px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/hndlmedi_clsf2/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo5" ref="/root/reqData/reqForm/mang_cd_2" class="req" appearance="minimal" caption="단행본할제적용기준" style="left:153px; top:54px; width:200px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/rate_basi/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="radio1" ref="/root/reqData/reqForm/mang_cd_3" class="req" appearance="full" cellspacing="30" cols="2" overflow="visible" caption="조선일보계열사여부" style="left:153px; top:79px; width:200px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>Y</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>N</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+			<select1 id="radio2" ref="/root/reqData/reqForm/use_yn" class="req" appearance="full" cellspacing="30" cols="2" overflow="visible" caption="사용여부" style="left:153px; top:104px; width:200px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>Y</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>N</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption13" style="left:370px; top:55px; width:355px; height:18px; color:#0000ff; ">*관련데이터 등록시 DEFAULT로 참조할 할제 기준</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

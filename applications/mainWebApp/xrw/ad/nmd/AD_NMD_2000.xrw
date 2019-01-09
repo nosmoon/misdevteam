@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<codeData>
+						<bank_cd>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</bank_cd>
+						<note_clsf_cd>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</note_clsf_cd>
+						<rcpm_acct>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</rcpm_acct>
+					</codeData>
+					<reqData>
+						<adjm_dt/>
+						<dt_clsf>03</dt_clsf>
+						<bank_cd/>
+						<note_clsf_cd/>
+						<issu_cmpy_clsf_cd/>
+						<issu_pers_nm/>
+						<rcpm_acct/>
+						<sale_aprv_no/>
+						<reg_yn/>
+						<multiUpdateData/>
+						<pay_dt/>
+						<occr_dt/>
+						<d_dlco_no/>
+					</reqData>
+					<resData>
+						<resForm>
+							<gd_main>
+								<record>
+									<demand_dlco_no/>
+									<demand_dlco_nm/>
+									<sum_adjst_amt/>
+									<proc_yn/>
+									<check/>
+								</record>
+							</gd_main>
+						</resForm>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+					<tempGridData>
+						<gridData>
+							<record/>
+						</gridData>
+					</tempGridData>
+					<searchData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					initPage();
+					//loadData();
+				]]>
+			</script>
+			<bind id="bind_input1" ref="/root/reqData/searchData/issudt"/>
+			<submission id="ad_nmd_2010_l" action="/ad/nmd/2010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempGridData"/>
+			<submission id="ad_nmd_2020_a" action="/ad/nmd/2020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<submission id="ad_nmd_2030_a" action="/ad/nmd/2030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				// 초기화
+				function initPage()
+				{
+					// 게재기간 Default 현재일자(연간)
+					var curDate 	= dateAdd("d", 0, getCurrentDate());
+					var preMonth 	= dateAdd("m", -1, getCurrentMonth()).substr(0,6);
+					
+					if( curDate != "" )
+					{
+						model.setValue("/root/reqData/adjm_dt"		, curDate.substr(0,6));
+						model.setValue("/root/reqData/pay_dt"		, curDate);
+						model.setValue("/root/reqData/occr_dt"		, curDate);
+						model.setValue("/root/reqData/dt_clsf"	, "02");					
+					}			
+					model.refresh();
+				}
+				
+				// 조회
+				function loadData()
+				{
+					var sell_dt = model.getValue("/root/reqData/adjm_dt");
+
+					model.send("ad_nmd_2010_l");
+					if( submit_completed() )
+					{
+						model.copyNode("/root/resData/resForm/gd_main"	, "/root/tempGridData/gridData");
+						//DisplayGrid();
+						loadDataSet();
+					}
+				}
+				
+				// 조회 결과 셋
+				function loadDataSet()
+				{
+					model.copyNode("/root/searchData"	, "/root/reqData");
+					model.refresh();
+				}
+				function goReport(gubun){
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_NMD_2040_P");									
+								
+					var root			= "/root/reqData";
+					var adjm_dt			= model.getValue(	root + "/adjm_dt");
+					var demand_dlco_no	= model.getValue(	root + "/d_dlco_no");
+					
+					if ( adjm_dt == "" ){
+						commAlert("정산월을 확인해주십시오.");
+						return;
+					}								
+					
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", model.property("ss_cmpycd"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_sell_mm", adjm_dt);	
+					makeNodeValue("/root/oz_data/odiParam/iv_demand_dlco_no", demand_dlco_no);	
+					
+					
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+					
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,936;2,60;2,70;2,96;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:9px; top:69px; width:927px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:134px; width:927px; height:5px; "/>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:927px; height:29px; "/>
+		<input id="inp_frdt" ref="/root/reqData/adjm_dt" class="req" navindex="1" inputtype="date" format="yyyy-mm" caption="게재기간" style="left:116px; top:75px; width:99px; height:18px; "/>
+		<button id="btn_select" class="btn02" crud="R" style="left:644px; top:39px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if( validateReq() )	loadData();
+				]]>
+			</script>
+		</button>
+		<button id="btn_init" class="btn02" style="left:825px; top:39px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+					initPage();
+				]]>
+			</script>
+		</button>
+		<button id="btn_close" class="btn02" style="left:885px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						window.close();				
+				]]>
+			</script>
+		</button>
+		<caption id="cap_make_dt" class="list_cap01" style="left:9px; top:69px; width:80px; height:28px; ">정산월</caption>
+		<select1 id="cmb_dt_range" ref="/root/reqData/dt_clsf" navindex="3" appearance="minimal" style="left:233px; top:75px; width:60px; height:18px; ">
+			<choices>
+				<item>
+					<label>당월</label>
+					<value>02</value>
+				</item>
+				<item>
+					<label>전월</label>
+					<value>03</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var currentdt = getCurrentDate();
+					var currentmt = getCurrentMonth();				
+								
+					var dt_clsf = model.getValue("/root/reqData/dt_clsf"); //선택한 콤보박스 값..
+									
+					if( dt_clsf == "02" )
+					{
+						var frdt = currentdt.substring(0,6); //당월의 1일부터
+						//var todt = dateAdd("d",0, currentdt);	//당월의 현재일 
+						
+						model.setValue("/root/reqData/adjm_dt", frdt); 
+						//model.setValue("/root/reqData/todt", todt); 
+					}
+					else if(dt_clsf == "03")
+					{
+						var frdt = dateAdd("m", 0, currentmt);
+						var pre_month = frdt.substring(0,6);
+						//var todt = pre_month+commLastDay(pre_month); 	//전월의 말일 
+						
+						model.setValue("/root/reqData/adjm_dt", pre_month); 
+						//model.setValue("/root/reqData/todt", todt);
+					}	
+				
+					inp_frdt.refresh();
+					//inp_todt.refresh();
+				]]>
+			</script>
+		</select1>
+		<datagrid id="gd_main" nodeset="/root/resData/resForm/gd_main/record" caption="선택^처리여부^사업자번호^사업자명^정산금액" colsep="#" colwidth="60, 120, 250, 250, 200" explorerbar="sort" extendlastcol="scroll" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:10px; top:149px; width:927px; height:590px; ">
+			<col checkvalue="Y,N" ref="checked" type="checkbox"/>
+			<col ref="proc_yn"/>
+			<col ref="demand_dlco_no"/>
+			<col ref="demand_dlco_nm"/>
+			<col ref="sum_adjst_amt" format="#,###" style="text-align:right; "/>
+			<col ref="slip_occr_dt" visibility="hidden"/>
+			<col ref="slip_seq" visibility="hidden"/>
+		</datagrid>
+		<script type="javascript" ev:event="xforms-select">
+			<![CDATA[
+					if( gd_main.row < gd_main.fixedRows )
+					{
+						for( var i=gd_main.fixedRows; i<gd_main.rows; i++ )
+						{
+							gd_main.addStatus(i, "update");
+						}
+					}
+					else
+					{
+						gd_main.addStatus(gd_main.row, "update");
+					}
+				]]>
+		</script>
+		<script type="javascript" ev:event="xforms-deselect">
+			<![CDATA[
+					if( gd_main.row < gd_main.fixedRows )
+					{
+						for( var i=gd_main.fixedRows; i<gd_main.rows; i++ )
+						{
+							gd_main.removeStatus(i, "update");
+						}
+					}
+					else
+					{
+						gd_main.removeStatus(gd_main.row, "update");		
+					}
+				]]>
+		</script>
+		<button id="btn_delete" class="btn02" crud="D" style="left:705px; top:39px; width:50px; height:21px; ">
+			<caption>전표등록</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				//현업전표투입 
+				if(!checkGridData(gd_main)){
+					alert("처리할 데이타가 없습니다.");
+					return;
+				}
+					
+				var checked_cnt = 0;
+				for(var i=gd_main.fixedRows;i<gd_main.rows;i++){
+					var checked = gd_main.valueMatrix(i, gd_main.colRef("checked"));
+					if(checked == "Y"){
+						checked_cnt++;
+					}
+				}
+				
+				if(checked_cnt > 0){					
+					if(windowConfirm("선택한 대상을 전표 발행합니다. 계속하시겠습니까?")){
+						for(var i=gd_main.fixedRows;i<gd_main.rows;i++){
+							var checked = gd_main.valueMatrix(i, gd_main.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+							if(checked == "Y"){
+								gd_main.addStatus(i, "update");
+							}else{
+								gd_main.removeStatus(i, "update");
+							}
+						}
+						model.setValue("/root/reqData/multiUpdateData", gd_main.getUpdateData());
+						model.send("ad_nmd_2020_a");
+						if(submit_completed()){
+							//체크 초기화
+							for(var i=gd_main.fixedRows;i<gd_main.rows;i++){
+								gd_main.valueMatrix(i, gd_main.colRef("checked")) = "N";
+							}
+							loadData();
+						}					
+					}			
+				}else{
+						alert("발행 대상을 선택해 주세요");
+						return;
+				}	
+				
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" crud="D" style="left:765px; top:39px; width:50px; height:21px; ">
+			<caption>전표취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				//현업전표투입 취소
+				if(!checkGridData(gd_main)){
+					alert("처리할 데이타가 없습니다.");
+					return;
+				}
+					
+				var checked_cnt = 0;
+				for(var i=gd_main.fixedRows;i<gd_main.rows;i++){
+					var checked = gd_main.valueMatrix(i, gd_main.colRef("checked"));
+					if(checked == "Y"){
+						checked_cnt++;
+					}
+				}
+				
+				if(checked_cnt > 0){					
+					if(windowConfirm("선택한 대상을 전표 발행 취소합니다. 계속하시겠습니까?")){
+						for(var i=gd_main.fixedRows;i<gd_main.rows;i++){
+							var checked = gd_main.valueMatrix(i, gd_main.colRef("checked"));//model.getValue("/root/resData/gridData/record["+i+"]/checked");
+							if(checked == "Y"){
+								gd_main.addStatus(i, "delete");
+							}else{
+								gd_main.removeStatus(i, "delete");
+							}
+						}
+						model.setValue("/root/reqData/multiUpdateData", gd_main.getUpdateData());
+						model.send("ad_nmd_2030_a");
+						if(submit_completed()){
+							//체크 초기화							
+							for(var i=gd_main.fixedRows;i<gd_main.rows;i++){
+								gd_main.valueMatrix(i, gd_main.colRef("checked")) = "N";
+							}
+							loadData();
+						}					
+					}			
+				}else{
+						alert("발행취소 대상을 선택해 주세요");
+						return;
+				}	
+								
+				]]>
+			</script>
+		</button>
+		<button id="prt_btn" class="btn02" crud="R" style="left:825px; top:40px; width:50px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var checked_cnt = 0;
+					var demand_dlco_no = "";
+					var d_dlco_no = "";
+					for(var i=gd_main.fixedRows;i<gd_main.rows;i++){
+						var checked = gd_main.valueMatrix(i, gd_main.colRef("checked"));
+						if(checked == "Y"){
+							checked_cnt++;
+							demand_dlco_no = gd_main.valueMatrix(i, gd_main.colRef("demand_dlco_no"));					
+							if(d_dlco_no == ""){
+								d_dlco_no = demand_dlco_no;
+							}else{
+							d_dlco_no = d_dlco_no +","+ demand_dlco_no;
+							}
+						}			
+					}
+					if(checked_cnt == "0"){ 
+						alert("인쇄할 대상을 선택해 주세요.");
+						return;
+					}
+					else{
+						model.setValue("/root/reqData/d_dlco_no",d_dlco_no);
+						goReport("P");
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:471px; top:69px; width:80px; height:28px; ">회계일자</caption>
+		<input id="input1" ref="/root/reqData/pay_dt" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" caption="회계일자" style="left:578px; top:74px; width:99px; height:18px; "/>
+	</xhtml:body>
+</xhtml:html>

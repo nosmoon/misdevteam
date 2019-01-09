@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : PL_CLS_1400.xrw
+* 기능 : 마감관리-매출월가마감
+* 작성일자 :2009-08-26
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>매출월가마감(PL_CLS_1400)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_clsf>
+								<item>
+									<cd/>
+									<cdnm/>
+								</item>
+							</medi_clsf>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<medi_clsf/>
+								<basi_yymm_fr/>
+								<basi_yymm_to/>
+							</searchTop>
+						</searchData>
+						<reqForm>
+							<acc_flag/>
+							<medi_clsf/>
+							<basi_yymm/>
+							<basi_dt/>
+						</reqForm>
+						<multiUpdate>
+						</multiUpdate>
+					</reqData>
+					<resData>
+						<comboSet/>
+						<resform>
+						</resform>
+						<gridData>
+							<PTCRLIST>
+								<record>
+									<basi_yymm/>
+									<basi_dt/>
+									<slip_no/>
+									<deli_qty/>
+									<deli_amt/>
+									<widr_qty/>
+									<widr_amt/>
+									<retn_qty/>
+									<retn_amt/>
+									<sale_qty/>
+									<sale_amt/>
+									<temp_clos_emp_no/>
+									<sale_clos_emp_no/>
+									<medi_clsf/>
+								</record>
+							</PTCRLIST>
+						</gridData>
+						<resultData/>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<btState/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="pl_cls_1400_m" action="/pl/cls/1400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/comboSet"/>
+			<submission id="pl_cls_1410_l" action="/pl/cls/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchTop" resultref="/root/resData/gridData"/>
+			<submission id="pl_cls_1420_a" action="/pl/cls/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/resData/resultData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/pl_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					model.send("pl_cls_1400_m");
+
+					model.copyNode("/root/initData/comboSet/medi_clsf","/root/resData/comboSet/medi_clsf");					//매체구분 copy
+
+					var basi_fr = addDate("m",-6,commCurDate("ymd"),"");
+					var basi_to = commCurDate("ymd");
+					
+					model.setValue("/root/reqData/searchData/searchTop/basi_yymm_fr",basi_fr.substr(0,6));
+					model.setValue("/root/reqData/searchData/searchTop/basi_yymm_to",basi_to.substr(0,6));
+
+					model.setValue("/root/tempData/btState","RE");			//버튼제어상태 (RE:초기화)
+
+					model.refresh();
+				}
+
+				//조회
+				function srcRetrieve(){
+					//필수체크
+					if(!commReqCheck(group1)) {
+						return;
+					}
+					
+					model.send("pl_cls_1410_l");						//Submission
+
+					//에러체크
+					if(submit_completed()){
+						model.setValue("/root/tempData/btState","RT");			//버튼제어상태 (RT:조회)
+					}
+
+					model.refresh();
+				}
+
+				//마감처리
+				function closeProcess(){
+					//Confirm체크
+					if(!commConfirmBox("마감 하시겠습니까?", "마감")){
+						return;
+					}
+
+					//필수체크
+					if(!commReqCheck(group2)) {
+						return;
+					}
+					
+					model.setValue("/root/reqData/reqForm/acc_flag","Y");	//마감 플래그 Set
+					
+					model.send("pl_cls_1420_a");						//Submission
+
+					//에러체크
+					if(submit_completed()){
+						model.send("pl_cls_1410_l");					//Submission(조회)
+					}
+				}
+
+				//마감취소처리
+				function cancleProcess(){
+					var btnctl = model.getValue("/root/tempData/btState");	//버튼제어상태 Get
+					
+					//Confirm체크
+					if(!commConfirmBox("마감취소 하시겠습니까?", "마감취소")){
+						return;
+					}
+
+					//필수체크
+					if(!commReqCheck(group2)) {
+						return;
+					}
+					
+					model.setValue("/root/reqData/reqForm/acc_flag","N");	//마감취소 플래그 Set
+					
+					model.send("pl_cls_1420_a");						//Submission
+
+					//에러체크
+					if(submit_completed()){
+						model.send("pl_cls_1410_l");					//Submission(조회)
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;2,64;2,70;1,936;2,725;" style="font-family:굴림; vertical-align:top; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnReset" class="btn03" style="left:584px; top:45px; width:63px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.reset();
+
+					var basi_fr = addDate("m",-6,commCurDate("ymd"),"");
+					var basi_to = commCurDate("ymd");
+					
+					model.setValue("/root/reqData/searchData/searchTop/basi_yymm_fr",basi_fr.substr(0,6));
+					model.setValue("/root/reqData/searchData/searchTop/basi_yymm_to",basi_to.substr(0,6));
+
+				]]>
+			</script>
+		</button>
+		<button id="btnRetrieve" class="btn03" style="left:653px; top:45px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					srcRetrieve();
+				]]>
+			</script>
+		</button>
+		<button id="btnCloseProc" class="btn03" style="left:722px; top:45px; width:63px; height:21px; ">
+			<caption>마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					closeProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnCancleProc" class="btn03" style="left:791px; top:45px; width:63px; height:21px; ">
+			<caption>마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					cancleProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:860px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group1" style="left:10px; top:70px; width:926px; height:30px; ">
+			<caption id="caption11" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption4" class="list_cap03" style="left:0px; top:0px; width:70px; height:26px; ">매체구분</caption>
+			<caption id="caption5" class="list_cap03" style="left:290px; top:0px; width:70px; height:26px; ">마감기간</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/searchTop/medi_clsf" class="req" appearance="minimal" caption="매체구분" style="left:73px; top:4px; width:135px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input8" ref="/root/reqData/searchData/searchTop/basi_yymm_fr" class="req" inputtype="date" format="yyyy-mm" caption="마감기간FROM" style="left:363px; top:4px; width:110px; height:18px; text-align:left; "/>
+			<caption id="caption10" style="left:472px; top:5px; width:20px; height:18px; font-weight:bold; text-align:center; ">~</caption>
+			<input id="input10" ref="/root/reqData/searchData/searchTop/basi_yymm_to" class="req" inputtype="date" format="yyyy-mm" caption="마감기간TO" style="left:491px; top:4px; width:110px; height:18px; text-align:left; "/>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:101px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/PTCRLIST/record" caption="기준년월^마감일자^전표번호^배본부수^배본금액^회수부수^회수금액^반품부수^반품금액^매출부수^매출금액^마감자^확정자^매체구분" colsep="^" colwidth="63, 80, 150, 60, 90, 60, 90, 60, 90, 60, 90, 60, 60, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:10px; top:111px; width:926px; height:509px; ">
+			<col ref="basi_yymm" format="yyyy-mm"/>
+			<col ref="basi_dt" format="yyyy-mm-dd"/>
+			<col ref="slip_no" format="99999999-99-999" style="text-align:center; "/>
+			<col ref="deli_qty" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="deli_amt" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="widr_qty" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="widr_amt" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="retn_qty" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="retn_amt" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="sale_qty" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="sale_amt" format="(-)###,###,###,##0" style="text-align:right; "/>
+			<col ref="temp_clos_emp_no" style="text-align:center; "/>
+			<col ref="sale_clos_emp_no" style="text-align:center; "/>
+			<col ref="medi_clsf" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					var rowcnt = datagrid1.rows - datagrid1.fixedRows;
+					
+					if(rowcnt > 0){
+						var medi_clsf = model.getValue("/root/resData/gridData/PTCRLIST/record["+datagrid1.row+"]/medi_clsf");		//매체구분
+						var basi_yymm = model.getValue("/root/resData/gridData/PTCRLIST/record["+datagrid1.row+"]/basi_yymm");		//기준년월
+						var basi_dt = model.getValue("/root/resData/gridData/PTCRLIST/record["+datagrid1.row+"]/basi_dt");			//기준일자(마감일자)
+						
+						model.setValue("/root/reqData/reqForm/medi_clsf",medi_clsf);
+						model.setValue("/root/reqData/reqForm/basi_yymm",basi_yymm);
+						model.setValue("/root/reqData/reqForm/basi_dt",basi_dt);
+						
+						group2.refresh();
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:10px; top:637px; width:257px; height:20px; ">마감 작업</caption>
+		<group id="group2" style="left:10px; top:660px; width:926px; height:30px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap03" style="left:0px; top:0px; width:70px; height:26px; ">매체구분</caption>
+			<caption id="caption3" class="list_cap03" style="left:290px; top:0px; width:70px; height:26px; ">기준년월</caption>
+			<caption id="caption8" class="list_cap03" style="left:560px; top:0px; width:70px; height:26px; ">마감일자</caption>
+			<select1 id="combo2" ref="/root/reqData/reqForm/medi_clsf" class="req" appearance="minimal" caption="매체구분" style="left:73px; top:4px; width:135px; height:18px; text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_clsf/item">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input1" ref="/root/reqData/reqForm/basi_yymm" class="req" inputtype="date" format="yyyy-mm" caption="기준년월" style="left:363px; top:4px; width:110px; height:18px; text-align:left; "/>
+			<input id="input2" ref="/root/reqData/reqForm/basi_dt" class="req" inputtype="date" format="yyyy-mm-dd" caption="마감일자" style="left:633px; top:4px; width:110px; height:18px; text-align:left; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

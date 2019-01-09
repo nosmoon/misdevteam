@@ -1,0 +1,94 @@
+/***************************************************************************************************
+* 파일명 : .java
+* 기능 : 독자우대-구독신청
+* 작성일자 : 2007-05-22
+* 작성자 : 김대섭
+***************************************************************************************************/
+/***************************************************************************************************
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업 : 
+***************************************************************************************************/
+
+
+package chosun.ciis.ad.mg.ds;
+
+import java.sql.CallableStatement;
+import java.sql.SQLException;
+
+import somo.framework.util.Util;
+
+/**
+ * 
+ */
+
+
+public class AD_MG_1020_ADataSet extends somo.framework.db.BaseDataSet implements java.io.Serializable{
+	public String errcode;
+	public String errmsg;
+	public String exec_no;
+
+	public AD_MG_1020_ADataSet(){}
+	public AD_MG_1020_ADataSet(String errcode, String errmsg, String exec_no){
+		this.errcode = errcode;
+		this.errmsg = errmsg;
+		this.exec_no = exec_no;
+	}
+
+	public void setErrcode(String errcode){
+		this.errcode = errcode;
+	}
+
+	public void setErrmsg(String errmsg){
+		this.errmsg = errmsg;
+	}
+
+	public void setExec_no(String exec_no){
+		this.exec_no = exec_no;
+	}
+
+	public String getErrcode(){
+		return this.errcode;
+	}
+
+	public String getErrmsg(){
+		return this.errmsg;
+	}
+
+	public String getExec_no(){
+		return this.exec_no;
+	}
+
+	public void getValues(CallableStatement cstmt) throws SQLException{
+		this.errcode = Util.checkString(cstmt.getString(1));
+		this.errmsg = Util.checkString(cstmt.getString(2));
+		if(!"".equals(this.errcode)){
+			return;
+		}
+
+		this.exec_no = Util.checkString(cstmt.getString(7));
+	}
+}/*----------------------------------------------------------------------------------------------------
+Web Tier에서 DataSet 객체 관련 코드 작성시 사용하십시오.
+
+<%
+	AD_MG_1020_ADataSet ds = (AD_MG_1020_ADataSet)request.getAttribute("ds");
+%>
+Web Tier에서 Record 객체 관련 코드 작성시 사용하십시오.
+
+----------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 DataSet 객체의 <%= %> 작성시 사용하십시오.
+
+<%= ds.getErrcode()%>
+<%= ds.getErrmsg()%>
+<%= ds.getExec_no()%>
+----------------------------------------------------------------------------------------------------*/
+/*----------------------------------------------------------------------------------------------------
+Web Tier에서 Record 객체의 <%= %> 작성시 사용하십시오.
+
+----------------------------------------------------------------------------------------------------*/
+
+
+/* 작성시간 : Wed May 13 15:50:02 KST 2009 */

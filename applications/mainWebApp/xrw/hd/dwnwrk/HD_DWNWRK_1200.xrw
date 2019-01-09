@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>조출근무대상자승인</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_dwnwrk_1202_m>
+							<dataSet>
+								<xx_emp_no_010/>
+							</dataSet>
+						</hd_dwnwrk_1202_m>
+						<session/>
+						<pageInfo/>
+						<comboSet>
+						</comboSet>
+					</initData>
+					<reqData>
+						<searchData>
+						</searchData>
+						<reqForm>
+							<epView_seq/>
+							<emp_no/>
+						</reqForm>
+						<multiUpData/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<msg/>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<dept_nm/>
+								<emp_no/>
+								<nm_korn/>
+								<posi_nm/>
+								<duty_dt/>
+								<erl_prsnt_bgn_tm/>
+								<erl_prsnt_end_tm/>
+								<erl_prsnt_duty_tm/>
+								<prsnt_tm/>
+								<finish_tm/>
+								<finish_dd_clsf/>
+								<duty_resn/>
+								<proc_stat/>
+								<dept_cd/>
+								<slip_proc_mang_dt/>
+								<slip_proc_mang_seq/>
+								<db_status/>
+								<emp_no_tm/>
+								<ep_seq/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("hd_dwnwrk_1202_m");
+					model.refresh();
+					//alert(model.getValue("/root/initData/hd_dwnwrk_1202_m/dataSet/xx_emp_no_010"));
+					// 권한관리
+					var obj = htmldocument.SessionInfo;
+	    	 			//setProperty("ss_posicd"   , obj.posicd.value);
+	    	 			setProperty("ss_emp_no"   , obj.emp_no.value);
+	    	 			if(obj.emp_no.value == ""){
+	    	 				alert("세션 정보가 없습니다. 다시 ESS 로그인 후 사용해주세요.");
+	    	 				button7.dispatch("onclick");
+	    	 			}
+	    	 			model1.send("hd_duty_1205");
+
+	    	 			var pattern = ","+obj.emp_no.value+",";
+					var validation  = (","+model.getValue("/root/initData/hd_dwnwrk_1202_m/dataSet/xx_emp_no_010")+",").indexOf(pattern)==-1;
+					//alert(validation);
+	    	 			//if(obj.posicd.value != "38" && obj.emp_no.value != "202029"){
+	    	 
+	    	 			// 120202			
+	    	 			//if(obj.emp_no.value != model1.getValue("/root/dataSet/CURLIST1/record/emp_no") 
+					//	   && obj.emp_no.value != "202029"
+	    	 			//   && obj.emp_no.value != "211010" 
+					//	   && obj.emp_no.value != "it0022"    ){
+					if(obj.emp_no.value != model1.getValue("/root/dataSet/CURLIST1/record/emp_no") 
+						   && validation   ){
+	    	 				alert("사용 권한이 없습니다.");
+	    	 				button7.dispatch("onclick");
+	    	 			}else{
+    	 					model1.removenode("/root/dataSet");
+						//상태에 따른 헤더처리
+						if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+							maintitle.text = "조출근무대상자승인";
+							caption4.visible = true;
+							iv_Title.visible = false;  // 숨김
+							iv_PopTitle.visible = true;  // 보임
+							var obj = htmldocument.SessionInfo;
+			    	 			setProperty("ss_epView_seq"   , obj.epView_seq.value);
+			    	 			setProperty("ss_emp_no"   , obj.emp_no.value);
+			    	 			model1.setValue("/root/reqData/reqForm/epView_seq", obj.epView_seq.value);
+			    	 			model1.setValue("/root/reqData/reqForm/emp_no", obj.emp_no.value);
+			    	 			//alert("epView_seq ===== " + obj.epView_seq.value);
+			    	 			/*if(obj.epView_seq.value != ""){
+								model1.send("hd_duty_1302");
+			    	 			}*/
+						}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+							caption4.visible = false;
+							iv_Title.visible = true;  // 보임
+							iv_PopTitle.visible = false;  // 숨김
+						}
+						//그리드 첫번째행 삭제
+						//model1.removenode("/root/resData/gridData/record[1]");
+						//model1.refresh();
+						
+						//총인원 설정
+						//caption3.value = "총 0 건";
+						//caption3.refresh();
+						searchList();
+	    	 			}
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					function searchList(){
+						//그리드 초기화
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						
+						//목록생성
+						model1.send("hd_dwnwrk_1200");
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						
+						//총인원 설정
+						caption3.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+						
+						//추가(11/16)
+						var emp_no_tm = model1.getValue("/root/reqData/reqForm/emp_no");
+						var epView_seq = model1.getValue("/root/reqData/reqForm/epView_seq");
+						
+						for (i=1; i<datagrid1.rows; i++) {
+							model1.makeNode("/root/resData/gridData/record[" + (i) + "]/emp_no_tm");
+							model1.makeNode("/root/resData/gridData/record[" + (i) + "]/ep_seq");
+						}
+						model1.refresh();
+						
+						for (i=1; i<datagrid1.rows; i++) {
+					      		model1.setValue("/root/resData/gridData/record[" + (i) + "]/emp_no_tm", emp_no_tm);
+							model1.setValue("/root/resData/gridData/record[" + (i) + "]/ep_seq", epView_seq);
+							
+							datagrid1.valueMatrix(i,datagrid1.colRef("emp_no_tm")) = emp_no_tm;
+							datagrid1.valueMatrix(i,datagrid1.colRef("ep_seq")) = epView_seq;
+					      	}
+						model1.refresh();
+						datagrid1.refresh();
+					}
+				]]>
+			</script>
+			<submission id="hd_dwnwrk_1200" action="/hd/dwnwrk/1200" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_dwnwrk_1201" action="/hd/dwnwrk/1201" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1205" action="/hd/duty/1205" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_duty_1302" action="/hd/duty/1302" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+			<submission id="hd_co_1003" action="/hd/co/1003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData"/>
+			<submission id="hd_dwnwrk_1202_m" action="/hd/dwnwrk/1202" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/hd_dwnwrk_1202_m/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="960" pageheight="728" guideline="1,935;2,95;2,105;2,694;2,701;">
+		<caption id="caption19" class="list_cap02" style="left:10px; top:40px; width:926px; height:26px; "/>
+		<caption id="caption1" class="list_cap01" style="left:9px; top:40px; width:76px; height:26px; ">진행상태</caption>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption43" class="tit02" style="left:10px; top:77px; width:170px; height:20px; font-weight:bold; ">조출근무대상자승인</caption>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="부서^사번^성명^직급^근무일^조출시작시각^조출종료시각^조출근무시간^출근시간^퇴근시간^퇴근일구분^근무사유^진행상태^부서코드^전표진행관리일자^전표진행관리일련번호^db상태값^emp_no_tm" colsep="#" colwidth="100, 100, 100, 100, 100, 100, 100, 110, 100, 100, 100, 250, 100, 5, 5, 5, 5, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:105px; width:926px; height:589px; ">
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="emp_no"/>
+			<col ref="nm_korn"/>
+			<col ref="posi_nm" style="text-align:left; "/>
+			<col ref="duty_dt" format="yyyy-mm-dd"/>
+			<col ref="erl_prsnt_bgn_tm" format="hh:nn"/>
+			<col ref="erl_prsnt_end_tm" format="hh:nn"/>
+			<col ref="erl_prsnt_duty_tm" format="hh:nn"/>
+			<col ref="prsnt_tm" format="hh:nn"/>
+			<col ref="finish_tm" format="hh:nn"/>
+			<col ref="finish_dd_clsf"/>
+			<col ref="duty_resn" style="text-align:left; "/>
+			<col ref="proc_stat"/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="slip_proc_mang_dt" visibility="hidden"/>
+			<col ref="slip_proc_mang_seq" visibility="hidden"/>
+			<col ref="db_status" visibility="hidden"/>
+			<col ref="emp_no_tm" visibility="hidden"/>
+			<col ref="ep_seq" visibility="hidden"/>
+		</datagrid>
+		<button id="button2" class="btn02" style="left:716px; top:43px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					searchList();
+				]]>
+			</script>
+		</button>
+		<group id="group1" class="gro_btn" style="left:0px; top:78px; width:936px; height:17px; "/>
+		<button id="button7" class="btn02" style="left:881px; top:43px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(model1.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="caption3" style="left:835px; top:701px; width:100px; height:20px; font-weight:bold; text-align:right; "/>
+		<button id="button3" class="btn02" style="left:771px; top:43px; width:52px; height:21px; ">
+			<caption>결재</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid1.rows==datagrid1.fixedRows){
+						alert("결재상태를 반영할 데이터가 없습니다.");
+						return;
+					}
+					if (window.alert("결재 하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					for(var i=0;i<datagrid1.rows;i++){
+						datagrid1.addStatus(i, "update");
+					}
+					model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+					model1.send("hd_dwnwrk_1201");
+					
+					if(submit_completed()) {
+						//if(model1.getValue("/root/reqData/reqForm/epView_seq") != ""){
+						//	model1.send("hd_co_1003");
+						//}
+						
+						searchList();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" style="left:826px; top:43px; width:52px; height:21px; ">
+			<caption>반려</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid1.rows==datagrid1.fixedRows){
+						alert("반려상태를 반영할 데이터가 없습니다.");
+						return;
+					}				
+					if (window.alert("반려 하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}						
+					for(var i=0;i<datagrid1.rows;i++){
+						datagrid1.addStatus(i, "delete");							
+					}
+					model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+					model1.send("hd_dwnwrk_1201");
+					
+					if(submit_completed()) {
+						if(model1.getValue("/root/reqData/reqForm/epView_seq") != ""){
+							model1.send("hd_co_1003");
+						}
+						
+						searchList();
+					}
+				]]>
+			</script>
+		</button>
+		<output id="combo8" appearance="minimal" style="left:88px; top:44px; width:61px; height:18px; "/>
+		<caption id="caption2" style="left:94px; top:43px; width:50px; height:20px; ">현업등록</caption>
+		<button id="btnA2" class="btn02" style="left:662px; top:43px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.reset();
+					]]>
+			</script>
+		</button>
+		<caption id="caption4" class="tit01" style="left:10px; top:6px; width:165px; height:27px; ">조출근무대상자승인</caption>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>조선일보통합정보지원시스템</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<mchrg_pers/>
+							<chrg_clsf>2</chrg_clsf>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+						<flag/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<mchrg_pers/>
+								<seq/>
+								<mchrg_nm/>
+								<dlco_nm0/>
+								<dlco_nm1/>
+								<dlco_nm2/>
+								<dlco_nm3/>
+								<dlco_no0/>
+								<dlco_no1/>
+								<dlco_no2/>
+								<dlco_no3/>
+								<chrg_area/>
+							</record>
+						</gridData>
+						<cnt_agn/>
+						<cnt_advt/>
+					</resData>
+					<tempData/>
+					<msgData/>
+					<codeData/>
+					<formData>
+						<mchrg_pers_nm/>
+						<new_chrg_area/>
+						<old_chrg_area/>
+					</formData>
+				</root>
+			</instance>
+			<submission id="ad_bas_1410_l" action="/ad/bas/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="ad_bas_1420_i" action="/ad/bas/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("ad_bas_1410_l");
+					//컬럼 머지 속성 정의
+					datagrid2.mergeCol(0) = true;				
+					datagrid2.mergeCol(1) = true;
+					datagrid2.mergeCol(2) = true;
+					datagrid2.mergeCol(3) = false;
+					datagrid2.mergeCol(4) = false;					
+					datagrid2.mergeCol(5) = false;
+					datagrid2.mergeCol(6) = false;
+					datagrid2.mergeCol(7) = false;										
+					datagrid2.mergeCol(8) = false;
+					datagrid2.mergeCol(9) = false;
+					datagrid2.mergeCol(10) = false;
+					datagrid2.mergeCol(11) = true;				
+					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function loadList(){
+				model.refresh();
+				model.send("ad_bas_1410_l");
+			}
+			
+			function go_advc(dlco_no){
+				if(dlco_no != ""){
+					windowAgnInfo(dlco_no);
+				}			
+			}	
+			
+			function search(){
+					model.send("ad_bas_1410_l");
+			}
+		
+			function save_area(){				
+/*				
+				if(!isDataGridUpdated(datagrid2)){
+					alert("저장할 내역이 없습니다.");
+					return;
+				}
+*/				
+				if(windowConfirm("저장하시겠습니까?")){
+					
+					/*
+					var old_chrg_area = model.getValue("/root/formData/old_chrg_area");
+					var new_chrg_area = model.getValue("/root/formData/new_chrg_area");
+				
+					model.makeNode("/root/reqData/fwdData/chrg_area");
+					model.makeNode("/root/reqData/fwdData/mchrg_pers");
+					model.makeNode("/root/reqData/fwdData/cmpy_cd");
+					model.makeNode("/root/reqData/fwdData/medi_clsf");					
+					var row 			= 	datagrid2.row;
+					var mchrg_pers 	=	datagrid2.valueMatrix(row, datagrid2.colRef("mchrg_pers"));
+
+					model.setValue("/root/reqData/fwdData/mchrg_pers",mchrg_pers);
+					model.setValue("/root/reqData/fwdData/chrg_area",new_chrg_area);
+					*/
+					var i;
+					var strArea = "";
+					var strTmpArea = "";
+					
+					model.makeNode("/root/reqData/fwdData/multiUpdateData");
+					
+					for( i=1; i<datagrid2.rows; i++){
+						strArea = datagrid2.valueMatrix(i, datagrid2.colRef("chrg_area"));
+						if( strArea != strTmpArea ){
+							datagrid2.addStatus(i, "update");
+							strTmpArea = strArea;
+						}
+					}					
+					model.setValue("/root/reqData/fwdData/multiUpdateData", datagrid2.getUpdateData());
+					
+					model.send("ad_bas_1420_i");
+					loadList();
+				}
+		      	
+		      		
+/*		      	
+				var old_chrg_area = model.getValue("/root/formData/old_chrg_area");
+				var new_chrg_area = model.getValue("/root/formData/new_chrg_area");
+				if(old_chrg_area == new_chrg_area)
+				{
+					//alert("담당지역이 변경된 내용이 없습니다");
+				}
+				else
+				{	
+					model.makeNode("/root/reqData/fwdData/chrg_area");
+					model.makeNode("/root/reqData/fwdData/mchrg_pers");
+					model.makeNode("/root/reqData/fwdData/cmpy_cd");
+					model.makeNode("/root/reqData/fwdData/medi_clsf");					
+					var row 			= 	datagrid2.row;
+					var mchrg_pers 	=	datagrid2.valueMatrix(row, datagrid2.colRef("mchrg_pers"));
+
+					model.setValue("/root/reqData/fwdData/mchrg_pers",mchrg_pers);
+					model.setValue("/root/reqData/fwdData/chrg_area",new_chrg_area);
+
+					model.send("ad_bas_1420_i");
+					loadList();
+				}	
+*/		      		      	
+		      }		
+		]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,8;1,936;2,60;2,70;" style="font-family:굴림; ">
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="사번^번호^담당자^대행사/지사^대행사/지사^대행사/지사^대행사/지사^거래번호^거래번호^거래번호^거래번호^담당지역" colsep="#" colwidth="72,30, 70, 150, 150, 150, 150,70,70,70,70, 200" dataheight="27" mergecells="byrestriccol" mergecellsfixedrows="byrow" rowsep="|" fixedrows="bycolrec" style="left:8px; top:115px; width:928px; height:612px; ">
+			<col ref="mchrg_pers" visibility="hidden"/>
+			<col ref="seq"/>
+			<col ref="mchrg_nm"/>
+			<col ref="dlco_nm0" style="text-align:left; word-wrap:none; "/>
+			<col ref="dlco_nm1" style="text-align:left; word-wrap:none; "/>
+			<col ref="dlco_nm2" style="text-align:left; word-wrap:none; "/>
+			<col ref="dlco_nm3" style="text-align:left; word-wrap:none; "/>
+			<col ref="dlco_no0" visibility="hidden"/>
+			<col ref="dlco_no1" visibility="hidden"/>
+			<col ref="dlco_no2" visibility="hidden"/>
+			<col ref="dlco_no3" visibility="hidden" style="left:852px; top:20px; width:70px; height:20px; "/>
+			<col ref="chrg_area" type="input" style="text-align:left; vertical-align:middle; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[	
+				
+				if(!isDataRegion(datagrid2)) return;
+					
+				var row 		= datagrid2.row;
+				var col		= datagrid2.col; 
+				if(col >= 3 && col <= 6)
+				{
+				 	var dlco_no  = datagrid2.valueMatrix(row,col+4)
+				 	go_advc(dlco_no);
+				}
+/*				
+				else if(col == 4)
+				{
+				 	var dlco_no  = datagrid2.valueMatrix(row,8)
+				 	go_advc(dlco_no);
+				}
+				else if(col == 5)
+				{
+				 	var dlco_no  = datagrid2.valueMatrix(row,9)
+				 	go_advc(dlco_no);
+				}
+				else if(col == 6)
+				{
+				 	var dlco_no  = datagrid2.valueMatrix(row,10)
+				 	go_advc(dlco_no);
+				}
+*/				
+				]]>
+			</script>
+			<script type="javascript" ev:event="onstartedit">
+				<![CDATA[				
+				if(datagrid2.col == datagrid2.colRef("chrg_area")){
+					var edit_seq			=	datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("seq"));
+					for(var i=datagrid2.fixedRows;i<datagrid2.rows;i++){
+						var seq	=	datagrid2.valueMatrix(i,datagrid2.colRef("seq"));
+						if(seq	==	edit_seq){
+							datagrid2.valueMatrix(i, datagrid2.colRef("chrg_area")) =	"";
+						}
+					}
+//					datagrid2.refresh();
+				}				
+				]]>
+			</script>
+			<script type="javascript" ev:event="onendedit">
+				<![CDATA[
+			
+				if(datagrid2.col == datagrid2.colRef("chrg_area")){
+					var edit_seq			=	datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("seq"));
+					var edit_chrg_area 	= 	datagrid2.valueMatrix(datagrid2.row, datagrid2.colRef("chrg_area"));
+					
+					for(var i=datagrid2.fixedRows;i<datagrid2.rows;i++){
+						var seq	=	datagrid2.valueMatrix(i,datagrid2.colRef("seq"));
+						if(seq	==	edit_seq){
+							datagrid2.valueMatrix(i, datagrid2.colRef("chrg_area")) = edit_chrg_area;
+							//model.setValue("/root/resData/gridData/record["+i+"]/chrg_area") = edit_chrg_area;
+						}
+					}
+					datagrid2.refresh();
+					
+					model.setValue("/root/formData/new_chrg_area",edit_chrg_area);
+				
+				}			
+				]]>
+			</script>
+		</datagrid>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button3" class="btn02" crud="R" style="left:653px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				search();
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn02" crud="A" style="left:711px; top:40px; width:50px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				save_area();
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn02" crud="R" style="left:769px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn02" style="left:885px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn02" crud="R" style="left:827px; top:40px; width:50px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				if(!checkGridData(datagrid2)){
+					alert("처리할 내역이 없습니다.");
+					return;
+				}
+				
+				var filename = window.fileDialog("save", ",", false, "담당별 거래처", "xls", "Excel File(*.xls)|*.xls");
+				if(filename!=""){
+					datagrid2.saveExcel(filename, "sheetname: 담당별 거래처;");
+				}
+				
+				]]>
+			</script>
+		</button>
+		<caption id="caption2" class="list_cap02" style="left:8px; top:70px; width:928px; height:28px; "/>
+		<caption id="caption7" class="list_cap01" style="left:555px; top:70px; width:85px; height:28px; ">대행사</caption>
+		<caption id="caption9" style="left:879px; top:75px; width:20px; height:20px; ">개</caption>
+		<caption id="caption10" class="list_cap01" style="left:240px; top:70px; width:85px; height:28px; ">담당자</caption>
+		<input id="inp_mchrg_pers" ref="/root/reqData/searchData/mchrg_pers" navindex="2" style="left:337px; top:75px; width:55px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				commonSubmission("9005", inp_mchrg_pers.currentText,  inp_mchrg_pers, inp_mchrg_pers_nm);		
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode == "13"){
+					commonSubmission("9005", inp_mchrg_pers.currentText,  inp_mchrg_pers, inp_mchrg_pers_nm);	
+				}
+				]]>
+			</script>
+		</input>
+		<output id="output2" ref="/root/resData/cnt_agn" format="999999" appearance="output" style="left:651px; top:75px; width:40px; height:18px; text-align:right; "/>
+		<input id="inp_mchrg_pers_nm" ref="/root/formData/mchrg_pers_nm" navindex="3" imemode="hangul" inputtype="button" curd="R" style="left:396px; top:75px; width:135px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode == "13"){
+					findEmpNoByName("setMchrgPers", inp_mchrg_pers_nm.currentText, inp_mchrg_pers, inp_mchrg_pers_nm);
+				}				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				findEmpNoByName("setMchrgPers", inp_mchrg_pers_nm.currentText, inp_mchrg_pers, inp_mchrg_pers_nm);
+				]]>
+			</script>
+		</input>
+		<script type="javascript" ev:event="onbuttonclick">
+			<![CDATA[	
+				searchEmpno("setMchrgPers", "/root/reqData/searchData/mchrg_pers", "/root/formData/mchrg_pers_nm");	
+				]]>
+		</script>
+		<caption id="caption3" class="list_cap01" style="left:743px; top:70px; width:85px; height:28px; ">지사</caption>
+		<caption id="caption4" style="left:695px; top:76px; width:20px; height:20px; ">개</caption>
+		<output id="output1" ref="/root/resData/cnt_advt" format="999999" appearance="output" style="left:834px; top:75px; width:40px; height:18px; text-align:right; "/>
+		<caption id="caption1" class="list_cap01" style="left:8px; top:70px; width:85px; height:28px; ">담당구분</caption>
+		<select1 id="radio1" ref="/root/reqData/searchData/chrg_clsf" navindex="1" appearance="full" cols="2" overflow="visible" style="left:110px; top:78px; width:100px; height:15px; border-style:none; ">
+			<choices>
+				<item>
+					<label>영업</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>관리</label>
+					<value>2</value>
+				</item>
+			</choices>
+		</select1>
+	</xhtml:body>
+</xhtml:html>

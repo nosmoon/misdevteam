@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<userCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</userCombo>
+							<mobileCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mobileCombo>
+							<cashCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</cashCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<rdr_dsct_list_form>
+								<regdt/>
+								<regno/>
+							</rdr_dsct_list_form>
+							<search_form>
+								<applySession/>
+								<rdrnm/>
+								<errresncd/>
+								<ireader_stat/>
+								<pageno/>
+								<deptcd/>
+								<pagesize/>
+								<common_deptcd/>
+								<bolist/>
+								<membnm/>
+								<common_areacd/>
+								<todt/>
+								<js_fn_nm/>
+								<areacd/>
+								<recstat/>
+								<dtlsprocstatcd/>
+								<frdt/>
+								<rdr_no/>
+								<bocd/>
+								<mblestat/>
+								<partcd/>
+							</search_form>
+							<rdrsrch_popup_form>
+								<bocd/>
+								<rdr_no/>
+							</rdrsrch_popup_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<areanm/>
+									<bocd/>
+									<bonm/>
+									<regdt/>
+									<regno/>
+									<rdr_no/>
+									<medinm/>
+									<dtlsprocstatnm/>
+									<errresncdnm/>
+									<recstatnm/>
+									<onlmembid/>
+									<onlmembseq/>
+									<rdrnm/>
+									<memb_nm_korn/>
+									<prn/>
+									<email/>
+									<ceph_no_1/>
+									<ceph_no_2/>
+									<home_tel_no/>
+									<memb_kind_cd/>
+									<zip/>
+									<addr/>
+									<dtlsaddr/>
+									<procdt/>
+									<recdt/>
+									<mblefrdt/>
+									<mbleexpydt/>
+									<mblestatcd/>
+									<mblenonrsmgcd/>
+									<ireaderstat/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1600search" action="/ss/reader/1605" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/search_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				commEventHandler(PID1600group_scr);
+				
+				makeTeamSearch("getTeamInit", "/ss/reader/1600", "", "/root/initData/comboSet/codeData", "cmbCommonTeamN", "cmbCommonPartN", "cmbCommonAreaN");
+				//makeTeamEvent("getAreaList", "/ss/common/1190", "/root/reqData/reqform/search_form", "/root/initData/comboSet/codeData", "cmbCommonTeamN", "cmbCommonAreaN", "preActionTeam();");
+				
+				model.setValue("/root/reqData/reqform/search_form/pageno", "1");
+				model.setValue("/root/reqData/reqform/search_form/js_fn_nm", "page_move");
+				//model.setValue("/root/reqData/reqform/search_form/pagesize", "20");
+				model.setValue("/root/reqData/reqform/search_form/pagesize", "5000");
+				
+				//modelCopyValue("/root/reqData/reqform/search_form/applySession",	"/root/initData/comboSet/codeData/applySession");
+				modelCopyValue("/root/reqData/reqform/search_form/applySession", true);
+				
+				modelCopyValue("/root/reqData/reqform/search_form/frdt",	"/root/initData/comboSet/codeData/defaultDate");
+				modelCopyValue("/root/reqData/reqform/search_form/todt", "/root/initData/comboSet/codeData/defaultDate");			
+				
+				model.copyNode("/root/initData/comboSet/userCombo","/root/initData/comboSet/codeData/userCombo");
+				model.copyNode("/root/initData/comboSet/mobileCombo","/root/initData/comboSet/codeData/mobileCombo");
+				model.copyNode("/root/initData/comboSet/cashCombo","/root/initData/comboSet/codeData/cashCombo");
+				
+				PID1600combo1.select(0);
+				PID1600combo2.select(0);
+				PID1600combo3.select(0);
+				PID1600combo4.select(0);
+				
+				onChangeArea();
+			}
+			
+			function preActionTeam()
+			{				
+				modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+			}
+			
+			function onChangeArea()
+			{
+				if(cmbCommonAreaN.value == "")
+				{
+					clearSelectCombo(cmbCommonmBranchN, "전체", "", false);
+					PID1600group_scr.refresh();
+					cmbCommonmBranchN.select(0);
+				
+					initSub();
+					return;
+				}
+				
+				modelSendNoMake("getBranchList", "/ss/common/1116", "/root/reqData/reqform/search_form", "/root/initData/comboSet/codeData/codelist");
+				cmbCommonmBranchN.refresh();
+				cmbCommonmBranchN.select(0);
+				
+				initSub();
+			}
+			
+			function initSub()
+			{
+				//화면 reset.
+			}	
+			
+			function search(flag)
+			{
+				model.setValue("/root/reqData/reqform/search_form/errresncd", flag);
+				
+				//기간체크
+				if(model.getValue("/root/reqData/reqform/search_form/frdt") == "" || model.getValue("/root/reqData/reqform/search_form/todt") == ""){
+					alert("기간을 입력하세요.");
+					return;
+				}
+				
+				if(!commValidate(PID1600group_scr))
+					return;
+					
+				remakeNode("/root/tempData/resTemp");
+
+				model.send("PID1600search", false);
+				
+				if(!submit_completed())
+					return;
+				
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+									
+				PID1600multilinegrid1.refresh();
+								
+				//PID1600caption4.value = "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + "건";
+				
+				if(instance1.selectNodes("/root/resData/gridData/listGrid/record/rdr_no").length == 0)
+					model.alert("검색결과가 없습니다.");
+					
+				model.removenode("/root/tempData/resTemp");
+				
+				for(var i=PID1600multilinegrid1.fixedRows; i<PID1600multilinegrid1.rows; i++)
+				{
+					var image = "";
+					var flag = gridRefColValue(PID1600multilinegrid1, i, "ireaderstat");
+					if(flag == "1")
+						image = "/images/ireader.gif";
+					
+					if(image != "")
+						gridCellStyle(PID1600multilinegrid1, "background-image", image, i, "ireaderstat");
+				}
+			}
+			
+			function userDetail()
+			{
+				model.setValue("/root/reqData/reqform/rdrsrch_popup_form/bocd", PID1600multilinegrid1.valueMatrix(PID1600multilinegrid1.row, PID1600multilinegrid1.colRef("bocd")));
+				model.setValue("/root/reqData/reqform/rdrsrch_popup_form/rdr_no", PID1600multilinegrid1.valueMatrix(PID1600multilinegrid1.row, PID1600multilinegrid1.colRef("rdr_no")));
+				
+				if(model.getValue("/root/reqData/reqform/rdrsrch_popup_form/bocd") == "" || model.getValue("/root/reqData/reqform/rdrsrch_popup_form/rdr_no") == "") {
+					return;
+				}
+								
+				openReaderDetailView("/root/reqData/reqform/rdrsrch_popup_form");
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1600" style="font-family:굴림; ">
+		<!--<group id="PID1600group_tab" class="gro_tab1" style="left:10px; top:720px; width:926px; height:25px; ">
+			<caption id="PID1600caption4" style="left:785px; top:0px; width:140px; height:20px; text-align:right; vertical-align:middle; ">총건수  건</caption>
+		</group>-->
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1600group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:73px; ">
+			<group id="grpCommonSelectN" class="gro_sel" style="left:0px; top:0px; width:592px; height:25px; ">
+				<caption id="capCommonTeamN" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">팀</caption>
+				<caption id="capCommonTeamNB" class="list_cap02" style="left:49px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonTeamN" ref="/root/reqData/reqform/search_form/deptcd" class="req_100" appearance="minimal" style="left:54px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/teamlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonPartN" class="list_cap01" style="left:158px; top:0px; width:50px; height:25px; ">파트</caption>
+				<caption id="capCommonPartNB" class="list_cap02" style="left:207px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonPartN" ref="/root/reqData/reqform/search_form/partcd" class="req_100" appearance="minimal" style="left:212px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/partlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonAreaN" class="list_cap01" style="left:316px; top:0px; width:50px; height:25px; ">지역</caption>
+				<caption id="capCommonAreaNB" class="list_cap02" style="left:365px; top:0px; width:70px; height:25px; "/>
+				<select1 id="cmbCommonAreaN" ref="/root/reqData/reqform/search_form/areacd" class="req_60" appearance="minimal" style="left:369px; top:3px; width:60px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/arealist/record">
+							<label ref="area_nm"/>
+							<value ref="area_cd"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						onChangeArea();
+						]]>
+					</script>
+				</select1>
+				<caption id="capCommonmBranchN" class="list_cap01" style="left:434px; top:0px; width:50px; height:25px; ">지국</caption>
+				<caption id="capCommonmBranchNB" class="list_cap02" style="left:483px; top:0px; width:109px; height:25px; "/>
+				<select1 id="cmbCommonmBranchN" ref="/root/reqData/reqform/search_form/bocd" class="req_100" appearance="minimal" style="left:488px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/codelist/record">
+							<label ref="cdnm"/>
+							<value ref="cd"/>
+						</itemset>
+					</choices>
+				</select1>
+			</group>
+			<caption id="PID1600caption13" class="list_cap02" style="left:591px; top:24px; width:335px; height:25px; "/>
+			<caption id="PID1600caption5" class="list_cap02" style="left:207px; top:24px; width:110px; height:25px; "/>
+			<caption id="PID1600caption3" class="list_cap02" style="left:591px; top:0px; width:335px; height:25px; "/>
+			<caption id="PID1600caption8" class="list_cap01" style="left:591px; top:48px; width:90px; height:25px; ">현금영수증</caption>
+			<caption id="PID1600caption9" class="list_cap01" style="left:375px; top:48px; width:60px; height:25px; ">iReader</caption>
+			<caption id="PID1600caption10" class="list_cap01" style="left:168px; top:48px; width:80px; height:25px; ">모바일상태</caption>
+			<caption id="PID1600caption11" class="list_cap01" style="left:0px; top:48px; width:60px; height:25px; ">모플회원</caption>
+			<caption id="PID1600caption14" class="list_cap01" style="left:316px; top:24px; width:60px; height:25px; ">독자번호</caption>
+			<caption id="PID1600caption15" class="list_cap01" style="left:0px; top:24px; width:50px; height:25px; ">독자명</caption>
+			<caption id="PID1600caption2" class="list_cap02" style="left:59px; top:48px; width:110px; height:25px; "/>
+			<caption id="PID1600caption7" class="list_cap02" style="left:680px; top:48px; width:246px; height:25px; "/>
+			<caption id="PID1600caption17" class="list_cap02" style="left:434px; top:48px; width:158px; height:25px; "/>
+			<caption id="PID1600caption18" class="list_cap02" style="left:375px; top:24px; width:109px; height:25px; "/>
+			<caption id="PID1600caption19" class="list_cap02" style="left:247px; top:48px; width:129px; height:25px; "/>
+			<caption id="PID1600caption20" class="list_cap02" style="left:49px; top:24px; width:110px; height:25px; "/>
+			<input id="PID1600input3" ref="/root/reqData/reqform/search_form/rdrnm" style="left:54px; top:28px; width:100px; height:18px; "/>
+			<input id="PID1600input4" ref="/root/reqData/reqform/search_form/membnm" style="left:212px; top:27px; width:100px; height:18px; "/>
+			<caption id="PID1600caption1" class="list_cap01" style="left:158px; top:24px; width:50px; height:25px; ">회원명</caption>
+			<input id="PID1600input1" ref="/root/reqData/reqform/search_form/rdr_no" style="left:379px; top:28px; width:100px; height:18px; "/>
+			<caption id="PID1600caption6" class="list_cap01" style="left:483px; top:24px; width:109px; height:25px; ">신청일자</caption>
+			<input id="PID1600input2" ref="/root/reqData/reqform/search_form/frdt" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID1600input7" style="left:596px; top:27px; width:100px; height:18px; "/>
+			<input id="PID1600input7" ref="/root/reqData/reqform/search_form/todt" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="종료일자" setHandler="true" relid="PID1600input2" style="left:720px; top:27px; width:100px; height:18px; "/>
+			<caption id="PID1600caption12" style="left:703px; top:28px; width:15px; height:20px; ">-</caption>
+			<select1 id="PID1600combo1" ref="/root/reqData/reqform/search_form/dtlsprocstatcd" appearance="minimal" style="left:63px; top:52px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/userCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="PID1600combo2" ref="/root/reqData/reqform/search_form/mblestat" appearance="minimal" style="left:251px; top:52px; width:119px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mobileCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="PID1600combo4" ref="/root/reqData/reqform/search_form/ireader_stat" appearance="minimal" style="left:438px; top:52px; width:100px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>신청</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>미신청</label>
+						<value>2</value>
+					</item>
+				</choices>
+			</select1>
+			<button id="PID1600button1" class="btn_grid02" style="left:541px; top:53px; width:50px; height:17px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search("M");
+					]]>
+				</script>
+			</button>
+			<select1 id="PID1600combo3" ref="/root/reqData/reqform/search_form/recstat" appearance="minimal" style="left:684px; top:52px; width:81px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/cashCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<button id="PID1600button2" class="btn_grid02" style="left:770px; top:52px; width:50px; height:17px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search("R");
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1600group_line" class="gro_line" style="left:10px; top:160px; width:926px; height:5px; "/>
+		<!--<group id="PID1600group2" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID1600paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<multilinegrid id="PID1600multilinegrid1" nodeset="/root/resData/gridData/listGrid/record" caption="지역^신청일자^독자명^독자번호^전화^주소^주소^모플회원(오류)^상태^caption1|지국^아이디^회원명^매체^핸드폰^Email^iReader^처리일자^신청일자^caption1" colsep="^" colwidth="80, 100, 80, 80, 100, 163, 100, 100, 100, 100" ellipsis="true" rowheader="seq" rowsep="|" tooltip="true" selectionmode="free" mergecellsfixedrows="bycolrec" style="left:10px; top:170px; width:925px; height:550px; ">
+			<row>
+				<col ref="areanm" style="text-align:left; "/>
+				<col ref="regdt" format="yyyy-mm-dd" style="text-align:left; "/>
+				<col ref="rdrnm" style="text-align:left; "/>
+				<col ref="rdr_no" style="color:blue; text-align:left; cursor:hand; ">
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+						if(event.button == 1)
+						{
+							if(PID1600multilinegrid1.mouseCol>PID1600multilinegrid1.fixedCols-1 && PID1600multilinegrid1.mouseRow>PID1600multilinegrid1.fixedRows-1)
+						       {
+								userDetail();
+						       }
+						}				
+						]]>
+					</script>
+				</col>
+				<col ref="home_tel_no" style="text-align:left; "/>
+				<col colspan="2" ref="addr_detail" style="text-align:left; "/>
+				<col ref="err_detail" style="text-align:left; "/>
+				<col ref="errresncdnm_detail" style="text-align:left; "/>
+				<col ref="bocd" rowspan="2" visibility="hidden"/>
+			</row>
+			<row>
+				<col ref="bonm" style="text-align:left; "/>
+				<col ref="onlmembid" style="text-align:left; "/>
+				<col ref="memb_nm_korn" style="text-align:left; "/>
+				<col ref="medinm" style="text-align:left; "/>
+				<col ref="ceph_no_detail" style="text-align:left; "/>
+				<col ref="email" style="text-align:left; "/>
+				<col ref="ireaderstat"/>
+				<col ref="procdt" format="yyyy-mm-dd" style="text-align:left; "/>
+				<col ref="reqtype_detail" format="yyyy-mm-dd" style="text-align:left; "/>
+			</row>
+		</multilinegrid>
+	</xhtml:body>
+</xhtml:html>

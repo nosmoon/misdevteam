@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function go_setVal(){
+					var gubun = model.property("comm_1000_gubun");					
+					var iRow = datagrid1.row;
+					if(iRow < 1 ) return;
+					var path, item, indexPro, len, par;
+					if ( gubun == "" ){
+						var callgb = model.getValue("/root/bodyData/rcvData/callgb");
+						var bocdseq = datagrid1.valueMatrix(iRow,2);
+						var bo_cd = bocdseq.substring(0,5);
+						var bo_seq = bocdseq.substring(5,8);
+						var bo_nm = datagrid1.valueMatrix(iRow,3);
+						opener.javascript.jsGetBocdSeq(bo_cd,bo_seq,bo_nm,callgb); 
+					} else if ( gubun == "noScriptMulti" ){
+						path 	= model.property("path");
+							
+						len 		= datagrid1.selectedRows;					
+						par 		= window.opener.instance1.selectSingleNode(path);
+						
+						if ( len == 1 ){
+							index = datagrid1.selectedRow(0);
+							if ( datagrid1.rows == datagrid1.fixedRows + 1 ){
+								index = "";
+							} else {
+								index = "[" + index + "]";
+							}
+							srcNode = model.instances(0).selectSingleNode("/root/gridData/record" + index);
+							
+							par.appendChild(srcNode);
+						} else {
+							for ( var i = 0 ; i < len ; i++ ){
+								index = datagrid1.selectedRow(i);
+								srcNode = model.instances(0).selectSingleNode("/root/gridData/record[" + index + "]");
+								par.appendChild(srcNode);
+							}
+						}		
+					} else if ( gubun == "noScript" ){
+						path 		= model.property("path");
+						item			= model.property("item");
+						indexPro  	= model.property("index");
+						
+						par			= window.opener.instance1.selectSingleNode(path);
+						sub			= par.getElementsByTagName(item);
+						
+						if ( sub.length == 1 ){
+							indexPro = "";
+						} else {
+							indexPro = "[" + indexPro + "]";
+						}
+						
+						sub			= par.getElementsByTagName(item + indexPro);
+						
+						index = datagrid1.selectedRow(0);
+						if ( datagrid1.rows == datagrid1.fixedRows + 1 ){
+							index = "";
+						} else {
+							index = "[" + index + "]";
+						}
+
+						var root = "/root/gridData/record" + index + "/";
+						var arr = new Array("area_nm", "bo_cdseq", "bo_nm", "bo_head_nm", "chrg_flnm", "bo_tel_no", "dlco_no", "area_cd", "chrg_pers", "dept_cd", "supr_dept_cd", "dept_nm");
+						var detail = sub.nextNode();
+						var detail_path = path + "/" + item + indexPro;
+						var value;
+						for ( var i = 0 ; i < arr.length ; i++ ){
+							value = model.getValue(root + arr[i]);
+							if ( detail.getElementsByTagName(arr[i]).length > 0 ){
+								//opener.model.makeNode(detail_path + "/" + arr[i]);
+								opener.model.setValue(detail_path + "/" + arr[i], value);
+							}
+							//opener.model.setValue(detail_path + "/" + arr[i], value);
+						}
+					
+					}
+					window.close();		
+				}
+								
+				function go_search(){					
+					model1.send("se_comm_1110_l");	
+					se_chkGridCnt("datagrid1");
+					model.setFocus("datagrid1");
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<comboSet>
+							<curlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</curlist>
+						</comboSet>
+					</initData>
+					<bodyData>
+						<!-- 화면상의 입/출력 데이터등의 기본적인 데이터를 담당 -->
+						<searchData>
+							<bo_nm/>
+							<bo_head_nm/>
+							<cntr_stat_clsf/>
+							<dept_cd/>
+							<bo_cd/>
+						</searchData>
+						<!-- 정보별로 group화 한다. -->
+						<formData>
+							<!-- 정보별로 group화 한다. -->
+						</formData>
+						<rcvData>
+							<callgb/>
+						</rcvData>
+					</bodyData>
+					<gridData>
+						<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- datagrid2 -->
+						<!-- datagrid3 -->
+						<record>
+							<area_nm/>
+							<bo_cdseq/>
+							<bo_nm/>
+							<bo_head_nm/>
+							<chrg_flnm/>
+							<bo_tel_no/>
+						</record>
+					</gridData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					var gubun = model.property("comm_1000_gubun");
+					var dept_cd = model.property("dept_cd");
+					model.setValue("/root/bodyData/searchData/dept_cd", dept_cd);
+					if ( gubun == "noScriptMulti" ){
+						datagrid1.allowSelection = true;
+					} else {
+						datagrid1.allowSelection = false;
+					}
+				
+				
+					var bo_cd 			= model.property("bo_cd"	);
+					var bo_nm			= model.property("bo_nm"	);
+					var cntr_stat_clsf	= model.property("cntr_stat_clsf");
+					
+					if(cntr_stat_clsf == ""){
+						cntr_stat_clsf	= "1";
+					}
+					
+					if ( bo_cd != "" || bo_nm != "" ){					
+						var root = "/root/bodyData/searchData";
+						model.setValue(root + "/bo_cd"		, bo_cd			);
+						model.setValue(root + "/bo_nm"	, bo_nm	);
+						model.setValue(root + "/cntr_stat_clsf"	, cntr_stat_clsf	);
+						go_search();
+					}
+					
+					model.refresh();
+					
+					var action = "se_comm_1100_m";
+					model.send(action);
+					
+					makeComboGubun("A", "/root/initData/comboSet/curlist", "record", "cdnm", "cd");
+					
+					cbo_cntr_stat_clsf.select(1);
+					
+					//model.refresh();
+				]]>
+			</script>
+			<submission id="se_comm_1100_m" action="/se/comm/1100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/bodyData/searchData" resultref="/root/initData/comboSet"/>
+			<submission id="se_comm_1110_l" action="/se/comm/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/bodyData/searchData" resultref="/root/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="pop640" pagewidth="640" pageheight="480" guideline="2,34;2,39;2,40;2,50;2,70;2,79;2,80;1,936;1,927;1,926;" style="font-family:굴림; ">
+		<caption id="titileCaption" class="tit01" style="left:10px; top:5px; width:620px; height:29px; ">센터 찾기</caption>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:80px; width:620px; height:49px; ">
+			<caption id="caption2" class="list_cap02" style="left:0px; top:24px; width:620px; height:25px; "/>
+			<caption id="caption6" class="list_cap02" style="left:0px; top:0px; width:620px; height:25px; "/>
+			<caption id="caption5" class="list_cap01" style="left:0px; top:0px; width:110px; height:25px; ">센터명</caption>
+			<input id="ipt_bo_nm" ref="/root/bodyData/searchData/bo_nm" navindex="1" style="left:114px; top:3px; width:120px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[					
+					if(event.keyCode == 13){						
+						model.setFocus("button7");
+						go_search();
+					}
+					]]>
+				</script>
+			</input>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:24px; width:110px; height:25px; ">센터대표명</caption>
+			<input id="input4" ref="/root/bodyData/searchData/bo_head_nm" navindex="3" style="left:114px; top:27px; width:120px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						
+					if(event.keyCode == 13){						
+						model.setFocus("button7");
+						go_search();
+					}		
+					]]>
+				</script>
+			</input>
+			<caption id="caption1" class="list_cap01" style="left:305px; top:24px; width:110px; height:25px; ">계약상태구분</caption>
+			<select1 id="cbo_cntr_stat_clsf" ref="/root/bodyData/searchData/cntr_stat_clsf" navindex="4" appearance="minimal" style="left:419px; top:28px; width:120px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:305px; top:0px; width:110px; height:25px; ">센터코드</caption>
+			<input id="input1" ref="/root/bodyData/searchData/bo_cd" navindex="2" format="99999-999" style="left:419px; top:3px; width:120px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						
+					if(event.keyCode == 13){						
+						model.setFocus("button7");
+						go_search();
+					}		
+					]]>
+				</script>
+			</input>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:138px; width:620px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/gridData/record" caption="지역명^센터코드^센터명^센터대표명^담당자명^전화번호" colsep="^" colwidth="100, 90, 90, 90, 90, 100" extendlastcol="scroll" mergecellsfixedrows="byrowrec" rowheader="seq" rowsep="|" selectionmode="byrow" style="left:10px; top:151px; width:620px; height:309px; ">
+			<col ref="area_nm" format="99999-999"/>
+			<col ref="bo_cdseq" format="99999-999"/>
+			<col ref="bo_nm" style="text-align:left; "/>
+			<col ref="bo_head_nm"/>
+			<col ref="chrg_flnm"/>
+			<col ref="bo_tel_no"/>
+			<col ref="dlco_no" visibility="hidden"/>
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="chrg_pers" visibility="hidden"/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="supr_dept_cd" visibility="hidden"/>
+			<col ref="dept_nm" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[ 
+					go_setVal();
+					/*
+					var callgb = model.getValue("/root/bodyData/rcvData/callgb");
+					var bocdseq = datagrid1.valueMatrix(iRow,2);
+					var bo_cd = bocdseq.substring(0,5);
+					var bo_seq = bocdseq.substring(5,8);
+					var bo_nm = datagrid1.valueMatrix(iRow,3);
+					opener.javascript.jsGetBocdSeq(bo_cd,bo_seq,bo_nm,callgb); 
+					window.close();		
+					*/
+				]]>
+			</script>
+		</datagrid>
+		<button id="button7" class="btn03" navindex="5" style="left:430px; top:50px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				go_search();						
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" navindex="6" style="left:498px; top:50px; width:63px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					go_setVal();
+					/*
+					var callgb = model.getValue("/root/bodyData/rcvData/callgb");
+					var bocdseq = datagrid1.valueMatrix(datagrid1.selectedRow(0),2);
+					var bo_cd = bocdseq.substring(0,5);
+					var bo_seq = bocdseq.substring(5,8);
+					var bo_nm = datagrid1.valueMatrix(datagrid1.selectedRow(0),3);
+					opener.javascript.jsGetBocdSeq(bo_cd,bo_seq,bo_nm,callgb); 
+					window.close();				
+					*/
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" navindex="7" style="left:566px; top:50px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.close();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

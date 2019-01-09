@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<emp_no/>
+							<cmpy_cd/>
+						</searchData>
+						<popData>
+							<emp_no/>
+							<cmpy_cd/>
+							<vaca_ck/>
+						</popData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<emp_no/>
+							<nm_korn/>
+							<dept_name/>
+							<dty_name/>
+							<posi_name/>
+							<cmpy_cd/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<record>
+								<chk/>
+								<duty_dt/>
+								<clndr_wkdy_nm/>
+								<hody_clsf_nm/>
+								<alvc_plan_dt/>
+								<alvc_use_dt/>
+								<clndr_wkdy/>
+								<hody_clsf/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				function CurTab(fID, fName, fBool){
+					this.id = fID;
+					this.name = fName;
+					this.status = fBool;
+				}
+				
+				function getCurTab_id(){
+					return this.id;
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					maintitle.text = "내 휴일근무 보기";
+					window.height = 400;
+					window.width = 540;
+									
+					//datagrid2.fixedcellcheckbox(0, datagrid2.colRef("chk"), false) = true;
+					
+					var emp_no = model1.getValue("/root/reqData/popData/emp_no");
+					var cmpy_cd = model1.getValue("/root/reqData/popData/cmpy_cd");
+					var vaca_ck = model1.getValue("/root/reqData/popData/vaca_ck");
+					
+					if(vaca_ck=="10") button2.visible = true;
+					
+					model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+					model1.setValue("/root/reqData/searchData/cmpy_cd", cmpy_cd);
+
+					model1.send("hd_vaca_1610");
+					model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+					model1.refresh();
+					
+					for(var i=1 ;i< datagrid2.rows;i++){
+						datagrid2.valueMatrix(i,datagrid2.colRef("chkbox")) = false;
+						var alvc_use_dt = model1.getValue("/root/resData/gridData/record["+i+"]/alvc_use_dt");							
+						if(alvc_use_dt != ""){
+							datagrid2.isReadOnly(i, 1, i, 8) = true;
+						}		
+						datagrid2.fixedcellischeck(i, datagrid2.colRef("chkbox")) = false;		
+					}						
+					datagrid2.fixedcellischeck(0, datagrid2.colRef("chkbox")) = false;
+					
+					rowCnt.value = "총 "+ (parseInt(datagrid2.rows)- 1) + " 건";
+				]]>
+			</script>
+			<submission id="hd_vaca_1610" action="/hd/vaca/1610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="540" pageheight="400" guideline="1,518;1,10;" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:41px; width:510px; height:20px; ">
+			<caption id="caption1" class="tit02" style="left:2px; top:0px; width:180px; height:15px; font-weight:bold; ">대휴 신청일 팝업</caption>
+			<button id="button2" class="btn_grid02" visibility="hidden" style="left:464px; top:1px; width:46px; height:17px; ">
+				<caption>선택</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var count = 0;
+					var hodyClsf = "";
+					var dutyDt = "";
+					var alvcPlanDt = "";
+					
+					for(var i=0; i<datagrid2.Rows; i++)
+					{
+						if(datagrid2.valueMatrix(i, datagrid2.colRef("chk")) == "true") {
+							hodyClsf 		+= datagrid2.valueMatrix(i, datagrid2.colRef("hody_clsf"));
+							dutyDt 		+= datagrid2.valueMatrix(i, datagrid2.colRef("duty_dt"));
+							alvcPlanDt 	+= datagrid2.valueMatrix(i, datagrid2.colRef("alvc_plan_dt"));
+							count++;
+						}
+					}
+					
+					if(count>1) {
+						alert("체크박스를 하나만 선택해주세요.");
+						return;	
+					}
+					eval("window.opener.javascript.loadPopData('"+ hodyClsf +"', '"+ dutyDt +"', '"+ alvcPlanDt +"')");
+					window.close();
+				]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" scroll="auto" caption="선택^휴일근무일^요일^대휴구분^대휴예정일^대휴사용일^요일코드^대휴코드" colsep="#" colwidth="50, 100, 60, 70, 100, 100, 60, 60" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:15px; top:68px; width:503px; height:282px; ">
+			<col disabled="false" ref="chk" type="checkbox"/>
+			<col ref="duty_dt" format="yyyy-mm-dd"/>
+			<col ref="clndr_wkdy_nm"/>
+			<col ref="hody_clsf_nm"/>
+			<col ref="alvc_plan_dt" visibility="hidden" format="yyyy-mm-dd"/>
+			<col ref="alvc_use_dt" format="yyyy-mm-dd"/>
+			<col ref="clndr_wkdy" visibility="hidden"/>
+			<col ref="hody_clsf" visibility="hidden"/>
+		</datagrid>
+		<group id="group_tit" class="gro_tit1_400" style="left:10px; top:5px; width:510px; height:29px; ">
+			<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:0px; top:0px; width:510px; height:27px; ">제목 - Main Title</caption>
+			<button id="button1" class="btn03" style="left:445px; top:5px; width:63px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					window.close();				
+				]]>
+				</script>
+			</button>
+		</group>
+		<caption id="rowCnt" style="left:398px; top:350px; width:120px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

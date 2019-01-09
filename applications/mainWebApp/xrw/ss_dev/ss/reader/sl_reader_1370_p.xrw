@@ -1,0 +1,494 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>판촉물지급내역</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<naviInfo>
+							<curr_page_no>0</curr_page_no>
+							<total_records>0</total_records>
+							<js_fn_nm>search</js_fn_nm>
+							<records_per_page>5000</records_per_page>
+							<page_set_gubun>0</page_set_gubun>
+						</naviInfo>
+						<postData>
+							<bnsListSearchForm>
+								<!--rdr_no/-->
+							</bnsListSearchForm>
+						</postData>
+						<defaultData>
+							<frpaydt/>
+							<topaydt/>
+							<paydt/>
+						</defaultData>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+						</searchData>
+						<reqform>
+							<bnsListSearchForm>
+								<rdr_no/>
+								<pageno/>
+								<pagesize/>
+								<pid/>
+								<frpaydt/>
+								<topaydt/>
+								<search_cond>ALL</search_cond>
+								<search_word/>
+							</bnsListSearchForm>
+							<bnsDetailForm>
+								<accflag/>
+								<rdr_no/>
+								<payno/>
+								<paydt/>
+								<bns_itemcd/>
+								<bns_itemuprc/>
+								<bns_itemnm/>
+								<qunt>1</qunt>
+								<rdr_extndt/>
+								<rdr_extnno/>
+								<bocd/>
+								<bonm/>
+								<amt/>
+							</bnsDetailForm>
+							<bnsDetailViewForm>
+								<rdr_no/>
+								<payno/>
+							</bnsDetailViewForm>
+							<bnsItemcdSearchForm>
+								<bns_itemnm/>
+								<bns_itemcd/>
+								<pageno/>
+								<pagesize/>
+							</bnsItemcdSearchForm>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<rdr_no/>
+									<payno/>
+									<paydt/>
+									<bns_itemcd/>
+									<bns_itemnm/>
+									<qunt/>
+									<amt/>
+									<bocd/>
+									<bonm/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<resTemp/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-model-destruct">
+				<![CDATA[
+				//종료시에 셋팅.
+				setRdrNo();
+				]]>
+			</script>
+			<submission id="PID1370subInit" action="/ss/slreader/1370" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1370subSearch" action="/ss/slreader/1380" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/bnsListSearchForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1370subSearchDetail" action="/ss/slreader/1383" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/bnsDetailViewForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1370subInsert" action="/ss/slreader/1375" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/bnsDetailForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1370subUpdate" action="/ss/slreader/1384" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/bnsDetailForm" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1370subDelete" action="/ss/slreader/1385" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/bnsDetailForm" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				commEventHandler(group3);
+				
+				model.send("PID1370subInit", false);
+				if(!submit_completed())
+					return;
+				
+				childValueCopy("/root/initData/defaultData", "/root/tempData/resTemp");
+				childValueCopy("/root/reqData/reqform/bnsDetailForm", "/root/initData/defaultData");
+				childValueCopy("/root/reqData/reqform/bnsListSearchForm", "/root/initData/defaultData");
+				
+				if(instance1.selectNodes("/root/initData/postData/bnsListSearchForm/rdr_no").length == 0)
+				{
+					model.alert("유효하지 않은 arguments 입니다.");
+					close();
+				}
+				if(model.getValue("/root/initData/postData/bnsListSearchForm/rdr_no")=="")
+				{
+					model.alert("독자번호가 셋팅되지 않았습니다.");
+					close();
+				}
+				
+				search(1);
+			}
+			
+			function search(pageno)
+			{					
+				//원본은 pid를 설정하여 여러 pid를 실행 가능하게 해놓았으나 필요 없으므로 1380으로 고정.
+				modelCopyValue("/root/reqData/reqform/bnsListSearchForm/rdr_no", "/root/initData/postData/bnsListSearchForm/rdr_no");
+				model.setValue("/root/reqData/reqform/bnsListSearchForm/pageno", pageno);
+				model.setValue("/root/reqData/reqform/bnsListSearchForm/pagesize", "5000");		//10->5000
+				model.setValue("/root/reqData/reqform/bnsListSearchForm/pid", "1380");
+				
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1370subSearch", false);
+				
+				childValueCopy("/root/initData/naviInfo", "/root/tempData/resTemp/naviInfo");
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+				
+				datagrid1.refresh();
+				
+				if(instance1.selectNodes("/root/resData/gridData/listGrid/record/rdr_no").length == 0)
+					model.alert("검색결과가 없습니다.");
+					
+				model.removenode("/root/tempData/resTemp");
+			}
+			
+			function searchDetail()
+			{
+				gridRowValueCopy("/root/reqData/reqform/bnsDetailViewForm", datagrid1, datagrid1.row);
+				
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1370subSearchDetail", false);
+				
+				childValueCopy("/root/reqData/reqform/bnsDetailForm", "/root/tempData/resTemp/detailData");
+				childValueCopy("/root/reqData/reqform/bnsDetailForm", "/root/tempData/resTemp/detailDataEx");
+				group_scr.refresh();
+				
+				model.removenode("/root/tempData/resTemp");
+			}
+			
+			//servlet에서 막아놓았음. 권한없음.
+			function insert()
+			{
+				model.setValue("/root/reqData/reqform/bnsDetailForm/accflag", "I");
+				modelCopyValue("/root/reqData/reqform/bnsDetailForm/rdr_no", "/root/initData/postData/bnsListSearchForm/rdr_no");
+				
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1370subInsert", false);
+				if(!submit_completed())
+					return;
+				
+				//추가적인 검증사항(hidden에 확장자 성명이 셋팅되어야만 유효한 확장자 셋팅임. ??. 이게 왜 필요하지?
+				if(trim(model.getValue("/root/reqData/reqform/bnsDetailForm/rdr_no")) == "")
+					model.alert("독자번호가 셋팅되지 않았습니다.");
+			}
+			
+			//servlet에서 막아놓았음. 권한없음.
+			function update()
+			{
+				model.setValue("/root/reqData/reqform/bnsDetailForm/accflag", "U");
+				
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1370subUpdate", false);
+			}
+			
+			//servlet에서 막아놓았음. 권한없음.
+			function del()
+			{
+				model.setValue("/root/reqData/reqform/bnsDetailForm/accflag", "D");
+				
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1370subDelete", false);
+			}
+			
+			function setDefault()
+			{
+				clearChildNodes("/root/reqData/reqform/bnsDetailForm");
+				childValueCopy("/root/reqData/reqform/bnsDetailForm", "/root/initData/defaultData");
+				model.setValue("/root/reqData/reqform/bnsDetailForm/qunt", "1");
+				
+				group_scr.refresh();
+			}
+			
+			// 판촉물 코드명 변경에 의한 초기화
+			//사용안함.
+			/*function clearBnsItem()
+			{
+				if(trim(input5.value)=="")	//bns_itemnm
+					model.setValue("/root/reqData/reqform/bnsDetailForm/bns_itemcd", "");
+			}*/
+			
+			// 판촉물 코드 검색(엔터키에 의한 검색)
+			function bnsItemcdEnterSearch(pageno)
+			{
+				if(event.keyCode != 13)
+					return;
+				if(trim(input1.value) == "")		//bns_itemcd
+					return;
+				
+				var bnsItemnmVal = input1.value;
+				//판촉물 코드 패턴이면 코드로 검색 , 그렇지 않으면 판촉물명으로 검색
+				if(!validate_bns_itemcd(bnsItemnmVal))
+				{
+					model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/bns_itemcd", "");
+					model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/bns_itemnm", bnsItemnmVal);
+				}
+				else
+				{
+					model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/bns_itemcd", bnsItemnmVal);
+					model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/bns_itemnm", "");
+				}
+				model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/pageno", pageno);
+				model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/pagesize", "5000");	//10->5000
+				
+				searchBnsItem("/root/reqData/reqform/bnsItemcdSearchForm", "/root/tempData/resTemp/bnsitemData");
+				
+				if(instance1.selectNodes("/root/tempData/resTemp/bnsitemData/record/bns_itemcd").length == 1)
+					bnsItemcdEnterSearchResult();
+				else
+					bnsItemcdSearch();
+			}
+			
+			// 판촉물 검색(엔터키에 의한 검색) 후 hidden iframe에 셋팅된 결과값을 부모화면에 셋팅
+			function bnsItemcdEnterSearchResult()
+			{
+				model.setValue("/root/reqData/reqform/bnsDetailForm/bns_itemcd", "/root/tempData/resTemp/bnsitemData/record/bns_itemcd");
+				model.setValue("/root/reqData/reqform/bnsDetailForm/bns_itemnm", "/root/tempData/resTemp/bnsitemData/record/bns_itemnm");
+				model.setValue("/root/reqData/reqform/bnsDetailForm/bns_itemuprc", "/root/tempData/resTemp/bnsitemData/record/uprc");
+				
+				group_scr.refresh();
+				setAmt();
+				model.setFocus("input10");	//qunt
+				
+				model.removenode("/root/tempData/resTemp");
+			}
+			
+			// 판촉물 코드 검색(팝업)
+			function bnsItemcdSearch()
+			{
+				var bnsItemnmVal = input1.value;
+				//판촉물 코드 패턴이면 코드로 검색 , 그렇지 않으면 판촉물명으로 검색
+				if(!validate_bns_itemcd(bnsItemnmVal))
+				{
+					model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/bns_itemcd", "");
+					model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/bns_itemnm", bnsItemnmVal);
+				}
+				else
+				{
+					model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/bns_itemcd", bnsItemnmVal);
+					model.setValue("/root/reqData/reqform/bnsItemcdSearchForm/bns_itemnm", "");
+				}
+				
+				var ref = "/root/reqData/reqform/bnsItemcdSearchForm";
+				var res = "/root/tempData/resTemp/bnsitemData/record";
+				
+				openBnsItem(ref, res);
+				
+				if(instance1.selectNodes("/root/tempData/resTemp/bnsitemData/record/bns_itemcd").length != 0)
+					bnsItemcdEnterSearchResult();
+			}
+			
+			function setAmt()
+			{
+				var qunt = input10.value;		//qunt
+				var uprc = trim(model.getValue("/root/reqData/reqform/bnsDetailForm/bns_itemuprc"))=="" ? 0 : eval(model.getValue("/root/reqData/reqform/bnsDetailForm/bns_itemuprc"));
+				
+				if(trim(qunt)=="" || !isNumber(qunt) || eval(qunt)<1)
+				{
+					model.alert("수량은 1보다 큰 숫자여야만 합니다.");
+					model.setFocus("input10");
+					return;
+				}
+				
+				input12.value = uprc * qunt;	//amt
+			}
+			
+			//return value setting.		
+			function setRdrNo()
+			{
+				var resPath = model.property("BNSITEMPAYHIS_RES_XPATH");
+
+				opener.model.removenode(resPath);
+				opener.model.makeNode(resPath + "/rdr_no");
+				opener.model.setValue(resPath + "/rdr_no", model.getValue("/root/initData/postData/bnsListSearchForm/rdr_no"));	//받은 rdr_no를 그대로 돌려줌.
+			}
+							
+			function close()
+			{
+				window.close();
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="685" pageheight="460" idprefix="PID1370" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:375px; width:665px; height:73px; ">
+			<caption id="caption7" class="list_cap02" style="left:177px; top:0px; width:90px; height:25px; "/>
+			<caption id="caption12" class="list_cap02" style="left:177px; top:24px; width:90px; height:25px; "/>
+			<caption id="caption11" class="list_cap03" style="left:0px; top:48px; width:665px; height:25px; text-align:left; "/>
+			<caption id="caption2" class="list_cap03" style="left:0px; top:0px; width:55px; height:25px; text-align:left; ">지급번호</caption>
+			<caption id="caption3" class="list_cap02" style="left:54px; top:0px; width:70px; height:25px; "/>
+			<caption id="caption14" class="list_cap03" style="left:0px; top:24px; width:55px; height:25px; text-align:left; ">확장일자</caption>
+			<caption id="caption15" class="list_cap02" style="left:54px; top:24px; width:70px; height:25px; "/>
+			<caption id="caption1" class="list_cap03" style="left:123px; top:0px; width:55px; height:25px; text-align:left; ">지급일자</caption>
+			<caption id="caption6" class="list_cap03" style="left:123px; top:24px; width:55px; height:25px; text-align:left; ">확장번호</caption>
+			<caption id="caption4" class="list_cap03" style="left:266px; top:0px; width:65px; height:25px; text-align:left; ">판촉물</caption>
+			<caption id="caption13" class="list_cap03" style="left:266px; top:24px; width:65px; height:25px; text-align:left; ">지급지국명</caption>
+			<caption id="caption16" class="list_cap02" style="left:330px; top:24px; width:205px; height:25px; "/>
+			<caption id="caption17" class="list_cap02" style="left:330px; top:0px; width:205px; height:25px; "/>
+			<caption id="caption18" class="list_cap03" style="left:534px; top:24px; width:30px; height:25px; text-align:left; ">금액</caption>
+			<caption id="caption19" class="list_cap03" style="left:534px; top:0px; width:30px; height:25px; text-align:left; ">수량</caption>
+			<caption id="caption20" class="list_cap02" style="left:563px; top:24px; width:102px; height:25px; "/>
+			<caption id="caption21" class="list_cap02" style="left:563px; top:0px; width:102px; height:25px; "/>
+			<input id="input8" ref="/root/reqData/reqform/bnsDetailForm/payno" editable="false" imemode="disabled" maxlength="3" dataType="number" caption="지급번호" len="3" style="left:57px; top:4px; width:40px; height:18px; "/>
+			<input id="input5" ref="/root/reqData/reqform/bnsDetailForm/paydt" imemode="disabled" inputtype="date" format="yyyy/mm/dd" dataType="date" caption="지급일자" style="left:180px; top:4px; width:85px; height:18px; "/>
+			<input id="input1" ref="/root/reqData/reqform/bnsDetailForm/bns_itemcd" class="req" autonext="false" imemode="disabled" maxlength="6" dataType="number" caption="판촉물코드" style="left:333px; top:4px; width:50px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					bnsItemcdEnterSearch(1);
+					]]>
+				</script>
+			</input>
+			<button id="button1" class="btn_grid02" style="left:385px; top:4px; width:42px; height:17px; ">
+				<caption>검색</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					bnsItemcdSearch();		
+					]]>
+				</script>
+			</button>
+			<input id="input9" ref="/root/reqData/reqform/bnsDetailForm/bns_itemnm" imemode="hangul" caption="판촉물명" style="left:430px; top:4px; width:100px; height:18px; "/>
+			<input id="input10" ref="/root/reqData/reqform/bnsDetailForm/qunt" class="req" maxlength="3" format="###" dataType="number" caption="수량" minValue="1" style="left:566px; top:4px; width:50px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						setAmt();
+						model.setFocus("button2");	//등록 button
+					}
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					setAmt();
+					]]>
+				</script>
+			</input>
+			<input id="input11" ref="/root/reqData/reqform/bnsDetailForm/rdr_extndt" editable="false" imemode="disabled" inputtype="date" format="yyyy/mm/dd" dataType="date" caption="확장일자" style="left:57px; top:28px; width:65px; height:18px; "/>
+			<input id="input6" ref="/root/reqData/reqform/bnsDetailForm/rdr_extnno" editable="false" imemode="hangul" dataType="number" caption="확장번호" style="left:180px; top:28px; width:55px; height:18px; "/>
+			<input id="input7" ref="/root/reqData/reqform/bnsDetailForm/bonm" class="req" editable="false" imemode="hangul" caption="지급지국명" style="left:333px; top:28px; width:110px; height:18px; "/>
+			<input id="input12" ref="/root/reqData/reqform/bnsDetailForm/amt" editable="false" imemode="disabled" maxlength="10" format="#,###" dataType="number" caption="금액" style="left:566px; top:28px; width:80px; height:18px; text-align:right; "/>
+			<caption id="caption22" style="left:645px; top:29px; width:15px; height:20px; ">원</caption>
+			<button id="button2" class="btn_grid02" style="left:206px; top:52px; width:42px; height:17px; ">
+				<caption>등록</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					insert();
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn_grid02" style="left:251px; top:52px; width:42px; height:17px; ">
+				<caption>수정</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					update();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn_grid02" style="left:296px; top:52px; width:42px; height:17px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					del();
+					]]>
+				</script>
+			</button>
+			<button id="button6" class="btn_grid02" style="left:341px; top:52px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();		
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn_grid03" style="left:386px; top:52px; width:53px; height:17px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					setDefault();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" style="left:10px; top:15px; width:665px; height:25px; ">
+			<caption id="PID1901caption4" class="list_cap01" style="left:0px; top:0px; width:665px; height:25px; text-align:center; ">판촉물 지급내역</caption>
+		</group>
+		<group id="group3" style="left:10px; top:45px; width:665px; height:25px; ">
+			<caption id="caption5" class="list_cap03" style="left:0px; top:0px; width:665px; height:25px; text-align:left; "/>
+			<caption id="caption8" style="left:7px; top:4px; width:50px; height:20px; ">지급일자</caption>
+			<input id="input2" ref="/root/reqData/reqform/bnsListSearchForm/frpaydt" class="req" inputtype="date" format="yyyy/mm/dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="input3" style="left:65px; top:4px; width:80px; height:18px; "/>
+			<input id="input3" ref="/root/reqData/reqform/bnsListSearchForm/topaydt" class="req" inputtype="date" format="yyyy/mm/dd" dataType="dateto" caption="종료일자" setHandler="true" relid="input2" style="left:163px; top:4px; width:80px; height:18px; "/>
+			<caption id="caption9" style="left:148px; top:5px; width:15px; height:20px; ">~</caption>
+			<caption id="caption10" style="left:264px; top:4px; width:30px; height:20px; ">조건</caption>
+			<select1 id="combo1" ref="/root/reqData/reqform/bnsListSearchForm/search_cond" appearance="minimal" style="left:294px; top:4px; width:80px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value>ALL</value>
+					</item>
+					<item>
+						<label>코드</label>
+						<value>ITEMCD</value>
+					</item>
+					<item>
+						<label>코드명</label>
+						<value>ITEMNM</value>
+					</item>
+					<item>
+						<label>지급지국명</label>
+						<value>BONM</value>
+					</item>
+				</choices>
+			</select1>
+			<input id="input4" ref="/root/reqData/reqform/bnsListSearchForm/search_word" style="left:376px; top:4px; width:80px; height:18px; "/>
+			<button id="button3" class="btn_grid02" style="left:460px; top:5px; width:42px; height:20px; ">
+				<caption>검색</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					search(1);
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="지급번호^지급일자^판촉물코드^판촉물명^수량^금액^지급지국명" colsep="^" colwidth="59, 75, 65, 233, 50, 81, 100" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:75px; width:665px; height:295px; ">
+			<col ref="payno" style="text-align:right; "/>
+			<col ref="paydt" style="text-align:left; "/>
+			<col ref="bns_itemcd" style="text-align:left; "/>
+			<col ref="bns_itemnm" style="text-align:left; "/>
+			<col ref="qunt" style="text-align:right; "/>
+			<col ref="amt" format="#,###" style="text-align:right; "/>
+			<col ref="bonm" style="text-align:left; "/>
+			<col ref="rdr_no" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(checkNotFixedCell(datagrid1))
+					searchDetail();
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

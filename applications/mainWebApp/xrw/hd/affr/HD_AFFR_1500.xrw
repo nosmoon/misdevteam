@@ -1,0 +1,642 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<SCL_EXPS_CLSF>
+								<label/>
+								<value/>
+							</SCL_EXPS_CLSF>
+							<FIX_RATE_CLSF>
+								<label/>
+								<value/>
+							</FIX_RATE_CLSF>
+							<PAY_RATIO_CLSF>
+								<label/>
+								<value/>
+							</PAY_RATIO_CLSF>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<cmpy_cd/>
+							<flnm/>
+							<emp_no/>
+						</searchData>
+						<multiUpData1/>
+						<reqForm/>
+						<multiUpData2/>
+					</reqData>
+					<resData>
+						<gridData1>
+							<record>
+								<occr_dt/>
+								<seq/>
+								<scl_exps_clsf/>
+								<frdt/>
+								<todt/>
+								<fix_rate_clsf/>
+								<pay_ratio_emp/>
+								<pay_ratio_ofcr/>
+								<pay_amt/>
+								<incmg_pers_ipadd/>
+								<incmg_pers/>
+								<incmg_dt_tm/>
+								<chg_pers/>
+								<chg_dt_tm/>
+							</record>
+						</gridData1>
+						<resForm>
+						</resForm>
+						<gridData2>
+							<record>
+								<occr_dt/>
+								<seq/>
+								<scl_exps_clsf/>
+								<qq/>
+								<bgn_mmdd/>
+								<end_mmdd/>
+								<incmg_pers_ipadd/>
+								<incmg_pers/>
+								<incmg_dt_tm/>
+								<chg_pers/>
+								<chg_dt_tm/>
+							</record>
+						</gridData2>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.send("hd_affr_1500");
+					model1.copyNode("/root/initData/comboSet", "/root/tempData");
+					datagrid1.addStatus(1, "insert");
+					datagrid2.addStatus(1, "insert");
+//					datagrid1.isReadOnly(1, 1, 1, 7) = true;
+//					datagrid2.isReadOnly(1, 1, 1, 4) = true;
+					model1.refresh();					
+					
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					gridClick1 = false;
+					gridClick2 = false;
+					String.prototype.trim = function()
+					 {
+					   return this.replace(/(^\s*)|(\s*$)/gi, "");
+					 }
+					 String.prototype.replaceAll = function(str1, str2)
+					 {
+					   var temp_str = "";
+					   if (this.trim() != "" && str1 != str2)
+					   {
+					     temp_str = this.trim();
+					     while (temp_str.indexOf(str1) > -1)
+					     {
+					       temp_str = temp_str.replace(str1, str2);
+					     }
+					   }
+					   return temp_str;
+					  }
+					  
+					  function dayLengthChk(day,dds,val){
+					  	if(val == 1){
+							var  frdt = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef(day));
+							if(frdt.length < Number(dds)){
+								alert("날짜 포멧이 적확하지 않습니다");
+								datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef(day)) = "";
+							}
+					  	}else{
+							var  frdt = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef(day));
+							if(frdt.length < Number(dds)){
+								alert("날짜 포멧이 적확하지 않습니다");
+								datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef(day)) = "";
+							}
+					  		
+					  	}
+					  }
+ 				
+					function rowInSubmitCheck(datagrid1, datagrid2){
+						var rows1 = datagrid1.rows;
+						var rows2 = datagrid2.rows;
+						var rtn_value1 = false;
+						var rtn_value2 = false;
+						var rtn_value = false;
+						var a = 0;
+						var b = 0;
+						for(a; a < rows1; a++){
+							if(datagrid1.rowStatus(a) == "1"){
+								datagrid1.deleteRow(a);
+								a = 0;
+							}
+						}
+						for(var i = 1; i < rows1; i++){
+							if(datagrid1.rowStatus(i) != "0" && datagrid1.rowStatus(i) != "2" && datagrid1.rowStatus(i) != "3"){
+								datagrid1.rowStatus(i) = "0";
+							}
+						}
+						for(var i = 1; i < rows1; i++){
+							//저장대상이 존재하면 리턴값 True
+							if(datagrid1.rowStatus(i) == "2" || datagrid1.rowStatus(i) == "3"){
+								rtn_value1 = true;
+							}
+						}
+
+						for(b; b < rows2; b++){
+							if(datagrid2.rowStatus(b) == "1"){
+								datagrid2.deleteRow(b);
+								b = 0;
+							}
+						}
+						for(var i = 1; i < rows2; i++){
+							if(datagrid2.rowStatus(i) != "0" && datagrid2.rowStatus(i) != "2" && datagrid2.rowStatus(i) != "3"){
+								datagrid2.rowStatus(i) = "0";
+							}
+						}
+						for(var i = 1; i < rows2; i++){
+							//저장대상이 존재하면 리턴값 True
+							if(datagrid2.rowStatus(i) == "2" || datagrid2.rowStatus(i) == "3"){
+								rtn_value2 = true;
+							}
+						}
+						
+						if (!rtn_value1 && !rtn_value2)
+							alert("저장할 대상이 없습니다.");
+						else
+							rtn_value = true;
+							
+						return rtn_value;
+					}
+
+					function rowDelSubmitCheck(datagrid1, datagrid2){
+						var rows1 = datagrid1.rows;
+						var rows2 = datagrid2.rows;
+						var rtn_value1 = false;
+						var rtn_value2 = false;
+						var rtn_value = false;
+						var a = 0;
+						var b = 0;
+						for(a; a < rows1; a++){
+							if(datagrid1.rowStatus(a) == "1" || datagrid1.rowStatus(a) == "3"){
+								datagrid1.deleteRow(a);
+								a = 0;
+							}
+						}
+						for(var j = 1; j < rows1; j++){
+							if(datagrid1.rowStatus(j) != "4" && datagrid1.rowStatus(j) != "0"){
+								datagrid1.rowStatus(j) = "0";
+								//datagrid.deleteRow(i);
+							}
+						}
+						for(var i = 1; i < rows1; i++){
+							//삭제대상이 존재하면 리턴값 True
+							if(datagrid1.rowStatus(i) == "4"){
+								rtn_value1 = true;
+							}
+						}
+						
+						for(b; b < rows2; b++){
+							if(datagrid2.rowStatus(b) == "1" || datagrid2.rowStatus(b) == "3"){
+								datagrid2.deleteRow(b);
+								b = 0;
+							}
+						}
+						for(var j = 1; j < rows2; j++){
+							if(datagrid2.rowStatus(j) != "4" && datagrid2.rowStatus(j) != "0"){
+								datagrid2.rowStatus(j) = "0";
+								//datagrid.deleteRow(i);
+							}
+						}
+						for(var i = 1; i < rows2; i++){
+							//삭제대상이 존재하면 리턴값 True
+							if(datagrid2.rowStatus(i) == "4"){
+								rtn_value2 = true;
+							}
+						}
+						
+						if (!rtn_value1 && !rtn_value2)
+							alert("삭제할 대상이 없습니다.");	
+						else
+							rtn_value = true;
+							
+						return rtn_value;
+					}
+				]]>
+			</script>
+			<submission id="hd_affr_1500" action="/hd/affr/1500/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_1501" action="/hd/affr/1501/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_affr_1502" action="/hd/affr/1502/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728">
+		<button id="button2" class="btn02" style="left:742px; top:40px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+//					if(datagrid1.isReadOnly(1,1) == 1 && datagrid2.isReadOnly(1,1) == 1) {return;}
+					
+					if (!rowInSubmitCheck(datagrid1, datagrid2))
+						return;
+					
+					if (!commGridReqCheck(datagrid1))
+						return;
+						
+					if (!commGridReqCheck(datagrid2))
+						return;
+					/*	
+					if(datagrid1.isReadOnly(1,1) != 1){
+						for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+							var val1 = datagrid1.valueMatrix(i,1);	
+							var val2 = datagrid1.valueMatrix(i,2);	
+							var val3 = datagrid1.valueMatrix(i,3);	
+							var val4 = datagrid1.valueMatrix(i,4);	
+//							alert(val2+datagrid1.rowStatus(i))
+							
+							if(val1 == "" && (datagrid1.rowStatus(i) == 1 || datagrid1.rowStatus(i) == 2)){
+								alert("학자금구분을 골라주세요.");
+								return;
+							}
+							
+							if(val2 == "" && (datagrid1.rowStatus(i) == 1 || datagrid1.rowStatus(i) == 2 || datagrid1.rowStatus(i) == 3)){
+								alert("시작일자를 넣어주세요.");
+								return;
+							}
+							if(val3 == "" && (datagrid1.rowStatus(i) == 1 || datagrid1.rowStatus(i) == 2 || datagrid1.rowStatus(i) == 3)){
+								alert("종료일자를 넣어주세요.");
+								return;
+							}
+							if(val4 == "" && (datagrid1.rowStatus(i) == 1 || datagrid1.rowStatus(i) == 2 || datagrid1.rowStatus(i) == 3)){
+								alert("정액/정률을 넣어주세요.");
+								return;
+							}							
+							
+						}
+					}
+					if(datagrid2.isReadOnly(1,1) != 1){					
+						for(var i=datagrid2.fixedRows;i<datagrid2.rows;i++){
+							var val1 = datagrid2.valueMatrix(i,1);	
+							var val2 = datagrid2.valueMatrix(i,2);
+							var val3 = datagrid2.valueMatrix(i,3);
+							var val4 = datagrid2.valueMatrix(i,4);
+							
+							if(val1 == "" && (datagrid2.rowStatus(i) == 1 || datagrid2.rowStatus(i) == 2)){
+								alert("학자금을 넣어주세요.");
+								return;	
+							}
+							if(val2 == "" && (datagrid2.rowStatus(i) == 1 || datagrid2.rowStatus(i) == 2)){
+								alert("분기를 넣어주세요.");
+								return;	
+							}
+							if(val3 == "" && (datagrid2.rowStatus(i) == 1 || datagrid2.rowStatus(i) == 2)){
+								alert("시작일자를 넣어주세요.");
+								return;	
+							}
+							if(val4 == "" && (datagrid2.rowStatus(i) == 1 || datagrid2.rowStatus(i) == 2)){
+								alert("종료일자를 넣어주세요.");
+								return;	
+							}
+							
+						}						
+					}
+					*/
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}					
+					
+					model1.setValue("/root/reqData/multiUpData1", datagrid1.getUpdateData());						
+					model1.setValue("/root/reqData/multiUpData2", datagrid2.getUpdateData());						
+
+					model1.send("hd_affr_1501");
+					if(submit_completed()) {
+						model1.resetInstanceNode("/root/resData/gridData1/record");
+						model1.resetInstanceNode("/root/resData/gridData2/record");
+						model1.refresh();
+						button5.dispatch("onclick");
+						model1.refresh();
+						/*
+						model1.send("hd_affr_1502");
+						model1.copyNode("/root/resData", "/root/tempData");
+						gridrowcnt1.value = "총 "+ (parseInt(datagrid1.rows)- 1) + "건";
+						gridrowcnt2.value = "총 "+ (parseInt(datagrid2.rows)- 1) + "건";						
+						datagrid1.clearStatus();
+						datagrid2.clearStatus();
+						*/
+					}	
+					/*				
+					for(var i=1;i<datagrid1.rows;i++){
+						var val = model1.getValue("/root/resData/gridData1/record["+i+"]/fix_rate_clsf");
+						if(val == 10){
+							datagrid1.isReadOnly(i,5) = true;
+							datagrid1.isReadOnly(i,6) = true;
+							datagrid1.isReadOnly(i,7) = false;
+							datagrid1.cellstyle("background-color", i,5,i, 6) = "#c0c0c0";
+							datagrid1.cellstyle("background-color", i,7,i, 7) = "#ffffff";
+							
+						}else if(val == 20){
+							datagrid1.isReadOnly(i,5) = false;
+							datagrid1.isReadOnly(i,6) = false;
+							datagrid1.isReadOnly(i,7) = true;							
+							datagrid1.cellstyle("background-color", i,5,i, 6) = "#ffffff";
+							datagrid1.cellstyle("background-color", i,7,i, 7) = "#c0c0c0";
+						}		
+									
+					}
+					model1.refresh();					
+					*/					
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="학자금구분^시작일자^종료일자^정액/정률^지급비율(사원)^지급비율(임원)^지급액" colsep="#" colwidth="131, 126, 120, 123, 122, 142, 114" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:90px; width:926px; height:295px; text-align:center; ">
+			<col class="req" ref="scl_exps_clsf" type="combo" caption="학자금구분" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/SCL_EXPS_CLSF/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="frdt" type="inputdate" caption="시작일자" style="text-align:center; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						dayLengthChk("frdt",8,1);
+					]]>
+				</script>
+			</col>
+			<col class="req" ref="todt" type="inputdate" caption="종료일자" style="text-align:center; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						dayLengthChk("todt",8,1);
+					]]>
+				</script>
+			</col>
+			<col class="req" ref="fix_rate_clsf" type="combo" caption="정액/정률 구분" style="text-align:center; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/FIX_RATE_CLSF/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="pay_ratio_emp" type="input" format="###.#" maxlength="3" caption="지급비율(사원)" style="text-align:right; "/>
+			<col class="req" ref="pay_ratio_ofcr" type="input" format="###.#" maxlength="3" caption="지급비율(임원)" style="text-align:right; "/>
+			<col ref="pay_amt" type="input" format="##,###" caption="지급액" style="text-align:right; "/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="DOMFocusIn">
+				<![CDATA[
+					gridClick1 = true;
+					gridClick2 = false;
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(datagrid1.col == 4){
+						var val = datagrid1.valueMatrix(datagrid1.row,4);
+						if(val == 10){
+							datagrid1.isReadOnly(datagrid1.row,5) = true;
+							datagrid1.isReadOnly(datagrid1.row,6) = true;
+							datagrid1.isReadOnly(datagrid1.row,7) = false;
+							datagrid1.cellstyle("background-color", datagrid1.row,5,datagrid1.row, 6) = "#c0c0c0";
+							datagrid1.cellstyle("background-color", datagrid1.row,7,datagrid1.row, 7) = "#ffffff";
+							
+						}else{
+							datagrid1.isReadOnly(datagrid1.row,5) = false;
+							datagrid1.isReadOnly(datagrid1.row,6) = false;
+							datagrid1.isReadOnly(datagrid1.row,7) = true;							
+							datagrid1.cellstyle("background-color", datagrid1.row,5,datagrid1.row, 6) = "#ffffff";
+							datagrid1.cellstyle("background-color", datagrid1.row,7,datagrid1.row, 7) = "#c0c0c0";
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					rowStatus(datagrid1);
+				]]>
+			</script>
+		</datagrid>
+		<group id="group1" class="gro_btn" style="left:246px; top:70px; width:690px; height:17px; ">
+			<button id="button1" class="btn_grid03" style="left:637px; top:0px; width:53px; height:17px; ">
+				<caption>행입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(datagrid1.isReadOnly(1,1) == 1) {
+							datagrid1.isReadOnly(1, 1, 1, 7) = false;							
+							datagrid1.addStatus(1, "insert");							
+						}else{
+							datagrid1.addRow(true, true);
+						}
+						datagrid1.refresh();
+ 					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn_grid03" visibility="hidden" style="left:512px; top:0px; width:53px; height:17px; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						datagrid1.addStatus(datagrid1.row, "delete");
+					]]>
+				</script>
+			</button>
+			<button id="button9" class="btn_grid02" visibility="hidden" style="left:570px; top:0px; width:54px; height:17px; background-image:../../../images/btn_s_3.gif; ">
+				<caption>행취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					//cancelRow(datagrid2);
+					var firstRow = datagrid1.selectedRow(0);
+					var lastRow  = datagrid1.selectedRow(datagrid1.selectedRows-1);				
+					
+					for(var i=firstRow;i<=lastRow;i++){
+						if(datagrid1.rowStatus(i) == "1" || datagrid1.rowStatus(i) == "3"){
+							datagrid1.removeRow(i);
+							i--;
+						}else if(datagrid1.rowStatus(i) == "4"){
+							datagrid1.rowStatus(i) = "0";
+						}else{
+							datagrid1.rowStatus(i) = "0";
+						}
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<button id="button5" class="btn02" style="left:634px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.send("hd_affr_1502");
+					model1.copyNode("/root/resData", "/root/tempData");
+					model1.refresh();
+					datagrid1.clearStatus();
+					datagrid2.clearStatus();
+					gridrowcnt1.value = "총 "+ (parseInt(datagrid1.rows)- 1)+ "건";
+					gridrowcnt2.value = "총 "+ (parseInt(datagrid2.rows)- 1) + "건";
+					model1.refresh();
+					for(var i=1;i<datagrid1.rows;i++){
+						var val = model1.getValue("/root/resData/gridData1/record["+i+"]/fix_rate_clsf");
+						if(val == 10){
+							datagrid1.isReadOnly(i,5) = true;
+							datagrid1.isReadOnly(i,6) = true;
+							datagrid1.isReadOnly(i,7) = false;
+							datagrid1.cellstyle("background-color", i,5,i, 6) = "#c0c0c0";
+							datagrid1.cellstyle("background-color", i,7,i, 7) = "#ffffff";
+							
+						}else if(val == 20){
+							datagrid1.isReadOnly(i,5) = false;
+							datagrid1.isReadOnly(i,6) = false;
+							datagrid1.isReadOnly(i,7) = true;							
+							datagrid1.cellstyle("background-color", i,5,i, 6) = "#ffffff";
+							datagrid1.cellstyle("background-color", i,7,i, 7) = "#c0c0c0";
+						}					
+					}
+					
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn04" style="left:796px; top:40px; width:86px; height:21px; ">
+			<caption>엑셀업로드</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				var filename = window.fileDialog("open", ",", false, "", "xls", "Excel File(*.xls)|*.xls");			
+				if(filename!="")
+				{
+					datagrid1.loadExcel(filename);
+					datagrid1.mergeCells = "bycol";
+				}
+
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn02" style="left:886px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			      viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+			     ]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="학자금^분기^시작일자^종료일자" colsep="#" colwidth="131, 126, 120, 126" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:430px; width:525px; height:275px; ">
+			<col class="req" ref="scl_exps_clsf" type="combo" caption="학자금" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/SCL_EXPS_CLSF/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="qq" type="input" format="#" maxlength="1" caption="분기"/>
+			<col class="req" ref="bgn_mmdd" type="input" format="mm-dd" maxlength="4" caption="시작일자">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						dayLengthChk("bgn_mmdd",4,2);
+					]]>
+				</script>
+			</col>
+			<col class="req" ref="end_mmdd" type="input" format="mm-dd" maxlength="4" caption="종료일자">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						dayLengthChk("end_mmdd",4,2);
+					]]>
+				</script>
+			</col>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="DOMFocusIn">
+				<![CDATA[
+					gridClick2 = true;
+					gridClick1 = false;
+				]]>
+			</script>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					rowStatus(datagrid2);
+				]]>
+			</script>
+		</datagrid>
+		<group id="group2" class="gro_btn" style="left:150px; top:410px; width:385px; height:17px; ">
+			<button id="button7" class="btn_grid03" style="left:331px; top:0px; width:53px; height:17px; ">
+				<caption>행입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(datagrid2.isReadOnly(1,1) == 1) {
+							datagrid2.isReadOnly(1, 1, 1, 4) = false;							
+							datagrid2.addStatus(1, "insert");							
+						}else{
+							datagrid2.addRow(true, true);
+						}
+						model1.refresh();
+ 					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn_grid03" visibility="hidden" style="left:213px; top:0px; width:53px; height:17px; ">
+				<caption>행삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						datagrid2.addStatus(datagrid2.row, "delete");
+					]]>
+				</script>
+			</button>
+			<button id="button10" class="btn_grid02" visibility="hidden" style="left:270px; top:0px; width:54px; height:17px; background-image:../../../images/btn_s_3.gif; ">
+				<caption>행취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					//cancelRow(datagrid2);
+					var firstRow = datagrid2.selectedRow(0);
+					var lastRow  = datagrid2.selectedRow(datagrid2.selectedRows-1);				
+					
+					for(var i=firstRow;i<=lastRow;i++){
+						if(datagrid2.rowStatus(i) == "1" || datagrid2.rowStatus(i) == "3"){
+							datagrid2.removeRow(i);
+							i--;
+						}else if(datagrid2.rowStatus(i) == "4"){
+							datagrid2.rowStatus(i) = "0";
+						}else{
+							datagrid2.rowStatus(i) = "0";
+						}
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="caption36" class="tit02" style="left:10px; top:68px; width:139px; height:20px; font-weight:bold; ">학자금 지급 기준표</caption>
+		<caption id="caption1" class="tit02" style="left:10px; top:408px; width:139px; height:20px; font-weight:bold; ">학자금 분기 기준표</caption>
+		<caption id="gridrowcnt1" style="left:835px; top:385px; width:100px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="gridrowcnt2" style="left:435px; top:705px; width:100px; height:20px; font-weight:bold; text-align:right; "/>
+		<button id="button11" class="btn02" style="left:688px; top:40px; width:51px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (!rowDelSubmitCheck(datagrid1, datagrid2))
+						return;
+					
+					if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}					
+					
+					model1.setValue("/root/reqData/multiUpData1", datagrid1.getUpdateData());						
+					model1.setValue("/root/reqData/multiUpData2", datagrid2.getUpdateData());						
+
+					model1.send("hd_affr_1501");
+					if(submit_completed()) {
+						model1.resetInstanceNode("/root/resData/gridData1/record");
+						model1.resetInstanceNode("/root/resData/gridData2/record");
+						model1.refresh();
+						button5.dispatch("onclick");
+						model1.refresh();
+					}	
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

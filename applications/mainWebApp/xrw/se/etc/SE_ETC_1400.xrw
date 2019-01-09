@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_ETC_1400.xrw
+* 기능 : 기타관리 지국자체유가발행 보고서
+* 작성일자 : 2009-08-21
+* 작성자 : 김상옥
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>센터자체유가발행 보고서(SE_ETC_1400)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist>
+								<record>
+									<dept_cd/>
+									<dept_nm/>
+								</record>
+							</teamlist>
+							<partlist>
+								<record>
+									<dept_cd/>
+									<dept_nm/>
+								</record>
+							</partlist>
+							<arealist>
+								<record>
+									<area_cd/>
+									<area_nm/>
+								</record>
+							</arealist>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<callgb/>
+						</fwdData>
+						<searchData>
+							<searchTop>
+								<sel_radio>1</sel_radio>
+							</searchTop>
+							<searchCase>
+								<yymm/>
+								<team_cd/>
+								<part_cd/>
+								<area_cd/>
+							</searchCase>
+						</searchData>
+						<reqForm/>
+						<multiUpdate/>
+					</reqData>
+					<resData>
+						<comboSet/>
+						<resform/>
+						<gridData/>
+						<resultData/>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<btState/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_etc_1400_m" action="/se/etc/1400" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					setReady();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//초기화 Set
+				function setReady(){
+					makeTeamSearch(
+								  "se_etc_1400_m"
+								, "/se/etc/1400"
+								, ""  
+								, "/root/initData/comboSet"
+								, "team_combo"
+								, "part_combo"
+								, "area_combo"
+					);
+
+					//조건 초기화
+					model.setValue("/root/reqData/searchData/searchTop/sel_radio","1");
+
+					//기준년월
+					var yymm = model.getValue("/root/initData/yymm");
+					
+					model.setValue("/root/reqData/searchData/searchCase/yymm",yymm);
+					
+					model.setFocus("input1");
+
+					model.refresh();
+				}
+
+				//출력
+				function printProcess(){
+					var sel_radio			= model.getValue("/root/reqData/searchData/searchTop/sel_radio");
+					var sel_form			= "";
+
+					//group
+					var group_sel			= "group1";
+
+					//root
+					var root				= "/root/reqData/searchData/searchCase/";
+					var odi_root			= "/root/oz_data/odiParam/";
+
+					//필수체크
+					if(!commReqCheck(group_sel)) {
+						return;
+					}
+
+					//오즈관련 노드 초기화.
+					resetOznode();	
+
+					//오즈데이타 설정 set
+					makeNodeValue("/root/oz_data/preview","");
+					makeNodeValue("/root/oz_data/printsize","");
+
+					//session 정보 odi root set
+					makeNodeValue(odi_root+"iv_cmpy_cd",model.property("ss_cmpycd"));
+					makeNodeValue(odi_root+"iv_incmg_pers",model.property("ss_emp_no"));
+
+					//출력선택에 따라 조건 처리
+					if(sel_radio == "1"){
+						//센터별자체유가변동집계표
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+						makeNodeValue("/root/oz_data/ozrName", "se/SP_SE_ETC_1410_P");
+	
+						var iv_yymm			= model.getValue(root + "yymm");
+						var iv_team_cd			= model.getValue(root + "team_cd");
+						var iv_part_cd			= model.getValue(root + "part_cd");
+						var iv_area_cd			= model.getValue(root + "area_cd");
+
+						makeNodeValue(odi_root+"iv_yymm",iv_yymm);
+						makeNodeValue(odi_root+"iv_team_cd",iv_team_cd);
+						makeNodeValue(odi_root+"iv_part_cd",iv_part_cd);
+						makeNodeValue(odi_root+"iv_area_cd",iv_area_cd);
+
+					}else if(sel_radio == "2"){
+						//지국별자체유가집계표
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+						makeNodeValue("/root/oz_data/ozrName", "se/SP_SE_ETC_1420_P");
+	
+						var iv_yymm			= model.getValue(root + "yymm");
+						var iv_team_cd			= model.getValue(root + "team_cd");
+						var iv_part_cd			= model.getValue(root + "part_cd");
+						var iv_area_cd			= model.getValue(root + "area_cd");
+
+						makeNodeValue(odi_root+"iv_yymm",iv_yymm);
+						makeNodeValue(odi_root+"iv_team_cd",iv_team_cd);
+						makeNodeValue(odi_root+"iv_part_cd",iv_part_cd);
+						makeNodeValue(odi_root+"iv_area_cd",iv_area_cd);
+
+					}else if(sel_radio == "3"){
+						//시도별평균유료부수
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+						makeNodeValue("/root/oz_data/ozrName", "se/SP_SE_ETC_1430_P");
+	
+						var iv_yymm			= model.getValue(root + "yymm");
+
+						makeNodeValue(odi_root+"iv_yymm",iv_yymm);
+
+					}else if(sel_radio == "4"){
+						//지역별독자부수변동집계표
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+						makeNodeValue("/root/oz_data/ozrName", "se/SP_SE_ETC_1440_P");
+	
+						var iv_yymm			= model.getValue(root + "yymm");
+						var iv_team_cd			= model.getValue(root + "team_cd");
+						var iv_part_cd			= model.getValue(root + "part_cd");
+						var iv_area_cd			= model.getValue(root + "area_cd");
+						
+						makeNodeValue(odi_root+"iv_yymm",iv_yymm);						
+						makeNodeValue(odi_root+"iv_team_cd",iv_team_cd);
+						makeNodeValue(odi_root+"iv_part_cd",iv_part_cd);
+						makeNodeValue(odi_root+"iv_area_cd",iv_area_cd);
+					}
+
+					//connect parameter
+					makeNodeValue("/root/oz_data/conParam/sv_url","");
+					makeNodeValue("/root/oz_data/conParam/sv_uid");	
+					makeNodeValue("/root/oz_data/conParam/sv_bonm");
+					makeNodeValue("/root/oz_data/conParam/uv_line");
+					makeNodeValue("/root/oz_data/conParam/uv_summary");
+	
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;2,65;2,70;1,936;2,755;" style="font-family:굴림; vertical-align:top; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnPrint" class="btn03" crud="R" style="left:791px; top:45px; width:63px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					printProcess();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:860px; top:45px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<caption id="caption138" class="tit02" style="left:10px; top:70px; width:235px; height:20px; ">출력물 선택</caption>
+		<caption id="caption139" class="tit02" style="left:270px; top:70px; width:235px; height:20px; ">검색조건</caption>
+		<group id="group_list" class="gro_tab2" style="left:10px; top:95px; width:250px; height:660px; ">
+			<select1 id="radiosel" ref="/root/reqData/searchData/searchTop/sel_radio" appearance="full" itemheight="30" overflow="visible" style="left:10px; top:9px; width:230px; height:489px; border-style:none; ">
+				<choices>
+					<item>
+						<label>센터별독자부수변동집계표</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>지역별독자부수변동집계표</label>
+						<value>4</value>
+					</item>
+					<item>
+						<label>지역별독자부수집계표</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>시도별평균유료부수</label>
+						<value>3</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var index	= 	parseInt(model.getValue("/root/reqData/searchData/searchTop/sel_radio"));
+						//var index = radiosel.focusIndex;
+
+						if(index == 1 || index == 2 || index == 4){
+							caption46.visible = true;
+							caption47.visible = true;
+							caption6.visible = true;
+							caption21.visible = true;
+							team_combo.visible = true;
+							part_combo.visible = true;
+							area_combo.visible = true;
+						}else if(index == 3){
+							caption46.visible = false;
+							caption47.visible = false;
+							caption6.visible = false;
+							caption21.visible = false;
+							team_combo.visible = false;
+							part_combo.visible = false;
+							area_combo.visible = false;
+						}
+						
+						model.setFocus("input1");
+					]]>
+				</script>
+			</select1>
+		</group>
+		<switch id="switch1" style="left:270px; top:95px; width:666px; height:275px; ">
+			<case id="case1" selected="true">
+				<group id="group1" style="left:10px; top:10px; width:645px; height:250px; ">
+					<caption id="caption4" class="list_cap02" style="left:0px; top:0px; width:645px; height:26px; "/>
+					<caption id="caption5" class="list_cap03" style="left:0px; top:0px; width:70px; height:26px; ">기준년월</caption>
+					<caption id="caption46" class="list_cap02" style="left:0px; top:25px; width:645px; height:26px; "/>
+					<caption id="caption47" class="list_cap03" style="left:0px; top:25px; width:70px; height:26px; ">팀</caption>
+					<caption id="caption6" class="list_cap03" style="left:215px; top:25px; width:70px; height:26px; ">파트/지사</caption>
+					<caption id="caption21" class="list_cap03" style="left:430px; top:25px; width:70px; height:26px; ">지역</caption>
+					<input id="input1" ref="/root/reqData/searchData/searchCase/yymm" class="req" inputtype="date" format="yyyy-mm" caption="기준년월" style="left:73px; top:4px; width:100px; height:18px; text-align:left; "/>
+					<select1 id="team_combo" ref="/root/reqData/searchData/searchCase/team_cd" appearance="minimal" style="left:73px; top:29px; width:110px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/teamlist/record">
+								<label ref="dept_nm"/>
+								<value ref="dept_cd"/>
+							</itemset>
+						</choices>
+					</select1>
+					<select1 id="part_combo" ref="/root/reqData/searchData/searchCase/part_cd" appearance="minimal" style="left:288px; top:29px; width:110px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/partlist/record">
+								<label ref="dept_nm"/>
+								<value ref="dept_cd"/>
+							</itemset>
+						</choices>
+					</select1>
+					<select1 id="area_combo" ref="/root/reqData/searchData/searchCase/area_cd" appearance="minimal" style="left:503px; top:29px; width:110px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/arealist/record">
+								<label ref="area_nm"/>
+								<value ref="area_cd"/>
+							</itemset>
+						</choices>
+					</select1>
+				</group>
+			</case>
+		</switch>
+	</xhtml:body>
+</xhtml:html>

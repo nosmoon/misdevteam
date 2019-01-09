@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<ADCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</ADCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<isleaf_search_form>
+								<applySession/>
+								<compnm/>
+								<pageno/>
+								<deptcd/>
+								<pagesize/>
+								<common_deptcd/>
+								<bolist/>
+								<common_areacd/>
+								<advtmain/>
+								<todt/>
+								<js_fn_nm/>
+								<areacd/>
+								<frdt/>
+								<bocd/>
+								<partcd/>
+								<common_partcd/>
+								<sel_advtlist/>
+							</isleaf_search_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<deptnm/>
+									<areanm/>
+									<bonm/>
+									<feeddt/>
+									<advtmain/>
+									<advtnm/>
+									<std/>
+									<qunt/>
+									<uprc/>
+									<amt/>
+									<compnm/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID2150search" action="/ss/brsup/2160" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/isleaf_search_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				commEventHandler(PID2150group_scr);
+				
+				makeTeamSearch("getTeamInit", "/ss/brsup/2150", "", "/root/initData/comboSet/codeData", "cmbCommonTeamN", "cmbCommonPartN", "cmbCommonAreaN");
+				//makeTeamEvent("getAreaList", "/ss/common/1190", "/root/reqData/reqform/isleaf_search_form", "/root/initData/comboSet/codeData", "cmbCommonTeamN", "cmbCommonAreaN", "preActionTeam();");
+				
+				model.setValue("/root/reqData/reqform/isleaf_search_form/pageno", "1");
+				model.setValue("/root/reqData/reqform/isleaf_search_form/js_fn_nm", "page_move");
+				//model.setValue("/root/reqData/reqform/isleaf_search_form/pagesize", "20");
+				model.setValue("/root/reqData/reqform/isleaf_search_form/pagesize", "5000");
+				
+				modelCopyValue("/root/reqData/reqform/isleaf_search_form/applySession",	"/root/initData/comboSet/codeData/applySession");
+				modelCopyValue("/root/reqData/reqform/isleaf_search_form/frdt",	"/root/initData/comboSet/codeData/defaultDate");
+				modelCopyValue("/root/reqData/reqform/isleaf_search_form/todt",	"/root/initData/comboSet/codeData/defaultDate");
+				
+				PID2150combo1.disabled = true;
+				model.refresh();
+			}
+			
+			function search(flag)
+			{
+				remakeNode("/root/tempData/resTemp");
+											
+				model.send("PID2150search", false);
+				
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+
+				PID2150caption6.value= "조선IS:  " + model.getValue("/root/tempData/resTemp/IstotalCount") + " 건" + model.getValue("/root/tempData/resTemp/IstotalAmt") + " 원";
+				PID2150caption9.value= "조선AD " + model.getValue("/root/tempData/resTemp/AdtotalCount") + " 건" + model.getValue("/root/tempData/resTemp/AdtotalAmt") + " 원";
+				PID2150caption10.value= "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + " 건" + model.getValue("/root/tempData/resTemp/totalAmt") + " 원";
+							 	
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/feeddt").length == 0)
+					model.alert("검색결과가 없습니다.");
+				
+				PID2150combo1.disabled = false;
+				
+				if( flag != "1") 
+				{
+					model.copyNode("/root/initData/comboSet/ADCombo","/root/tempData/resTemp/ADCombo");
+					PID2150combo1.select(0);
+				}
+				
+				model.refresh();
+								
+				model.removenode("/root/tempData/resTemp");
+				
+				PID2150datagrid1.rebuild();
+			}
+			
+			function selectSearch()
+			{
+				model.setValue("/root/reqData/reqform/isleaf_search_form/advtmain", model.getValue("/root/reqData/reqform/isleaf_search_form/sel_advtlist"));
+				PID2150input3.refresh();
+				
+				search(1);
+			}
+			
+			function compnm_search(cmp)
+			{
+				model.setValue("/root/reqData/reqform/isleaf_search_form/compnm", cmp);
+				search(1);
+			}
+			
+			function preActionTeam()
+			{				
+				modelCopyValue("/root/reqData/reqform/isleaf_search_form/common_deptcd", "/root/reqData/reqform/isleaf_search_form/deptcd");
+				//search();
+			}
+			
+			function onChangeArea()
+			{
+				if(cmbCommonAreaN.value == "")
+				{
+					clearSelectCombo(cmbCommonmBranchN, "전체", "", false);
+					PID2150group_scr.refresh();
+					cmbCommonmBranchN.select(0);
+				
+					//initSub();
+					return;
+				}
+				
+				modelSendNoMake("getBranchList", "/ss/common/1116", "/root/reqData/reqform/isleaf_search_form", "/root/initData/comboSet/codeData/codelist");
+				cmbCommonmBranchN.refresh();
+				cmbCommonmBranchN.select(0);
+				
+				//search();
+				//initSub();
+			}
+						
+			function initSub()
+			{
+				//화면 reset.
+			}	
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID2150" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID2150group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:50px; ">
+			<group id="grpCommonSelectN" class="gro_sel" style="left:0px; top:0px; width:592px; height:25px; ">
+				<caption id="capCommonTeamN" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">팀</caption>
+				<caption id="capCommonTeamNB" class="list_cap02" style="left:49px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonTeamN" ref="/root/reqData/reqform/isleaf_search_form/deptcd" class="req_100" appearance="minimal" style="left:54px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/teamlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[				
+						//search();
+					]]>
+					</script>
+				</select1>
+				<caption id="capCommonPartN" class="list_cap01" style="left:158px; top:0px; width:50px; height:25px; ">파트</caption>
+				<caption id="capCommonPartNB" class="list_cap02" style="left:207px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonPartN" ref="/root/reqData/reqform/isleaf_search_form/partcd" class="req_100" appearance="minimal" style="left:212px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/partlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[				
+						search();
+					]]>
+					</script>
+				</select1>
+				<caption id="capCommonAreaN" class="list_cap01" style="left:316px; top:0px; width:50px; height:25px; ">지역</caption>
+				<caption id="capCommonAreaNB" class="list_cap02" style="left:365px; top:0px; width:70px; height:25px; "/>
+				<select1 id="cmbCommonAreaN" ref="/root/reqData/reqform/isleaf_search_form/areacd" class="req_60" appearance="minimal" style="left:369px; top:3px; width:60px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/arealist/record">
+							<label ref="area_nm"/>
+							<value ref="area_cd"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						onChangeArea();
+						]]>
+					</script>
+				</select1>
+				<caption id="capCommonmBranchN" class="list_cap01" style="left:434px; top:0px; width:50px; height:25px; ">지국</caption>
+				<caption id="capCommonmBranchNB" class="list_cap02" style="left:483px; top:0px; width:109px; height:25px; "/>
+				<select1 id="cmbCommonmBranchN" ref="/root/reqData/reqform/isleaf_search_form/bocd" class="req_100" appearance="minimal" style="left:488px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/codelist/record">
+							<label ref="cdnm"/>
+							<value ref="cd"/>
+						</itemset>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[				
+						search();
+					]]>
+					</script>
+				</select1>
+			</group>
+			<caption id="PID2150caption1" class="list_cap01" style="left:0px; top:24px; width:60px; height:25px; ">배포일자</caption>
+			<caption id="PID2150caption3" class="list_cap02" style="left:59px; top:24px; width:258px; height:25px; "/>
+			<caption id="PID2150caption2" class="list_cap02" style="left:591px; top:0px; width:335px; height:25px; "/>
+			<caption id="PID2150caption4" class="list_cap01" style="left:316px; top:24px; width:60px; height:25px; ">광고업체</caption>
+			<caption id="PID2150caption5" class="list_cap02" style="left:591px; top:24px; width:335px; height:25px; "/>
+			<input id="PID2150input1" ref="/root/reqData/reqform/isleaf_search_form/frdt" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID2150input2" style="left:65px; top:28px; width:100px; height:18px; "/>
+			<input id="PID2150input2" ref="/root/reqData/reqform/isleaf_search_form/todt" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="종료일자" setHandler="true" relid="PID2150input1" style="left:185px; top:28px; width:100px; height:18px; "/>
+			<caption id="PID2150caption7" style="left:168px; top:30px; width:15px; height:20px; text-align:center; ">-</caption>
+			<caption id="PID2150caption8" class="list_cap02" style="left:374px; top:24px; width:218px; height:25px; "/>
+			<select1 id="PID2150combo1" ref="/root/reqData/reqform/isleaf_search_form/sel_advtlist" appearance="minimal" style="left:378px; top:28px; width:210px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/ADCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						selectSearch();
+					]]>
+				</script>
+			</select1>
+			<input id="PID2150input3" ref="/root/reqData/reqform/isleaf_search_form/advtmain" style="left:595px; top:28px; width:210px; height:18px; "/>
+		</group>
+		<group id="PID2150group_line" class="gro_line" style="left:10px; top:135px; width:926px; height:5px; "/>
+		<datagrid id="PID2150datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="팀^파트^지역^지국^배포일자^광고업체^규격^부수^단가^금액^금액" colsep="^" colwidth="80, 80, 70, 80, 80, 225, 55, 59, 56, 59, 60" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:145px; width:926px; height:575px; ">
+			<col ref="deptnm" style="text-align:left; "/>
+			<col ref="partnm" style="text-align:left; "/>
+			<col ref="areanm" style="text-align:left; "/>
+			<col ref="bonm" style="text-align:left; "/>
+			<col ref="feeddt" format="yyyy-mm-dd"/>
+			<col ref="advtmain" style="text-align:left; "/>
+			<col ref="std" style="text-align:left; "/>
+			<col ref="qunt" format="#,###"/>
+			<col ref="uprc" format="#,###"/>
+			<col ref="amt" format="#,###"/>
+			<col ref="compnm"/>
+		</datagrid>
+		<!--<group id="PID2150group9" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID2150paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<group id="PID2150group1" style="left:10px; top:720px; width:926px; height:25px; ">
+			<caption id="PID2150caption6" style="left:370px; top:5px; width:195px; height:20px; text-align:right; ">
+				<![CDATA[조선 IS 건]]>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						compnm_search("IS");
+					]]>
+				</script>
+			</caption>
+			<caption id="PID2150caption9" style="left:570px; top:5px; width:185px; height:20px; text-align:right; ">
+				<![CDATA[조일애드 건]]>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						compnm_search("AD");
+					]]>
+				</script>
+			</caption>
+			<caption id="PID2150caption10" style="left:760px; top:5px; width:165px; height:20px; text-align:right; ">
+				<![CDATA[총건수 건]]>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						compnm_search("");
+					]]>
+				</script>
+			</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,528 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+						<gs_request>N</gs_request>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<list_form>
+								<mediser_no_to/>
+								<sendday/>
+								<pageno/>
+								<deptcd/>
+								<pagesize/>
+								<senddt/>
+								<common_deptcd/>
+								<js_fn_nm/>
+								<areacd/>
+								<sendyymmdd/>
+								<medicd/>
+								<corrbonm/>
+								<corrbocd/>
+								<mediser_no_fr/>
+								<partcd/>
+								<bonm/>
+							</list_form>
+							<detail_form>
+								<mediser_no/>
+								<js_fn_nm/>
+								<medicd/>
+								<bocd/>
+								<pageno/>
+								<pagesize/>
+							</detail_form>
+							<sub_form>
+								<pageno/>
+								<pagesize/>
+								<js_fn_nm/>
+								<mediser_no/>
+								<medicd/>
+								<bocd/>
+							</sub_form>
+							<bo_enter_search_form>
+								<deptcd/>
+								<areacd/>
+								<bonm/>
+							</bo_enter_search_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<hbiscnm/>
+									<bhnscd/>
+									<deptcd/>
+									<deptnm/>
+									<areacd/>
+									<areanm/>
+									<bocd/>
+									<bonm/>
+									<medicd/>
+									<medinm/>
+									<mediser_no/>
+									<sendqty/>
+									<sendresvqty/>
+								</record>
+							</listGrid>
+							<detailGrid>
+								<record>
+									<rdr_no/>
+									<medicd/>
+									<termsubsno/>
+									<rdr_nonm/>
+									<acqnm/>
+									<medicdnm/>
+									<telno/>
+									<addr/>
+									<sendseq/>
+									<bocd/>
+									<bocdnm/>
+									<senddt/>
+									<sendtype/>
+									<sendtypenm/>
+									<mediser_no/>
+									<sendmthdcd/>
+									<sendkindcd/>
+									<acq_bocd/>
+									<dstccd/>
+									<dlvno/>
+									<memo/>
+									<rnum/>
+								</record>
+							</detailGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1900search" action="/ss/brmgr/1906" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/list_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1900detailSearch" action="/ss/brmgr/1911" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/detail_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1900excel" action="/ss/brmgr/1921" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/list_form" resultref="/root/tempData/resTemp"/>
+			<!--인쇄는 공통 모듈 처리-->
+			<!--submission id="PID1900listPrint" action="/ss/brmgr/1916" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/list_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1900detailPrint" action="/ss/brmgr/1931" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/detail_form" resultref="/root/tempData/resTemp"/-->
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					commEventHandler(PID1900group_scr);
+					
+					makeTeamSearch("getTeamInit", "/ss/brmgr/1900", "", "/root/initData/comboSet/codeData", "cmbCommonTeamQ", "cmbCommonPartQ", "cmbCommonAreaQ");					
+
+					makeTeamEvent("getAreaList", "/ss/common/1100", "/root/reqData/reqform/list_form", "/root/initData/comboSet/codeData", "cmbCommonTeamQ", "cmbCommonAreaQ", "preActionTeam();");				
+					//reset을 위해 데이터를 복사해 놓는다.
+					model.copyNode("/root/initData/defaultData", "/root/initData/comboSet/codeData");
+					//model.setValue("/root/reqData/reqform/list_form/pagesize", "5");
+					model.setValue("/root/reqData/reqform/list_form/pagesize", "5000");
+					model.setValue("/root/reqData/reqform/list_form/pageno", "1");
+								
+					modelCopyValue("/root/reqData/reqform/list_form/sendyymmdd", "/root/initData/comboSet/codeData/defaultWeekDate");
+					modelCopyValue("/root/reqData/reqform/list_form/sendday", "/root/initData/comboSet/codeData/defaultWeekDay");
+					modelCopyValue("/root/reqData/reqform/list_form/mediser_no_fr", "/root/initData/comboSet/codeData/mediCombo/item/value");
+					modelCopyValue("/root/reqData/reqform/list_form/mediser_no_to", "/root/initData/comboSet/codeData/mediCombo/item/value");
+					
+					model.refresh();
+					PID1900combo1.select(0);													
+				}
+				
+				function search()
+				{
+					if( model.getValue("/root/reqData/reqform/list_form/senddt") == "" && (model.getValue("/root/reqData/reqform/list_form/mediser_no_fr") == "" || model.getValue("/root/reqData/reqform/list_form/mediser_no_to")=="")){
+						alert("매체호수나 기준년월 둘 중 하나는 필수입니다.");
+						return;
+					}
+    
+					if(!commValidate("PID1900group_scr"))
+					return;
+					
+					remakeNode("/root/tempData/resTemp");
+					
+					model.send("PID1900search", false);
+					
+					if(!submit_completed())
+						return;
+						
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+							 	
+					//PID1100caption4.value= "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + " 건";
+					//model.setValue("/root/resData/gridData/totalcnt", model.getValue("/root/tempData/resTemp/totalCount"));
+					
+				 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/medicd").length == 0)
+						model.alert("검색결과가 없습니다.");
+														
+					model.removenode("/root/tempData/resTemp");
+					
+					PID1900datagrid1.rebuild();
+				}
+				
+				//기존의 bo_list_search
+				function searchWithBranch()
+				{
+					model.setValue("/root/initData/gs_request", "L");
+					
+					if(iptCommonmBranchQ.value == "")
+					{
+						model.setValue("/root/reqData/reqform/list_form/corrbocd", "");
+						model.setValue("/root/initData/gs_request", "N");
+						search();
+					}
+					else
+					{
+						modelCopyValue("/root/reqData/reqform/list_form/common_deptcd", "/root/reqData/reqform/list_form/deptcd");
+						model.setValue("/root/reqData/reqform/list_form/bonm", model.getValue("/root/reqData/reqform/list_form/corrbonm")); // bonm 으로 copy
+						searchBranchByName("/root/reqData/reqform/list_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+					}
+				}
+				
+				function gridClick()
+				{
+					
+					if(PID1900datagrid1.textMatrix(PID1900datagrid1.row, PID1900datagrid1.colRef("medicd")) == "")
+						return;
+					
+					remakeNode("/root/tempData/resTemp");
+					
+					model.setValue("/root/reqData/reqform/detail_form/pagesize", "5000");
+					model.setValue("/root/reqData/reqform/detail_form/pageno", "1");
+					model.setValue("/root/reqData/reqform/detail_form/bocd", PID1900datagrid1.textMatrix(PID1900datagrid1.row, PID1900datagrid1.colRef("bocd")));
+					model.setValue("/root/reqData/reqform/detail_form/medicd", PID1900datagrid1.textMatrix(PID1900datagrid1.row, PID1900datagrid1.colRef("medicd")));
+					model.setValue("/root/reqData/reqform/detail_form/mediser_no", PID1900datagrid1.textMatrix(PID1900datagrid1.row, PID1900datagrid1.colRef("mediser_no")));
+
+					model.send("PID1900detailSearch", false);
+					
+					if(!submit_completed())
+						return;
+						
+					model.copyNode("/root/resData/gridData/detailGrid", "/root/tempData/resTemp/detailGrid");
+							 					
+				 	if(instance1.selectNodes("/root/resData/gridData/detailGrid/record/rdr_no").length == 0)
+						model.alert("상세 검색결과가 없습니다.");
+														
+					model.removenode("/root/tempData/resTemp");
+					
+					PID1900datagrid2.refresh();
+				}
+				
+				function excel()
+				{
+					if( model.getValue("/root/reqData/reqform/list_form/senddt") == "" && (model.getValue("/root/reqData/reqform/list_form/mediser_no_fr") == "" || model.getValue("/root/reqData/reqform/list_form/mediser_no_to")=="")){
+						alert("매체호수나 기준년월 둘 중 하나는 필수입니다.");
+						return;
+					}
+    
+					if(!commValidate("PID1900group_scr"))
+						return;
+									
+					model.send("PID1900excel", false);
+					
+					if(!submit_completed())
+						return;					
+				}
+				
+				function print_list()
+				{
+					if( model.getValue("/root/reqData/reqform/list_form/senddt") == ""){
+						alert("기준년월은 필수 항목 입니다.");
+						return;
+					}
+					
+					callServletPage("/ss/brmgr/1916", "/root/reqData/reqform/list_form");
+					
+					/*if(!commValidate("PID1900group_scr"))
+						return;
+									
+					model.send("PID1900listPrint", false);
+					
+					if(!submit_completed())
+						return;*/
+				}
+				
+				function print()
+				{
+					if(!commValidate("PID1900group_scr"))
+						return;
+						
+					callServletPage("/ss/brmgr/1931", "/root/reqData/reqform/detail_form");
+									
+					/*model.send("PID1900detailPrint", false);
+					
+					if(!submit_completed())
+						return;*/
+				}
+				
+				function preActionTeam()
+				{
+					modelCopyValue("/root/reqData/reqform/list_form/common_deptcd", "/root/reqData/reqform/list_form/deptcd");
+				}		
+			
+				function onClickBranchPopup()
+				{
+					model.setValue("/root/reqData/reqform/list_form/bonm", model.getValue("/root/reqData/reqform/list_form/corrbonm")); // bonm 으로 copy
+					openBranch("/root/reqData/reqform/list_form", "/root/tempData/tempBranch");
+					
+					if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+						return;
+
+					//cmbCommonTeamQ.value = model.getValue("/root/tempData/tempBranch/deptcd");
+
+					iptCommonmBranchQ.value = model.getValue("/root/tempData/tempBranch/bonm");
+					modelCopyValue("/root/reqData/reqform/list_form/corrbocd", "/root/tempData/tempBranch/bocd");
+					
+					//search();					
+					if(model.getValue("/root/initData/gs_request") == "L")
+					{
+						model.setValue("/root/initData/gs_request", "N");
+						search();
+					}
+				}
+				
+				function onKeyDown()
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnSearchBranchQ");
+		
+						if(iptCommonmBranchQ.value == '')
+							onClickBranchPopup();
+						 else
+						{
+							modelCopyValue("/root/reqData/reqform/list_form/common_deptcd", "/root/reqData/reqform/list_form/deptcd");
+							model.setValue("/root/reqData/reqform/list_form/bonm", model.getValue("/root/reqData/reqform/list_form/corrbonm")); // bonm 으로 copy
+							searchBranchByName("/root/reqData/reqform/list_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+						}
+					}
+				}
+									
+				//지국 enter key 검색 시 callback 함수. onKeyDown
+				function searchBranchCallBack()
+				{
+					//검색 후처리.
+					if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+					{
+						iptCommonmBranchQ.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+						modelCopyValue("/root/reqData/reqform/list_form/corrbocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+					}
+					else
+					{
+						onClickBranchPopup();
+					}
+				}
+				
+				function set_default(flag)
+				{
+					if(flag == '1') {			// 부서(팀),지역,지국 초기화
+						// 부서(팀) 초기화
+						//model.copyNode("/root/initData/comboSet/codeData/teamlist", "/root/initData/defaultData/teamlist");
+						cmbCommonTeamQ.select(0);		//event 등록으로 인해 team을 첫번째로 선택하면 area 역시 reset.
+						
+						// 지역 초기화
+						//model.copyNode("/root/initData/comboSet/codeData/arealist", "/root/initData/defaultData/arealist");
+						
+						// 지국코드,지국명 초기화, 포커스이동
+						model.setValue("/root/reqData/reqform/list_form/corrbocd", "");
+						iptCommonmBranchQ.value = "";
+						model.setFocus("iptCommonmBranchQ");
+						
+					} else if(flag == '2') {		// 기간 초기화
+					} else if(flag == '3') {		// 기타 초기화
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1900" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" crud="R" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//search();
+						searchWithBranch();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1900group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:49px; ">
+			<caption id="PID1900caption18" class="list_cap02" style="left:695px; top:24px; width:231px; height:25px; "/>
+			<caption id="PID1900caption14" class="list_cap01" style="left:199px; top:0px; width:65px; height:25px; text-align:left; ">매체호수</caption>
+			<caption id="PID1900caption15" class="list_cap01" style="left:0px; top:0px; width:60px; height:25px; text-align:left; ">매체종류</caption>
+			<caption id="PID1900caption20" class="list_cap02" style="left:59px; top:0px; width:141px; height:25px; "/>
+			<caption id="PID1900caption8" class="list_cap01" style="left:596px; top:0px; width:100px; height:25px; text-align:left; ">기준년월</caption>
+			<caption id="PID1900caption1" class="list_cap02" style="left:263px; top:0px; width:334px; height:25px; "/>
+			<caption id="PID1900caption5" class="list_cap02" style="left:695px; top:0px; width:231px; height:25px; "/>
+			<select1 id="PID1900combo1" ref="/root/reqData/reqform/list_form/medicd" appearance="minimal" style="left:63px; top:4px; width:120px; height:18px; ">
+				<choices>
+					<item>
+						<label>주간조선</label>
+						<value>210</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="PID1900caption10" class="list_cap02" style="left:59px; top:24px; width:141px; height:25px; "/>
+			<caption id="PID1900caption17" class="list_cap02" style="left:482px; top:24px; width:115px; height:25px; "/>
+			<select1 id="cmbCommonTeamQ" ref="/root/reqData/reqform/list_form/deptcd" appearance="minimal" style="left:63px; top:28px; width:120px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/codeData/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="cmbCommonAreaQ" ref="/root/reqData/reqform/list_form/areacd" appearance="minimal" style="left:486px; top:28px; width:85px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/codeData/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="PID1900caption19" class="list_cap01" style="left:418px; top:24px; width:65px; height:25px; text-align:left; ">지역</caption>
+			<caption id="PID1900caption21" class="list_cap01" style="left:0px; top:24px; width:60px; height:25px; text-align:left; ">팀</caption>
+			<caption id="PID1900caption22" class="list_cap01" style="left:596px; top:24px; width:100px; height:25px; text-align:left; ">지국</caption>
+			<input id="PID1900input8" ref="/root/reqData/reqform/list_form/mediser_no_fr" format="###" style="left:267px; top:4px; width:60px; height:18px; "/>
+			<input id="PID1900input9" ref="/root/reqData/reqform/list_form/mediser_no_to" format="###" style="left:346px; top:4px; width:60px; height:18px; "/>
+			<input id="PID1900input10" ref="/root/reqData/reqform/list_form/senddt" inputtype="date" format="yyyy-mm" dataType="month" caption="기준년월" setHandler="true" style="left:699px; top:4px; width:80px; height:18px; "/>
+			<input id="iptCommonmBranchQ" ref="/root/reqData/reqform/list_form/corrbonm" style="left:699px; top:28px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						onKeyDown();				
+					]]>
+				</script>
+			</input>
+			<caption id="PID1900caption27" style="left:329px; top:4px; width:15px; height:20px; text-align:center; ">-</caption>
+			<button id="PID1900button3" class="btn05" style="left:803px; top:27px; width:40px; height:18px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						onClickBranchPopup();				
+					]]>
+				</script>
+			</button>
+			<button id="btnResetBranchQ" class="btn05" style="left:848px; top:27px; width:20px; height:18px; ">
+				<caption>-</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						set_default("1");				
+					]]>
+				</script>
+			</button>
+			<caption id="PID1900caption6" class="list_cap01" style="left:199px; top:24px; width:65px; height:25px; text-align:left; ">파트</caption>
+			<caption id="PID1900caption7" class="list_cap02" style="left:263px; top:24px; width:156px; height:25px; "/>
+			<select1 id="cmbCommonPartQ" ref="/root/reqData/reqform/list_form/partcd" appearance="minimal" style="left:267px; top:28px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/codeData/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="PID1900group1" style="left:10px; top:455px; width:926px; height:25px; ">
+			<caption id="PID1900caption45" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">발송방법별 상세</caption>
+			<button id="PID1900button2" class="btn_grid02" style="left:878px; top:4px; width:42px; height:17px; ">
+				<caption>인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						print();				
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1900group3" style="left:10px; top:130px; width:926px; height:25px; ">
+			<caption id="PID1900caption57" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">발송정보</caption>
+			<button id="PID1900button7" class="btn_grid03" style="left:823px; top:4px; width:53px; height:17px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						excel();				
+					]]>
+				</script>
+			</button>
+			<button id="PID1900button1" class="btn_grid02" style="left:879px; top:4px; width:42px; height:17px; ">
+				<caption>인쇄</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						print_list();				
+					]]>
+				</script>
+			</button>
+			<input id="PID1900input1" ref="/root/reqData/reqform/list_form/sendyymmdd" inputtype="date" format="yyyy-mm-dd" style="left:620px; top:4px; width:100px; height:18px; "/>
+			<caption id="PID1900caption2" ref="/root/reqData/reqform/list_form/sendday" style="left:727px; top:4px; width:63px; height:20px; ">요일</caption>
+			<!--caption id="PID1900caption3" style="left:480px; top:4px; width:134px; height:18px; text-align:right; ">총건수 건</caption-->
+		</group>
+		<datagrid id="PID1900datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="인쇄처^노선^팀^파트^지역^지국^호수^발송부수^예비지" colsep="^" colwidth="110, 110, 99, 98, 98, 100, 99, 90, 100, 0, 0" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:160px; width:926px; height:290px; ">
+			<col ref="hbiscnm"/>
+			<col ref="bhnscd"/>
+			<col ref="deptnm"/>
+			<col ref="partnm"/>
+			<col ref="areanm" style="text-align:center; "/>
+			<col ref="bonm" style="text-align:center; "/>
+			<col ref="mediser_no" style="text-align:center; "/>
+			<col ref="sendqty" format="#,###" style="text-align:right; "/>
+			<col ref="sendresvqty" format="#,###" style="text-align:right; "/>
+			<col ref="bocd" visibility="hidden"/>
+			<col ref="medicd" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID1900datagrid1.mouseCol>PID1900datagrid1.fixedCols-1 && PID1900datagrid1.mouseRow>PID1900datagrid1.fixedRows-1)
+				       {
+						gridClick();
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="PID1900datagrid2" nodeset="/root/resData/gridData/detailGrid/record" caption="독자번호^독자성명^전화번호^주소^발송종류" colsep="^" colwidth="120, 100, 110, 474, 100" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:485px; width:926px; height:255px; ">
+			<col ref="rdr_no_detail"/>
+			<col ref="acqnm"/>
+			<col ref="telno"/>
+			<col ref="addr"/>
+			<col ref="sendtypenm"/>
+		</datagrid>
+		<!--<group id="PID1900group2" style="left:10px; top:650px; width:926px; height:25px; ">
+			<iviewer id="PID1900paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<!--<group id="PID1900group4" style="left:10px; top:420px; width:926px; height:25px; ">
+			<iviewer id="PID1900iviewer1" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+	</xhtml:body>
+</xhtml:html>

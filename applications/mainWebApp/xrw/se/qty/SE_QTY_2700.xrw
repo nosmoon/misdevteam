@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터 -->
+						<session/>
+						<!-- 서버의 세션 정보 -->
+						<comboSet>
+							<dept_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</dept_cd>
+							<area_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</area_cd>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+							<!-- 전체용. -->
+							<medi_cd1>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd1>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo/>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영시 사용(화면ID등) -->
+					</initData>
+					<reqData>
+						<!-- 서버에 전달하고자 하는 데이터 (submit시 처리) -->
+						<fwdData/>
+						<!-- popup등의 페이지전환시 데이타 입출력에 사용 -->
+						<searchData>
+							<gubun/>
+							<medi_cd/>
+							<medi_cd1/>
+							<issu_dt1/>
+							<issu_dt2/>
+							<yymm/>
+							<spsl_gubun/>
+							<issu_dt/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqform>
+						</reqform>
+						<!-- 입력처리 formData 복수사용시 하위노드로 1,2,3으로 정의-->
+						<!-- Grid의 MultiUpDate유형 사용시 처리 -->
+					</reqData>
+					<resData>
+						<!-- 서버로부터 전달 받은 데이터 (submit의 결과) -->
+						<resform/>
+						<!-- (submit의 결과) formData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<gridData/>
+						<!-- (submit의 결과) gridData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<MsgData/>
+						<!-- (submit의 결과) 전달 받은 MsgData -->
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<keyData/>
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+					<!-- 저장소 -->
+				</root>
+			</instance>
+			<submission id="se_qty_2700_m" action="/se/qty/2700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("se_qty_2700_m");	
+					
+					model.setValue("/root/reqData/searchData/gubun", "1");
+
+					makeComboGubun("A", "/root/initData/comboSet/medi_cd1", "item", "label", "value");
+
+					model.setValue("/root/reqData/searchData/issu_dt", getCurrentDate());
+					model.setValue("/root/reqData/searchData/issu_dt1", getCurrentDate());
+					model.setValue("/root/reqData/searchData/issu_dt2", dateAdd('d', 3, getCurrentDate()));
+					model.setValue("/root/reqData/searchData/yymm", getCurrentMonth());
+					cbo_medi_cd.select(0);
+					cbo_spsl_gubun.select(0);
+				
+					//초기 옵션선택
+					group1.attribute("visibility") = "hidden";
+					group2.attribute("visibility") = "visible";
+					group3.attribute("visibility") = "hidden";
+					group4.attribute("visibility") = "hidden";
+					group5.attribute("visibility") = "hidden";
+					group6.attribute("visibility") = "visible";
+					group7.attribute("visibility") = "hidden";
+						
+					model.refresh();
+					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function goReport(gubun){
+					var report			= new Array(	  "SP_SE_QTY_2710_P"
+													, "SP_SE_QTY_2720_P"
+													, "SP_SE_QTY_2730_P"
+													, "SP_SE_QTY_2740_P"
+													, "SP_SE_QTY_1940_P");
+													
+					var report_gubun		= model.getValue("/root/reqData/searchData/gubun");
+					var report_index		= parseInt(report_gubun) - 1;							
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "se/" + report[report_index]);	
+					makeNodeValue("/root/oz_data/preview", "");		//디폴트 미리보기 모드		
+					makeNodeValue("/root/oz_data/printsize", "");		//디폴트 A4		
+					
+					var medi_cd = "";
+					var issu_dt = model.getValue("/root/reqData/searchData/issu_dt");
+					var issu_dt1 = model.getValue("/root/reqData/searchData/issu_dt1");
+					var issu_dt2 = model.getValue("/root/reqData/searchData/issu_dt2");
+					var yymm = model.getValue("/root/reqData/searchData/yymm");
+					var spsl_gubun = model.getValue("/root/reqData/searchData/spsl_gubun");
+					if(report_gubun == "1" || report_gubun == "2"){
+						medi_cd = model.getValue("/root/reqData/searchData/medi_cd1");
+						if(!se_chkOverDate(issu_dt1,issu_dt2)) return;
+					}else{
+						medi_cd = model.getValue("/root/reqData/searchData/medi_cd");
+					}
+
+					if(report_gubun == "4"){
+						if ( medi_cd == ""){
+							commAlert("매체가 없습니다.");
+							return;
+						}		
+					}						
+
+					if(report_gubun == "1" || report_gubun == "2" || report_gubun == "3"){							
+						if ( issu_dt1 == "" || issu_dt2 == ""){
+							commAlert("일자가 없습니다.");
+							return;
+						}		
+					}else{						
+						if ( yymm == ""){
+							commAlert("년월이 없습니다.");
+							return;
+						}		
+					}
+						
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers",model.property("ss_emp_no"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_medi_cd", medi_cd);		
+					makeNodeValue("/root/oz_data/odiParam/iv_issu_dt", issu_dt);	
+					makeNodeValue("/root/oz_data/odiParam/iv_issu_dt1", issu_dt1);	
+					makeNodeValue("/root/oz_data/odiParam/iv_issu_dt2", issu_dt2);	
+					makeNodeValue("/root/oz_data/odiParam/iv_yymm", yymm);	
+					makeNodeValue("/root/oz_data/odiParam/iv_spsl_gubun", spsl_gubun);	
+					
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<group id="selectBox" class="gro_tab2" style="left:10px; top:70px; width:305px; height:655px; ">
+			<select1 id="radio1" ref="/root/reqData/searchData/gubun" appearance="full" vcellspacing="5" overflow="visible" style="left:24px; top:20px; width:245px; height:345px; border-style:none; ">
+				<choices>
+					<item>
+						<label>부수 증감 신청서(매체순)</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>부수 증감 신청서(인쇄처순)</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>일일 부수증감 처리현황</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>조선일보발행부수일보</label>
+						<value>4</value>
+					</item>
+					<item>
+						<label>교판부수 신청서</label>
+						<value>5</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var type = radio1.value;
+					if(type == "1" || type == "2"){
+						group1.attribute("visibility") = "hidden";
+						group2.attribute("visibility") = "visible";
+						group3.attribute("visibility") = "hidden";
+						group4.attribute("visibility") = "hidden";
+						group5.attribute("visibility") = "hidden";
+						group6.attribute("visibility") = "visible";
+						group7.attribute("visibility") = "hidden";
+					}else if(type == "3"){
+						group1.attribute("visibility") = "hidden";
+						group2.attribute("visibility") = "hidden";
+						group3.attribute("visibility") = "hidden";
+						group4.attribute("visibility") = "visible";
+						group5.attribute("visibility") = "visible";
+						group6.attribute("visibility") = "hidden";
+						group7.attribute("visibility") = "hidden";
+					}else if(type == "4"){
+						group1.attribute("visibility") = "visible";
+						group2.attribute("visibility") = "hidden";
+						group3.attribute("visibility") = "visible";
+						group4.attribute("visibility") = "hidden";
+						group5.attribute("visibility") = "hidden";
+						group6.attribute("visibility") = "hidden";
+						group7.attribute("visibility") = "hidden";
+					}
+					else if(type == "5"){
+						group1.attribute("visibility") = "hidden";
+						group2.attribute("visibility") = "hidden";
+						group3.attribute("visibility") = "hidden";
+						group4.attribute("visibility") = "hidden";
+						group5.attribute("visibility") = "hidden";
+						group6.attribute("visibility") = "hidden";
+						group7.attribute("visibility") = "visible";
+					}
+					]]>
+				</script>
+			</select1>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("P");
+				]]>
+			</script>
+		</button>
+		<shape id="rectangle1" class="gro_line" appearance="rectangle" style="left:340px; top:70px; width:596px; height:265px; "/>
+		<group id="group1" style="left:375px; top:95px; width:400px; height:26px; ">
+			<caption id="caption70" class="list_cap02" style="left:0px; top:0px; width:400px; height:26px; "/>
+			<caption id="caption45" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">매체</caption>
+			<select1 id="cbo_medi_cd" ref="/root/reqData/searchData/medi_cd" class="req" appearance="minimal" style="left:114px; top:4px; width:120px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="group3" style="left:375px; top:125px; width:400px; height:26px; ">
+			<caption id="caption14" class="list_cap02" style="left:0px; top:0px; width:400px; height:26px; "/>
+			<caption id="caption15" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">년월</caption>
+			<input id="input4" ref="/root/reqData/searchData/yymm" format="yyyy-mm" style="left:114px; top:4px; width:100px; height:18px; "/>
+		</group>
+		<group id="group2" visibility="hidden" style="left:375px; top:125px; width:400px; height:26px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:400px; height:26px; "/>
+			<caption id="caption18" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">일자</caption>
+			<caption id="caption4" style="left:217px; top:5px; width:20px; height:20px; text-align:center; ">~</caption>
+			<input id="input2" ref="/root/reqData/searchData/issu_dt1" inputtype="date" format="yyyy-mm-dd" style="left:114px; top:4px; width:100px; height:18px; "/>
+			<input id="input3" ref="/root/reqData/searchData/issu_dt2" inputtype="date" format="yyyy-mm-dd" style="left:237px; top:4px; width:100px; height:18px; "/>
+		</group>
+		<group id="group4" style="left:375px; top:95px; width:400px; height:26px; ">
+			<caption id="caption1" class="list_cap02" style="left:0px; top:0px; width:400px; height:26px; "/>
+			<caption id="caption2" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">특판포함</caption>
+			<select1 id="cbo_spsl_gubun" ref="/root/reqData/searchData/spsl_gubun" appearance="minimal" style="left:114px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<item>
+						<label>특판포함</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>특판제외</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>추가포함</label>
+						<value>3</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<group id="group5" visibility="hidden" style="left:375px; top:125px; width:400px; height:26px; ">
+			<caption id="caption3" class="list_cap02" style="left:0px; top:0px; width:400px; height:26px; "/>
+			<caption id="caption6" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">일자</caption>
+			<input id="ipt_issu_dt" ref="/root/reqData/searchData/issu_dt" inputtype="date" format="yyyy-mm-dd" style="left:114px; top:4px; width:100px; height:18px; "/>
+		</group>
+		<group id="group6" style="left:375px; top:95px; width:400px; height:26px; ">
+			<caption id="caption7" class="list_cap02" style="left:0px; top:0px; width:400px; height:26px; "/>
+			<caption id="caption8" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">매체</caption>
+			<select1 id="cbo_medi_cd1" ref="/root/reqData/searchData/medi_cd1" class="req" appearance="minimal" style="left:114px; top:4px; width:120px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medi_cd1/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="group7" visibility="hidden" style="left:375px; top:125px; width:400px; height:26px; ">
+			<caption id="caption24" class="list_cap02" style="left:0px; top:0px; width:400px; height:26px; "/>
+			<caption id="caption25" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">발송일자</caption>
+			<input id="input1" ref="/root/reqData/searchData/issu_dt" inputtype="date" format="yyyy-mm-dd" style="left:114px; top:4px; width:100px; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

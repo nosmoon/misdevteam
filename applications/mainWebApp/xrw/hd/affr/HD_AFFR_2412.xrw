@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<dept_cd1>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</dept_cd1>
+							<dept_cd2>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</dept_cd2>
+							<dept_cd3>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</dept_cd3>
+							<dept_cd4>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</dept_cd4>
+							<dept_cd5>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</dept_cd5>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<cmpy_cd/>
+							<emp_no/>
+							<search_year/>
+						</searchData>
+						<multiUpData/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<dept_cd/>
+								<chk_dt/>
+								<emp_no/>
+								<dept_nm/>
+								<dty_nm/>
+								<posi_nm/>
+								<remk/>
+								<remk_adm/>
+								<proc_stat_nm/>
+								<flnm/>
+								<chk_pers_nm/>
+								<real_chk_fee/>
+								<sply_chk_fee/>
+								<chk_hosp_nm/>
+								<occr_dt/>
+								<seq/>
+								<proc_stat/>
+							</record>
+						</gridData>
+						<resForm/>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function reSet(){
+						model1.reset();
+					}
+					function setEmpNo(emp_no){
+						model1.setValue("/root/reqData/searchData/emp_no",emp_no);
+					}
+					
+					function search_list(emp_no){
+						model1.setValue("/root/reqData/searchData/emp_no",emp_no);
+						model1.send("hd_affr_2412");
+						model1.copyNode("/root/resData/gridData", "/root/tempData/CURLIST");
+						datagrid2.refresh();
+						gridrowcnt.value = "총 "+ (parseInt(datagrid2.rows)- 1) + "건";
+						datagrid2.refresh();	
+						
+                         for(var i=1 ;i< datagrid2.rows;i++){
+							var proc_stat = datagrid2.valueMatrix(i,datagrid2.colRef("proc_stat") );
+							if(proc_stat == "01"){
+								datagrid2.isReadOnly(i, 0, i, 10) = false;
+							}else{
+								datagrid2.isReadOnly(i, 0, i, 10) = true;
+							}					
+						}			
+					//	datagrid2.clearStatus();
+						datagrid2.refresh();
+		        		model1.refresh();	
+
+
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var now_date = new Date();
+					var year = now_date.getYear();
+					model1.setValue("/root/reqData/searchData/search_year",year);
+					//datagrid2.isReadOnly(1, 1, 1, 19) = true;
+					datagrid2.refresh();
+					model1.refresh();
+					
+					
+				]]>
+			</script>
+			<submission id="hd_affr_2412" action="/hd/affr/2412/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_2411" action="/hd/affr/2411/" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="950" pageheight="728">
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="^부서^검진일자^사번^성명^직책^수검자^가족관계^검진기관^실제검진비^지원검진비^비고^진행상태^진행code" colsep="#" colwidth="25, 100, 80, 80, 90, 85, 85, 95, 125, 85, 85, 120, 90, 100, 100, 100" ellipsis="true" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:40px; width:905px; height:505px; ">
+			<col checkvalue="Y,N" ref="send" type="checkbox">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var row = datagrid2.row;
+					var proc_stat = datagrid2.valueMatrix(row,datagrid2.colRef("proc_stat") );
+				    var send = datagrid2.valueMatrix(row,datagrid2.colRef("send") );
+						
+						if(proc_stat == "01")
+						{
+							if(send == "N")
+							{
+								datagrid2.rowStatus(row) = 0;
+							}
+							else 
+							{
+								datagrid2.rowStatus(row) = 4;
+							}
+						}
+						else 
+						{
+							alert("진행상태가 개인등록인 경우 삭제 가능합니다.");
+							datagrid2.rowStatus(row) = 0;
+						//	model1.setValue("/root/resData/gridData/record["+row+"]/send","N");
+						}
+						
+					]]>
+				</script>
+			</col>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="chk_dt" format="yyyy-mm-dd"/>
+			<col ref="emp_no" visibility="hidden"/>
+			<col ref="flnm"/>
+			<col ref="dty_nm" visibility="hidden"/>
+			<col ref="chk_pers_nm"/>
+			<col ref="faml_rshp_nm"/>
+			<col ref="chk_hosp_nm" style="text-align:center; "/>
+			<col ref="real_chk_fee" format="###,###" style="text-align:right; "/>
+			<col ref="sply_chk_fee" format="###,###" style="text-align:right; "/>
+			<col ref="remk"/>
+			<col ref="proc_stat_nm"/>
+			<col ref="proc_stat" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+		</datagrid>
+		<caption id="caption4" class="list_cap02" style="left:85px; top:10px; width:85px; height:26px; text-align:center; "/>
+		<caption id="caption3" class="list_cap01" style="left:10px; top:10px; width:90px; height:26px; text-align:center; ">조회년도</caption>
+		<button id="button3" class="btn02" style="left:864px; top:10px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+//					parent.window.javascript.getEmpNo();
+		//			model1.setValue("/root/reqData/searchData/cmpy_cd", "100");
+		
+				    var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+		            search_list(emp_no);
+					
+
+				]]>
+			</script>
+		</button>
+		<input id="input1" ref="/root/reqData/searchData/search_year" inputtype="date" format="yyyy" style="left:105px; top:14px; width:60px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if(event.keyCode == 13){
+						var s_year  =input1.currentText;
+						model.setValue("/root/reqData/searchData/search_year",s_year);
+						model1.send("hd_affr_1002");
+						model1.copyNode("/root/resData/gridData", "/root/tempData");
+						datagrid2.refresh();							
+					}
+				]]>
+			</script>
+		</input>
+		<caption id="gridrowcnt" style="left:820px; top:545px; width:100px; height:20px; font-weight:bold; text-align:right; "/>
+		<button id="button1" class="btn02" style="left:806px; top:10px; width:52px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+//					parent.window.javascript.getEmpNo();
+		//			model1.setValue("/root/reqData/searchData/cmpy_cd", "100");
+							
+					var rows = datagrid2.rows;
+					var rtn_value = false;
+					
+					for(var i = 1; i < rows; i++){
+						//삭제대상이 존재하면 리턴값 True
+						if(datagrid2.rowStatus(i) == "4"){
+							rtn_value = true;
+						}
+					}
+					
+					if (!rtn_value)
+					{
+						alert("좌측의 볼을 클릭하여 빨간색으로 \n변경이 된 후 삭제버튼을 눌러 주십시오.");			
+						return;
+					}
+					if (!rowDelSubmit(datagrid2)) {
+						return;
+					}		
+					
+					if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}					
+						
+					model1.setValue("/root/reqData/multiUpData", datagrid2.getUpdateData());
+					model1.send("hd_affr_2411");
+					if(submit_completed()) {
+							model1.reset();
+							window.parent.javaScript.enterSearch();
+							model1.refresh();	
+							var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+							//alert(emp_no);
+						    search_list(emp_no);
+							gridrowcnt.value = "총 "+ (parseInt(datagrid2.rows)- 1) + "건";
+							datagrid2.refresh();
+						}
+
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

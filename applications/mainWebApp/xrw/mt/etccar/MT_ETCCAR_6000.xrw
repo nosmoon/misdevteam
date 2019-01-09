@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageID/>
+						</pageInfo>
+						<comboSet>
+							<oil_kind>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</oil_kind>
+						</comboSet>
+					</initData>
+					<resData>
+						<combo_hidden/>
+						<gridData>
+							<record>
+								<aply_dt/>
+								<oil_clsf_1/>
+								<oil_clsf_2/>
+								<oil_clsf_3/>
+								<oil_clsf_4/>
+								<oil_clsf_5/>
+								<oil_clsf_6/>
+							</record>
+						</gridData>
+						<resForm>
+							<temp/>
+						</resForm>
+					</resData>
+					<reqData>
+						<searchData>
+							<aply_dt_fr/>
+							<aply_dt_to/>
+						</searchData>
+						<multi>
+							<multiUpData/>
+						</multi>
+					</reqData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[ 
+					//공장 및 자재코드 체크
+					function funSearch(fr, to) {
+
+						if(fr == null){
+							alert("적용일자를 입력하세요.");
+							return;
+						}
+
+						model1.setValue("/root/reqData/searchData/aply_dt_fr",fr);
+						model1.setValue("/root/reqData/searchData/aply_dt_to",to);
+						input1.refresh();
+						input2.refresh();
+						model1.send("mt_etccar_6000_l");
+						model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+						datagrid1.refresh();
+						var cnt = model1.getValue("root/resData/gridData/totalcnt");
+
+						for (i = 1; i <= cnt; i++) {
+							datagrid1.isReadOnly(i, 1,i, 7) = true;
+						}
+					}
+					function valueChk(){
+						var rtn = true;						
+						var iSelectedRow = datagrid1.rows-1;
+						var iRowCnt =iSelectedRow-1;
+						var inputChk = false;
+						
+						if(iSelectedRow > 1){	// 이전 데이터가 있을때 
+							var j=1; 
+							if(datagrid1.valueMatrix(iSelectedRow,1) == ""){	
+								if(!commGridReqCheck("datagrid1")){
+									return  false;	
+								}
+							}
+							for (var i=2 ; i < datagrid1.cols ; i++){	// 단가 컬럼수만큼 돈다
+								
+								if(datagrid1.valueMatrix(iSelectedRow,i) == ""){	// 비어있는값을 체크한다.
+								
+									if(!inputChk){ // 비어있는 값이 있을때 한번만 메세지 창 띄워준다.
+									
+										inputChk = true; 
+										if (window.alert("입력되지 않은 항목을 \n이전 적용일자의 단가로 등록하시겠습니까?", "확인", 1) != 1) {
+											return  false;	
+										}
+									}								
+									//alert("/root/resData/gridData/record["+iSelectedRow+"]/oil_clsf_"+j+" ,   "+datagrid1.valueMatrix(iRowCnt,i));
+									model1.setValue("/root/resData/gridData/record["+iSelectedRow+"]/oil_clsf_"+j, datagrid1.valueMatrix(iRowCnt,i));
+									datagrid1.refresh();									
+								}
+								j++;										
+							}							
+							rtn = true;	
+						}else{	// 이전 데이터가 없을때 
+						
+							if(!commGridReqCheck("datagrid1")){
+								return  false;
+							}
+						}
+						return rtn;
+					}
+					
+					function addRow() {
+						var rowCnt      = 0;
+						var selectedIdx = datagrid1.rows - 1;
+						
+						if(datagrid1.isReadOnly(1,1) == true) {
+							datagrid1.isReadOnly(1, 1, 1, 7)  = false;
+							datagrid1.addStatus(selectedIdx, "insert");
+						} else {
+							datagrid1.addRow(true, true);
+						}
+					}
+			]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<submission id="mt_etccar_6001_A" action="/mt/etccar/6001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multi/multiUpData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//datagrid1.isReadOnly(1,1,1,7) = true;
+					model1.removeNodeset("/root/resData/gridData/record");
+					model1.setValue("/root/reqData/searchData/aply_dt_fr" ,getCurrentDate());
+					model1.setValue("/root/reqData/searchData/aply_dt_to" ,getCurrentDate());					
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="mt_etccar_6000_l" action="/mt/etccar/6000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="1,936;">
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="적용일자^휘발유^경유^등유^항공유^LPG^보일러등유" colsep="#" colwidth="140, 125, 125, 125, 125, 125, 125" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:120px; width:926px; height:600px; ">
+			<col class="req" ref="aply_dt" type="inputdate" format="yyyy-mm-dd" caption="적용일자" style="text-align:center; "/>
+			<col class="req" ref="oil_clsf_1" type="input" format="#,###.9" maxlength="6" caption="휘발유" style="text-align:right; "/>
+			<col class="req" ref="oil_clsf_2" type="input" format="#,###.9" maxlength="6" caption="경유" style="text-align:right; "/>
+			<col class="req" ref="oil_clsf_3" type="input" format="#,###.9" maxlength="6" caption="등유" style="left:197px; top:20px; width:100px; height:20px; text-align:right; "/>
+			<col class="req" ref="oil_clsf_4" type="input" format="#,###.9" maxlength="6" caption="항공유" style="text-align:right; "/>
+			<col class="req" ref="oil_clsf_5" type="input" format="#,###.9" maxlength="6" caption="LPG" style="text-align:right; "/>
+			<col class="req" ref="oil_clsf_6" type="input" format="#,###.9" caption="보일러등유" style="text-align:right; "/>
+		</datagrid>
+		<group id="group2" class="gro_sel" style="left:10px; top:67px; width:926px; height:24px; ">
+			<caption id="caption5" class="list_cap02" style="left:99px; top:0px; width:827px; height:24px; text-align:center; "/>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:100px; height:24px; text-align:center; ">적용일자</caption>
+			<caption id="caption1" style="left:192px; top:6px; width:15px; height:10px; ">~</caption>
+			<input id="input1" ref="/root/reqData/searchData/aply_dt_fr" navindex="1" inputtype="date" maxlength="8" style="left:104px; top:3px; width:85px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/aply_dt_to" navindex="1" inputtype="date" maxlength="8" style="left:207px; top:3px; width:85px; height:18px; "/>
+		</group>
+		<button id="btnA1" class="btn02" navindex="19" style="left:727px; top:40px; width:52px; height:21px; background-image:../../../images/btn2.gif; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var fr = model1.getValue("/root/reqData/searchData/aply_dt_fr");
+					var to = model1.getValue("/root/reqData/searchData/aply_dt_to");
+					if (fr == "") {
+						alert("적용일자를 입력하십시오.");
+						return;
+					}
+					
+					funSearch(fr, to);					
+				]]>
+			</script>
+		</button>
+		<button id="btnA3" class="btn02" navindex="22" style="left:833px; top:40px; width:52px; height:21px; background-image:../../../images/btn2.gif; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//ready();
+					model1.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnA4" class="btn02" navindex="23" style="left:886px; top:40px; width:52px; height:21px; background-image:../../../images/btn2.gif; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn_grid03" navindex="9" style="left:826px; top:100px; width:54px; height:17px; ">
+			<caption>행입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//addRow();
+					datagrid1.addRow(true, true);
+ 				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn_grid03" navindex="10" style="left:882px; top:100px; width:54px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.makeNode("/root/resData/resForm/temp");						
+					model1.setValue("/root/resData/resForm/temp", "1"); 
+					
+					var cnt = model1.getValue("root/resData/gridData/totalcnt");	// 그리드 조회갯수
+					var iSelected = datagrid1.row;	// 현재 포커스 row 수
+					
+					if(cnt >= iSelected){ //  빨간색 표시
+						datagrid1.addStatus(datagrid1.row, "delete");	
+					}else{ //  행삭제
+						datagrid1.deleteRow(datagrid1.row);
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" navindex="19" style="left:780px; top:40px; width:52px; height:21px; background-image:../../../images/btn2.gif; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}				
+					
+					if(!valueChk()){
+						return;
+					}
+					model1.setValue("/root/reqData/multi/multiUpData", datagrid1.getUpdateData());
+					
+					model1.send("mt_etccar_6001_A");
+						
+						if(submit_completed()) {							
+							var fr = model1.getValue("/root/reqData/searchData/aply_dt_fr");
+							var to = model1.getValue("/root/reqData/searchData/aply_dt_to");
+							
+							model1.reset();
+							funSearch(fr,to);
+						}
+						
+						model1.setValue("/root/resData/resForm/temp", "");
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+	</xhtml:body>
+</xhtml:html>

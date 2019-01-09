@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>부서이동 등록/수정</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 선택계열의 정보를 담당 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<comboSet>
+							<seq_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</seq_clsf>
+						</comboSet>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+					<reqData>
+						<!-- 검색조건 처리 -->
+						<searchData>
+							<dt_clsf>1</dt_clsf>
+							<chg_dt/>
+							<seq_clsf/>
+							<chg_clsf/>
+							<occr_dt/>
+							<occr_seq/>
+							<dlco_no/>
+							<fr_dept_cd/>
+							<fr_dept_nm/>
+							<hsty_dlco_ern/>
+							<dept_cd/>
+						</searchData>
+						<!-- 등록/수정/삭제 요청 Form Data -->
+						<reqForm>
+							<now_dept_cd/>
+							<dept_nm/>
+							<now_loca/>
+							<dtls_remk/>
+						</reqForm>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<multiUpdate>
+							<mst_mode/>
+							<occr_dt/>
+							<occr_seq/>
+							<chg_dt/>
+							<remk/>
+							<multiUpdateData/>
+						</multiUpdate>
+						<!-- POPUP 페이지 Forward Data -->
+						<fwdData>
+							<func_nm/>
+							<aset_no_list/>
+							<hsty_dlco_ern/>
+						</fwdData>
+					</reqData>
+					<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+					<resData>
+						<!-- 전달 받은 리스트 데이터를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<record>
+								<aset_no/>
+								<aset_nm/>
+								<befo_dept_cd/>
+								<befo_loca/>
+								<now_dept_cd/>
+								<dept_nm/>
+								<now_loca/>
+								<dtls_remk/>
+								<hsty_cnt/>
+								<dlco_nm/>
+								<chg_clsf/>
+								<occr_dt/>
+								<occr_seq/>
+								<sub_seq/>
+							</record>
+						</gridData>
+						<!-- 전달 받은 Msg를 담당 ( submit의 결과가 담김) -->
+						<msg>
+							<errCode/>
+							<errMsg/>
+						</msg>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<now_dept_cd/>
+							<dept_nm/>
+							<now_loca/>
+							<remk/>
+						</resForm>
+					</resData>
+					<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					var row_num;
+					
+					function getAsetChgDtlsList() {
+						var dt_clsf = model1.getValue("/root/reqData/searchData/dt_clsf");
+						var chg_dt = model1.getValue("/root/reqData/searchData/chg_dt");
+						//var seq_clsf = model1.getValue("/root/reqData/searchData/seq_clsf");
+						
+						btnReset.dispatch("onclick");
+						
+						model1.setValue("/root/reqData/searchData/dt_clsf", dt_clsf);
+						model1.setValue("/root/reqData/searchData/chg_dt", chg_dt);
+						//model1.setValue("/root/reqData/searchData/seq_clsf", seq_clsf);
+						
+						//cbo_seq_clsf.dispatch("xforms-value-changed");
+						cbo_dt_clsf.dispatch("xforms-value-changed");
+					}
+
+					function getAsetList(aset_no_list){
+						model1.setValue("/root/reqData/fwdData/aset_no_list", aset_no_list);
+						model1.send("as_aset_1305");
+
+						model1.removeNodeset("/root/tempData/dataSet/CURLIST/totalcnt");
+
+						var node_nm;
+						var node_val;
+						var row_cnt;
+						if (grd_aset_chg.rows > 1) {
+							if (grd_aset_chg.valueMatrix(1, 1) == "")
+								row_cnt = 1;
+							else
+								row_cnt = grd_aset_chg.rows;
+						}
+						
+						for (i = 0; i < root.tempData.dataSet.CURLIST.childNodes.length; i++) {
+							if (grd_aset_chg.valueMatrix(1, 1) != "") {
+								grd_aset_chg.addRow();
+								model1.makeNode("/root/resData/gridData/record["+(i+row_cnt)+"]");
+							} else {
+								grd_aset_chg.addStatus(1, "insert");
+							}
+							for (j = 0; j < root.tempData.dataSet.CURLIST.childNodes(i).childNodes.length; j++) {
+								node_nm = root.tempData.dataSet.CURLIST.childNodes(i).childNodes(j).nodeName;
+								node_val = root.tempData.dataSet.CURLIST.childNodes(i).childNodes(j).nodeValue;
+								if (grd_aset_chg.valueMatrix(1, 1) != "") {
+									model1.makeNode("/root/resData/gridData/record["+(i+row_cnt)+"]/" + node_nm);
+									
+								}
+								model1.setValue("/root/resData/gridData/record["+(i+row_cnt)+"]/" + node_nm, node_val);
+							}
+							//model1.setValue("/root/resData/gridData/record["+(i+row_cnt)+"]/hsty_cnt", "0");
+						}
+						
+
+						model1.removeNodeset("/root/tempData/dataSet");
+						model1.refresh();
+						
+						if (grd_aset_chg.valueMatrix(1, 1) != "")
+							grd_aset_chg.isReadOnly(1, 3, 1, 8) = false;
+					}
+					
+					function setDept_cd_fr(iv_dept_cd, iv_dept_nm){
+						model1.setValue("/root/resData/resForm/now_dept_cd", iv_dept_cd);
+						model1.setValue("/root/resData/resForm/dept_nm", iv_dept_nm);
+						model1.refresh();
+					}
+					
+					function setDept_cd_grd(iv_dept_cd, iv_dept_nm){
+						var rowIdx = grd_aset_chg.row;
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/now_dept_cd", iv_dept_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", iv_dept_nm);
+						grd_aset_chg.rowStatus(row_num) = 2;
+						model1.refresh();
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//초기 자산변동 화면(부모화면)에서 변동일자를 설정하면서 호출할 경우는 현재날짜로 설정하지 않음
+					/*
+					if (model1.getValue("/root/reqData/searchData/chg_dt") != "") {
+						//srch_ipt_chg_dt.dispatch("xforms-value-changed");
+						var seq_clsf = model1.getValue("/root/reqData/searchData/seq_clsf");
+						cbo_dt_clsf.dispatch("xforms-value-changed");
+						model1.setValue("/root/reqData/searchData/seq_clsf", seq_clsf);
+						cbo_seq_clsf.dispatch("xforms-value-changed");
+					}
+					*/
+					//alert(model1.getValue("/root/reqData/fwdData/chg_clsf"));
+					if (model1.getValue("/root/reqData/fwdData/chg_dt") != "") {
+						//srch_ipt_chg_dt.dispatch("xforms-value-changed");
+						model1.setValue("/root/reqData/searchData/chg_dt", model1.getValue("/root/reqData/fwdData/chg_dt"));
+						model1.setValue("/root/reqData/searchData/dt_clsf", model1.getValue("/root/reqData/fwdData/dt_clsf"));
+						model1.setValue("/root/reqData/searchData/chg_clsf", model1.getValue("/root/reqData/fwdData/chg_clsf"));
+						model1.setValue("/root/reqData/searchData/seq_clsf", model1.getValue("/root/reqData/fwdData/seq_clsf"));
+						var seq_clsf = model1.getValue("/root/reqData/searchData/seq_clsf");
+						cbo_dt_clsf.dispatch("xforms-value-changed");
+						model1.setValue("/root/reqData/searchData/seq_clsf", seq_clsf);
+						cbo_seq_clsf.dispatch("xforms-value-changed");
+					} else {
+						now = new Date();
+						srch_ipt_chg_dt.value = toTimeString(now);
+						ipt_chg_dt.value = toTimeString(now);
+						//model1.setValue("/root/reqData/searchData/chg_clsf", "I"); 120224
+						model1.setValue("/root/reqData/searchData/chg_clsf", model1.getValue("/root/reqData/fwdData/chg_clsf"));
+						cbo_dt_clsf.dispatch("xforms-value-changed");
+						model1.refresh();
+					}
+					grd_aset_chg.isReadOnly(1, 5, 1, 8) = true;
+				]]>
+			</script>
+			<submission id="as_aset_1201" action="/as/aset/1201" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1301" action="/as/aset/1301" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1302" action="/as/aset/1302" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpdate" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1202" action="/as/aset/1202" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1303" action="/as/aset/1303" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpdate" resultref="/root/tempData/dataSet"/>
+			<submission id="as_aset_1304" action="/as/aset/1304" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/dataSet"/>
+			<submission id="as_aset_1305" action="/as/aset/1305" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/as_common.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" style="font-family:굴림; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:111px; width:926px; height:5px; "/>
+		<group id="group_tit" class="gro_tit2" style="left:10px; top:128px; width:926px; height:25px; ">
+			<caption id="subtitle" class="tit02" style="left:0px; top:0px; width:926px; height:25px; ">부서이동정보</caption>
+		</group>
+		<group id="group2" class="gro_tit2" style="left:10px; top:190px; width:926px; height:25px; ">
+			<caption id="caption3" class="tit02" style="left:0px; top:0px; width:926px; height:20px; ">부서이동정보 상세</caption>
+		</group>
+		<datagrid id="grd_aset_chg" nodeset="/root/resData/gridData/record" caption="자산번호^자산명^전부서^전위치^현부서코드^현부서명^현위치^비고^수량면적^거래처명^caption1^caption2^caption3^caption4" colsep="#" colwidth="77, 130, 80, 114, 80, 104, 131, 241, 81, 177, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" navindex="12" style="left:10px; top:255px; width:925px; height:440px; ">
+			<col ref="aset_no" format="yyyy-mm-dd"/>
+			<col ref="aset_nm" style="text-align:left; "/>
+			<col ref="befo_dept_cd" format="#,###" style="text-align:left; "/>
+			<col ref="befo_loca" format="#,###" style="text-align:left; "/>
+			<col ref="now_dept_cd" type="inputbutton" maxlength="6"/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="now_loca" type="input" style="text-align:left; "/>
+			<col ref="dtls_remk" type="input" style="text-align:left; "/>
+			<col ref="hsty_cnt"/>
+			<col ref="dlco_nm" style="text-align:left; "/>
+			<col ref="chg_clsf" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="occr_seq" visibility="hidden"/>
+			<col ref="sub_seq" visibility="hidden"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					row_num = grd_aset_chg.row;
+					model1.setValue("/root/reqData/fwdData/func_nm", "setDept_cd_grd");
+					window.load("../../hd/com/HD_COM_1100.xrw","modal", "HD_COM_1100", "align:center; width:430px; height:380px; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");	
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+						row_num = grd_aset_chg.row;
+						
+						if (grd_aset_chg.valueMatrix(row_num, 5) == "") {
+							grd_aset_chg.valueMatrix(row_num, 6) = "";								
+							return;
+						}						
+
+						model1.setValue("/root/reqData/searchData/dept_cd", grd_aset_chg.valueMatrix(row_num, 5));
+						get_dept_nm(grd_aset_chg.valueMatrix(row_num, 5));
+						grd_aset_chg.valueMatrix(row_num, 6) = model1.getValue("/root/tempData/dataSet/CURLIST/record/abrv_nm");										
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:153px; width:926px; height:26px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:90px; height:26px; ">변동일자</caption>
+			<caption id="caption2" class="list_cap02" style="left:89px; top:0px; width:836px; height:26px; "/>
+			<input id="ipt_chg_dt" ref="/root/reqData/multiUpdate/chg_dt" navindex="4" inputtype="date" appearance="input" style="left:94px; top:4px; width:90px; height:18px; "/>
+			<caption id="caption5" class="list_cap03" style="left:285px; top:0px; width:90px; height:26px; ">비    고</caption>
+			<input id="input6" ref="/root/reqData/multiUpdate/remk" navindex="5" inputtype="input" appearance="input" style="left:379px; top:4px; width:390px; height:18px; "/>
+		</group>
+		<group id="group1" class="gro_tab1" style="left:10px; top:214px; width:840px; height:29px; ">
+			<caption id="caption36" class="list_cap03" style="left:0px; top:0px; width:90px; height:26px; ">현 부 서</caption>
+			<caption id="caption37" class="list_cap02" style="left:89px; top:0px; width:749px; height:26px; "/>
+			<output id="input4" ref="/root/resData/resForm/dept_nm" inputtype="input" appearance="output" style="left:178px; top:4px; width:100px; height:18px; "/>
+			<caption id="caption4" class="list_cap03" style="left:285px; top:0px; width:90px; height:26px; ">현 위 치</caption>
+			<input id="input3" ref="/root/resData/resForm/now_loca" navindex="7" inputtype="input" appearance="input" style="left:379px; top:4px; width:104px; height:18px; "/>
+			<input id="input2" ref="/root/resData/resForm/now_dept_cd" navindex="6" inputtype="button" maxlength="6" style="left:94px; top:4px; width:80px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					model1.setValue("/root/reqData/fwdData/func_nm", "setDept_cd_fr");
+					window.load("../../hd/com/HD_COM_1100.xrw","modal", "HD_COM_1100", "align:center; width:430px; height:380px; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");	
+					]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						model1.setValue("/root/resData/resForm/now_dept_cd", input2.currentText);
+						get_dept_nm(input2.currentText);
+						input4.value = model1.getValue("/root/tempData/dataSet/CURLIST/record/abrv_nm");											
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if (input2.value == "") {
+							input4.value = "";								
+							return;
+						}						
+					]]>
+				</script>
+			</input>
+			<caption id="caption8" class="list_cap03" style="left:490px; top:0px; width:90px; height:26px; ">비    고</caption>
+			<input id="input5" ref="/root/resData/resForm/remk" navindex="8" inputtype="input" appearance="input" style="left:584px; top:4px; width:176px; height:18px; "/>
+			<button id="button2" class="btn_grid04" navindex="9" style="left:768px; top:4px; width:65px; height:17px; ">
+				<caption>일괄입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (grd_aset_chg.valueMatrix(1, 1) == "") {
+							alert("자산가산 상세 정보를 일괄 적용할 자산목록이 존재하지 않습니다.");
+							return;
+						}		
+						
+						if (window.alert("입력하신 자산가산 상세 정보를 일괄 적용하시겠습니까?", "확인", 1) == 1) {
+							for (i = 1; i < grd_aset_chg.rows; i++) {
+								model1.setValue("/root/resData/gridData/record["+(i)+"]/now_dept_cd", model1.getValue("/root/resData/resForm/now_dept_cd"));
+								model1.setValue("/root/resData/gridData/record["+(i)+"]/dept_nm", model1.getValue("/root/resData/resForm/dept_nm"));
+								model1.setValue("/root/resData/gridData/record["+(i)+"]/now_loca", model1.getValue("/root/resData/resForm/now_loca"));
+								model1.setValue("/root/resData/gridData/record["+(i)+"]/dtls_remk", model1.getValue("/root/resData/resForm/remk"));
+							}
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group3" class="gro_sel" style="left:10px; top:75px; width:926px; height:27px; ">
+			<caption id="caption16" class="list_cap01" style="left:0px; top:0px; width:90px; height:26px; "/>
+			<caption id="caption17" class="list_cap02" style="left:89px; top:0px; width:836px; height:26px; "/>
+			<input id="srch_ipt_chg_dt" ref="/root/reqData/searchData/chg_dt" navindex="2" inputtype="date" appearance="input" style="left:94px; top:4px; width:90px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					getAsetChgDtlsList();
+					cbo_dt_clsf.dispatch("xforms-value-changed");
+					]]>
+				</script>
+			</input>
+			<caption id="caption18" class="list_cap01" style="left:285px; top:0px; width:90px; height:26px; ">순    차</caption>
+			<select1 id="cbo_seq_clsf" ref="/root/reqData/searchData/seq_clsf" navindex="3" appearance="minimal" style="left:379px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/seq_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					if (model1.getValue("/root/reqData/searchData/dt_clsf") == "1") {
+							model1.setValue("/root/reqData/searchData/occr_dt", cbo_seq_clsf.label.substring(0,8));	
+						} else {
+							model1.setValue("/root/reqData/searchData/occr_dt", model1.getValue("/root/reqData/searchData/chg_dt"));
+						}
+						model1.setValue("/root/reqData/searchData/occr_seq", model1.getValue("/root/reqData/searchData/seq_clsf"));		
+						model1.send("as_aset_1301");
+						
+						model1.copyNode("/root/resData/gridData", "/root/tempData/dataSet/CURLIST2");
+						model1.setValue("/root/reqData/multiUpdate/chg_dt", model1.getValue("/root/tempData/dataSet/CURLIST1/record/chg_dt"));
+						model1.setValue("/root/reqData/multiUpdate/remk", model1.getValue("/root/tempData/dataSet/CURLIST1/record/remk"));
+
+						//model1.removeNodeset("/root/tempData/dataSet");
+						model1.refresh();
+
+						if (grd_aset_chg.rows == 1) {
+							grd_aset_chg.addRow();
+							grd_aset_chg.isReadOnly(1, 3, 1, 8) = true;
+						} else {
+							grd_aset_chg.isReadOnly(1, 3, 1, 8) = false;
+						}
+					]]>
+				</script>
+			</select1>
+			<select1 id="cbo_dt_clsf" ref="/root/reqData/searchData/dt_clsf" navindex="1" appearance="minimal" style="left:5px; top:4px; width:80px; height:18px; background-color:#eaedfe; ">
+				<choices>
+					<item>
+						<label>변동일자</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>발생일자</label>
+						<value>2</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						model1.send("as_aset_1201");
+						model1.copyNode("/root/initData/comboSet/seq_clsf","/root/tempData/dataSet/CURLIST/seq_clsf");
+						//model1.removeNodeset("/root/tempData/dataSet");
+						cbo_seq_clsf.value = "";
+						model1.refresh();
+					]]>
+				</script>
+			</select1>
+		</group>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="button3" class="btn02" style="left:642px; top:0px; width:52px; height:21px; ">
+				<caption>수정</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (model1.getValue("/root/reqData/searchData/occr_seq") == '' ) {
+							alert(" 수정 가능한 상태가 아닙니다.");
+							return;							    
+						}	
+							
+						var tmp_remk = model1.getValue("/root/reqData/multiUpdate/remk");
+						if (tmp_remk == "" ) {
+								alert("비고를 입력하세요.");
+								return;
+						}	
+
+						var stat_cnt = 0;
+						for (i = 1; i < grd_aset_chg.rows;i++) {
+							if (grd_aset_chg.valueMatrix(i, 5) == "" && grd_aset_chg.valueMatrix(i, 7) == "") {
+								alert("현부서 또는 현위치를 입력하세요.");
+								return;
+							}
+						}	
+																								
+						if (grd_aset_chg.rows == 1 || grd_aset_chg.valueMatrix(1, 2) == "") {
+							alert("수정할 자산변동내역이 없습니다.");
+							return;
+						}
+												
+						if (window.alert("자산변동내역을 수정하시겠습니까?", "수정", 1) == 1) {
+							model1.setValue("/root/reqData/multiUpdate/mst_mode", "U");
+							model1.setValue("/root/reqData/multiUpdate/occr_dt", model1.getValue("/root/reqData/searchData/occr_dt"));
+							model1.setValue("/root/reqData/multiUpdate/occr_seq", model1.getValue("/root/reqData/searchData/occr_seq"));
+							model1.setValue("/root/reqData/multiUpdate/multiUpdateData", grd_aset_chg.getUpdateData());
+							model1.send("as_aset_1303");
+							
+							if (submit_completed()) {
+								//getAsetChgDtlsList();
+								model1.resetInstanceNode("/root/reqData/multiUpdate");
+								model1.resetInstanceNode("/root/resData/gridData/record");
+								model1.resetInstanceNode("/root/resData/resForm");
+								model1.refresh();
+								grd_aset_chg.rowStatus(1) = 0;
+								cbo_seq_clsf.dispatch("xforms-value-changed");
+							}
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:697px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (model1.getValue("/root/reqData/searchData/occr_seq") == '' ) {
+							alert(" 삭제 가능한 상태가 아닙니다.");
+							return;							    
+						}						
+						if (grd_aset_chg.rows == 1 || grd_aset_chg.valueMatrix(1, 2) == "") {
+							alert("삭제할 자산변동내역이 없습니다.");
+							return;
+						}
+						
+						if (window.alert("자산변동내역을 삭제하시겠습니까?", "삭제", 1) == 1) {
+							for (i = 1; i < grd_aset_chg.rows;i++) {
+								grd_aset_chg.addStatus(i, "delete");
+							}
+							
+							model1.setValue("/root/reqData/multiUpdate/mst_mode", "D");
+							model1.setValue("/root/reqData/multiUpdate/occr_dt", model1.getValue("/root/reqData/searchData/occr_dt"));
+							model1.setValue("/root/reqData/multiUpdate/occr_seq", model1.getValue("/root/reqData/searchData/occr_seq"));
+							model1.setValue("/root/reqData/multiUpdate/multiUpdateData",grd_aset_chg.getUpdateData());
+							model1.send("as_aset_1303");
+							
+							if (submit_completed()) {
+								getAsetChgDtlsList();
+
+								model1.resetInstanceNode("/root/reqData/multiUpdate");
+								model1.resetInstanceNode("/root/resData/gridData/record");
+								model1.resetInstanceNode("/root/resData/resForm");
+								grd_aset_chg.rowStatus(1) = 0;
+								model1.refresh();
+							}
+						}
+					]]>
+				</script>
+			</button>
+			<button id="btnReset" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:587px; top:0px; width:52px; height:21px; ">
+				<caption>입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (grd_aset_chg.rows == 1 || grd_aset_chg.valueMatrix(1, 2) == "") {
+							alert("입력할 자산 목록이 없습니다.");
+							return;
+						}
+						
+						if (commReqCheck(grd_aset_chg)) {
+
+							var tmp_remk = model1.getValue("/root/reqData/multiUpdate/remk");
+/*
+							if (tmp_remk == "" ) {
+									alert("비고를 입력하세요.");
+									return;
+							}	
+*/							
+							var stat_cnt = 0;
+							for (i = 1; i < grd_aset_chg.rows;i++) {
+								if (grd_aset_chg.valueMatrix(i, 5) == "" && grd_aset_chg.valueMatrix(i, 7) == "") {
+									alert("현부서 또는 현위치를 입력하세요.");
+									return;
+								}
+							}													
+/*
+							for (i = 1; i < grd_aset_chg.rows;i++) {
+								if (grd_aset_chg.rowStatus(i) == 4)
+									grd_aset_chg.rowStatus(i) = 0;
+								else
+									grd_aset_chg.rowStatus(i) = 1;
+							}
+*/															
+							if (window.alert("자산변동내역을 입력하시겠습니까?", "입력", 1) == 1) {
+								for (i = 1; i < grd_aset_chg.rows;i++) {
+									if (grd_aset_chg.rowStatus(i) == 4)
+										grd_aset_chg.rowStatus(i) = 0;
+									else
+										grd_aset_chg.rowStatus(i) = 1;
+								}
+								model1.setValue("/root/reqData/multiUpdate/multiUpdateData", grd_aset_chg.getUpdateData());
+								model1.send("as_aset_1302");
+								
+								if (submit_completed()) {
+									getAsetChgDtlsList();
+									model1.resetInstanceNode("/root/reqData/multiUpdate");
+									model1.resetInstanceNode("/root/resData/gridData/record");
+									model1.resetInstanceNode("/root/resData/resForm");
+									grd_aset_chg.rowStatus(1) = 0;
+									model1.refresh();
+								}
+							}
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn03" navindex="23" style="left:752px; top:0px; width:63px; height:21px; ">
+				<caption>엑셀저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+						grd_aset_chg.saveExcel(filename, "sheetname:sheet1;colhiddenextend:false;rowhiddenextend:false;exportfalsecols:0;row_0:label;");
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button1" class="btn_grid02" navindex="10" style="left:850px; top:218px; width:42px; height:17px; ">
+			<caption>추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var aset_no_list = "";
+					if (grd_aset_chg.valueMatrix(1, 2) != "") {
+						for (i = 1; i < grd_aset_chg.rows; i++) {
+							if (i == 1)
+								aset_no_list = grd_aset_chg.valueMatrix(i, 2);
+							else
+								aset_no_list = aset_no_list + "#" + grd_aset_chg.valueMatrix(i, 2);
+						}
+						//aset_no_list = "E1032001002#E1032001004#E1032001005";
+						model1.setValue("/root/reqData/fwdData/aset_no_list", aset_no_list);
+					}
+					model1.setValue("/root/reqData/fwdData/func_nm","getAsetList");
+					window.load("../asrd/AS_ASRD_1900.xrw","modal","AS_ASRD_1900","align:center; width:953px; height:730px; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden; ","/root/reqData/fwdData","/root/reqData/fwdData");
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn_grid02" navindex="11" style="left:893px; top:218px; width:42px; height:17px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//grd_aset_chg.addStatus(grd_aset_chg.row, "delete");
+					grd_aset_chg.rowStatus(grd_aset_chg.row) = 4;
+				]]>
+			</script>
+		</button>
+		<caption id="caption6" class="tit01" style="left:10px; top:5px; width:315px; height:29px; ">부서이동 등록/수정</caption>
+	</xhtml:body>
+</xhtml:html>

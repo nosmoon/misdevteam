@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_BOI_2600.xrw
+* 기능 : 해약관리 - 인수인계처리
+* 작성일자 : 2009-05-20
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<yymm/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team_cd/>
+							<part_cd/>
+							<area_cd/>
+							<bo_nm/>
+							<yymm/>
+							<searchgubun>1</searchgubun>
+						</searchData>
+						<reqform>
+							<accflag/>
+							<multiUpDate/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<record>
+								<dept_nm/>
+								<part_nm/>
+								<area_nm/>
+								<bo_nm/>
+								<bo_head_nm/>
+								<amt1/>
+								<amt2/>
+								<amt3/>
+								<amt4/>
+								<amt5/>
+								<amt6/>
+								<cctr_dt/>
+								<grp/>
+								<dept_cd/>
+								<part_cd/>
+								<area_cd/>
+								<bo_cdseq/>
+							</record>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_boi_2610_l" action="/se/boi/2610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					
+					makeTeamSearch(
+						   "se_boi_2600_m"
+						  , "/se/boi/2600"
+						  , "/root/reqData"  
+			                         , "/root/initData/comboSet"
+						  , "team_combo"
+						  , "part_combo"
+						  , "area_combo"
+						  );
+					//model.setValue("/root/reqData/reqform/accflag", "I");
+					//model.setValue("/root/reqData/searchData/searchTop/yymm", dateAdd('m', -1, getCurrentDate()).substring(0,6));
+					model.setValue("/root/reqData/searchData/yymm", model.getValue("/root/initData/comboSet/yymm"));
+					ipt_yymm.refresh();
+										
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//내역조회
+				function go_search(){					
+					if(!commReqCheck(group_scr)) return;
+					
+					model.send("se_boi_2610_l");
+					se_chkGridCnt("datagrid1");
+
+					var searchGubun	= model.getValue("/root/reqData/searchData/searchgubun");
+					var hiddenYn, width;
+					var hCnt	= 0;
+					var tot_col;
+
+					//계 타이틀표현 컬럼
+					tot_col = datagrid1.colRef("dept_nm");
+					
+					//조회형태에 따라 항목길이 및 숨김처리
+					if ( searchGubun == "1" ){
+						hiddenYn = new Array(false, true, true, true, true);
+						width = new Array(120, 0, 0, 0, 0, 110, 110, 110, 110, 110, 110, 120, 100, 100, 100, 100, 100);
+					} else if ( searchGubun == "2" ){
+						hiddenYn = new Array(false, false, true, true, true);
+						width = new Array(100, 100, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100);
+					} else if ( searchGubun == "3" ){
+						hiddenYn = new Array(false, false, false, true, true);
+						width = new Array(90, 90, 90, 0, 0, 90, 90, 90, 90, 90, 90, 90, 100, 100, 100, 100, 100);
+					} else if ( searchGubun == "4" ){
+						hiddenYn = new Array(false, false, false, false, false);
+						width = new Array(80, 70, 80, 70, 60, 80, 80, 70, 70, 80, 80, 80, 100, 100, 100, 100, 100);
+					}
+					
+					for ( var i = 0 ; i < hiddenYn.length ; i++ ){
+						datagrid1.colHidden(i + 1) = hiddenYn[i];
+						if ( !hiddenYn[i] ) { hCnt++ };
+					}
+					
+					for ( var i = 0 ; i < width.length ; i++ ){
+						datagrid1.colWidth(i + 1) = width[i];
+					}
+					
+					//합계뿌리기
+					datagrid1.subtotal("sum", datagrid1.colRef("grp"), datagrid1.colRef("amt1"), "#,###", "background-color:#FFFFCC", tot_col, "계"); 		//최초이월
+					datagrid1.subtotal("sum", datagrid1.colRef("grp"), datagrid1.colRef("amt2"), "#,###", "background-color:#FFFFCC", tot_col, "계"); 		//전월이월
+					datagrid1.subtotal("sum", datagrid1.colRef("grp"), datagrid1.colRef("amt3"), "#,###", "background-color:#FFFFCC", tot_col, "계"); 		//입금누계
+					datagrid1.subtotal("sum", datagrid1.colRef("grp"), datagrid1.colRef("amt4"), "#,###", "background-color:#FFFFCC", tot_col, "계"); 		//금월입금액
+					datagrid1.subtotal("sum", datagrid1.colRef("grp"), datagrid1.colRef("amt5"), "#,###", "background-color:#FFFFCC", tot_col, "계"); 		//대손처리금액
+					datagrid1.subtotal("sum", datagrid1.colRef("grp"), datagrid1.colRef("amt6"), "#,###", "background-color:#FFFFCC", tot_col, "계"); 		//잔액
+					
+				}
+				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area_cd" appearance="minimal" style="left:357px; top:4px; width:80px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:139px; top:0px; width:70px; height:26px; ">파트/지사</caption>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team_cd" appearance="minimal" style="left:33px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part_cd" appearance="minimal" style="left:212px; top:4px; width:80px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:309px; top:0px; width:45px; height:26px; ">지역</caption>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:30px; height:26px; ">팀</caption>
+			<caption id="caption8" class="list_cap01" style="left:453px; top:0px; width:55px; height:26px; ">센터명</caption>
+			<input id="input1" ref="/root/reqData/searchData/bo_nm" style="left:511px; top:4px; width:80px; height:18px; "/>
+			<caption id="caption1" class="list_cap01" style="left:609px; top:0px; width:60px; height:26px; ">기준년월</caption>
+			<input id="ipt_yymm" ref="/root/reqData/searchData/yymm" class="req" format="yyyy-mm" caption="지대년월" style="left:672px; top:4px; width:70px; height:18px; "/>
+			<select1 id="combo4" ref="/root/reqData/searchData/searchgubun" class="req" appearance="minimal" caption="조회형태" style="left:828px; top:4px; width:70px; height:18px; ">
+				<choices>
+					<item>
+						<label>팀</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>파트</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>지역</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>센터</label>
+						<value>4</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption2" class="list_cap01" style="left:765px; top:0px; width:60px; height:26px; ">조회형태</caption>
+		</group>
+		<button id="button7" class="btn03" crud="R" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_search();
+				
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="팀^파트/지사^지역^센터^해약자^최초이월^전월이월^입금누계^금월입금액^대손처리금액^잔액^해약일^(그룹)^(부서코드)^(파트코드)^(지역코드)^(센터코드순번)" colsep="^" colwidth="80, 70, 80, 70, 60, 80, 80, 70, 70, 80, 80, 80, 100, 100, 100, 100, 100" frozenbottomrows="1" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" subtotalposition="below" style="left:10px; top:115px; width:926px; height:610px; ">
+			<col ref="dept_nm"/>
+			<col ref="part_nm"/>
+			<col ref="area_nm"/>
+			<col ref="bo_nm"/>
+			<col ref="bo_head_nm"/>
+			<col ref="amt1" format="(-)#,###" style="text-align:right; "/>
+			<col ref="amt2" format="(-)#,###" style="text-align:right; "/>
+			<col ref="amt3" format="(-)#,###" style="text-align:right; "/>
+			<col ref="amt4" format="(-)#,###" style="text-align:right; "/>
+			<col ref="amt5" format="(-)#,###" style="text-align:right; "/>
+			<col ref="amt6" format="(-)#,###" style="text-align:right; "/>
+			<col ref="cctr_dt" format="yyyy-mm-dd"/>
+			<col ref="grp" visibility="hidden"/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="part_cd" visibility="hidden"/>
+			<col ref="area_cd" visibility="hidden"/>
+			<col ref="bo_cdseq" visibility="hidden"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

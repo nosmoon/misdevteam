@@ -1,0 +1,433 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<frdt/>
+							<todt/>
+							<unit>01</unit>
+							<ad_self/>
+							<graph_clsf>VBar</graph_clsf>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<reqData2>
+						<fwdData/>
+						<searchData>
+							<frdt/>
+							<todt/>
+							<unit>01</unit>
+							<ad_self/>
+							<graph_clsf>VBar</graph_clsf>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData2>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<pubc_yymm/>
+								<advt_fee/>
+								<tot_pcnt/>
+								<bef_advt_fee/>
+								<bef_tot_pcnt/>
+								<inc_advt_fee/>
+								<inc_advt_avg/>
+								<inc_advt_pcnt/>
+								<inc_advt_avg2/>
+							</record>
+						</gridData>
+					</resData>
+					<resData2>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<pubc_yy/>
+								<advt_fee/>
+								<tot_pcnt/>
+								<bef_advt_fee/>
+								<bef_tot_pcnt/>
+								<inc_advt_fee/>
+								<inc_advt_avg/>
+								<inc_advt_pcnt/>
+								<inc_advt_avg2/>
+							</record>
+						</gridData>
+					</resData2>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				var currentdt =getCurrentMonth();    			//   getCurrentDate(); 
+				var frdt = dateAdd("m", -12, currentdt+"01");	//전년도의 당월
+				var todt = dateAdd("m", -1, currentdt+"01");		//금년도듸 전월
+				 
+				model.setValue("/root/reqData/searchData/frdt", frdt.substring(0,6));
+				model.setValue("/root/reqData/searchData/todt", todt.substring(0,6));
+				
+				model.setValue("/root/reqData2/searchData/frdt", "2000");
+				model.setValue("/root/reqData2/searchData/todt", todt.substring(0,4));
+				
+				model.refresh();
+				
+				switch1.selectedIndex = 0;
+				
+				makeNodeValue("/root/reqData/searchDate/gubun"		, "1");
+				
+				]]>
+			</script>
+			<submission id="ad_eis_1310_l" action="/ad/eis/1310" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData"/>
+			<submission id="ad_eis_1320_l" action="/ad/eis/1320" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData2" resultref="/root/resData2"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+			function search_key(){
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){
+					if(validateReq()){
+						//if(commGhkMonth("/root/reqData/searchData/frdt") && commGhkMonth("/root/reqData/searchData/todt")){
+							model.send("ad_eis_1310_l");
+						//}	
+					}
+				}else if(iSel == 1){
+					if(validateReq()){
+						//if(commGhkMonth("/root/reqData2/searchData/frdt") && commGhkMonth("/root/reqData2/searchData/todt")){
+							model.send("ad_eis_1320_l");
+						//}	
+					}
+				}
+			}
+		
+			function showChart(){
+				if(switch1.selectedIndex == 0){	//월별
+					var frdt  		= model.getValue("/root/reqData/searchData/frdt");
+					var todt 		= model.getValue("/root/reqData/searchData/todt");
+					var unit 		= model.getValue("/root/reqData/searchData/unit");
+					var ad_self 	= model.getValue("/root/reqData/searchData/ad_self");
+					var graph_clsf 	= model.getValue("/root/reqData/searchData/graph_clsf");
+
+					if(model.getValue("/root/reqData/searchDate/gubun") == "1"){
+						//게재액 그라프
+						browser1.navigate(getDocumentRoot() + "/jsp/ad/eis/ad_eis_1330_t.jsp?frdt="+frdt+"&todt="+todt+"&unit="+unit+"&ad_self="+ad_self+"&graph_clsf="+graph_clsf);
+					}else{
+						//발행면 그라프
+						browser1.navigate(getDocumentRoot() + "/jsp/ad/eis/ad_eis_1340_t.jsp?frdt="+frdt+"&todt="+todt+"&unit="+unit+"&ad_self="+ad_self+"&graph_clsf="+graph_clsf);
+					}
+				}else if(switch1.selectedIndex == 1){	//년별
+					var frdt  		= model.getValue("/root/reqData2/searchData/frdt");
+					var todt 		= model.getValue("/root/reqData2/searchData/todt");
+					var unit 		= model.getValue("/root/reqData2/searchData/unit");
+					var ad_self 	= model.getValue("/root/reqData2/searchData/ad_self");
+					var graph_clsf 	= model.getValue("/root/reqData2/searchData/graph_clsf");
+					
+					if(model.getValue("/root/reqData/searchDate/gubun") == "1"){
+						//게재액 그라프
+						browser2.navigate(getDocumentRoot() + "/jsp/ad/eis/ad_eis_1350_t.jsp?frdt="+frdt+"&todt="+todt+"&unit="+unit+"&ad_self="+ad_self+"&graph_clsf="+graph_clsf);
+					}else{
+						//발행면 그라프
+						browser2.navigate(getDocumentRoot() + "/jsp/ad/eis/ad_eis_1360_t.jsp?frdt="+frdt+"&todt="+todt+"&unit="+unit+"&ad_self="+ad_self+"&graph_clsf="+graph_clsf);
+					}
+					
+				}
+			}			
+						
+			/*
+			function goReport(gubun){
+								
+				var report				= new Array(	  "SP_AD_EIS_1310_P1"
+												, "SP_AD_EIS_1310_P2");	
+												
+				var report_gubun		= model.getValue("/root/reqData/searchDate/gubun");
+				var report_index		= parseInt(report_gubun) - 1;									
+					
+				// 오즈관련 노드 초기화..					
+				resetOznode();					
+									
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+				makeNodeValue("/root/oz_data/ozrName", "ad/"+ report[report_index]);									
+							
+				var root			= "/root/reqData/searchData";
+											
+				var frdt			= model.getValue(root + "/frdt");
+				var todt			= model.getValue(root + "/todt");
+				var unit			= model.getValue(root + "/unit");
+				var ad_self		= model.getValue(root + "/ad_self");
+				var graph_clsf 		= model.getValue(root + "/graph_clsf");
+			
+				if ( frdt == "" && todt == ""){
+					commAlert("처리기간이 없습니다.");
+					return;
+				}								
+		
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd"		,"100");//,model.property("ss_cmpycd"));	
+				makeNodeValue("/root/oz_data/odiParam/iv_frdt"			, frdt);	
+				makeNodeValue("/root/oz_data/odiParam/iv_todt"			, todt);
+				makeNodeValue("/root/oz_data/odiParam/iv_unit"			, unit);
+				makeNodeValue("/root/oz_data/odiParam/iv_ad_self"		, ad_self);
+				makeNodeValue("/root/oz_data/odiParam/iv_graph_clsf"		, graph_clsf);
+				
+			
+				// 레포트뷰어 호출.					
+				openOzwin("/root/oz_data");	
+			}
+			*/
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,936;2,61;2,70;2,93;2,382;" style="font-family:굴림; ">
+		<switch id="switch1" style="left:10px; top:92px; width:926px; height:645px; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="처리년월^처리기간^처리기간^전년동기^전년동기^증감^증감^증감^증감|처리년월^게재액^발행면^게재액^발행면^증감액^증감율^증감면^증감율" colsep="^" colwidth="80, 140, 90, 140, 90, 140, 80, 70, 80" mergecellsfixedrows="byrowrec" rowsep="|" style="left:5px; top:40px; width:915px; height:250px; ">
+					<col ref="pubc_yymm" format="yyyy-mm"/>
+					<col ref="advt_fee" format="#,###" style="text-align:right; "/>
+					<col ref="tot_pcnt" format="#,###" style="text-align:right; "/>
+					<col ref="bef_advt_fee" format="#,###" style="text-align:right; "/>
+					<col ref="bef_tot_pcnt" format="#,###" style="text-align:right; "/>
+					<col ref="inc_advt_fee" format="(-)#,###" style="text-align:right; "/>
+					<col ref="inc_advt_avg" style="text-align:right; "/>
+					<col ref="inc_advt_pcnt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="inc_advt_avg2" style="text-align:right; "/>
+				</datagrid>
+				<caption id="caption12" class="list_cap02" style="left:5px; top:5px; width:915px; height:28px; "/>
+				<select id="checkbox3" ref="/root/reqData/searchData/ad_self" overflow="visible" appearance="full" style="left:529px; top:10px; width:90px; height:15px; border-style:none; ">
+					<choices>
+						<item>
+							<label>자사광고포함</label>
+							<value>Y</value>
+						</item>
+					</choices>
+				</select>
+				<select1 id="radio3" ref="/root/reqData/searchData/unit" appearance="full" cols="2" overflow="visible" style="left:294px; top:10px; width:130px; height:15px; border-style:none; ">
+					<choices>
+						<item>
+							<label>단위(억)</label>
+							<value>01</value>
+						</item>
+						<item>
+							<label>단위(원)</label>
+							<value>02</value>
+						</item>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						search_key();
+						]]>
+					</script>
+				</select1>
+				<caption id="caption1" class="list_cap01" style="left:5px; top:5px; width:80px; height:28px; vertical-align:middle; ">처리기간</caption>
+				<input id="input5" ref="/root/reqData/searchData/frdt" class="req" format="yyyy-mm" caption="처리기간" style="left:90px; top:10px; width:60px; height:18px; "/>
+				<input id="input6" ref="/root/reqData/searchData/todt" class="req" format="yyyy-mm" caption="처리기간" style="left:170px; top:10px; width:60px; height:18px; "/>
+				<caption id="caption2" style="left:153px; top:12px; width:15px; height:17px; ">~</caption>
+				<select1 id="radio2" ref="/root/reqData/searchData/graph_clsf" appearance="full" cols="4" overflow="visible" style="left:640px; top:10px; width:270px; height:15px; border-style:none; ">
+					<choices>
+						<item>
+							<label>2D 막대</label>
+							<value>VBar</value>
+						</item>
+						<item>
+							<label>3D 막대</label>
+							<value>VBar_3D_Bundle</value>
+						</item>
+						<item>
+							<label>2D 꺽은선</label>
+							<value>VLine_NoPoint</value>
+						</item>
+						<item>
+							<label>3D 꺽은선</label>
+							<value>VLine_3D</value>
+						</item>
+					</choices>
+					<script type="javascript" ev:event="xforms-select">
+						<![CDATA[
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						showChart();
+						
+						]]>
+					</script>
+				</select1>
+				<browser id="browser1" style="left:5px; top:300px; width:915px; height:340px; "/>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData2/gridData/record" caption="처리년도^처리기간^처리기간^전년동기^전년동기^증감^증감^증감^증감|처리년도^게재액^발행면^게재액^발행면^증감액^증감율^증감면^증감율" colsep="^" colwidth="80, 140, 90, 140, 90, 140, 80, 70, 80" mergecellsfixedrows="byrowrec" rowsep="|" style="left:5px; top:40px; width:915px; height:250px; ">
+					<col ref="pubc_yy"/>
+					<col ref="advt_fee" format="#,###" style="text-align:right; "/>
+					<col ref="tot_pcnt" format="#,###" style="text-align:right; "/>
+					<col ref="bef_advt_fee" format="#,###" style="text-align:right; "/>
+					<col ref="bef_tot_pcnt" format="#,###" style="text-align:right; "/>
+					<col ref="inc_advt_fee" format="(-)#,###" style="text-align:right; "/>
+					<col ref="inc_advt_avg" format="(-)#,###" style="text-align:right; "/>
+					<col ref="inc_advt_pcnt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="inc_advt_avg2" format="(-)#,###" style="text-align:right; "/>
+				</datagrid>
+				<caption id="caption5" class="list_cap02" style="left:5px; top:5px; width:915px; height:28px; "/>
+				<select id="checkbox1" ref="/root/reqData2/searchData/ad_self" overflow="visible" appearance="full" style="left:529px; top:10px; width:90px; height:15px; border-style:none; ">
+					<choices>
+						<item>
+							<label>자사광고포함</label>
+							<value>Y</value>
+						</item>
+					</choices>
+				</select>
+				<caption id="caption7" class="list_cap01" style="left:5px; top:5px; width:80px; height:28px; vertical-align:middle; ">처리기간</caption>
+				<caption id="caption8" style="left:153px; top:12px; width:15px; height:17px; ">~</caption>
+				<select1 id="radio1" ref="/root/reqData2/searchData/unit" appearance="full" cols="2" overflow="visible" style="left:294px; top:10px; width:130px; height:15px; border-style:none; ">
+					<choices>
+						<item>
+							<label>단위(억)</label>
+							<value>01</value>
+						</item>
+						<item>
+							<label>단위(원)</label>
+							<value>02</value>
+						</item>
+					</choices>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						search_key();				
+						]]>
+					</script>
+				</select1>
+				<input id="input2" ref="/root/reqData2/searchData/frdt" class="req" format="yyyy" caption="처리기간" style="left:90px; top:10px; width:60px; height:18px; "/>
+				<input id="input3" ref="/root/reqData2/searchData/todt" class="req" format="yyyy" caption="처리기간" style="left:170px; top:10px; width:60px; height:18px; "/>
+				<browser id="browser2" style="left:5px; top:300px; width:915px; height:340px; "/>
+				<select1 id="radio4" ref="/root/reqData2/searchData/graph_clsf" appearance="full" cols="4" overflow="visible" style="left:640px; top:10px; width:270px; height:15px; border-style:none; ">
+					<choices>
+						<item>
+							<label>2D 막대</label>
+							<value>VBar</value>
+						</item>
+						<item>
+							<label>3D 막대</label>
+							<value>VBar_3D_Bundle</value>
+						</item>
+						<item>
+							<label>2D 꺽은선</label>
+							<value>VLine_NoPoint</value>
+						</item>
+						<item>
+							<label>3D 꺽은선</label>
+							<value>VLine_3D</value>
+						</item>
+					</choices>
+					<script type="javascript" ev:event="xforms-select">
+						<![CDATA[
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+						showChart();
+						
+						]]>
+					</script>
+				</select1>
+			</case>
+		</switch>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button12" class="btn02" crud="R" style="left:627px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				search_key();		
+				
+				if(submit_completed()){
+					/* 참조 사이드 :  http://www.oztn.net/kb/board-read.do?boardId=kbrpt&boardNo=119260279820336&command=READ&t=1240821394952*/
+					showChart();
+				}			
+				
+				]]>
+			</script>
+		</button>
+		<button id="button13" class="btn04" crud="R" style="left:787px; top:40px; width:87px; height:21px; ">
+			<caption>발행면 그래프</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				search_key();		
+				
+				if(submit_completed()){
+					makeNodeValue("/root/reqData/searchDate/gubun"		, "2");
+					showChart();
+				}
+				
+				]]>
+			</script>
+		</button>
+		<button id="button14" class="btn04" crud="R" style="left:690px; top:40px; width:88px; height:21px; ">
+			<caption>게재액 그래프</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				search_key();		
+				
+				if(submit_completed()){
+					makeNodeValue("/root/reqData/searchDate/gubun"		, "1");
+					showChart();
+				}
+				
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="tab04" group="tab" style="left:88px; top:70px; width:78px; height:23px; ">
+			<caption>년별</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.toggle("case2");
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="tab04" group="tab" selected="true" style="left:10px; top:70px; width:78px; height:23px; ">
+			<caption>월별</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.toggle("case1");
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn02" style="left:885px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(window.type == "mdi"){
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				}else{
+					window.close();
+				}
+				
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

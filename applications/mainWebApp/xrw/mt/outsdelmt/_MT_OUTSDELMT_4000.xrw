@@ -1,0 +1,676 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<comboSet>
+							<op_combo_x>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</op_combo_x>
+							<op_combo_y>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</op_combo_y>
+						</comboSet>
+					</initData>
+					<gridData>
+						<rows/>
+					</gridData>
+					<reqData/>
+					<resData>
+						<col_config/>
+						<row_config/>
+						<cols/>
+						<rows/>
+						<data/>
+						<resForm>
+							<xparam>
+								<x_val/>
+								<x_fr/>
+								<x_to/>
+								<x_term/>
+								<x_logic_1/>
+								<x_op/>
+								<x_logic_2/>
+							</xparam>
+							<yparam>
+								<y_val/>
+								<y_fr/>
+								<y_to/>
+								<y_term/>
+								<y_logic_1/>
+								<y_op/>
+								<y_logic_2/>
+							</yparam>
+						</resForm>
+						<data_config/>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				// StringTokenizer
+				function StringTokenizer (tokenStr, divideChar, chkDivide) {
+					this.tokenStr = tokenStr;
+					this.divideChar = divideChar;
+					this.chkDivide = chkDivide;
+					
+					this.hasMoreTokens = hasMoreTokens;
+					this.nextToken = nextToken;
+				}
+				
+				function hasMoreTokens() {
+					if (this.tokenStr.length > 0) return true;
+					else return false; 
+				}
+				
+				function nextToken() {
+					tempStr = this.tokenStr;
+					
+					divideIndex = tempStr.indexOf(this.divideChar);
+					
+					if (divideIndex == -1) {
+						this.tokenStr = '';
+						return tempStr;
+					}
+					
+					if (this.chkDivide) {
+						this.tokenStr = tempStr.substring(divideIndex+1);
+						return tempStr.substring(0, divideIndex+1);
+					} else {
+						this.tokenStr = tempStr.substring(divideIndex+1);
+						return tempStr.substring(0, divideIndex);
+					}
+				}
+				
+				function plus(a, b){
+					var tmpVal = eval(a) + eval(b);
+					return tmpVal;
+				}
+				
+				function minus(a, b){
+					var tmpVal = eval(a) - eval(b);
+					return tmpVal;
+				}
+				
+				function prod(a, b){
+					var tmpVal = eval(a) * eval(b);
+					return tmpVal;
+				}
+				
+				function divid(a, b){
+					var tmpVal = eval(a) / eval(b);
+					return tmpVal;
+				}
+				
+				function makeGrid(){
+					var nodeList_x;
+					var nodeList_y;
+					var nodeList_data;
+					var trgNode;
+					var col_length;
+					var rowCount = 0;
+					var colCount = 1;
+					var rowTotal = 0;
+					var x_width = 920;
+					var y_width = 260;
+					
+					model1.refresh();
+					datagrid1.refresh();
+
+					//model1.removenode("/root/resData/col_config/col");
+					//model1.removenode("/root/resData/row_config/row");
+					//model1.removenode("/root/resData/data_config/data");
+					//model1.removenode("/root/gridData/rows");
+					
+					
+					//	col을 구성하는 데이터를 구성한다.
+					var x_fr = model1.getValue("/root/resData/resForm/xparam/x_fr");
+					var x_to = model1.getValue("/root/resData/resForm/xparam/x_to");
+					var x_term = model1.getValue("/root/resData/resForm/xparam/x_term");
+					var x_logic_1 = model1.getValue("/root/resData/resForm/xparam/x_logic_1");
+					var x_logic_2 = model1.getValue("/root/resData/resForm/xparam/x_logic_2");
+					var x_op = model1.getValue("/root/resData/resForm/xparam/x_op");
+					var x_logic = "(" + x_logic_1 + ")" + x_op + "(" + x_logic_2 + ")";
+					var x_interval = Math.round((eval(x_to) - eval(x_fr)) / eval(x_term));
+					var x_col_width = Math.round(x_width / (x_interval + 2));
+					
+					alert("x_col_width=" + x_col_width);
+					//alert("x_interval=" + x_interval);
+					if (x_fr == ""){
+						alert("X축의 시작하는 값을 정의해주십시오.");
+						return;
+					}
+					if (x_to == ""){
+						alert("X축의 종료하는 값을 정의해주십시오.");
+						return;
+					}
+					if (x_term == ""){
+						alert("X축의 간격값을 정의해주십시오.");
+						return;
+					}
+					if (!(x_logic_1.indexOf("x") > -1) && !(x_logic_2.indexOf("x") > -1)){
+						alert("계산식에 x축 변수가 없습니다.연산이 불가능합니다.");
+						return;
+					}			
+					var col_count = 0;
+					
+					for (var i=0; i< x_interval + 1; i++){
+						var aNode = instance1.selectSingleNode("/root/resData/col_config");
+						var name = instance1.createElement("col");
+						aNode.appendChild(name);
+					}
+					
+					nodeList_x = instance1.selectNodes("/root/resData/col_config/col");
+					var setVal = eval(x_fr);
+
+					for (var i=0; i<nodeList_x.length; i++){
+						if (i>0){
+							//if (i == (nodeList_x.length - 1)){
+							//	setVal = eval(x_to);
+							//} else {
+								setVal = setVal + eval(x_term);
+							//}
+						}
+						nodeList_x.item(i).value = Math.round(setVal);
+					}
+					
+					//	row를 구성하는 데이터를 구성한다.
+					var y_fr = model1.getValue("/root/resData/resForm/yparam/y_fr");
+					var y_val = model1.getValue("/root/resData/resForm/yparam/y_val");
+					var y_to = model1.getValue("/root/resData/resForm/yparam/y_to");
+					var y_term = model1.getValue("/root/resData/resForm/yparam/y_term");
+					var y_logic_1 = model1.getValue("/root/resData/resForm/yparam/y_logic_1");
+					var y_logic_2 = model1.getValue("/root/resData/resForm/yparam/y_logic_2");
+					var y_op = model1.getValue("/root/resData/resForm/yparam/y_op");
+					var y_logic = "(" + y_logic_1 + ")" + y_op + "(" + y_logic_2 + ")";
+					var y_interval = Math.round((eval(y_to) - eval(y_fr)) / eval(y_term));
+					var y_col_width = Math.round(y_width / y_interval);
+					
+					if (y_fr == ""){
+						alert("Y축의 시작하는 값을 정의해주십시오.");
+						return;
+					}
+					if (y_to == ""){
+						alert("Y축의 종료하는 값을 정의해주십시오.");
+						return;
+					}
+					if (y_term == ""){
+						alert("Y축의 간격값을 정의해주십시오.");
+						return;
+					}
+					if (!(y_logic_1.indexOf("y") > -1) && !(y_logic_2.indexOf("y") > -1)){
+						alert("계산식에 y축 변수가 없습니다.연산이 불가능합니다.");
+						return;
+					}
+					
+					for (var i=0; i<y_interval + 1; i++){
+						var aNode = instance1.selectSingleNode("/root/resData/row_config");
+						var name = instance1.createElement("row");
+						aNode.appendChild(name);
+					}
+					
+					nodeList_y = instance1.selectNodes("/root/resData/row_config/row");
+					setVal = eval(y_fr);
+					//setTerm = (eval(y_to) - eval(y_fr)) / eval(y_term);
+
+					for (var i=0; i<nodeList_y.length; i++){
+						if (i>0){
+							//if (i == (nodeList_y.length - 1)){
+							//	setVal = eval(y_to);
+							//} else {
+								setVal = setVal + eval(y_term);
+							//}
+						}
+						//alert(setVal);
+						nodeList_y.item(i).value = Math.round(setVal);
+					}
+					
+					var data_count = (eval(x_interval) + 1) * (eval(y_interval) + 1);
+					
+					for (var i=0; i<data_count; i++){
+						var aNode = instance1.selectSingleNode("/root/resData/data_config");
+						var name = instance1.createElement("data");
+						aNode.appendChild(name);
+					}
+					
+					nodeList_data = instance1.selectNodes("/root/resData/data_config/data");
+					
+					var x_logic_1_fr_cnt = x_logic_1.split("(").length;
+					var x_logic_1_to_cnt = x_logic_1.split(")").length;
+					
+					if (x_logic_1_fr_cnt > x_logic_1_to_cnt){
+						alert("우괄호가 빠진 부분이 있는지 확인해주십시오.");
+						return;
+					} else if (x_logic_1_fr_cnt < x_logic_1_to_cnt){
+						alert("좌괄호가 빠진 부분이 있는지 확인해주십시오.");
+						return;
+					}
+					
+					var data_idx = 0;
+					var tmppVal = 0;
+					var conv_logic_y = new Array();
+					var conv_logic_x = new Array();
+					for (var i=0; i<nodeList_y.length; i++){
+						
+						for (var j=0; j<nodeList_x.length; j++){
+							conv_logic_x[data_idx] = x_logic.replace(/x/ig, nodeList_x.item(j).value);
+							conv_logic_y[data_idx] = y_logic.replace(/y/ig, nodeList_y.item(i).value);
+							//nodeList_data.item(data_idx).value = eval(conv_logic_x) + eval(conv_logic_y);
+							data_idx++;
+						}
+						//nodeList_data.item(data_idx-1).value = eval(nodeList_data.item(data_idx-1).value) + eval(conv_logic_y);
+					}
+					//alert(conv_logic_y.length + "\n" + conv_logic_x.length);
+					//for (var i=0; i<conv_logic_y.length; i++){
+					//	alert(conv_logic_y[i] + "\n" + conv_logic_x[i]);
+					//}
+					for (var i=0; i<nodeList_data.length; i++){
+						nodeList_data.item(i).value = eval(conv_logic_x[i]) + eval(conv_logic_y[i]);
+					}
+					
+					
+					
+					// 칼럼의 맨앞에다가 공백 셀을 만든다.
+					
+					datagrid1.addColumn("ref:remark; id:remark;");
+					datagrid1.caption = "";
+					datagrid1.colWidth(0) = x_col_width;
+//					datagrid1.colWidth(0) = 90;
+					
+					// 칼럼데이터를 가져다가 그리드에 칼럼을 동적으로 생성한다.
+					
+					//alert(nodeList_x.length);
+					for(var i=0; i<nodeList_x.length; i++){	
+						var ref = nodeList_x.item(i).value;
+						var covName = ref + " ";
+						var colID = "newcol"+datagrid1.cols;
+						datagrid1.addColumn("format:#,###.##; ");
+						datagrid1.caption += "^" + covName;
+						datagrid1.colWidth(i) = x_col_width;
+						//alert(ref);
+//						datagrid1.colWidth(i) = 90;
+					}
+					
+					
+					for(var i=0; i<nodeList_y.length; i++){
+						var ref = nodeList_y.item(i).value;
+						if (i < (nodeList_y.length -1)){
+							datagrid1.additem(); 
+						}
+						datagrid1.valuematrix( (i+1), 0 ) = ref;
+					}
+					
+					
+					
+					// 그리드에 데이터를 넣는다.
+					for(i=0; i<nodeList_data.length;i++){
+						var ref = nodeList_data.item(i).value;
+						if (i % nodeList_x.length == 0){
+							rowCount++;
+							colCount = 1;
+						} else {
+							colCount++;
+						}
+						datagrid1.valuematrix( rowCount, colCount) = ref;
+					}
+					
+					
+					// 그리드에 col별로 합계를 계산하여 그리드에 맨 밑에 합계 row를 추가하여 넣는다.
+//					datagrid1.subtotalposition="below"; 
+//					datagrid1.multitotals=true; 
+//					for (i=0; i<(col_length + 1); i++){
+//						datagrid1.subtotal("sum", -1, (i+1),"#,###", "", 0, "합계");
+						//alert(datagrid1.colWidth(i+1));
+//					}
+					datagrid1.fixedCols = "1";
+					datagrid1.fixedRows = "1";
+//					datagrid1.cellStyle("text-align", 1, 1, rowCount + 1, col_length + 1) = "right";
+//					datagrid1.cellStyle("padding-right", 1, 1, rowCount + 1, col_length + 1) = "24px";
+
+					/*
+					nodeList = instance1.selectNodes("/root/resData/cols");
+					trgNode = instance1.selectSingleNode("/root/gridData/rows");
+					col_length = nodeList.length;
+					
+					// 칼럼의 맨앞에다가 공백 셀을 만든다.
+					datagrid1.addColumn("ref:remark; id:remark;");
+					datagrid1.caption = "";
+					datagrid1.colWidth(0) = 90;
+					
+					// 칼럼데이터를 가져다가 그리드에 칼럼을 동적으로 생성한다.
+					for(i=0; i<nodeList.length;i++){
+						var ref = nodeList.item(i).value;
+						var covName = ref.substring(ref.indexOf("_") + 1, ref.length);
+						var colID = "newcol"+datagrid1.cols;
+						datagrid1.addColumn("ref:" + ref + "; format:#,###; id:" + colID);
+						datagrid1.caption += "^"+covName;
+						datagrid1.colWidth(i) = 90;
+					}
+					//datagrid1.colWidth(col_length-1) = 90;
+					//datagrid1.colWidth(col_length) = 90;
+					//	그리드 칼럼에 합계칼럼을 추가한다.
+					datagrid1.addColumn("ref:total; format:#,###; id:total;");
+					datagrid1.caption += "^합계";
+					datagrid1.colWidth(col_length + 1) = 90;
+					
+					//	row를 구성하는 데이터를 가져온다.
+					model.send("s2");
+					nodeList = instance1.selectNodes("/root/resData/rows/dept");
+					
+					// 가져온 row 데이터를 그리드에 추가한다.
+					for(i=0; i<nodeList.length;i++){
+						var ref = nodeList.item(i).value;
+						if (i < (nodeList.length -1)){
+							datagrid1.additem(); 
+						}
+						datagrid1.valuematrix( (i+1), 0 ) = ref;
+					}
+					
+					// 분할표에 들어갈 데이터를 가져온다.
+					model.send("s3");
+					nodeList = instance1.selectNodes("/root/resData/data/val");
+					
+					// 그리드에 데이터를 넣으면서 row별로 합계를 구해서 같이 넣는다.
+					for(i=0; i<nodeList.length;i++){
+						var ref = nodeList.item(i).value;
+						if (i > 0 ) {
+							if (i % col_length == 0){
+								rowCount++;
+								colCount = 1;
+								rowTotal = eval(ref);
+							} else {
+								colCount++;
+								rowTotal += eval(ref);
+							}
+						} else {
+							rowTotal = eval(ref);
+						}
+						datagrid1.valuematrix( rowCount, col_length + 1) = rowTotal;
+						datagrid1.valuematrix( rowCount, colCount) = ref;
+					}
+					
+					// 그리드에 col별로 합계를 계산하여 그리드에 맨 밑에 합계 row를 추가하여 넣는다.
+					datagrid1.subtotalposition="below"; 
+					datagrid1.multitotals=true; 
+					for (i=0; i<(col_length + 1); i++){
+						datagrid1.subtotal("sum", -1, (i+1),"#,###", "", 0, "합계");
+						//alert(datagrid1.colWidth(i+1));
+					}
+					datagrid1.fixedCols = "1";
+					datagrid1.fixedRows = "1";
+					datagrid1.cellStyle("text-align", 1, 1, rowCount + 1, col_length + 1) = "right";
+					datagrid1.cellStyle("padding-right", 1, 1, rowCount + 1, col_length + 1) = "24px";
+					*/
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				var op_arr = new Array();
+				op_arr[0] = "+";
+				op_arr[1] = "-";
+				op_arr[2] = "*";
+				op_arr[3] = "/";
+				
+				for (var i=0; i<op_arr.length; i++){
+					if (i==0){
+						model1.setValue("/root/initData/comboSet/op_combo_x/item/label", op_arr[i]);
+						model1.setValue("/root/initData/comboSet/op_combo_x/item/value", op_arr[i]);
+						model1.setValue("/root/initData/comboSet/op_combo_y/item/label", op_arr[i]);
+						model1.setValue("/root/initData/comboSet/op_combo_y/item/value", op_arr[i]);
+					} else {
+						model.makeNode("/root/initData/comboSet/op_combo_x/item[" + (i + 1) + "]/label");
+						model.makeNode("/root/initData/comboSet/op_combo_x/item[" + (i + 1) + "]/value");
+						model1.setValue("/root/initData/comboSet/op_combo_x/item[" + (i + 1) + "]/label", op_arr[i]);
+						model1.setValue("/root/initData/comboSet/op_combo_x/item[" + (i + 1) + "]/value", op_arr[i]);
+						
+						model.makeNode("/root/initData/comboSet/op_combo_y/item[" + (i + 1) + "]/label");
+						model.makeNode("/root/initData/comboSet/op_combo_y/item[" + (i + 1) + "]/value");
+						model1.setValue("/root/initData/comboSet/op_combo_y/item[" + (i + 1) + "]/label", op_arr[i]);
+						model1.setValue("/root/initData/comboSet/op_combo_y/item[" + (i + 1) + "]/value", op_arr[i]);
+					}
+				}
+				
+				combo1.refresh();
+				combo2.refresh();
+				
+				model1.setValue("/root/resData/resForm/xparam/x_val", "달러전신환매도율");
+				model1.setValue("/root/resData/resForm/xparam/x_fr", "10");
+				model1.setValue("/root/resData/resForm/xparam/x_to", "20");
+				model1.setValue("/root/resData/resForm/xparam/x_term", "2");
+				model1.setValue("/root/resData/resForm/xparam/x_logic_1", "((x * 0.3) / 2)");
+				model1.setValue("/root/resData/resForm/xparam/x_op", "+");
+				model1.setValue("/root/resData/resForm/xparam/x_logic_2", "100");
+				
+				model1.setValue("/root/resData/resForm/yparam/y_val", "유가");
+				model1.setValue("/root/resData/resForm/yparam/y_fr", "100");
+				model1.setValue("/root/resData/resForm/yparam/y_to", "200");
+				model1.setValue("/root/resData/resForm/yparam/y_term", "20");
+				model1.setValue("/root/resData/resForm/yparam/y_logic_1", "(y * 0.8)");
+				model1.setValue("/root/resData/resForm/yparam/y_op", "+");
+				model1.setValue("/root/resData/resForm/yparam/y_logic_2", "20");
+				model1.refresh();
+				
+				/*
+					var nodeList;
+					var trgNode;
+					var col_length;
+					var rowCount = 1;
+					var colCount = 1;
+					var rowTotal = 0;
+					
+					//	col을 구성하는 데이터를 가져온다.
+					model.send("s1");
+					nodeList = instance1.selectNodes("/root/resData/cols/year");
+					trgNode = instance1.selectSingleNode("/root/gridData/rows");
+					col_length = nodeList.length;
+					
+					// 칼럼의 맨앞에다가 공백 셀을 만든다.
+					datagrid1.addColumn("ref:remark; id:remark;");
+					datagrid1.caption = "";
+					datagrid1.colWidth(0) = 90;
+					
+					// 칼럼데이터를 가져다가 그리드에 칼럼을 동적으로 생성한다.
+					for(i=0; i<nodeList.length;i++){
+						var ref = nodeList.item(i).value;
+						var covName = ref.substring(ref.indexOf("_") + 1, ref.length);
+						var colID = "newcol"+datagrid1.cols;
+						datagrid1.addColumn("ref:" + ref + "; format:#,###; id:" + colID);
+						datagrid1.caption += "^"+covName;
+						datagrid1.colWidth(i) = 90;
+					}
+					//datagrid1.colWidth(col_length-1) = 90;
+					//datagrid1.colWidth(col_length) = 90;
+					//	그리드 칼럼에 합계칼럼을 추가한다.
+					datagrid1.addColumn("ref:total; format:#,###; id:total;");
+					datagrid1.caption += "^합계";
+					datagrid1.colWidth(col_length + 1) = 90;
+					
+					//	row를 구성하는 데이터를 가져온다.
+					model.send("s2");
+					nodeList = instance1.selectNodes("/root/resData/rows/dept");
+					
+					// 가져온 row 데이터를 그리드에 추가한다.
+					for(i=0; i<nodeList.length;i++){
+						var ref = nodeList.item(i).value;
+						if (i < (nodeList.length -1)){
+							datagrid1.additem(); 
+						}
+						datagrid1.valuematrix( (i+1), 0 ) = ref;
+					}
+					
+					// 분할표에 들어갈 데이터를 가져온다.
+					model.send("s3");
+					nodeList = instance1.selectNodes("/root/resData/data/val");
+					
+					// 그리드에 데이터를 넣으면서 row별로 합계를 구해서 같이 넣는다.
+					for(i=0; i<nodeList.length;i++){
+						var ref = nodeList.item(i).value;
+						if (i > 0 ) {
+							if (i % col_length == 0){
+								rowCount++;
+								colCount = 1;
+								rowTotal = eval(ref);
+							} else {
+								colCount++;
+								rowTotal += eval(ref);
+							}
+						} else {
+							rowTotal = eval(ref);
+						}
+						datagrid1.valuematrix( rowCount, col_length + 1) = rowTotal;
+						datagrid1.valuematrix( rowCount, colCount) = ref;
+					}
+					
+					// 그리드에 col별로 합계를 계산하여 그리드에 맨 밑에 합계 row를 추가하여 넣는다.
+					datagrid1.subtotalposition="below"; 
+					datagrid1.multitotals=true; 
+					for (i=0; i<(col_length + 1); i++){
+						datagrid1.subtotal("sum", -1, (i+1),"#,###", "", 0, "합계");
+						//alert(datagrid1.colWidth(i+1));
+					}
+					datagrid1.fixedCols = "1";
+					datagrid1.fixedRows = "1";
+					datagrid1.cellStyle("text-align", 1, 1, rowCount + 1, col_length + 1) = "right";
+					datagrid1.cellStyle("padding-right", 1, 1, rowCount + 1, col_length + 1) = "24px";
+				*/
+				]]>
+			</script>
+			<submission id="s1" action="http://127.0.0.1:7001/jsp/statics_cols.jsp" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/cols"/>
+			<submission id="s2" action="http://127.0.0.1:7001/jsp/statics_rows.jsp" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/rows"/>
+			<submission id="s3" action="http://127.0.0.1:7001/jsp/statics_data.jsp" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData/data"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="1,31;2,42;2,54;2,202;2,260;2,172;">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group1" style="left:10px; top:54px; width:925px; height:86px; ">
+			<caption id="caption1" class="list_cap01" style="left:0px; top:1px; width:60px; height:26px; text-align:center; ">X 축</caption>
+			<caption id="caption2" class="list_cap02" style="left:59px; top:1px; width:92px; height:26px; text-align:center; "/>
+			<caption id="caption4" class="list_cap01" style="left:0px; top:26px; width:60px; height:26px; text-align:center; ">Y 축</caption>
+			<caption id="caption5" class="list_cap02" style="left:59px; top:26px; width:92px; height:26px; text-align:center; "/>
+			<caption id="caption6" class="list_cap01" style="left:150px; top:1px; width:60px; height:26px; text-align:center; ">시작 값</caption>
+			<caption id="caption7" class="list_cap01" style="left:150px; top:26px; width:60px; height:26px; text-align:center; ">시작 값</caption>
+			<caption id="caption8" class="list_cap02" style="left:209px; top:1px; width:80px; height:26px; text-align:center; "/>
+			<caption id="caption9" class="list_cap02" style="left:209px; top:26px; width:80px; height:26px; text-align:center; "/>
+			<caption id="caption10" class="list_cap01" style="left:288px; top:1px; width:60px; height:26px; text-align:center; ">종료 값</caption>
+			<caption id="caption11" class="list_cap01" style="left:288px; top:26px; width:60px; height:26px; text-align:center; ">종료 값</caption>
+			<caption id="caption12" class="list_cap02" style="left:347px; top:1px; width:80px; height:26px; text-align:center; "/>
+			<caption id="caption13" class="list_cap02" style="left:347px; top:26px; width:80px; height:26px; text-align:center; "/>
+			<caption id="caption14" class="list_cap01" style="left:426px; top:1px; width:60px; height:26px; text-align:center; ">간격</caption>
+			<caption id="caption15" class="list_cap01" style="left:426px; top:26px; width:60px; height:26px; text-align:center; ">간격</caption>
+			<caption id="caption16" class="list_cap02" style="left:485px; top:1px; width:70px; height:26px; text-align:center; "/>
+			<caption id="caption17" class="list_cap02" style="left:485px; top:26px; width:70px; height:26px; text-align:center; "/>
+			<caption id="caption18" class="list_cap01" style="left:554px; top:1px; width:60px; height:26px; text-align:center; ">계산식1</caption>
+			<caption id="caption19" class="list_cap01" style="left:554px; top:26px; width:60px; height:26px; text-align:center; ">계산식1</caption>
+			<caption id="caption20" class="list_cap02" style="left:613px; top:1px; width:312px; height:26px; text-align:center; "/>
+			<caption id="caption21" class="list_cap02" style="left:613px; top:26px; width:312px; height:26px; text-align:center; "/>
+			<input id="input2" ref="/root/resData/resForm/xparam/x_val" style="left:64px; top:5px; width:82px; height:18px; "/>
+			<input id="input1" ref="/root/resData/resForm/yparam/y_val" style="left:64px; top:30px; width:82px; height:18px; "/>
+			<input id="input3" ref="/root/resData/resForm/xparam/x_fr" format="#,###" style="left:213px; top:5px; width:70px; height:18px; "/>
+			<input id="input4" ref="/root/resData/resForm/yparam/y_fr" format="#,###" style="left:213px; top:30px; width:70px; height:18px; "/>
+			<input id="input5" ref="/root/resData/resForm/xparam/x_to" format="#,###" style="left:352px; top:5px; width:70px; height:18px; "/>
+			<input id="input6" ref="/root/resData/resForm/yparam/y_to" format="#,###" style="left:352px; top:30px; width:70px; height:18px; "/>
+			<input id="input7" ref="/root/resData/resForm/xparam/x_term" format="#,###" style="left:490px; top:5px; width:60px; height:18px; "/>
+			<input id="input8" ref="/root/resData/resForm/yparam/y_term" format="#,###" style="left:490px; top:30px; width:60px; height:18px; "/>
+			<input id="input9" ref="/root/resData/resForm/xparam/x_logic_1" style="left:618px; top:5px; width:100px; height:18px; "/>
+			<input id="input10" ref="/root/resData/resForm/yparam/y_logic_1" style="left:618px; top:30px; width:100px; height:18px; "/>
+			<!--
+			<caption id="caption22" class="list_cap01" style="left:0px; top:51px; width:60px; height:26px; text-align:center; ">데이터</caption>
+			<caption id="caption23" class="list_cap02" style="left:59px; top:51px; width:92px; height:26px; text-align:center; "/>
+			<input id="input13" ref="/root/resData/data_config" format="#,###" style="left:64px; top:55px; width:82px; height:18px; "/>
+			-->
+			<input id="input14" ref="/root/resData/resForm/xparam/x_logic_2" format="#,###" style="left:780px; top:5px; width:118px; height:18px; "/>
+			<input id="input15" ref="/root/resData/resForm/yparam/y_logic_2" format="#,###" style="left:780px; top:30px; width:118px; height:18px; "/>
+			<select1 id="combo1" ref="/root/resData/resForm/xparam/x_op" appearance="minimal" style="left:725px; top:5px; width:50px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/op_combo_x/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo2" ref="/root/resData/resForm/yparam/y_op" appearance="minimal" style="left:725px; top:30px; width:50px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/op_combo_y/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="group2" style="left:10px; top:147px; width:925px; height:25px; ">
+			<button id="button2" class="btn02" style="left:870px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					window.reload(); 
+					/*
+					model1.removeNodeset("/root/resData/col_config/col");
+					model1.removeNodeset("/root/resData/row_config/row");
+					model1.removeNodeset("/root/resData/data_config/data");
+					model1.removeNodeset("/root/gridData/rows");
+
+					var col_length = datagrid1.cols;
+					var row_length = datagrid1.rows;
+					alert("초기화이전\n" + col_length + "\n" + row_length);
+					
+					for (var i=0; i<col_length + 1; i++){
+						datagrid1.deleteColumn(i);
+					}
+					//for (var i=0; i<row_length; i++){
+					//	datagrid1.deleteRow(i);
+					//}
+					model1.refresh();
+					datagrid1.refresh();
+					alert(datagrid1.cols + "\n" + datagrid1.rows);
+					//model1.removenode("/root/resData/col_config/col");
+					//model1.removenode("/root/resData/row_config/row");
+					//model1.removenode("/root/resData/data_config/data");
+					//model1.removenode("/root/gridData/rows");
+					*/
+				]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:715px; top:0px; width:52px; height:21px; ">
+				<caption>만들기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var col_length = datagrid1.cols;
+					var row_length = datagrid1.rows;
+
+					//alert(col_length + "\n" + row_length);
+					makeGrid();
+				]]>
+				</script>
+			</button>
+			<button id="button3" class="btn03" style="left:770px; top:0px; width:65px; height:21px; ">
+				<caption>액셀저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						datagrid1.saveExcel(filename, "sheetname:Transaction;colhiddenextend:true;exportfalserows:;");
+					}
+				]]>
+				</script>
+			</button>
+		</group>
+		<group id="group3" style="left:10px; top:202px; width:930px; height:343px; ">
+			<datagrid id="datagrid1" nodeset="/root/gridData/rows" colsep="^" mergecellsfixedrows="bycolrec" rowsep="|" style="left:0px; top:52px; width:920px; height:260px; "/>
+			<output id="output1" ref="/root/resData/resForm/xparam/x_val" style="left:820px; top:25px; width:100px; height:18px; "/>
+			<output id="output2" ref="/root/resData/resForm/yparam/y_val" style="left:0px; top:320px; width:100px; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

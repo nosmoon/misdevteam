@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>주간발행 조회 팝업</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<title/>
+						<comboSet>
+							<fac_clsf>
+								<item/>
+							</fac_clsf>
+						</comboSet>
+					</initData>
+					<reqData>
+						<searchData>
+							<occr_yymm/>
+							<issu_dt_to/>
+							<fac_clsf/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<reqForm>
+							<frdt/>
+							<todt/>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<issu_dt/>
+								<fac_clsf_nm/>
+								<medi_nm/>
+								<sect_nm/>
+								<pcnt/>
+								<slip_qty/>
+								<dual_out_nm/>
+								<fac_clsf/>
+								<medi_cd/>
+								<sect_cd/>
+								<dual_out_clsf/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.setValue("/root/initData/title", "주간발행 조회");
+					
+					//model1.send("mt_papord_4008");
+					//model1.copyNode("/root/initData/comboSet/fac_clsf","/root/tempData/fac_clsf");
+					//model1.refresh();
+				]]>
+			</script>
+			<submission id="mt_papord_4100_l" action="/mt/papord/4100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papord_4007" action="/mt/papord/4007" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_papord_4008" action="/mt/papord/4008" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function resetIssuSize(){
+					datagrid1.allStyle("data", "background-color") = "#FFFFFF";
+					for (var i=1; i< datagrid1.rows;i++){
+						//alert(datagrid1.valueMatrix(i, 27))
+						datagrid1.rowHeight(i) = 23;
+						if (datagrid1.valueMatrix(i, 27) == "02") {
+							datagrid1.rowStyle(i, "data", "background-color") = "#AAAAFF";
+						}
+					}
+					for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+						for(var j=datagrid1.fixedCols; j<17; j++){
+							if (j%2 == 1){
+								datagrid1.cellstyle("background-color", i, j) = "#FFFFCC";
+							}
+						}
+					}		
+				}
+					
+				function funSearch() {
+					//필수항목 체크
+					if (model.getValue("/root/reqData/searchData/occr_yymm") == ""){
+						alert("발행년월을 입력해주십시오.");
+						return;
+					}
+					model.send("mt_papord_4007");
+					model.copyNode("/root/resData/gridData", "/root/tempData/gridData");
+					
+					datagrid1.refresh();
+					resetIssuSize();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="650" pageheight="400">
+		<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:6px; top:11px; width:344px; height:27px; ">제목 - Main Title</caption>
+		<group id="group1" style="left:430px; top:11px; width:210px; height:24px; ">
+			<button id="button8" class="btn02" style="left:1px; top:2px; width:51px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					    funSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:105px; top:2px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:53px; top:2px; width:51px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var retFunc    = "";    //함수명 
+						var sIssuDt    = "";    //발행일자
+						var sFacClsf   = "";    //공장구분
+						var sMediCd    = "";    //매체코드
+						var sSectCd    = "";    //섹션코드
+						var sPcnt      = "";    //발행면수
+						var sSlipQty   = "";    //발행부수
+						var sDualOut   = "";    //양출여부
+						var sDualOutNm = "";    //양출명
+						var iRowCnt    = 0;     //row count
+						
+						iRowCnt = datagrid1.rows;
+						retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+						var fr = model1.getValue("/root/reqData/reqForm/frdt");
+						var to = model1.getValue("/root/reqData/reqForm/todt");
+						var fac = model1.getValue("/root/reqData/searchData/fac_clsf");
+						eval("window.opener.javascript." + retFunc + "('" + fr + "', '" + to + "', '" + fac + "')");
+						/*
+						for(var i=1; i < iRowCnt; i++) { 
+							sIssuDt    = model1.getValue("/root/resData/gridData/record["+i+"]/issu_dt");
+							sFacClsf   = model1.getValue("/root/resData/gridData/record["+i+"]/fac_clsf");
+							sMediCd    = model1.getValue("/root/resData/gridData/record["+i+"]/medi_cd");
+							sSectCd    = model1.getValue("/root/resData/gridData/record["+i+"]/sect_cd");
+							sPcnt      = model1.getValue("/root/resData/gridData/record["+i+"]/pcnt");
+							sSlipQty   = model1.getValue("/root/resData/gridData/record["+i+"]/slip_qty");
+							sDualOut   = model1.getValue("/root/resData/gridData/record["+i+"]/dual_out_clsf");
+							sDualOutNm = model1.getValue("/root/resData/gridData/record["+i+"]/dual_out_nm");
+							eval("window.opener.javascript." + retFunc + "('" + sIssuDt + "', '" + sFacClsf + "','" + sMediCd + "','" + sSectCd + "','" + sPcnt + "','" + sSlipQty + "','" + sDualOut + "','" + sDualOutNm + "')");
+						}
+						*/
+						window.close();
+						
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:157px; top:2px; width:51px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					window.close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" style="left:7px; top:55px; width:633px; height:24px; ">
+			<caption id="caption26" class="list_cap02" style="left:0px; top:0px; width:630px; height:24px; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:100px; height:24px; text-align:center; ">발행년월</caption>
+			<input id="input1" ref="/root/reqData/searchData/occr_yymm" class="req" inputtype="date" format="yyyy-mm" style="left:105px; top:3px; width:100px; height:18px; "/>
+			<!--
+			<caption id="caption2" class="list_cap01" style="left:275px; top:0px; width:100px; height:24px; text-align:center; ">공장</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/fac_clsf" appearance="minimal" style="left:380px; top:3px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			-->
+		</group>
+		<group id="group_line" class="gro_line" style="left:6px; top:45px; width:630px; height:5px; "/>
+		<group id="group3" class="gro_line" style="left:6px; top:85px; width:630px; height:5px; "/>
+		<group id="group4" style="left:10px; top:120px; width:630px; height:205px; ">
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" class="nobg" caption="월^월^화^화^수^수^목^목^금^금^토^토^일^일" colsep="^" colwidth="44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 40, 40, 40, 40" mergecellsfixedrows="bycolrec" rowheader="select" rowheight="30" rowsep="|" selectionmode="free" style="left:0px; top:0px; width:630px; height:175px; ">
+				<col ref="d_mon"/>
+				<col ref="d_mon_cnt"/>
+				<col ref="d_tue"/>
+				<col ref="d_tue_cnt"/>
+				<col ref="d_wed"/>
+				<col ref="d_wed_cnt"/>
+				<col ref="d_thr"/>
+				<col ref="d_thr_cnt"/>
+				<col ref="d_fri"/>
+				<col ref="d_fri_cnt"/>
+				<col ref="d_sat"/>
+				<col ref="d_sat_cnt"/>
+				<col ref="d_sun"/>
+				<col ref="d_sun_cnt"/>
+				<col ref="issu_dt_fr" visibility="hidden"/>
+				<col ref="issu_dt_to" visibility="hidden"/>
+				<col ref="cmpy_cd" visibility="hidden"/>
+				<col ref="occr_yy" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<col ref="frdt" visibility="hidden"/>
+				<col ref="todt" visibility="hidden"/>
+				<col ref="fix_clsf" visibility="hidden"/>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						var row = datagrid1.row;
+						var fix_clsf = datagrid1.valueMatrix(row, 24);
+						var fr = datagrid1.valueMatrix(row, 15);
+						var to = datagrid1.valueMatrix(row, 16);
+						
+						//alert(fr + "\n" + to);
+						model.setValue("/root/reqData/reqForm/frdt", fr);
+						model.setValue("/root/reqData/reqForm/todt", to);
+					]]>
+				</script>
+			</datagrid>
+		</group>
+	</xhtml:body>
+</xhtml:html>

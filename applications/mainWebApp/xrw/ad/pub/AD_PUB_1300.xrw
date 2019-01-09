@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo/>
+					</initData>
+					<codeData>
+						<eps_clsf_cd>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</eps_clsf_cd>
+						<guid_sec_kind_cd>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</guid_sec_kind_cd>
+					</codeData>
+					<bodyData>
+					</bodyData>
+					<reqData>
+						<searchData>
+							<frdt/>
+							<todt/>
+							<dt_clsf>01</dt_clsf>
+							<approval/>
+							<medi_cd>110</medi_cd>
+							<advt_cont/>
+						</searchData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<guid_aprv_yn/>
+								<seq/>
+								<advt_cont/>
+								<advcs_cd/>
+								<advcs_nm/>
+								<eps_clsf_cd/>
+								<pubc_side/>
+								<arow/>
+								<uprc/>
+								<advt_fee/>
+								<vat/>
+								<guid_sec_kind_cd/>
+								<pubc_dt/>
+							</record>
+						</gridData>
+					</resData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				var currentdt = getCurrentDate();
+				var frdt = dateAdd("d", -1, currentdt);	//현재일자의 -1일
+				var todt = dateAdd("d",-1, currentdt);	//현재일자의 -1일
+				
+				model.setValue("/root/reqData/searchData/frdt", frdt); 
+				model.setValue("/root/reqData/searchData/todt", todt); 
+				
+				cb_aprv_clsf.select(0);
+				
+				model.send("ad_pub_1300_m");	
+//				model.copyNode("/root/codeData/eps_clsf_cd", "/root/tempData/eps_clsf_cd");
+				model.copyNode("/root/codeData/guid_sec_kind_cd", "/root/tempData/guid_sec_kind_cd");
+				
+				model.removeNodeset("/root/resData/gridData/record");
+				model.refresh();
+					
+				]]>
+			</script>
+			<submission id="ad_pub_1300_m" action="/ad/pub/1300" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="ad_pub_1310_l" action="/ad/pub/1310" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/resData"/>
+			<submission id="ad_pub_1320_u" action="/ad/pub/1320" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/gridData/record" resultref="/root/msgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+	
+			var _enter_src	= "";
+			
+			function setDlcoInfo(dlco_no, dlco_nm){
+				
+				datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advcs_cd")) = dlco_no;
+				datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advcs_nm")) = dlco_nm;
+				datagrid1.addStatus(datagrid1.row, "update");  //상태 변경						
+			}	
+		
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,936;2,60;2,70;2,105;2,110;2,120;" style="font-family:굴림; ">
+		<caption id="caption44" class="list_cap02" style="left:10px; top:70px; width:927px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption4" class="list_cap01" style="left:10px; top:70px; width:90px; height:28px; ">게재일자</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:105px; width:927px; height:5px; "/>
+		<button id="button1" class="btn02" crud="R" style="left:827px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				model.reset();
+				
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn02" crud="C" style="left:769px; top:40px; width:50px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!checkGridData(datagrid1) || !isDataGridUpdated(datagrid1)){
+					alert("저장할 내역이 없습니다.");
+					return;
+				}
+				
+				if(!commGridReqCheck(datagrid1)) return;
+				
+				var canGo = false;
+				for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+					var guid_aprv_yn = datagrid1.valueMatrix(i, datagrid1.colRef("guid_aprv_yn"));
+					if(guid_aprv_yn == "Y"){
+						canGo = true;
+						break;
+					}
+				}
+				
+				if(!canGo){
+					alert("승인한 내역이 없습니다.");
+					return;
+				}
+				
+				if(windowConfirm("저장하시겠습니까?")){
+					//model.setValue("/root/tempData/flag", "U");
+					model.makeNode("/root/resData/gridData/record");
+					model.setValue("/root/resData/gridData/record", model.getValue("/root/initData"));
+					model.makeNode("/root/resData/gridData/record/multiUpdateData");
+					model.setValue("/root/resData/gridData/record/multiUpdateData",datagrid1.getUpdateData());
+					
+					model.send("ad_pub_1320_u");
+					if(submit_completed()){
+						model.send("ad_pub_1310_l");
+					}
+				}
+							
+				]]>
+			</script>
+		</button>
+		<button id="button7" class="btn02" crud="R" style="left:711px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(validateReq()){
+					model.send("ad_pub_1310_l");	
+				}
+				
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:410px; top:70px; width:90px; height:28px; ">승인여부</caption>
+		<select1 id="cb_aprv_clsf" ref="/root/reqData/searchData/approval" navindex="4" appearance="minimal" style="left:503px; top:75px; width:75px; height:18px; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value>0</value>
+				</item>
+				<item>
+					<label>1 승인</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>2 미승인</label>
+					<value>2</value>
+				</item>
+			</choices>
+		</select1>
+		<caption id="caption3" style="left:204px; top:76px; width:15px; height:20px; text-align:center; ">~</caption>
+		<input id="input1" ref="/root/reqData/searchData/todt" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" caption="게재일자" style="left:224px; top:75px; width:95px; height:18px; "/>
+		<input id="input2" ref="/root/reqData/searchData/frdt" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" caption="게재일자" style="left:104px; top:75px; width:95px; height:18px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="안내승인^내용^광고주^광고주명^법인^면^행^단가^광고료^부가세^안내코드^PUBC_DT" colsep="#" colwidth="55, 145, 80, 110, 56, 40, 40, 80, 90, 80, 90, 100" rowheader="update" rowsep="|" style="left:10px; top:140px; width:927px; height:575px; ">
+			<col checkvalue="Y,N" ref="guid_aprv_yn" type="checkbox"/>
+			<col ref="seq" type="input" style="text-align:left; word-wrap:none; "/>
+			<col class="req" ref="advt_cont" type="input" caption="광고주" style="text-align:center; word-wrap:none; "/>
+			<col class="req" imemode="hangul" ref="advcs_cd" type="inputbutton" caption="광고주" style="text-align:left; word-wrap:none; "/>
+			<col ref="advcs_nm" type="input" style="text-align:left; "/>
+			<col ref="eps_clsf_cd" type="input"/>
+			<col ref="pubc_side" type="input"/>
+			<col ref="arow" type="input" visibility="hidden" format="#,###" style="text-align:right; "/>
+			<col class="req" ref="uprc" type="input" format="#,###" caption="광고료" style="text-align:right; "/>
+			<col class="req" ref="advt_fee" type="input" format="#,###" caption="부가세" style="text-align:right; "/>
+			<col ref="vat" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/codeData/guid_sec_kind_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="guid_sec_kind_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+								
+				if(datagrid1.col == datagrid1.colRef("advcs_nm")){	
+					var advcs_nm = datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advcs_nm"));
+					showAdvcsSearchPopup("Y", "Y", "", "", "", advcs_nm);	
+				}
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					
+					var dataIndex = getSelectedRecordIndex(datagrid1);
+					if(datagrid1.col== datagrid1.colRef("advcs_cd")){
+						
+						var advcs_cd   = 	datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advcs_cd"));
+						
+						advcs_cd		 = 	lpad(advcs_cd, 8, "0");
+						
+						datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("advcs_cd"))	=	advcs_cd;
+						
+						commonSubmissionWithXRef("9004", advcs_cd ,  "/root/resData/gridData/record["+dataIndex+"]/advcs_cd", "/root/resData/gridData/record["+dataIndex+"]/advcs_nm");
+						
+					}else if(datagrid1.col == datagrid1.colRef("advcs_nm")){
+						datagrid1.valueMatrix(dataIndex, datagrid1.colRef("advcs_cd")) = "";
+						var advcs_nm	   = model.getValue("/root/resData/gridData/record["+dataIndex+"]/advcs_nm");						
+						findDlcoNoByNameWithRef("1", advcs_nm, "/root/resData/gridData/record["+dataIndex+"]/advcs_cd", "/root/resData/gridData/record["+dataIndex+"]/advcs_nm");
+					}else if(datagrid1.col == datagrid1.colRef("advt_fee")){
+						var advt_fee = Number(model.getValue("/root/resData/gridData/record["+dataIndex+"]/advt_fee"));
+						var vat		= advt_fee / 10;
+						
+						model.setValue("/root/resData/gridData/record["+dataIndex+"]/vat", vat);
+					}
+					datagrid1.refresh();	
+				]]>
+			</script>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:885px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				
+				]]>
+			</script>
+		</button>
+		<select1 id="combo2" ref="/root/reqData/searchData/dt_clsf" navindex="3" appearance="minimal" style="left:325px; top:75px; width:67px; height:18px; ">
+			<choices>
+				<item>
+					<label>당일</label>
+					<value>01</value>
+				</item>
+				<item>
+					<label>당월</label>
+					<value>02</value>
+				</item>
+				<item>
+					<label>전월</label>
+					<value>03</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					
+					var currentdt = getCurrentDate();
+					var currentmt = getCurrentMonth();				
+								
+					var dt_clsf = model.getValue("/root/reqData/searchData/dt_clsf"); //선택한 콤보박스 값..
+									
+					if(dt_clsf == "01"){  
+						var frdt = dateAdd("d", 0, currentdt);	//당일
+						var todt = dateAdd("d",0, currentdt);	//당일
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt); 
+					}else if(dt_clsf == "02"){
+						var frdt = currentdt.substring(0,6)+"01"; //당월의 1일부터
+						var todt = dateAdd("d",0, currentdt);	//당월의 현재일 
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt); 
+					}else if(dt_clsf == "03") {
+						var frdt = dateAdd("m", -1, currentmt+"01");
+						var pre_month = frdt.substring(0,6);
+						var todt = pre_month+commLastDay(pre_month); 	//전월의 말일 
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt);
+					}	
+				
+					model.refresh();
+					
+				]]>
+			</script>
+		</select1>
+		<caption id="caption2" class="list_cap01" style="left:595px; top:70px; width:90px; height:28px; ">내용</caption>
+		<input id="input3" ref="/root/reqData/searchData/advt_cont" style="left:689px; top:75px; width:100px; height:18px; "/>
+		<button id="btnG2" class="btn_grid03" crud="C" style="left:778px; top:120px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				addRow(datagrid1);
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn_grid02" crud="C" style="left:893px; top:120px; width:43px; height:17px; ">
+			<caption>취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				cancelRow(datagrid1);
+				]]>
+			</script>
+		</button>
+		<button id="button13" class="btn_grid03" crud="C" style="left:835px; top:120px; width:53px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				deleteRow(datagrid1);
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

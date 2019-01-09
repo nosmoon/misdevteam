@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<combo1>
+								<item/>
+							</combo1>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<infoData>
+							<dty_nm/>
+							<dty_cd/>
+							<dept_nm/>
+							<dept_cd/>
+							<flnm/>
+							<emp_no/>
+							<posi_nm/>
+							<posi_cd/>
+							<emp_clsf/>
+							<emp_clsf_nm/>
+							<in_cmpy_dt/>
+							<lvcmpy_dt/>
+						</infoData>
+					</initData>
+					<reqData>
+						<searchData>
+							<adjm_rvrs_yy>2009</adjm_rvrs_yy>
+							<prn/>
+							<dept_cd/>
+							<dept_nm/>
+							<emp_no/>
+							<nm_korn/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+							<emp_no/>
+							<select_case/>
+						</fwdData>
+						<multiUpData/>
+						<reqForm>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+							</record>
+						</gridData>
+						<resForm>
+							<zip_1_1/>
+							<zip_2_1/>
+							<addr_1/>
+							<dtls_addr_1/>
+							<emp_no/>
+						</resForm>
+						<msg/>
+						<resPhoto type="xsd:base64Binary"/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CRMComm.js"/>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript">
+				<![CDATA[
+					function se_openZip(bogb, zip1Ref, zip2Ref, addrRef){
+						var tempReq = "/root/tempData/posttemp";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						tempReq = "/root/tempData/posttemp/send";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						tempReq = "/root/tempData/posttemp/send/zip";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						tempReq = "/root/tempData/posttemp/send/disp_flag";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						tempReq = "/root/tempData/posttemp/recv";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						//"L"이면 지국항목 안보임
+						model.setValue("/root/tempData/posttemp/send/disp_flag", bogb);
+						model.setValue("/root/tempData/posttemp/send/zip", model.getValue(zip1Ref)+model.getValue(zip2Ref));
+						
+						openZip("/root/tempData/posttemp/send", "/root/tempData/posttemp/recv","new");
+						
+						model.setValue(zip1Ref, model.getValue("/root/tempData/posttemp/recv/zip1"));
+						model.setValue(zip2Ref, model.getValue("/root/tempData/posttemp/recv/zip2"));
+						model.setValue(addrRef, model.getValue("/root/tempData/posttemp/recv/addr"));
+						
+						model.refresh();
+					}
+					
+					function yadjmPopyp(){
+						window.load("/xrw/hd/yadjm/HD_YADJM_1221.xrw","mdichild",  "pop1", "width:950px; height:750px;");
+					}
+					
+					function searchYear(){
+						var adjm_rvrs_yy = model1.getValue("/root/reqData/searchData/adjm_rvrs_yy");
+						if (adjm_rvrs_yy == ""){
+							//alert("연말정산년도를 입력하세요.");
+							return "not";
+						}else{
+							return adjm_rvrs_yy;
+						}
+						
+					}
+					
+					function searchEmp_no(){
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						if (emp_no == ""){
+							//alert("사번을 검색하세요.");
+							return "not";
+						}else{
+							return emp_no;
+						}
+					}
+					
+					function searchFlnm(){
+						var flnm = model1.getValue("/root/reqData/searchData/nm_korn");
+						if (flnm == ""){
+							//alert("성명을 검색하세요.");
+							return "not";
+						}else{
+							return flnm;
+						}
+					}
+					
+					function setEmp_no(emp_no){
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/resData/resForm/emp_no", emp_no);//주소 emp_no셋팅
+						
+						model1.send("hd_yadjm_3000");
+						model1.copyNode("/root/reqData/searchData", "/root/dataSet/CURLIST/record");
+						model1.removenode("/root/dataSet");
+						
+					      // var year = commCurDate("y")-1;
+						//var year = commCurDate("y");
+						model1.makeNode("/root/reqData/searchData/adjm_rvrs_yy");
+						model1.setValue("/root/reqData/searchData/adjm_rvrs_yy", "2009");
+						
+						//각각 하위 window에 셋팅
+						//iv1.window.javaScript.loadData();
+						button10.dispatch("DOMActivate");
+						model1.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					function CurTab(fID, fName, fBool){
+						this.id = fID;
+						this.name = fName;
+						this.status = fBool;
+						model1.makeNode("/root/reqData/fwdData/select_case");
+						model1.setValue("/root/reqData/fwdData/select_case",fID);
+					}
+					
+					function getCurTab_id(){
+						return this.id;
+					}
+					
+					function searchData(){
+						var emp_no = input4.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", "");
+						model1.setValue("/root/reqData/searchData/prn", "");
+						
+						setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no",model1.getValue( "/root/tempData/emp_no"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+						
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						setEmp_no(emp_no);
+						model1.refresh();
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[					
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "연말정산 기초자료 등록";
+						iv_Title.visible = false;  		// 숨김
+						iv_PopTitle.visible = true; 	 	// 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  		// 보임
+						iv_PopTitle.visible = false; 	// 숨김
+						var pageID = model.getValue("/root/initData/pageInfo/pageID");
+					}
+					var obj = htmldocument.SessionInfo;
+					var emp_no = obj.emp_no.value;
+					var cmpy_cd = obj.cmpycd.value;
+					
+					setEmp_no(emp_no); // 사원 기본정보 가꼬오기..
+					
+					//해당 사번만 버튼 풀리도록
+					if( emp_no=="207012" ||emp_no=="209022" ||emp_no=="it0022" ||emp_no=="202029" ){
+						input21.disabled = false;
+						input4.disabled = false;
+						output3.disabled = false;
+					}
+				      else
+				      {
+				            alert("2009년 연말정산 자료입력은 2/4(목) 마감되었습니다.(입력내용 및 정산결과 조회는 가능) ");
+				       	}		
+				  	
+					model1.refresh();
+					
+					return;
+				]]>
+			</script>
+			<submission id="hd_yadjm_3000" action="/hd/yadjm/3000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="2000" guideline="2,722;1,11;2,41;1,941;2,68;2,729;" style="font-family:굴림; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption14" class="list_cap02" style="left:69px; top:41px; width:78px; height:25px; text-align:center; "/>
+		<caption id="caption7" class="list_cap02" style="left:299px; top:41px; width:155px; height:25px; text-align:center; "/>
+		<input id="input4" ref="/root/reqData/searchData/emp_no" class="req" disabled="true" editable="true" inputtype="button" maxlength="6" format="999999" style="left:303px; top:45px; width:71px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/func_nm");
+					model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+					window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="onmaxlength">
+				<![CDATA[
+					searchData();
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode ==13){
+						searchData();
+					}
+				]]>
+			</script>
+		</input>
+		<input id="output3" ref="/root/reqData/searchData/nm_korn" disabled="true" editable="true" imemode="hangul" appearance="output" style="left:376px; top:45px; width:73px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode ==13){
+						var nm_korn = output3.currentText;
+						
+						model1.setValue("/root/reqData/searchData/nm_korn", nm_korn);
+						model1.setValue("/root/reqData/searchData/emp_no", "");
+						model1.setValue("/root/reqData/searchData/prn", "");
+						
+						setInfoSearchInput("", nm_korn, "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no",model1.getValue( "/root/tempData/emp_no"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+						
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						setEmp_no(emp_no);
+						model1.refresh();
+					}
+				]]>
+			</script>
+		</input>
+		<button id="button4" class="btn02" style="left:881px; top:42px; width:53px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			     		 if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+				 ]]>
+			</script>
+		</button>
+		<button id="button5" class="btn07" visibility="hidden" style="left:720px; top:42px; width:160px; height:21px; ">
+			<caption>근로소득자소득공제신고서</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					var cmpy_cd = "";
+					var emp_no = "";
+					var emp_no = "";
+					var adjm_yy   = "";
+					
+					emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+					adjm_yy   = model1.getValue("/root/reqData/searchData/adjm_rvrs_yy");
+					cmpy_cd	  = model1.getValue("/root/reqData/searchData/cmpy_cd");
+
+					/*if(emp_no_fr == "" || emp_no_to == "") {
+						alert("사번은 필수 입력 항목입니다.");
+						return;
+					}*/
+					
+					if(adjm_yy == "") {
+						alert("연말정산년도는 필수 입력 항목입니다!");
+						return;
+					}
+					
+					resetOznode();															//오즈node 초기화
+					//makeNodeValue("/root/oz_data/ozrName","hd/HD_YADJM_1240");					//odi 파일경로('/' root경로 제외)
+					makeNodeValue("/root/oz_data/ozrName","hd/HD_YADJM_1241");					//odi 파일경로('/' root경로 제외)
+					makeNodeValue("/root/oz_data/preview","preview"); 							//preview : 미리보기, print : 인쇄
+					makeNodeValue("/root/oz_data/printsize",""); 									//페이지용지설정(기본 A4)
+					
+					//Parameter setting
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd"  , cmpy_cd );	//회사코드
+					//makeNodeValue("/root/oz_data/odiParam/iv_emp_no_fr",emp_no_fr);				//사번
+					//makeNodeValue("/root/oz_data/odiParam/iv_emp_no_to",emp_no_to);				//사번
+					makeNodeValue("/root/oz_data/odiParam/iv_emp_no",emp_no);				//사번
+					makeNodeValue("/root/oz_data/odiParam/iv_adjm_yy"  ,adjm_yy);					//연말정산년도
+					
+					openOzwin("/root/oz_data");
+					
+					//model1.setValue("/root/reqData/searchData/cmpy_cd", "100");
+					//model1.send("hd_yadjm_3002");
+					//model1.copyNode("/root/resData/gridData", "/root/tempData");
+					//model1.refresh();	
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" style="left:11px; top:64px; width:923px; height:650px; ">
+			<case id="case1" scroll="none" selected="true">
+				<iviewer id="iv1" src="/xrw/hd/yadjm/HD_YADJM_5200.xrw" overflow="hidden" scroll="none" style="left:0px; top:0px; width:922px; height:638px; "/>
+			</case>
+			<case id="case2" scroll="none">
+				<iviewer id="iv2" src="/xrw/hd/yadjm/HD_YADJM_5300.xrw" overflow="hidden" scroll="none" style="left:0px; top:0px; width:922px; height:638px; "/>
+			</case>
+		</switch>
+		<output id="input21" ref="/root/reqData/searchData/adjm_rvrs_yy" class="req" format="####" editable="true" disabled="true" appearance="output" maxlength="4" style="left:73px; top:44px; width:70px; height:18px; text-align:center; "/>
+		<caption id="caption13" class="list_cap01" style="left:11px; top:41px; width:59px; height:25px; text-align:center; ">정산년도</caption>
+		<caption id="caption17" class="list_cap02" style="left:146px; top:41px; width:155px; height:25px; text-align:center; "/>
+		<output id="input9" ref="/root/reqData/searchData/dept_nm" appearance="output" style="left:152px; top:45px; width:141px; height:18px; text-align:center; "/>
+		<button id="button10" class="tab06" group="tab" selected="true" style="left:492px; top:42px; width:105px; height:23px; ">
+			<caption>자료입력</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case1");
+					CurTab("iv1", "case1", true);
+					iv1.window.javaScript.loadData();
+					model.refresh();
+				]]>
+			</script>
+			<hint>
+				<![CDATA[소득공제입력]]>
+			</hint>
+		</button>
+		<button id="button11" class="tab06" visibility="visible" group="tab" style="left:605px; top:42px; width:105px; height:23px; ">
+			<caption>정산결과</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case2");
+					CurTab("iv2", "case2", true);
+					iv2.window.javaScript.setEmp_no_i(model1.getValue("/root/reqData/searchData/emp_no"));
+					model.refresh();
+				]]>
+			</script>
+			<hint>
+				<![CDATA[연말정산계산및결과조회]]>
+			</hint>
+		</button>
+		<button id="button1" class="btn02" style="left:825px; top:42px; width:53px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					button10.selected = "true";
+			     	button10.dispatch("DOMActivate");
+				 ]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" visibility="hidden" style="left:768px; top:41px; width:53px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var obj = htmldocument.SessionInfo;
+					var emp_no = obj.emp_no.value;
+					var cmpy_cd = obj.cmpycd.value;
+					
+			       	if( emp_no=="207012" ||emp_no=="209022" ||emp_no=="it0022" ||emp_no=="202029" ){
+			       		iv1.window.javaScript.dataSave();
+			       	}else{
+						alert("입력기한이 지났으므로 자료를 수정할 수 없습니다.");
+			    	}
+			      
+					
+				 ]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

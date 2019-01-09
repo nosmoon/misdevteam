@@ -1,0 +1,458 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_rdr_1301_s.jsp
+* 기능 : 중재처리 초기화면
+* 작성일자 : 2004-02-20
+* 작성자 : 김건호
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    // 페이지당 보여줄 라인수
+    String records_per_page = "5";
+    int li_per = Integer.parseInt(records_per_page) ;
+    //	dataset 인스턴스 선언부분
+    PS_S_RDR_ARBTDataSet ds = (PS_S_RDR_ARBTDataSet)request.getAttribute("ds");  // request dataset
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+// 화면 open시 event설정
+function init(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+	setInputBackgroundColor();
+}
+
+// 매체단가 내역 조회처리
+function list_search(curr_page_no){
+    var lo_form1 = list_form;
+
+    lo_form1.curr_page_no.value = curr_page_no;
+
+    //밸류값을 check한다.
+    if(window.event) window.event.returnValue = false;
+    if(!validate(lo_form1)){
+    	return;
+    }
+
+    makeValue(list_form)
+    lo_form1.action = "/ps/reader/1306";
+    lo_form1.target = "iframe";
+    lo_form1.submit();
+	setEventHandler();
+}
+
+// 체크박스일괄 처리
+function chkboxAll(){
+
+    var lo_form = list_form;
+
+    var ls_len  = "" ; // 전체체크및취소구분
+
+    if(!lo_form.delChk){
+        return ;
+    }
+
+    if (!lo_form.delChk.length) { // 하나의 check박스가 선택된경우
+        ls_len = 1 ;
+    }else{
+        ls_len = lo_form.delChk.length ;
+    }
+
+    var ls_chk = "" ;
+    if ( ls_len == 1 ){
+        if (lo_form.checkall.checked){ // 전체선택
+            lo_form.delChk.checked = true ;
+        }else{
+            lo_form.delChk.checked = false ;
+        }
+    }else{
+        if (lo_form.checkall.checked){ // 전체선택
+    	    for (var i=0; i<ls_len; i++){
+       		lo_form.delChk[i].checked = true ;
+    	    }
+        }else{ // 전체취소
+    	    for (var i=0; i<ls_len; i++){
+       		lo_form.delChk[i].checked = false ;
+    	    }
+        }
+    }
+}
+// 선택된 중재요청건을 저장한다
+function save_arbt(){
+    var lo_form = list_form ;
+    var len  = "";
+    if(!lo_form.delChk){
+        alert("저장 대상건이 없습니다!");
+        return;
+    }else{
+        len =     lo_form.delChk.length;
+    }
+    var ls_check = confirm("저장 하시겠습니까?");
+    if (!ls_check)  return;
+    var ls_arbtno = ""; 			// 선택된 키값을 담는다  321321##321321##4324324
+    var ls_arbtaplcdt = ""; 		// 선택된 키값을 담는다  321321##321321##4324324
+    var ls_aprvproccd = "" ;
+    var ls_arbtprocresn = "" ;
+    var count = 0;
+   if (!lo_form.delChk.length ) { 	// 하나의 check박스가 선택된경우
+            if(lo_form.delChk.checked) { // check된건에 한하여 데이타 입력
+            	if(lo_form.aprvproccd[0].value =='03' && lo_form.arbtprocresn[0].value =='') {
+            		alert("불허시에는 처리사유를 반드시 입력하세요");
+            		lo_form.arbtprocresn[0].focus();
+            		return false;
+            	}
+                ls_arbtno     = ls_arbtno     + lo_form.arbtno.value ;
+                ls_arbtaplcdt = ls_arbtaplcdt + lo_form.arbtaplcdt.value ;
+                ls_aprvproccd = ls_aprvproccd + lo_form.aprvproccd[0].value ;
+                ls_arbtprocresn = ls_arbtprocresn + lo_form.arbtprocresn[0].value ;
+                count++;
+            }
+   } else{  									// 여러개의 check 박스가 선택된경우
+        for (var i=0; i<len; i++){
+            if(lo_form.delChk[i].checked) { 	// check된건에 한하여 데이타 입력
+            	if(lo_form.aprvproccd[i].value =='03' && lo_form.arbtprocresn[i].value =='') {
+            		alert("불허시에는 처리사유를 반드시 입력하세요");
+            		lo_form.arbtprocresn[i].focus();
+            		return false;
+            	}
+
+                if(ls_arbtno == "" ) {  		// 최초입력시 구분자 제외한다
+
+                	ls_arbtno = ls_arbtno + lo_form.arbtno[i].value ;
+                    ls_arbtaplcdt = ls_arbtaplcdt + lo_form.arbtaplcdt[i].value ;
+                    ls_aprvproccd = ls_aprvproccd + lo_form.aprvproccd[i].value ;
+                    ls_arbtprocresn = ls_arbtprocresn + lo_form.arbtprocresn[i].value ;
+                    count++;
+                } else {  						// 두번째 이후부터 구분값을 넣는다
+                    ls_arbtno = ls_arbtno + '##' + lo_form.arbtno[i].value ;
+                    ls_arbtaplcdt = ls_arbtaplcdt + '##' + lo_form.arbtaplcdt[i].value ;
+                    ls_aprvproccd = ls_aprvproccd + '##' + lo_form.aprvproccd[i].value ;
+                    ls_arbtprocresn = ls_arbtprocresn + '##' + lo_form.arbtprocresn[i].value ;
+                    count++
+                }
+            }
+        }
+   }
+    lo_form.all_arbtno.value = ls_arbtno ;
+    lo_form.all_arbtaplcdt.value = ls_arbtaplcdt ;
+    lo_form.all_aprvproccd.value = ls_aprvproccd ;
+    lo_form.all_arbtprocresn.value = ls_arbtprocresn ;
+
+    if(count ==0) { // 저장 처리대상에 한건도 없을 때
+        alert("저장 대상건을 선택하세요.");
+        return;
+    }
+    lo_form.action = "/ps/reader/1311";
+    lo_form.target = "iframe";
+
+    lo_form.submit();
+}
+
+// navigator선택시 페이지 move처리
+function page_move(curr_page_no) {
+    var lo_form = list_form;
+
+    if(!curr_page_no) {
+        lo_form.curr_page_no.value = '1';
+    } else {
+        lo_form.curr_page_no.value = curr_page_no;
+    }
+
+    list_search(lo_form.curr_page_no.value);
+}
+
+// 비교대상정보를 표기한다
+function cmprobj_list(arbtno,arbtaplcdt) {
+    var lo_form1 = cmprobj_form;
+
+    lo_form1.arbtaplcdt.value = arbtaplcdt;		//중재요청일자
+    lo_form1.arbtno.value = arbtno;		        //중재요청번호
+    lo_form1.action = "/ps/reader/1316";
+    lo_form1.target = "iframe";
+
+    lo_form1.submit();
+}
+// 비교대상독자 상세내역 팝업
+function rdr_detail(rdr_no,medicd,termsubsno){
+
+    var lo_form1 = rdr_form;
+    lo_form1.rdr_no.value = rdr_no ;
+    lo_form1.medicd.value = medicd ;
+    lo_form1.termsubsno.value = termsubsno ;
+    var ls_win = "scrollbars=yes, toolbar=no,location=no,directories=no,width=700, height=730 resizable=no,mebar=no,left=200,top=10";
+    window.open("about:blank" , "rdr_detail", ls_win);
+    lo_form1.target = "rdr_detail";
+    lo_form1.action = "/ps/reader/1321";
+    lo_form1.submit();
+}
+
+// rowspan 되어 있는 2개의 로우에서 마우스 OUT 시 색깔 변경 /
+function change_row_color_out(obj){
+    for (i=0; i < document.all.list_info.rows.length; i++) {
+        if(document.all.list_info.rows(i) == obj){
+            document.all.list_info.rows(i).style.backgroundColor = "";
+            //document.all.list_info.rows(i).className = "out";
+            if( (i%2) == 1 && document.all.list_info.rows(i-1) != null){	    // 짝수이면 자신보다 1 더 작은 홀수 로우까지 변경
+                document.all.list_info.rows(i-1).style.backgroundColor = "";
+                //document.all.list_info.rows(i-1).className = "out";
+            }else if( (i%2) == 0 && document.all.list_info.rows(i+1) != null){	// 홀수이면 자신보다 1 더 큰 짝수 로우까지 변경
+                document.all.list_info.rows(i+1).style.backgroundColor = "";
+                //document.all.list_info.rows(i+1).className = "out";
+            }
+        }
+    }
+}
+
+// rowspan 되어 있는 2개의 로우에서 마우스 IN 시 색깔 변경
+function change_row_color_in(obj){
+    for (i=0; i < document.all.list_info.rows.length; i++) {
+        if(document.all.list_info.rows(i) == obj){
+            document.all.list_info.rows(i).style.backgroundColor = "#EDFFF1";
+            //document.all.list_info.rows(i).className = "over";
+            if( (i%2) == 1 && document.all.list_info.rows(i-1) != null){	    // 짝수이면 자신보다 1 더 작은 홀수 로우까지 변경
+                document.all.list_info.rows(i-1).style.backgroundColor = "#EDFFF1";
+                //document.all.list_info.rows(i-1).className = "over";
+            }else if( (i%2) == 0 && document.all.list_info.rows(i+1) != null){	// 홀수이면 자신보다 1 더 큰 짝수 로우까지 변경
+                document.all.list_info.rows(i+1).style.backgroundColor = "#EDFFF1";
+                //document.all.list_info.rows(i+1).className = "over";
+            }
+        }
+    }
+}
+
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray" onload="init()">
+<form name="list_form" method="post" action="" onsubmit="list_search(1)">
+<input name="curr_page_no" type="hidden" value ="1"><!--//현재페이지-->
+<input name="records_per_page" type="hidden" value ="<%=records_per_page%>"> <!--//화면에 보여줄  ROW수-->
+<input name="js_fn_nm" type="hidden" value ="page_move">
+<input type="hidden" name="all_arbtno" value=""><!-- 선택된 키값(중재번호)을 담는다 -->
+<input type="hidden" name="all_arbtaplcdt" value=""><!-- 선택된 키값(중재일자)을 담는다 -->
+<input type="hidden" name="all_aprvproccd" value=""><!-- 선택된 키값(중재일자)을 담는다 -->
+<input type="hidden" name="all_arbtprocresn" value=""><!-- 선택된 키값(중재일자)을 담는다 -->
+
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >독자
+      &gt; </b> 중재처리</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<!--검색시작-->
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr>
+    <td bgcolor="#EBE9DC" width="100"  class="title" ><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">중재요청기간<font color="red">*</font></td>
+    <td bgcolor="#EBE9DC"  width="230"  class="title">
+      <input type="text" name="arbtaplcdtfr" size="10" class="text_box" value="<%=Util.addDate(ds.sysdate,-7)%>" dataType="date" caption="중재요청기간(From)" notEmpty>
+      -
+      <input type="text" name="arbtaplcdtto" size="10" class="text_box" value="<%=ds.sysdate%>" dataType="date" caption="중재요청기간(To)"  notEmpty>
+    </td>
+    <td bgcolor="#EBE9DC" width="70"  class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">지사코드</td>
+    <td bgcolor="#EBE9DC"  class="title">
+      <select name="bocd" class="sel_all">
+        <option value="">전체</option>
+        <%=ds.bocdOptHtml("")%>
+      </select>
+    </td>
+    <td bgcolor="#EBE9DC"  class="title" width="70"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">처리구분</td>
+    <td bgcolor="#EBE9DC"  class="title">
+      <select name="slt_aprvproccd" class="sel_all">
+              <option value="" >전체</option>
+              <%=ds.aprvproccdOptHtml("")%>
+      </select>
+      <input type="image" src="/html/comm_img/bu_search.gif" width="36"  align="absmiddle" border="0" style="cursor:hand"
+				 onclick="list_search(1);window.event.returnValue=false;">
+    </td>
+  </tr>
+  <tr>
+    <td height="3" colspan="6">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--검색끝-->
+<table width="829" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr>
+    <td bgcolor="#EBE9DC" class="title" width="742" height="27"><b>독자목록</b></td>
+    <td bgcolor="#EBE9DC" width="50" class="title" align="right" height="27">
+      <img src="/html/comm_img/bu_save.gif" width="39" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="save_arbt();">
+
+    </td>
+  </tr>
+  <tr>
+    <td height="3" colspan="2">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--list 처리사유 박스 줄이지 않는 이상 주소 들어갈수 없음 그래서 2줄이당  -->
+<table width="830" border="0" align="center" cellpadding="1" cellspacing="0"  class="gray"  bgcolor="#FFFFFF" id="list_info">
+
+        <tr align="center"  bgcolor="#dddddd">
+          <td width="30"  class="gray" rowspan="2">
+           <input type="checkbox" name="checkbox" value="checkbox"></td>
+          <td width="70"  class="gray" rowspan="2">처리구분</td>
+          <td width="175" class="gray" rowspan="2">처리사유</td>
+          <td width="100" class="gray">중재번호</td>
+          <td width="70"  class="gray">구독매체</td>
+          <td width="100" class="gray">구독기간</td>
+          <td width="70"  class="gray">독자성명</td>
+          <td width="100" class="gray">전화번호</td>
+          <td width="100" class="gray">핸드폰</td>
+        </tr>
+        <tr bgcolor="#dddddd" align="center">
+          <td width="100" class="gray">요청지사</td>
+          <td colspan="5" class="gray">주소</td>
+        </tr>
+<%
+	for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+        <tr>
+          <td width="30"  class="gray" align="center" rowspan="2">
+            <input type="checkbox" name="checkbox" value="checkbox">
+          </td>
+          <td width="70"  class="gray" align="center" rowspan="2">
+            <select name="aprvproccd" class="sel_all">
+              <option value="" >선택</option>
+              <%=ds.aprvproccdOptHtml("")%>
+            </select>
+          </td>
+          <td width="175" class="gray" align="center" rowspan="2">
+            <input type="text" name="textfield3" size="25" class="text_box">
+          </td>
+          <td width="100" class="gray" align="center">&nbsp;</td>
+          <td width="70"  class="gray" align="center">&nbsp;</td>
+          <td width="100" class="gray" align="center">&nbsp;</td>
+          <td width="70"  class="gray" align="center">&nbsp;</td>
+          <td width="100" class="gray" align="center">&nbsp;</td>
+          <td width="100" class="gray" align="center">&nbsp;</td>
+        </tr>
+        <tr>
+          <td width="100" class="gray" align="center">&nbsp;</td>
+          <td colspan="5" class="gray" align="left"  >&nbsp;</td>
+        </tr>
+<%
+	}
+%>
+
+</table>
+<!---button-->
+<table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center" id="navi">
+  <tr>
+    <td align="center" height="2">
+      <!--여백-->
+    </td>
+  </tr>
+  <tr>
+	<td colspan=5 align="center" bgcolor="#E8E8E8">
+		<jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+		<jsp:param name = "curr_page_no" 		value="0"/>
+		<jsp:param name = "total_records" 		value="0"/>
+		<jsp:param name = "js_fn_nm" 			value=""/>
+		<jsp:param name = "records_per_page" 	value="15"/>
+		<jsp:param name = "page_set_gubun" 		value="0"/>
+		</jsp:include>
+		<!--JSP PAGE END------------------------------------------------------------------------------------>
+	</td>
+  </tr>
+</table>
+<!--이전지사내역 -->
+<table width="829" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr>
+    <td height="10" colspan="2">
+      <!--여백-->
+    </td>
+  </tr>
+  <tr>
+    <td bgcolor="#EBE9DC" class="title" width="742" height="27"><b>비교대상내역</b></td>
+  </tr>
+  <tr>
+    <td height="3">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--list -->
+<table width="830" border="0" cellpadding="1" cellspacing="0" align="center" bgcolor="#FFFFFF" class="gray" id="cmprobj_list">
+  <tr bgcolor="#dddddd" align="center">
+    <td width="80"  class="gray">지사</td>
+    <td width="100" class="gray">구독기간</td>
+    <td width="100" class="gray">독자성명</td>
+    <td width="100" class="gray">전화번호</td>
+    <td width="100" class="gray">휴대폰</td>
+    <td width="340" class="gray">주소</td>
+  </tr>
+  <tr>
+    <td width="80"  class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="340" class="gray" align="left"  >&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="80"  class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="340" class="gray" align="left"  >&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="80"  class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="340" class="gray" align="left"  >&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="80"  class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="340" class="gray" align="left"  >&nbsp;</td>
+  </tr>
+  <tr>
+    <td width="80"  class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="100" class="gray" align="center">&nbsp;</td>
+    <td width="340" class="gray" align="left"  >&nbsp;</td>
+  </tr>
+</table>
+</form>
+<form name="cmprobj_form" method="post" action="">
+<input type="hidden" name="arbtno" value=""><!-- 선택된 키값(중재번호)을 담는다 -->
+<input type="hidden" name="arbtaplcdt" value=""><!-- 선택된 키값(중재일자)을 담는다 -->
+</form>
+<form name="rdr_form" method="post" action="">
+<input type="hidden" name="rdr_no" value=""><!-- 선택된 키값(독자번호)을 담는다 -->
+<input type="hidden" name="medicd" value=""><!-- 선택된 키값(매체코드)을 담는다 -->
+<input type="hidden" name="termsubsno" value=""><!-- 선택된 키값(정기독자번호)을 담는다 -->
+</form>
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="iframe" width=0 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+</body>
+</html>

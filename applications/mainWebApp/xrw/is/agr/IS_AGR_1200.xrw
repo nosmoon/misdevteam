@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>거래명세표</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<is_agr_1200_m>
+								<dataSet>
+									<CURLIST1>
+										<record>
+											<cd/>
+											<cdnm/>
+											<cd_abrv_nm/>
+											<cdnm_cd/>
+											<cdabrvnm_cd/>
+										</record>
+									</CURLIST1>
+								</dataSet>
+							</is_agr_1200_m>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<dt_clsf>1</dt_clsf>
+							<dt_fr/>
+							<dt_to/>
+							<suply_pers_erplace_cd/>
+							<dlco_clsf>1</dlco_clsf>
+							<dlco_clsf_cd_seq/>
+							<dlco_clsf_cd_seq_nm/>
+							<advcs_cd/>
+							<advcs_cd_nm/>
+							<advt_nm/>
+							<print_chk/>
+							<print_dt/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+							</record>
+						</gridData1>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="is_agr_1200_m" action="/is/agr/1200" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/is_agr_1200_m/dataSet"/>
+			<submission id="is_com_1200_s" action="/is/com/1200" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<submission id="is_com_1201_s" action="/is/com/1201" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				var curDate = getCurrentDate();
+				model.setValue("/root/reqData/searchData/dt_fr", curDate);
+				model.setValue("/root/reqData/searchData/dt_to", curDate);
+				
+				model.setValue("/root/reqData/searchData/print_dt", curDate);
+				
+				model.send("is_agr_1200_m");
+				
+				//makeComboGubun("","/root/initData/comboSet/is_agr_1200_m/dataSet/CURLIST1","record","cdnm", "cd");
+				combo1.select(0);				
+				
+				model.refresh();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			/**인쇄**/
+			function goReport(gubun){
+					
+				// 오즈관련 노드 초기화..					
+				resetOznode();					
+									
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+				makeNodeValue("/root/oz_data/ozrName", "is/SP_IS_AGR_1210_P");										
+							
+				//var root				= "/root/resData/resForm/";
+				var root				= "/root/reqData/searchData/";
+		
+				var suply_pers_erplace_cd   = model.getValue(	root + "/suply_pers_erplace_cd");
+				var dt_clsf    				= model.getValue(	root + "/dt_clsf");
+				var dt_fr		    		= model.getValue(	root + "/dt_fr");
+				var dt_to	    			= model.getValue(	root + "/dt_to");
+				var suply_pers_erplace_cd	= model.getValue(	root + "/suply_pers_erplace_cd");
+				var dlco_clsf				= model.getValue(	root + "/dlco_clsf");
+				var dlco_clsf_cd_seq		= model.getValue(	root + "/dlco_clsf_cd_seq");
+				var advcs_cd				= model.getValue(	root + "/advcs_cd");
+				var advt_nm					= model.getValue(	root + "/advt_nm");
+				var print_chk				= model.getValue(	root + "/print_chk");
+				var print_dt				= model.getValue(	root + "/print_dt");
+								
+				
+				if ( dlco_clsf == "1" && dlco_clsf_cd_seq == ""){
+					commAlert("거래처를 입력하세요.");
+					return;
+				}			
+				
+				if ( dlco_clsf == "2" && advcs_cd == ""){
+					commAlert("광고주를 입력하세요.");
+					return;
+				}
+				
+				if ( dlco_clsf == "3" && advt_nm == ""){
+					commAlert("광고명를 입력하세요.");
+					return;
+				}
+		    
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd"			,model.property("ss_cmpycd"));	
+				makeNodeValue("/root/oz_data/odiParam/iv_cd"			    , suply_pers_erplace_cd);	
+				makeNodeValue("/root/oz_data/odiParam/iv_dt_clsf"			, dt_clsf);	
+				makeNodeValue("/root/oz_data/odiParam/iv_dt_fr"				, dt_fr);	
+				makeNodeValue("/root/oz_data/odiParam/iv_dt_to"		 		, dt_to);
+				makeNodeValue("/root/oz_data/odiParam/iv_dlco_clsf"			, dlco_clsf);
+				makeNodeValue("/root/oz_data/odiParam/iv_dlco_clsf_cd_seq"	, dlco_clsf_cd_seq);
+				makeNodeValue("/root/oz_data/odiParam/iv_advcs_cd"			, advcs_cd);
+				makeNodeValue("/root/oz_data/odiParam/iv_advt_nm"			, advt_nm);
+				makeNodeValue("/root/oz_data/odiParam/iv_print_chk"			, print_chk);
+				makeNodeValue("/root/oz_data/odiParam/iv_print_dt"			, print_dt);				
+				makeNodeValue("/root/oz_data/odiParam/iv_emp_no"			,getProperty("ss_emp_no"));
+			
+				// 레포트뷰어 호출.					
+				openOzwin("/root/oz_data");	
+			}
+			
+			/**거래처 팝업**/
+			function setDlcoInfo(menu_id, menu_nm){
+				model.setValue("/root/reqData/searchData/dlco_clsf_cd_seq", menu_id);
+				model.setValue("/root/reqData/searchData/dlco_clsf_cd_seq_nm", menu_nm);
+
+				model.refresh();	
+			}
+			
+			/**광고주 팝업**/
+			function setAdDlcoInfo(menu_id, menu_nm){
+				model.setValue("/root/reqData/searchData/advcs_cd", menu_id);
+				model.setValue("/root/reqData/searchData/advcs_cd_nm", menu_nm);
+	
+				model.refresh();	
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,936;2,60;2,70;2,76;" style="font-family:굴림; ">
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button5" class="btn02" crud="P" style="left:820px; top:40px; width:53px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				goReport("P");
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" class="gro_sel" style="left:225px; top:175px; width:538px; height:345px; ">
+			<case id="case1" selected="true">
+				<group id="group1" style="left:5px; top:5px; width:520px; height:330px; ">
+					<caption id="caption14" class="list_cap02" style="left:10px; top:195px; width:500px; height:26px; "/>
+					<caption id="caption12" class="list_cap02" style="left:10px; top:170px; width:500px; height:26px; "/>
+					<caption id="caption22" class="list_cap02" style="left:10px; top:70px; width:500px; height:26px; "/>
+					<caption id="caption3" class="list_cap03" style="left:10px; top:70px; width:85px; height:26px; ">일자구분</caption>
+					<caption id="caption1" class="list_cap02" style="left:10px; top:95px; width:500px; height:26px; "/>
+					<input id="inp_scat_dt_to" ref="/root/reqData/searchData/dt_to" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:208px; top:100px; width:85px; height:18px; "/>
+					<input id="inp_scat_dt_fr" ref="/root/reqData/searchData/dt_fr" navindex="1" inputtype="date" format="yyyy-mm-dd" style="left:103px; top:100px; width:85px; height:18px; "/>
+					<caption id="caption42" style="left:192px; top:101px; width:15px; height:17px; ">~</caption>
+					<caption id="caption2" class="list_cap03" style="left:10px; top:95px; width:85px; height:26px; ">일자</caption>
+					<caption id="caption4" class="list_cap02" style="left:10px; top:120px; width:500px; height:26px; "/>
+					<caption id="caption5" class="list_cap03" style="left:10px; top:120px; width:85px; height:26px; ">광고업체</caption>
+					<caption id="caption7" class="list_cap02" style="left:10px; top:220px; width:500px; height:26px; "/>
+					<caption id="caption8" class="list_cap03" style="left:10px; top:220px; width:85px; height:26px; ">인쇄일자</caption>
+					<input id="input1" ref="/root/reqData/searchData/print_dt" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:123px; top:224px; width:85px; height:18px; "/>
+					<select1 id="radio1" ref="/root/reqData/searchData/dt_clsf" appearance="full" cols="2" overflow="visible" style="left:103px; top:74px; width:197px; height:20px; border-style:none; ">
+						<choices>
+							<item>
+								<label>배포일자 기준</label>
+								<value>1</value>
+							</item>
+							<item>
+								<label>수주일자 기준</label>
+								<value>2</value>
+							</item>
+						</choices>
+					</select1>
+					<select1 id="radio2" ref="/root/reqData/searchData/dlco_clsf" appearance="full" cols="3" overflow="visible" style="left:103px; top:125px; width:295px; height:20px; border-style:none; ">
+						<choices>
+							<item>
+								<label>거래처-광고주</label>
+								<value>1</value>
+							</item>
+							<item>
+								<label>광고주-광고명</label>
+								<value>2</value>
+							</item>
+							<item>
+								<label>거래처 광고명</label>
+								<value>3</value>
+							</item>
+						</choices>
+					</select1>
+					<select1 id="combo1" ref="/root/reqData/searchData/suply_pers_erplace_cd" appearance="minimal" style="left:305px; top:100px; width:195px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/is_agr_1200_m/dataSet/CURLIST1/record">
+								<label ref="cdnm"/>
+								<value ref="cd"/>
+							</itemset>
+						</choices>
+					</select1>
+					<caption id="caption9" class="list_cap02" style="left:10px; top:145px; width:500px; height:26px; "/>
+					<caption id="caption10" class="list_cap03" style="left:10px; top:145px; width:85px; height:26px; ">거래처</caption>
+					<caption id="caption11" class="list_cap03" style="left:10px; top:170px; width:85px; height:26px; ">광고주</caption>
+					<caption id="caption13" class="list_cap03" style="left:10px; top:195px; width:85px; height:26px; ">광고명</caption>
+					<input id="inp_dlco_clsf_cd_seq" ref="/root/reqData/searchData/dlco_clsf_cd_seq" inputtype="button" style="left:103px; top:149px; width:85px; height:18px; ">
+						<script type="javascript" ev:event="onbuttonclick">
+							<![CDATA[				
+							model.makeNode("/root/reqData/fwdData/func_nm");
+							model.setValue("/root/reqData/fwdData/func_nm", "setDlcoInfo");//팝업에서 함수호출명 
+										
+							window.load("/xrw/is/com/IS_COM_1100.xrw"
+										,"mdichild"
+										, "is_com_1100"
+										, "align:center; caption:hidden;width:645px; height:480px;"
+										, "/root/reqData/fwdData"
+										, "/root/reqData/fwdData");
+							]]>
+						</script>
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+							if (inp_dlco_clsf_cd_seq.value.length == 9) {
+								model.removeNodeset("/root/reqData/fwdData");  
+								model.makeNode("/root/reqData/fwdData/dlco_clsf_cd_seq");
+								model.setValue("/root/reqData/fwdData/dlco_clsf_cd_seq", inp_dlco_clsf_cd_seq.value);
+								model.send("is_com_1200_s");
+										
+								if (model.getValue("/root/tempData/record/dlco_clsf_cd_seq") != "") {
+									inp_dlco_nm.value = model.getValue("/root/tempData/record/dlco_nm");
+								}else {
+									inp_dlco_nm.value = "";
+									inp_dlco_clsf_cd_seq.value = "";
+								}
+							}else {
+								inp_dlco_nm.value = "";
+								inp_dlco_clsf_cd_seq.value = "";
+							}
+							model.refresh();			
+							]]>
+						</script>
+					</input>
+					<input id="inp_dlco_nm" ref="/root/reqData/searchData/dlco_clsf_cd_seq_nm" imemode="hangul" style="left:194px; top:149px; width:150px; height:18px; "/>
+					<input id="inp_advcs_cd" ref="/root/reqData/searchData/advcs_cd" inputtype="button" format="999999" style="left:103px; top:174px; width:70px; height:18px; ">
+						<script type="javascript" ev:event="onbuttonclick">
+							<![CDATA[
+							model.makeNode("/root/reqData/fwdData/func_nm");
+							model.setValue("/root/reqData/fwdData/func_nm", "setAdDlcoInfo");//팝업에서 함수호출명 
+							
+							window.load("../com/IS_COM_1000.xrw"
+											  ,"mdichild"
+											  , "is_com_1000"
+											  , "width:645px; height:480px; align:center; caption:hidden;"
+											  , "/root/reqData/fwdData"
+											  , "/root/reqData/fwdData");
+							]]>
+						</script>
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+							if (inp_advcs_cd.value.length == 6) {
+								model.removeNodeset("/root/reqData/fwdData");  
+								model.makeNode("/root/reqData/fwdData/advcs_cd");
+								model.setValue("/root/reqData/fwdData/advcs_cd", inp_advcs_cd.value);
+								model.send("is_com_1201_s");
+										
+								if (model.getValue("/root/tempData/record/advcs_cd") != "") {
+									inp_advcs_cd_nm.value = model.getValue("/root/tempData/record/advcs_nm");
+								}else {
+									inp_advcs_cd_nm.value = "";
+									inp_advcs_cd.value = "";
+								}
+							}else {
+								inp_advcs_cd_nm.value = "";
+								inp_advcs_cd.value = "";
+							}
+							model.refresh();
+							]]>
+						</script>
+					</input>
+					<input id="inp_advcs_cd_nm" ref="/root/reqData/searchData/advcs_cd_nm" style="left:179px; top:174px; width:164px; height:18px; "/>
+					<input id="input39" ref="/root/reqData/searchData/advt_nm" imemode="hangul" style="left:103px; top:199px; width:242px; height:18px; text-align:left; "/>
+					<bool id="bool4" checkvalue="Y,N" select.background-image="#check" ref="/root/reqData/searchData/print_chk" style="left:95px; top:223px; width:30px; height:20px; background-image:#uncheck; "/>
+				</group>
+			</case>
+		</switch>
+		<button id="btnClose" class="btn02" style="left:883px; top:40px; width:53px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));					
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

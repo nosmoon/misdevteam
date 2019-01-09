@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_BNS_1800.xrw
+* 기능 : 판매 - 배달용품관리 - 배달용품리스트
+* 작성일자 : 2009.05.13
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goReport(gubun){
+					var report			= new Array(	  "SP_SE_BNS_1805_P"
+													, "SP_SE_BNS_1810_P"
+													, "SP_SE_BNS_1815_P"
+													, "SP_SE_BNS_1820_P"
+													, "SP_SE_BNS_1825_P"
+													, "SP_SE_BNS_1830_P"
+													, "SP_SE_BNS_1835_P"
+													, "SP_SE_BNS_1840_P"
+													, "SP_SE_BNS_1845_P");
+													
+					var report_gubun		= model.getValue("/root/reqData/searchData/gubun");
+					var report_index		= parseInt(report_gubun) - 1;							
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "se/" + report[report_index]);											
+					makeNodeValue("/root/oz_data/preview", "preview");											
+					makeNodeValue("/root/oz_data/printsize", "");											
+					makeNodeValue("/root/oz_data/conParam/sv_url","19110");					
+					makeNodeValue("/root/oz_data/conParam/sv_uid");					
+					makeNodeValue("/root/oz_data/conParam/sv_bonm");					
+					makeNodeValue("/root/oz_data/conParam/uv_line");					
+					makeNodeValue("/root/oz_data/conParam/uv_summary");											
+								
+					var root			= "/root/reqData/searchData1";
+					var dt			= model.getValue(	root + "/dt");
+					var prt_seq		= model.getValue(	root + "/prt_seq");						
+					var yymm			= model.getValue(	root + "/yymm");	
+					var bgn_dt		= model.getValue(	root + "/bgn_dt");
+					var end_dt		= model.getValue(	root + "/end_dt");	
+					var bns_item_cd	= model.getValue(	root + "/bns_item_cd");	
+					var team			= model.getValue(	root + "/team");	
+					var part			= model.getValue(	root + "/part");	
+					var area			= model.getValue(	root + "/area");	
+					var searchgubun	= model.getValue(	root + "/searchgubun");	
+													
+					if (   report_gubun == "1" 
+						|| report_gubun == "2" 
+						|| report_gubun == "3" 
+						|| report_gubun == "4" 
+						|| report_gubun == "5" ){
+						
+						
+						if ( dt == "" ){
+							commAlert("일자가 없습니다");
+							return;
+						}
+						
+					} else if ( report_gubun == "6" ) {
+						
+						
+						if ( yymm == "" ){
+							commAlert("년월이 없습니다");
+							return;
+						}
+					} else {
+						
+						if ( bgn_dt == "" ){
+							commAlert("시작일자가 없습니다");
+							return;
+						}
+						
+						if ( end_dt == "" ){
+							commAlert("종료일자가 없습니다");
+							return;
+						}
+						
+						if ( bgn_dt > end_dt ){
+							commAlert("시작일자가 종료일자가 클 수 없습니다.");
+							return;
+						}
+						
+					}
+				
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	
+					if ( report_gubun == 1 ){
+						makeNodeValue("/root/oz_data/odiParam/iv_rcpm_dt"		, dt				);	
+						makeNodeValue("/root/oz_data/odiParam/iv_prt_seq"		, prt_seq		);	
+					} else if (
+					      report_gubun == 2 
+					   || report_gubun == 3 
+					   || report_gubun == 4 
+					   || report_gubun == 5 ){
+						makeNodeValue("/root/oz_data/odiParam/iv_dt"			, dt				);	
+							
+					} else if ( report_gubun == 6  ){
+					   	makeNodeValue("/root/oz_data/odiParam/iv_yymm"			, yymm			);	
+					} else if ( report_gubun == 7
+	  						|| report_gubun == 8  ){
+					   	makeNodeValue("/root/oz_data/odiParam/iv_bns_item_cd"	, bns_item_cd	);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_bgn_dt"		, bgn_dt			);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_end_dt"		, end_dt			);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_bgn_dt"		, bgn_dt			);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_team"			, team			);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_part"			, part			);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_area"			, area			);	
+				    } else {
+						makeNodeValue("/root/oz_data/odiParam/iv_bns_item_cd"	, bns_item_cd	);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_bgn_divn_dt"	, bgn_dt			);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_end_divn_dt"	, end_dt			);	
+					   	makeNodeValue("/root/oz_data/odiParam/iv_searchgubun"	, searchgubun	);	
+					}
+					
+					makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers",model.property("ss_emp_no"));	
+				
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<gubun>1</gubun>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData1>
+							<dt/>
+							<prt_seq/>
+							<yymm/>
+							<bns_item_cd/>
+							<bns_item_nm/>
+							<bgn_dt/>
+							<end_dt/>
+							<team/>
+							<part/>
+							<area/>
+							<gubun>1</gubun>
+							<report_nm/>
+							<preview_gubun/>
+						</searchData1>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					makeTeamSearch(
+									"se_bns_1800_m"
+								  , "/se/bns/1800"
+								  , "/root/reqData"  
+		                            , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  , "area_combo"
+								  );
+											  
+					var dt			= model.getValue("/root/initData/dt"	);			  
+					var yymm			= model.getValue("/root/initData/yymm"	);			  
+					model.setValue("/root/reqData/searchData1/dt", dt);
+					model.setValue("/root/reqData/searchData1/bgn_dt"	, dt		);
+					model.setValue("/root/reqData/searchData1/end_dt"	, dt		);
+					model.setValue("/root/reqData/searchData1/yymm"		, yymm	);
+
+					switch1.selectedIndex		= 0;								
+					model.refresh();
+					
+				]]>
+			</script>
+			<submission id="se_bns_1800_m" action="/se/bns/1800" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/initData/comboSet"/>
+			<submission id="se_bns_1810_p" ref="/root/reqData/searchData1" action="/se/bns/1810" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;2,121;2,103;" style="font-family:돋움; font-size:12px; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("P");
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<group id="selectBox" class="gro_tab2" style="left:10px; top:70px; width:270px; height:655px; ">
+			<select1 id="radio1" ref="/root/reqData/searchData/gubun" class="input1" overflow="visible" appearance="full" style="left:10px; top:15px; width:250px; height:280px; border-style:none; ">
+				<choices>
+					<item>
+						<label>배달용품 입금전표</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>배달용품 배분명세</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>배달용품 배분 집계표</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>일일 배달용품 배분 내역</label>
+						<value>4</value>
+					</item>
+					<item>
+						<label>배달용품 일일 입금 명세서</label>
+						<value>5</value>
+					</item>
+					<item>
+						<label>배달용품 구입 및 배분내역 통보</label>
+						<value>6</value>
+					</item>
+					<item>
+						<label>배달용품 입금 명세서(일반)</label>
+						<value>7</value>
+					</item>
+					<item>
+						<label>배달용품 입금 명세서(담당별)</label>
+						<value>8</value>
+					</item>
+					<item>
+						<label>배달용품 미수 명세서</label>
+						<value>9</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var index		= radio1.focusIndex;
+						if ( index == 0 
+						   ||index == 1 
+						   ||index == 2 
+						   ||index == 3 
+						   ||index == 4 ){
+							switch1.selectedIndex		= 0;	
+							
+							if ( index == 0 ){
+								caption2.visible = true;
+								input2.visible = true;
+							} else {
+								caption2.visible = false;
+								input2.visible = false;
+							}
+						} else if ( index == 5  ){
+						   	switch1.selectedIndex		= 1;	
+						} else if ( index == 6
+									||index == 7  ){
+						   	switch1.selectedIndex		= 2;	
+ 					    } else {
+							switch1.selectedIndex		= 3;	
+						}
+					]]>
+				</script>
+			</select1>
+		</group>
+		<button id="button1" class="btn03" visibility="hidden" crud="R" style="left:739px; top:44px; width:63px; height:21px; ">
+			<caption>미리보기</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("V");
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" style="left:290px; top:70px; width:645px; height:225px; ">
+			<case id="case1" selected="true" style="left:0px; top:0px; width:645px; height:225px; ">
+				<group id="group_scr" ref="/root/reqData/searchData/medi_cd" class="gro_sel" style="left:10px; top:10px; width:625px; height:26px; ">
+					<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:625px; height:26px; "/>
+					<input id="input1" ref="/root/reqData/searchData1/dt" class="req" inputtype="date" format="yyyy-mm-dd" appearance="minimal" style="left:77px; top:4px; width:110px; height:18px; "/>
+					<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; ">일자</caption>
+					<caption id="caption2" class="list_cap01" visibility="visible" style="left:197px; top:0px; width:90px; height:26px; ">출력순번</caption>
+					<input id="input2" ref="/root/reqData/searchData1/prt_seq" visibility="visible" appearance="minimal" style="left:294px; top:4px; width:110px; height:18px; "/>
+				</group>
+			</case>
+			<case id="case2">
+				<group id="group1" ref="/root/reqData/searchData/medi_cd" class="gro_sel" style="left:10px; top:10px; width:625px; height:26px; ">
+					<caption id="caption3" class="list_cap02" style="left:0px; top:0px; width:625px; height:26px; "/>
+					<input id="input3" ref="/root/reqData/searchData1/yymm" class="req" format="yyyy-mm" appearance="minimal" style="left:77px; top:4px; width:110px; height:18px; "/>
+					<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; ">년월</caption>
+				</group>
+			</case>
+			<case id="case3">
+				<group id="group2" ref="/root/reqData/searchData/medi_cd" class="gro_sel" style="left:10px; top:10px; width:625px; height:51px; ">
+					<caption id="caption6" class="list_cap02" style="left:0px; top:0px; width:625px; height:26px; "/>
+					<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">배달용품</caption>
+					<input id="input4" ref="/root/reqData/searchData1/bns_item_cd" inputtype="button" style="left:86px; top:4px; width:80px; height:22px; ">
+						<script type="javascript" ev:event="onkeyup">
+							<![CDATA[
+								if ( event.keyCode == 13 ){
+									var code = input4.currentText;
+									model.setValue("/root/reqData/searchData1/bns_item_cd", code);
+									goSearch();
+								}
+							]]>
+						</script>
+						<script type="javascript" ev:event="DOMFocusOut">
+							<![CDATA[
+								var code = input4.currentText;
+								model.setValue("/root/reqData/searchData1/bns_item_nm", "");	
+								input4.refresh();						
+								model.setValue("/root/reqData/searchData1/bns_item_cd", code);							
+								if ( code == "" ){
+									return;
+								}
+							
+								se_getBnsItem("N", "/root/reqData/searchData1", "/root/reqData/searchData1", "bns_item_cd", "bns_item_nm", "",  "");
+							]]>
+						</script>
+						<script type="javascript" ev:event="onbuttonclick">
+							<![CDATA[
+								var code = input4.currentText;
+		
+								model.setValue("/root/reqData/searchData1/bns_item_cd", code);
+								se_getBnsItem("P", "/root/reqData/searchData1", "/root/reqData/searchData1", "bns_item_cd", "bns_item_nm", "", "");
+							]]>
+						</script>
+					</input>
+					<input id="input5" ref="/root/reqData/searchData1/bns_item_nm" class="output" style="left:170px; top:4px; width:90px; height:22px; ">
+						<script type="javascript" ev:event="DOMFocusOut">
+							<![CDATA[
+								var code = input5.currentText;
+								model.setValue("/root/reqData/searchData1/bns_item_cd", "");	
+								input5.refresh();
+								model.setValue("/root/reqData/searchData1/bns_item_nm", code);	
+								if ( code == "" ){
+									return;
+								}
+								se_getBnsItem("N", "/root/reqData/searchData1", "/root/reqData/searchData1", "bns_item_cd", "bns_item_nm", "", "");
+							]]>
+						</script>
+					</input>
+					<caption id="caption8" class="list_cap01" style="left:269px; top:0px; width:70px; height:26px; ">일자</caption>
+					<input id="input6" ref="/root/reqData/searchData1/bgn_dt" class="req" inputtype="date" style="left:345px; top:4px; width:100px; height:22px; "/>
+					<input id="input7" ref="/root/reqData/searchData1/end_dt" class="req" inputtype="date" style="left:460px; top:4px; width:100px; height:22px; "/>
+					<caption id="caption91" style="left:445px; top:4px; width:15px; height:20px; ">~</caption>
+					<caption id="caption9" class="list_cap02" style="left:0px; top:25px; width:625px; height:26px; "/>
+					<caption id="caption12" class="list_cap01" style="left:0px; top:25px; width:80px; height:26px; ">팀</caption>
+					<select1 id="team_combo" ref="/root/reqData/searchData1/team" appearance="minimal" style="left:86px; top:29px; width:110px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/teamlist/record">
+								<label ref="dept_nm"/>
+								<value ref="dept_cd"/>
+							</itemset>
+						</choices>
+					</select1>
+					<caption id="caption13" class="list_cap01" style="left:205px; top:25px; width:80px; height:26px; ">파트</caption>
+					<select1 id="part_combo" ref="/root/reqData/searchData1/part" appearance="minimal" style="left:291px; top:29px; width:110px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/partlist/record">
+								<label ref="dept_nm"/>
+								<value ref="dept_cd"/>
+							</itemset>
+						</choices>
+					</select1>
+					<caption id="caption14" class="list_cap01" style="left:410px; top:25px; width:80px; height:26px; ">지역</caption>
+					<select1 id="area_combo" ref="/root/reqData/searchData1/area" appearance="minimal" style="left:496px; top:29px; width:110px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/arealist/record">
+								<label ref="area_nm"/>
+								<value ref="area_cd"/>
+							</itemset>
+						</choices>
+					</select1>
+				</group>
+			</case>
+			<case id="case4">
+				<group id="group3" ref="/root/reqData/searchData/medi_cd" class="gro_sel" style="left:10px; top:10px; width:625px; height:51px; ">
+					<caption id="caption10" class="list_cap02" style="left:0px; top:0px; width:625px; height:26px; "/>
+					<caption id="caption11" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">배달용품</caption>
+					<input id="input8" ref="/root/reqData/searchData1/bns_item_cd" inputtype="button" style="left:86px; top:4px; width:80px; height:22px; ">
+						<script type="javascript" ev:event="onkeyup">
+							<![CDATA[
+								if ( event.keyCode == 13 ){
+									var code = input4.currentText;
+									model.setValue("/root/reqData/searchData1/bns_item_cd", code);
+									goSearch();
+								}
+							]]>
+						</script>
+						<script type="javascript" ev:event="DOMFocusOut">
+							<![CDATA[
+								var code = input4.currentText;
+								model.setValue("/root/reqData/searchData1/bns_item_nm", "");	
+								input4.refresh();						
+								model.setValue("/root/reqData/searchData1/bns_item_cd", code);							
+								if ( code == "" ){
+									return;
+								}
+							
+								se_getBnsItem("N", "/root/reqData/searchData1", "/root/reqData/searchData1", "bns_item_cd", "bns_item_nm", "",  "");
+							]]>
+						</script>
+						<script type="javascript" ev:event="onbuttonclick">
+							<![CDATA[
+								var code = input4.currentText;
+		
+								model.setValue("/root/reqData/searchData1/bns_item_cd", code);
+								se_getBnsItem("P", "/root/reqData/searchData1", "/root/reqData/searchData1", "bns_item_cd", "bns_item_nm", "", "");
+							]]>
+						</script>
+					</input>
+					<input id="input9" ref="/root/reqData/searchData1/bns_item_nm" class="output" style="left:170px; top:4px; width:90px; height:22px; ">
+						<script type="javascript" ev:event="DOMFocusOut">
+							<![CDATA[
+								var code = input5.currentText;
+								model.setValue("/root/reqData/searchData1/bns_item_cd", "");	
+								input5.refresh();
+								model.setValue("/root/reqData/searchData1/bns_item_nm", code);	
+								if ( code == "" ){
+									return;
+								}
+								se_getBnsItem("N", "/root/reqData/searchData1", "/root/reqData/searchData1", "bns_item_cd", "bns_item_nm", "", "");
+							]]>
+						</script>
+					</input>
+					<caption id="caption15" class="list_cap01" style="left:269px; top:0px; width:70px; height:26px; ">일자</caption>
+					<input id="input10" ref="/root/reqData/searchData1/bgn_dt" class="req" inputtype="date" style="left:345px; top:4px; width:100px; height:22px; "/>
+					<input id="input11" ref="/root/reqData/searchData1/end_dt" class="req" inputtype="date" style="left:460px; top:4px; width:100px; height:22px; "/>
+					<caption id="caption16" style="left:445px; top:4px; width:15px; height:20px; ">~</caption>
+					<caption id="caption17" class="list_cap02" style="left:0px; top:25px; width:625px; height:26px; "/>
+					<caption id="caption18" class="list_cap01" style="left:0px; top:25px; width:80px; height:26px; ">구분</caption>
+					<select1 id="radio2" ref="/root/reqData/searchData1/gubun" class="input1" overflow="visible" appearance="full" cols="2" style="left:87px; top:29px; width:200px; height:250px; border-style:none; ">
+						<choices>
+							<item>
+								<label>전체</label>
+								<value>1</value>
+							</item>
+							<item>
+								<label>미수</label>
+								<value>2</value>
+							</item>
+						</choices>
+						<script type="javascript" ev:event="xforms-value-changed">
+							<![CDATA[
+						var index		= radio1.focusIndex;
+						if ( index == 0 
+						   ||index == 1 
+						   ||index == 2 
+						   ||index == 3 
+						   ||index == 4 ){
+							switch1.selectedIndex		= 0;	
+							
+							if ( index == 0 ){
+								caption2.visible = true;
+								input2.visible = true;
+							} else {
+								caption2.visible = false;
+								input2.visible = false;
+							}
+						} else if ( index == 5  ){
+						   	switch1.selectedIndex		= 1;	
+						} else if ( index == 6
+									||index == 7  ){
+						   	switch1.selectedIndex		= 2;	
+ 					    } else {
+							switch1.selectedIndex		= 3;	
+						}
+					]]>
+						</script>
+					</select1>
+				</group>
+			</case>
+			<!--CLSID:64DA633F-E73B-4344-83BF-48483346CD53-->
+		</switch>
+	</xhtml:body>
+</xhtml:html>

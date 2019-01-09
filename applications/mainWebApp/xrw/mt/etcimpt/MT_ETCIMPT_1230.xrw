@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<comboSet>
+						</comboSet>
+						<searchData>
+						</searchData>
+					</initData>
+					<bodyData/>
+					<resData>
+						<gridData>
+							<record>
+								<fisc_dt/>
+							</record>
+						</gridData>
+						<resForm>
+						</resForm>
+						<gridData2>
+							<record>
+								<slip_occr_dt/>
+								<slip_clsf_cd/>
+								<slip_seq/>
+								<slip_sub_seq/>
+								<slip_arow_no/>
+								<budg_cd/>
+								<budg_nm/>
+								<dr_amt/>
+								<crdt_amt/>
+								<rmks1/>
+								<rmks2/>
+								<boks_dlco_nm/>
+								<use_dept_cd/>
+								<prop_equip_cd/>
+								<medi_cd/>
+								<medi_nm/>
+								<dtls_medi_cd/>
+								<budg_yymm/>
+								<clam_dept_cd/>
+								<clam_dept_nm/>
+								<chrg_emp_no/>
+								<chrg_emp_nm/>
+								<incmg_dt/>
+								<fisc_dt/>
+								<fisc_seq/>
+								<prenum/>
+								<vat_amt/>
+							</record>
+						</gridData2>
+					</resData>
+					<reqData>
+					</reqData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				fn_gridDataChange();
+			model1.refresh();
+			]]>
+			</script>
+		</model>
+		<script type="javascript">
+			<![CDATA[
+		function fn_gridDataChange() {
+			var dblsupplyamt;
+					var dblvatamt;
+					var var_offset_slip_no = new Array();
+					var var_offset_cnt = 0;
+					
+					dblsupplyamt = 0;
+					dblvatamt = 0;
+					
+					//var rows = model.getXPathValue("count(/root/resData/gridData/gridData1/dataSet/CURLIST1/record)");
+					var rows = model.getXPathValue("count(/root/resData/gridData2/record)");
+					
+					for (i=1; i<=rows; i++) {
+							if (model.getValue("/root/resData/gridData2/record[" + i + "]/budg_cd") == "182000") { // 선급제세)부가세
+						
+						       //model1.makeNode("/root/resData/gridData2/record[" + (i - 1) + "]/vat_amt");
+							model.setValue("/root/resData/gridData2/record[" + (i-1 ) + "]/vat_amt", model.getValue("/root/resData/gridData2/record[" + i + "]/dr_amt"));
+							
+							// 부가세 합계를 구함
+							dblvatamt = dblvatamt + Number(model.getValue("/root/resData/gridData2/record[" + i + "]/dr_amt"));
+							model.removeNodeset("/root/resData/gridData2/record[" + i + "]");
+//							datagrid1.deleteRow(i, false); 
+						//	i = i-1;
+						//	rows = rows - 1;
+						}
+					}
+		}
+		
+		]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="750" pageheight="575">
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData2/record" caption="선급지출번호^회계일자^비용구분(적요)^사용부서명(한글)^과표(1610)^세액(1820)" colsep="^" colwidth="150, 80, 159, 135, 100, 100" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="free" style="left:10px; top:35px; width:730px; height:530px; ">
+			<col ref="prenum"/>
+			<col ref="fisc_dt" format="yyyy-mm-dd"/>
+			<col ref="rmks2"/>
+			<col ref="use_dept_cd"/>
+			<col ref="dr_amt" format="#,###"/>
+			<col ref="vat_amt" format="#,###"/>
+		</datagrid>
+		<group id="group2" class="gro_btn" style="left:361px; top:5px; width:381px; height:21px; ">
+			<button id="button4" class="btn02" style="left:329px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:10px; top:0px; width:660px; height:27px; ">지출결의 조회</caption>
+	</xhtml:body>
+</xhtml:html>

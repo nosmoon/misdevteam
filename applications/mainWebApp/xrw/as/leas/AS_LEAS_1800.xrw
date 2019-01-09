@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session>
+							<uid/>
+							<cmpy_cd/>
+							<emp_no/>
+							<emp_nm/>
+							<dept_cd/>
+							<dept_nm/>
+						</session>
+						<!-- 선택계열의 정보를 담당 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<comboSet>
+							<combo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</combo>
+						</comboSet>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+					<reqData>
+						<!-- 검색조건 처리 -->
+						<searchData>
+							<occr_dt_fr/>
+							<occr_dt_to/>
+							<slip_remk/>
+							<remk_type/>
+						</searchData>
+						<!-- 등록/수정/삭제 요청 Form Data -->
+						<reqForm>
+						</reqForm>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<multiUpDate>
+						</multiUpDate>
+						<!-- POPUP 페이지 Forward Data -->
+						<fwdData>
+						</fwdData>
+					</reqData>
+					<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+					<resData>
+						<!-- 전달 받은 리스트 데이터를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<record>
+								<flag/>
+								<occr_no/>
+								<inout_clsf_nm/>
+								<bldg_nm/>
+								<cntr_no/>
+								<hire_dlco_nm/>
+								<remk/>
+								<rcpm_tot_amt/>
+								<actu_slip_no/>
+								<hire_dlco_ern/>
+								<bldg_cd/>
+								<inout_clsf/>
+								<occr_dt/>
+								<occr_seq/>
+							</record>
+						</gridData>
+						<gridData5>
+							<record>
+								<occr_dt/>
+								<occr_seq/>
+							</record>
+						</gridData5>
+						<!-- 전달 받은 Msg를 담당 ( submit의 결과가 담김) -->
+						<msg>
+							<errCode/>
+							<errMsg/>
+						</msg>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+						</resForm>
+					</resData>
+					<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function procActuSlip(mode) {
+						
+						var selected_rows = 0;
+						model1.removeNodeSet("/root/resData/gridData5");
+						model1.makeNode("/root/resData/gridData5");
+						model1.makeNode("/root/resData/gridData5/record");
+						model1.makeNode("/root/resData/gridData5/record/occr_dt");
+						model1.makeNode("/root/resData/gridData5/record/occr_seq");
+	
+						var node = instance1.selectSingleNode("/root/resData/gridData5/record");
+						var copyedNode = node.cloneNode(true);
+	
+						var idx = 0;
+						selected_rows = 0;
+						for (i = 1; i < datagrid1.rows; i++) {
+							if (datagrid1.valueMatrix(i, 1) == "true") {
+								if (selected_rows != 0) {
+									instance1.selectSingleNode("/root/resData/gridData5").appendChild(copyedNode);
+	
+									model1.setValue("/root/resData/gridData5/record["+(selected_rows+1)+"]/occr_dt", datagrid1.valueMatrix(i, 13));
+									model1.setValue("/root/resData/gridData5/record["+(selected_rows+1)+"]/occr_seq", datagrid1.valueMatrix(i, 14));
+								} else {
+									model1.setValue("/root/resData/gridData5/record/occr_dt", datagrid1.valueMatrix(i, 13));
+									model1.setValue("/root/resData/gridData5/record/occr_seq", datagrid1.valueMatrix(i, 14));
+								}
+								selected_rows++;
+							}
+						}
+						datagrid5.refresh();
+						
+						for (i = 1; i < datagrid5.rows; i++)
+							datagrid5.addStatus(i, 1);
+						
+						model1.makeNode("/root/reqData/multiUpDate/job_mode");
+						model1.makeNode("/root/reqData/multiUpDate/multiUpdateData");
+						model1.makeNode("/root/reqData/multiUpDate/occr_dt");
+						model1.makeNode("/root/reqData/multiUpDate/slip_remk");
+						model1.setValue("/root/reqData/multiUpDate/job_mode",          mode);
+						model1.setValue("/root/reqData/multiUpDate/multiUpdateData", datagrid5.getUpdateData());
+						model1.setValue("/root/reqData/multiUpDate/occr_dt",              model1.getValue("/root/reqData/searchData/occr_dt_fr"));
+						model1.setValue("/root/reqData/multiUpDate/slip_remk",           model1.getValue("/root/reqData/searchData/slip_remk"));
+						
+						model1.send("as_leas_1802");
+						
+						if (submit_completed()) {
+							model1.removeNodeset("/root/tempData/msgData");
+							btnA5.dispatch("onclick");
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.setValue("/root/reqData/searchData/occr_dt_fr" , commCurDate("ymd"));
+					model1.setValue("/root/reqData/searchData/occr_dt_to" , commCurDate("ymd"));
+					model1.refresh();
+
+					datagrid1.fixedcellcheckbox(0, 1) = true;
+					
+                    			//model1.setValue("/root/reqData/searchData/slip_remk", "임대수입 입금외");
+				]]>
+			</script>
+			<submission id="as_leas_1801" action="/as/leas/1801" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="as_leas_1802" action="/as/leas/1802" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/tempData/msgData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/as_common.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="2,718;1,992;1,953;1,935;" style="font-family:굴림; ">
+		<caption id="caption7" class="tit01" style="left:10px; top:5px; width:315px; height:27px; ">임대입금 현업전표 처리</caption>
+		<group id="group_tit" class="gro_tit2" style="left:10px; top:88px; width:926px; height:25px; ">
+			<caption id="subtitle" class="tit02" style="left:0px; top:0px; width:926px; height:20px; ">현업전표처리대상</caption>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="^발생번호^입출구분^건물구분명^임대계약번호^임차업체명^비고^입출금총액^전표번호^hire_dlco_ern^bldg_cd^inout_clsf^occr_dt^occr_seq" colsep="^" colwidth="21, 87, 61, 73, 78, 175, 231, 86, 110, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:115px; width:925px; height:603px; ">
+			<col ref="flag" type="checkbox" visibility="hidden"/>
+			<col ref="occr_no" style="text-align:center; "/>
+			<col ref="inout_clsf_nm" style="text-align:center; "/>
+			<col ref="bldg_nm" style="text-align:left; "/>
+			<col ref="cntr_no" style="text-align:center; "/>
+			<col ref="hire_dlco_nm" style="text-align:left; "/>
+			<col ref="remk" style="text-align:left; "/>
+			<col ref="rcpm_tot_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="actu_slip_no" style="text-align:center; "/>
+			<col ref="hire_dlco_ern" visibility="hidden"/>
+			<col ref="bldg_cd" visibility="hidden"/>
+			<col ref="inout_clsf" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="occr_seq" visibility="hidden"/>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" style="left:9px; top:50px; width:926px; height:26px; ">
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:90px; height:26px; ">입금처리일자</caption>
+			<caption id="caption54" class="list_cap02" style="left:90px; top:0px; width:825px; height:26px; "/>
+			<input id="input19" ref="/root/reqData/searchData/occr_dt_fr" class="req" navindex="1" inputtype="date" caption="입금처리일자(From)" style="left:94px; top:4px; width:85px; height:18px; "/>
+			<input id="input26" ref="/root/reqData/searchData/occr_dt_to" class="req" navindex="2" visibility="hidden" inputtype="date" caption="입금처리일자(To)" style="left:825px; top:5px; width:85px; height:18px; "/>
+			<select1 id="combo2" ref="/root/reqData/searchData/remk_type" appearance="minimal" style="left:290px; top:4px; width:170px; height:18px; ">
+				<choices>
+					<item>
+						<label>임대수입 입금외</label>
+						<value>임대수입 입금외</value>
+					</item>
+					<item>
+						<label>임대수입 대체입금외</label>
+						<value>임대수입 대체입금외</value>
+					</item>
+					<item>
+						<label>임대보증금 입금외</label>
+						<value>임대보증금 입금외</value>
+					</item>
+					<item>
+						<label>임대보증금 대체입금외</label>
+						<value>임대보증금 대체입금외</value>
+					</item>
+					<item>
+						<label>예수금 입금외</label>
+						<value>예수금 입금외</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+							slip_remk.value = combo2.value;	// 제목유형을 선택 시 타이틀에 표시 됨				
+					]]>
+				</script>
+			</select1>
+			<input id="slip_remk" ref="/root/reqData/searchData/slip_remk" class="req" navindex="2" maxlength="5" style="left:469px; top:4px; width:391px; height:18px; "/>
+			<caption id="caption3" class="list_cap01" style="left:220px; top:0px; width:65px; height:26px; ">제목유형</caption>
+		</group>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:8px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:571px; top:0px; width:50px; height:21px; ">
+				<caption>생성</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+      					        //입금처리일자 입력 체크.
+						var tmp_occr_dt_fr = model1.getValue("/root/reqData/searchData/occr_dt_fr");
+						if ( tmp_occr_dt_fr.length < "8" ) {
+							alert("입금현업전표생성은 입금처리일자를 기준으로 일괄생성됩니다.\n입금처리일자를 정확히 입력하세요");
+							return;
+						}					
+
+						if ( slip_remk.value == "" ) {
+							alert("현업전표 제목을 입력하세요.");
+							return;
+						}								
+						
+						if (!(window.alert("현업전표를 생성하시겠습니까?", "확인", 1) == 1))
+							return;
+
+						procActuSlip("I");
+					]]>
+				</script>
+			</button>
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();
+					]]>
+				</script>
+			</button>
+			<button id="btnA5" class="btn02" style="left:450px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+      					        //청구일자 입력 체크.
+						var tmp_occr_dt_fr = model1.getValue("/root/reqData/searchData/occr_dt_fr");
+						if ( tmp_occr_dt_fr.length < "8" ) {
+							alert("입금현업전표생성은 입금처리일자를 기준으로 일괄생성됩니다.\n입금처리일자를 정확히 입력하세요");
+							return;
+						}					
+					
+						if (commReqCheck(group1)) {
+							/*
+							if (!(commGhkTerm("/root/reqData/searchData/occr_dt_fr", "/root/reqData/searchData/occr_dt_to"))) {
+								alert("조회날짜의 범위가 올바르지 않습니다.");
+								return;
+							}
+							*/
+						       model1.setValue("/root/reqData/searchData/occr_dt_to", model1.getValue("/root/reqData/searchData/occr_dt_fr") );
+							
+							model1.send("as_leas_1801");
+							model1.copyNode("/root/resData/gridData", "/root/tempData/dataSet/CURLIST");
+							model1.removeNodeset("/root/tempData/dataSet");
+							model1.refresh();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn03" style="left:625px; top:0px; width:65px; height:21px; ">
+				<caption>생성취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+      					        //입금처리일자 입력 체크.
+						var tmp_occr_dt_fr = model1.getValue("/root/reqData/searchData/occr_dt_fr");
+						if ( tmp_occr_dt_fr.length < "8" ) {
+							alert("입금현업전표생성은 입금처리일자를 기준으로 일괄생성됩니다.\n입금처리일자를 정확히 입력하세요");
+							return;
+						}	
+											
+						if (!(window.alert("현업전표를 취소하시겠습니까?", "확인", 1) == 1))
+							return;
+
+						procActuSlip("D");
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn03" navindex="17" style="left:504px; top:0px; width:63px; height:21px; ">
+				<caption>엑셀저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+						datagrid1.saveExcel(filename, "sheetname:sheet1;colhiddenextend:false;rowhiddenextend:false;exportfalsecols:0;row_0:label;");
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn04" style="left:694px; top:0px; width:86px; height:21px; ">
+				<caption>입금명세출력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+      					        //청구일자 입력 체크.
+						var tmp_occr_dt_fr = model1.getValue("/root/reqData/searchData/occr_dt_fr");
+						if ( tmp_occr_dt_fr.length < "8" ) {
+							alert("입금처리일자를 정확히 입력하세요");
+							return;
+						}	
+						// 임대보고서출력 화면 호출								
+						var i = datagrid1.row;
+						model1.property("func_nm") = "01";
+						model1.property("pop_clsf") = "popup";
+						model1.property("actu_slip_dt_1")   = model1.getValue("/root/reqData/searchData/occr_dt_fr");				
+						viewer("mainFrame").window.javaScript.onLoadPage2("AS_LEAS_1600");						
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn04" style="left:784px; top:0px; width:86px; height:21px; ">
+				<caption>출금명세출력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+      					        //청구일자 입력 체크.
+						var tmp_occr_dt_fr = model1.getValue("/root/reqData/searchData/occr_dt_fr");
+						if ( tmp_occr_dt_fr.length < "8" ) {
+							alert("입금처리일자를 정확히 입력하세요");
+							return;
+						}	
+						// 임대보고서출력 화면 호출								
+						var i = datagrid1.row;
+						model1.property("func_nm") = "02";
+						model1.property("pop_clsf") = "popup";
+						model1.property("actu_slip_dt_2")   = model1.getValue("/root/reqData/searchData/occr_dt_fr");				
+						viewer("mainFrame").window.javaScript.onLoadPage2("AS_LEAS_1600");						
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" class="gro_line" style="left:10px; top:37px; width:926px; height:5px; "/>
+		<datagrid id="datagrid5" nodeset="/root/resData/gridData5/record" visibility="hidden" caption="occr_dt^occr_seq" colsep="#" colwidth="90, 90" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" navindex="3" style="left:355px; top:160px; width:202px; height:104px; ">
+			<col ref="occr_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="occr_seq"/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<comboSet>
+							<cmpylist>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</cmpylist>
+						</comboSet>
+						<gs_request/>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<extn_search_form>
+								<cntrno/>
+								<cmpycd/>
+								<empnm/>
+								<subsyn/>
+								<search_flag_rdr/>
+								<search_word_rdr/>
+							</extn_search_form>
+							<list_form>
+								<cntrno/>
+								<cmpycd/>
+								<empseq/>
+								<rdr_no/>
+								<rdrnm/>
+								<rdr_extndt/>
+								<subsfr_dt/>
+								<valmm/>
+								<qty/>
+								<freeyn/>
+								<suspdt/>
+								<suspresncd/>
+								<dlvaddr/>
+								<bocd/>
+								<bonm/>
+								<rdr_extnno/>
+								<dlvzip/>
+								<dlvtelno/>
+								<dlvptphno/>
+								<medicd/>
+								<modcheck/>
+							</list_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listgrid>
+								<record>
+									<cmpycd/>
+									<cmpynm/>
+									<officd/>
+									<offinm/>
+									<teamcd/>
+									<teamnm/>
+									<empseq/>
+									<empnm/>
+									<zip/>
+									<addr/>
+									<telno/>
+									<ptphno/>
+									<subsyn/>
+									<rdr_no/>
+									<rdrnm/>
+									<rdr_extndt/>
+									<subsfr_dt/>
+									<valmm/>
+									<qty/>
+									<freeyn/>
+									<suspdt/>
+									<suspresncd/>
+									<dlvaddr/>
+									<bocd/>
+									<bonm/>
+									<modcheck/>
+									<rdr_extnno/>
+									<dlvzip/>
+									<dlvtelno/>
+									<dlvptphno/>
+									<medicd/>
+								</record>
+							</listgrid>
+							<listgrid_rdr>
+								<record>
+									<rdr_no/>
+									<rdrnm/>
+									<addr/>
+									<telno/>
+									<ptphno/>
+									<bonm/>
+									<bocd/>
+									<rdr_extndt/>
+									<rdr_extnno/>
+									<subsfr_dt/>
+									<valmm/>
+									<subsqty/>
+									<freeyn/>
+									<suspdt/>
+									<suspresncd/>
+									<dlvzip/>
+									<medicd/>
+								</record>
+							</listgrid_rdr>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID2700init" action="/ss/extn/2700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID2700search" action="/ss/extn/2710" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/extn_search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID2700search_rdr" action="/ss/extn/2720" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/extn_search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID2700save" action="/ss/extn/2730" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/list_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+			// 목록보기
+				var clk_empnm;
+				var clk_rdr_no;
+				var clk_rdrnm;
+				
+				function init()
+				{					
+					commEventHandler(PID2700group1);
+					
+					model.send("PID2700init", false);
+					
+					model.copyNode("/root/initData/defaultData", "/root/initData/comboSet/codeData");
+					model.copyNode("/root/initData/comboSet/cmpylist","/root/tempData/codeData/teamlist");
+					
+					modelCopyValue("/root/reqData/reqform/extn_search_form/cntrno", "/root/tempData/codeData/cntrno");
+					
+					PID2700radio1.select(0);
+										
+					PID2700group1.refresh();
+					
+					remakeNode("/root/resData/gridData/listgrid");
+					remakeNode("/root/resData/gridData/listgrid_rdr");
+					PID2700datagrid1.refresh();	
+					PID2700datagrid2.refresh();
+					clk_empnm = null;
+					clk_rdr_no = null;
+					clk_rdrnm = null;
+				}
+				
+				
+				function search()
+				{
+					PID2700datagrid1.rebuildStyle();
+					
+					if(PID2700input1.value == ""){
+						alert("회차를 입력하세요.");
+						return;
+					}
+					remakeNode("/root/tempData/resTemp");
+					
+					model.send("PID2700search", false);
+							
+					if(!submit_completed())
+						return;
+					
+					model.copyNode("/root/resData/gridData/listgrid", "/root/tempData/resTemp/listGrid");
+					
+					
+					
+					PID2700datagrid1.refresh();
+													
+					if(instance1.selectNodes("/root/resData/gridData/listgrid/record/cmpycd").length == 0)
+						model.alert("사원 검색결과가 없습니다.");
+				}
+				
+				function rdr_search()
+				{
+					if(PID2700input3.value == ""){
+						alert("검색어를 입력하세요.");
+						return;
+					}
+					remakeNode("/root/tempData/resTemp");
+						
+					model.send("PID2700search_rdr", false);
+										
+					if(!submit_completed())
+						return;
+					
+					model.copyNode("/root/resData/gridData/listgrid_rdr", "/root/tempData/resTemp/listGrid_rdr");
+					
+					PID2700datagrid2.refresh();
+													
+					if(instance1.selectNodes("/root/resData/gridData/listgrid_rdr/record/rdr_no").length == 0)
+						model.alert("독자 검색결과가 없습니다.");
+					else
+					{
+						var trow = PID2700datagrid2.rows - PID2700datagrid2.fixedRows;
+						var irow = PID2700datagrid2.fixedRows;
+						for(; irow <= trow; irow++)
+						{
+							if(gridRefColValue(PID2700datagrid2, irow, "suspdt") != "")
+								PID2700datagrid2.rowStyle(irow, "data", "color") = "#FF0000";
+							else
+								PID2700datagrid2.rowStyle(irow, "data", "color") = "#000000";
+						}
+					}
+				}
+				
+				function gridClick()
+				{
+					PID2700datagrid1.rebuildStyle();
+					
+					var click_word = PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.col);
+					
+					PID2700datagrid1.rowStyle(PID2700datagrid1.row, "data", "background-color") = "#bbdddd";
+					
+					if(PID2700datagrid1.col == 7){
+						PID2700radio1.select(0);
+					}else if(PID2700datagrid1.col == 9){
+						PID2700radio1.select(1);						
+					}else if(PID2700datagrid1.col == 10){
+						PID2700radio1.select(2);						
+					}else if(PID2700datagrid1.col == 11){
+						PID2700radio1.select(3);						
+					}else{
+						alert("이름, 주소, 전화번호, 핸드폰번호만 선택할 수 있습니다.");
+						PID2700datagrid1.rebuildStyle();
+						return;
+					}
+					
+					model.setValue("/root/reqData/reqform/extn_search_form/search_word_rdr",click_word);
+					
+					clk_empnm = PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("empnm"));
+					
+					model.refresh();
+				}
+				
+				function gridClick2()
+				{	
+					if(clk_empnm == null){
+						alert("선택된 사원이 없습니다.");
+						return;
+					}
+					
+					if(PID2700datagrid2.textMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("rdr_no")) == "")					
+					return;
+										
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("rdr_no")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("rdr_no"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("rdrnm")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("rdrnm"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("rdr_extndt")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("rdr_extndt"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("subsfr_dt")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("subsfr_dt"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("valmm")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("valmm"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("qty")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("subsqty"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("freeyn")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("freeyn"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("suspdt")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("suspdt"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("suspresncd")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("suspresncd"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("dlvaddr")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("addr"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("bocd")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("bocd"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("bonm")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("bonm"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("rdr_extnno")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("rdr_extnno"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("dlvzip")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("dlvzip"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("dlvtelno")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("telno"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("dlvptphno")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("ptphno"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("medicd")) = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("medicd"));
+					PID2700datagrid1.valueMatrix(PID2700datagrid1.row, PID2700datagrid1.colRef("modcheck")) = "Y";
+																				
+					clk_rdr_no = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("rdr_no"));
+					clk_rdrnm = PID2700datagrid2.valueMatrix(PID2700datagrid2.row, PID2700datagrid2.colRef("rdrnm"));
+					
+					alert("["+clk_empnm+"]사원에게 ["+clk_rdr_no+":"+clk_rdrnm+"]독자정보가 셋팅되었습니다.");
+					
+					model.refresh();
+				}
+				
+				function save()
+				{
+					if(PID2700input1.value == ""){
+						alert("회차를 입력하세요.");
+						return;
+					}
+					
+					if(!commValidate(PID2700group1))
+					return;
+					
+					makeNodesetToAppendForm("/root/resData/gridData/listgrid/record", "/root/tempData/gridTemp", "modcheck", "Y", "##", true);
+										
+					childValueCopy("/root/reqData/reqform/list_form","/root/tempData/gridTemp");
+										
+					modelCopyValue("/root/reqData/reqform/list_form/cntrno", "/root/reqData/reqform/extn_search_form/cntrno");
+					
+					if(model.getValue("/root/reqData/reqform/list_form/modcheck").indexOf("Y") == -1){
+						alert("저장할 데이터가 없습니다.");
+						return;
+					}
+					
+					if(model.alert("저장하시겠습니까?", "", 4) == "6"){
+						model.send("PID2700save",false);
+						
+						if(!submit_completed())
+							return;
+					
+						remakeNode("/root/resData/gridData/listgrid");
+						remakeNode("/root/resData/gridData/listgrid_rdr");
+						PID2700datagrid1.refresh();	
+						PID2700datagrid2.refresh();
+						
+						search();
+					}
+				}	
+				
+				function excel()
+				{
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+					
+					if(filePath != "") {
+						PID2700datagrid1.saveExcel(filePath);
+						window.exec(filePath);
+					}					
+				}	
+				
+							
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="1200" idprefix="PID2700" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:44px; width:926px; height:21px; ">
+			<button id="btnSearch" class="btn02" crud="R" style="left:656px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[					
+					init();					
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" crud="R" style="left:712px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[					
+					search();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" crud="R" style="left:766px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[					
+					save();
+					]]>
+				</script>
+			</button>
+			<button id="btnExcel" class="btn02" crud="R" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					excel();
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID2700group1" class="gro_sel" style="left:10px; top:70px; width:926px; height:30px; ">
+			<caption id="PID2700caption1" class="list_cap01" style="left:0px; top:0px; width:100px; height:25px; ">회차</caption>
+			<caption id="PID2700caption1_1" class="list_cap02" style="left:99px; top:0px; width:100px; height:25px; "/>
+			<input id="PID2700input1" ref="/root/reqData/reqform/extn_search_form/cntrno" style="left:104px; top:4px; width:90px; height:18px; "/>
+			<caption id="PID2700caption2" class="list_cap01" style="left:198px; top:0px; width:100px; height:25px; ">회사명</caption>
+			<caption id="PID2700caption2_1" class="list_cap02" style="left:297px; top:0px; width:110px; height:25px; "/>
+			<select1 id="PID2700combo1" ref="/root/reqData/reqform/extn_search_form/cmpycd" class="req_100" appearance="minimal" style="left:302px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/cmpylist/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="PID2700caption3" class="list_cap01" style="left:406px; top:0px; width:100px; height:25px; ">사원명</caption>
+			<caption id="PID2700caption3_1" class="list_cap02" style="left:505px; top:0px; width:100px; height:25px; "/>
+			<input id="PID2700input2" ref="/root/reqData/reqform/extn_search_form/empnm" style="left:510px; top:4px; width:90px; height:18px; "/>
+			<caption id="PID2700caption4" class="list_cap01" style="left:604px; top:0px; width:100px; height:25px; ">구독여부</caption>
+			<caption id="PID2700caption4_1" class="list_cap02" style="left:703px; top:0px; width:100px; height:25px; "/>
+			<select1 id="PID2700combo2" ref="/root/reqData/reqform/extn_search_form/subsyn" appearance="minimal" style="left:708px; top:4px; width:90px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>Y</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>N</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption1" class="list_cap02" style="left:802px; top:0px; width:124px; height:25px; "/>
+		</group>
+		<group id="PID2700group2" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="PID2700datagrid1" nodeset="/root/resData/gridData/listgrid/record" caption="회사코드^회사명^국실코드^국실명^부서코드^부서명^사원번호^사원명^우편번호^주소^전화번호^핸드폰^구독여부^독자번호^구독자명^확장일자^구독시작일^유가월^부수^무료구분^중지일자^중지사유^구독지주소^지국코드^지국명^수정" colsep="^" colwidth="60,80,60,80,60,80,70,70,60,200,100,100,50,80,70,80,80,70,50,80,80,80,200,70,80,50" mergecellsfixedrows="bycolrec" rowsep="|" selectionmode="free" style="left:10px; top:110px; width:926px; height:300px; ">
+			<col ref="cmpycd"/>
+			<col ref="cmpynm"/>
+			<col ref="officd"/>
+			<col ref="offinm"/>
+			<col ref="teamcd"/>
+			<col ref="teamnm"/>
+			<col ref="empseq"/>
+			<col ref="empnm"/>
+			<col ref="zip"/>
+			<col ref="addr"/>
+			<col ref="telno" style="left:820px; top:20px; width:100px; height:20px; "/>
+			<col ref="ptphno"/>
+			<col ref="subsyn"/>
+			<col ref="rdr_no" type="input"/>
+			<col ref="rdrnm" type="input"/>
+			<col ref="rdr_extndt" format="yyyy-mm-dd" type="input"/>
+			<col ref="subsfr_dt" format="yyyy-mm-dd" type="input"/>
+			<col ref="valmm" format="yyyy-mm" type="input"/>
+			<col ref="qty" type="input"/>
+			<col ref="freeyn" type="input"/>
+			<col ref="suspdt" format="yyyy-mm-dd" type="input"/>
+			<col ref="suspresncd" type="input"/>
+			<col ref="dlvaddr" type="input"/>
+			<col ref="bocd" type="input"/>
+			<col ref="bonm" type="input"/>
+			<col checkvalue="Y,N" ref="modcheck" type="checkbox"/>
+			<col ref="rdr_extnno" visibility="hidden"/>
+			<col ref="dlvzip" visibility="hidden"/>
+			<col ref="dlvtelno" visibility="hidden"/>
+			<col ref="dlvptphno" visibility="hidden"/>
+			<col ref="medicd" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID2700datagrid1.mouseCol>PID2700datagrid1.fixedCols-1 && PID2700datagrid1.mouseRow>PID2700datagrid1.fixedRows-1)
+				       {
+						gridClick();
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+		<group id="PID2700group3" class="gro_tab1" style="left:10px; top:420px; width:670px; height:25px; text-align:left; ">
+			<caption id="PID2700caption5" class="list_cap03" style="left:0px; top:0px; width:120px; height:25px; ">독자정보검색</caption>
+			<caption id="PID2700caption5_1" class="list_cap02" style="left:119px; top:0px; width:551px; height:25px; "/>
+		</group>
+		<group id="PID2700group4" class="gro_sel" style="left:10px; top:450px; width:670px; height:30px; ">
+			<caption id="PID2700caption6_1" class="list_cap02" style="left:0px; top:0px; width:670px; height:30px; "/>
+			<select1 id="PID2700radio1" ref="/root/reqData/reqform/extn_search_form/search_flag_rdr" appearance="full" cols="4" overflow="visible" style="left:15px; top:5px; width:250px; height:18px; border-style:none; ">
+				<choices>
+					<item>
+						<label>이름</label>
+						<value>rdrnm</value>
+					</item>
+					<item>
+						<label>주소</label>
+						<value>addr</value>
+					</item>
+					<item>
+						<label>전화번호</label>
+						<value>telno</value>
+					</item>
+					<item>
+						<label>핸드폰</label>
+						<value>ptphno</value>
+					</item>
+				</choices>
+			</select1>
+			<input id="PID2700input3" ref="/root/reqData/reqform/extn_search_form/search_word_rdr" style="left:280px; top:5px; width:200px; height:18px; "/>
+			<button id="button3" class="btn05" crud="R" style="left:550px; top:5px; width:110px; height:21px; ">
+				<caption>독자정보조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[					
+					rdr_search();
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="PID2700datagrid2" nodeset="/root/resData/gridData/listgrid_rdr/record" caption="독자번호^독자명^주소^전화번호^핸드폰번호^지국명" colsep="^" colwidth="70,70,250,100,100,80" mergecellsfixedrows="bycolrec" rowsep="|" style="left:10px; top:485px; width:670px; height:250px; ">
+			<col ref="rdr_no"/>
+			<col ref="rdrnm"/>
+			<col ref="addr"/>
+			<col ref="telno"/>
+			<col ref="ptphno"/>
+			<col ref="bonm"/>
+			<col ref="bocd" visibility="hidden"/>
+			<col ref="rdr_extndt" visibility="hidden"/>
+			<col ref="rdr_extnno" visibility="hidden"/>
+			<col ref="subsfr_dt" visibility="hidden"/>
+			<col ref="valmm" visibility="hidden"/>
+			<col ref="subsqty" visibility="hidden"/>
+			<col ref="freeyn" visibility="hidden"/>
+			<col ref="suspdt" visibility="hidden"/>
+			<col ref="suspresncd" visibility="hidden"/>
+			<col ref="dlvzip" visibility="hidden"/>
+			<col ref="medicd" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID2700datagrid2.mouseCol>PID2700datagrid2.fixedCols-1 && PID2700datagrid2.mouseRow>PID2700datagrid2.fixedRows-1)
+				       {
+						gridClick2();
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

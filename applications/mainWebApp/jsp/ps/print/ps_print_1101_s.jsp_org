@@ -1,0 +1,395 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_print_1101_s.jsp
+* 기능 : 출력리스트 초기화면
+* 작성일자 : 2006-02-01
+* 작성자 : 전현표
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    //  dataset 인스턴스 선언부분
+    PS_S_PRINT_INITDataSet ds = (PS_S_PRINT_INITDataSet)request.getAttribute("ds");  // request dataset
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+//엔터키와 이벤트 핸들러
+function jsinit(){
+    setEventHandler();
+    //setEnterKeyEventHandler();
+}
+
+// form 내의 모든 올바른 값인지 체크
+function check_all(form){
+    if(!validate(form)) return false;
+    else{
+        makeValue(form);
+        //form.submit();
+        return true;
+    }
+}
+
+//화면출력
+function print_list(){
+    var lo_form1    = document.print_form;
+    var ls_kubun    = "";
+
+        // 지사별 생산/중지 통계
+        if (lo_form1.chkPrint[0].checked){
+            if ( trim(lo_form1.PROCYYMM.value) == "" ){
+                alert("조회년월를 입력하세요!");
+                lo_form1.PROCYYMM.focus();
+                return ;
+            }
+            ls_kubun = lo_form1.chkPrint[0].value ;
+
+        // 지사별 자진신청 현황
+        }else if (lo_form1.chkPrint[1].checked){
+            if ( trim(lo_form1.SELF_PCOND_APLCDT_FROM.value) == "" ){
+                alert("신청일자(from)를 입력하세요!");
+                lo_form1.SELF_PCOND_APLCDT_FROM.focus();
+                return ;
+            }
+
+            if ( trim(lo_form1.SELF_PCOND_APLCDT_TO.value) == "" ){
+                alert("신청일자(to)를 입력하세요!");
+                lo_form1.SELF_PCOND_APLCDT_TO.focus();
+                return ;
+            }
+            ls_kubun = lo_form1.chkPrint[1].value ;
+
+        // 지국별 배달 목록
+        }else if (lo_form1.chkPrint[2].checked){
+            if( trim(lo_form1.BO_SEND_LIST_senddt.value) == "" && (trim(lo_form1.BO_SEND_LIST_fr.value) == "" || trim(lo_form1.BO_SEND_LIST_to.value) == "")){
+              alert("배송호수나 기준년월 둘 중 하나는 필수입니다.");
+              lo_form1.BO_SEND_LIST_fr.focus();
+              return;
+            }
+/*
+            if((lo_form1.BO_SEND_LIST_sendtype.value =="ALL" || lo_form1.BO_SEND_LIST_sendtype.value=="02") && lo_form1.BO_SEND_LIST_senddt.value == "") {
+              alert("전체/일괄배송시에는 기준년월을 입력하세요");
+              lo_form1.BO_SEND_LIST_senddt.focus();
+              return;
+            }
+            if(lo_form1.BO_SEND_LIST_sendtype.value =="01" && (lo_form1.BO_SEND_LIST_fr.value == "" || lo_form1.BO_SEND_LIST_to.value=="")) {
+              alert("일일/추가배송시에는 구독호수을 입력하세요");
+              lo_form1.BO_SEND_LIST_fr.focus();
+              return;
+            }
+*/
+            ls_kubun = lo_form1.chkPrint[2].value ;
+
+        // 지국별 배달비 정산
+        }else if (lo_form1.chkPrint[3].checked){
+            if(trim(lo_form1.BO_SEND_ADJM_closyymm.value) == "") {
+              alert("기준년월을 입력하세요");
+              lo_form1.BO_SEND_ADJM_closyymm.focus();
+              return;
+            }
+            ls_kubun = lo_form1.chkPrint[3].value ;
+
+        // 지국별 배달 독자 목록
+/*        }else if (lo_form1.chkPrint[4].checked){
+            if( trim(lo_form1.BO_SEND_RDR_LIST_senddt.value) == "" && (trim(lo_form1.BO_SEND_RDR_LIST_fr.value) == "" || trim(lo_form1.BO_SEND_RDR_LIST_to.value) == "")){
+              alert("배송호수나 기준년월 둘 중 하나는 필수입니다.");
+              lo_form1.BO_SEND_RDR_LIST_fr.focus();
+              return;
+            }
+            ls_kubun = lo_form1.chkPrint[4].value ;
+*/
+	    // 발송잔여부수
+	    }else if(lo_form1.chkPrint[4].checked) {
+	    	//if( lo_form1.SEND_REST_medicd.value =="") {
+	    	//	alert("매체를 선택하세요!");
+	    	//	lo_form1.SEND_REST_medicd.focus();
+	    	//	return;
+	    	//}
+
+	    	if( lo_form1.SEND_REST_medicd.value == "ALL" && (trim(lo_form1.SEND_REST_M.value) == "" || trim(lo_form1.SEND_REST_W.value) =="")) {
+	    		alert("매체가 전체 일때는 월간/주간지 호수를 모두 입력해야 합니다!");
+	    		lo_form1.SEND_REST_M.focus();
+	    		return;
+	    	}
+
+//    	if( lo_form1.SEND_REST_medicd.value != "ALL" && (trim(lo_form1.SEND_REST_M.value) != "" && trim(lo_form1.SEND_REST_W.value) !="")) {
+//    		alert("매체 선택시에는 해당매체의 호수만 입력하세요!");
+//    		lo_form1.SEND_REST_M.focus();
+//    		return;
+//    	}
+
+	    	if( lo_form1.SEND_REST_medicd.value != "ALL" && (trim(lo_form1.SEND_REST_M.value) == "" && trim(lo_form1.SEND_REST_W.value) =="")) {
+	    		alert("월간지 또는 주간지 호수를 입력하세요!");
+	    		lo_form1.SEND_REST_M.focus();
+	    		return;
+	    	}
+
+	    	if( lo_form1.SEND_REST_medicd.value != "ALL" && lo_form1.SEND_REST_medicd.value == "210" ) {
+				if (trim(lo_form1.SEND_REST_M.value) != "" ) { lo_form1.SEND_REST_M.value =""; }
+				if (trim(lo_form1.SEND_REST_W.value) =="") {
+	    			alert("주간지 호수를 입력하세요!");
+	    			lo_form1.SEND_REST_W.focus();
+	    			return;
+	    		}
+			}
+
+	    	if( lo_form1.SEND_REST_medicd.value != "ALL" && lo_form1.SEND_REST_medicd.value != "210") {
+				if(trim(lo_form1.SEND_REST_W.value) !="") { lo_form1.SEND_REST_W.value ="";}
+				if(trim(lo_form1.SEND_REST_M.value) == "") {
+	    			alert("월간지 호수를 입력하세요!");
+	    			lo_form1.SEND_REST_M.focus();
+	    			return;
+	    		}
+			}
+
+	    	ls_kubun = lo_form1.chkPrint[4].value;
+
+        // 절독부수현황
+        }else if (lo_form1.chkPrint[5].checked){
+            if(trim(lo_form1.JD_CAL_send_from.value) == "") {
+              alert("기간(from)을 입력하세요");
+              lo_form1.JD_CAL_send_from.focus();
+              return;
+            }
+
+            if(trim(lo_form1.JD_CAL_send_to.value) == "") {
+              alert("기간(to)을 입력하세요");
+              lo_form1.JD_CAL_send_to.focus();
+              return;
+            }
+
+            ls_kubun = lo_form1.chkPrint[5].value ;
+
+        // 출력내용을 선택하지 않은 경우
+        } else {
+            alert("출력대상 리스트를 선택하세요!");
+            return ;
+        }
+        lo_form1.action = "/ps/print/1106";
+        lo_form1.target = "ifrm";
+        lo_form1.kubun.value = ls_kubun ;
+        makeValue(lo_form1);
+        check_all(lo_form1)
+        lo_form1.submit();
+        setEventHandler();
+}
+
+</script>
+</head>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onLoad="jsinit();">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle">출력
+    &gt; </b> 출력리스트 </td>
+  </tr>
+  <tr>
+    <td height="10">
+    <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <form name="print_form" method="post" action="">
+  <input type="hidden" name="kubun" value="">
+  <tr>
+    <td>
+      <!--print title -->
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td height="27" class="title" bgcolor="#EBE9DC">
+            <img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">&nbsp;<b>출력리스트</b>
+          </td>
+        </tr>
+        <tr>
+          <td height="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>
+      <!--list -->
+      <table  cellspacing="0" width="830" cellpadding="2" border="0" bgcolor="#FFFFFF" class="gray">
+
+        <tr>
+          <td width="10" bgcolor="#ffffff" class="gray" >
+            <input type="radio" value="PROC_SUSP" name="chkPrint">
+          </td>
+          <td width="150" bgcolor="#dddddd" class="gray" >지사별 생산/중지 통계</td>
+          <td class="gray" >
+            조회년월 : <input type="text" name="PROCYYMM" size="6"  maxlength="6" dataType="number" class="text_box" value="" >
+          </td>
+        </tr>
+        <tr>
+          <td width="10" bgcolor="#ffffff" class="gray" >
+            <input type="radio" value="SELF_PCOND" name="chkPrint">
+          </td>
+          <td width="150" bgcolor="#dddddd" class="gray" >지사별 자진신청 현황</td>
+          <td class="gray" >
+            신청일자 : <input type="text" name="SELF_PCOND_APLCDT_FROM" size="10"  maxlength="10" dataType="date" class="text_box" value="" > -
+					   <input type="text" name="SELF_PCOND_APLCDT_TO" size="10"  maxlength="10" dataType="date" class="text_box" value="" >
+          </td>
+        </tr>
+        <tr>
+          <td width="10" bgcolor="#ffffff" class="gray" >
+            <input type="radio" value="BO_SEND_LIST" name="chkPrint">
+          </td>
+          <td width="150" bgcolor="#dddddd" class="gray" >지국별 배달 목록</td>
+          <td class="gray" >
+                  <select name="BO_SEND_LIST_medicd" size="1" class="sel_all" notEmpty>
+                    <%= ds.medicdlistOptHtml("") %>
+                  </select>
+                  <select name="BO_SEND_LIST_sendtype" size="1" class="sel_all" notEmpty>
+                    <option value="ALL">전체</option>
+                    <option value="01">일괄</option>
+                    <option value="02">일일/추가</option>
+<!--                    <option value="03">추가</option> -->
+                  </select>
+          &nbsp;&nbsp;&nbsp;    호수 :
+                  <input type="text" name="BO_SEND_LIST_fr" size="6"  maxlength="6" dataType="number" class="text_box" value="" > ~
+				  <input type="text" name="BO_SEND_LIST_to" size="6"  maxlength="6" dataType="number" class="text_box" value="" >
+          &nbsp;&nbsp;&nbsp;    기준년월 :
+                  <input type="text" name="BO_SEND_LIST_senddt" size="6"  maxlength="6" dataType="number" class="text_box" value="" >
+		  &nbsp;&nbsp;&nbsp; <font color="blue">*</font>&nbsp;리스트&nbsp;<input type="checkbox" name="BO_SEND_LIST_flag" value="P">
+
+<!--                <select name="mediser_no" size="1" class="sel_all" style="width:80;" notEmpty caption="최종호수">
+                  < %= ds.medisercurOptHtml("") %>
+                </select>
+-->
+          </td>
+        </tr>
+        <tr>
+          <td width="10" bgcolor="#ffffff" class="gray" >
+            <input type="radio" value="BO_SEND_ADJM" name="chkPrint">
+          </td>
+          <td width="150" bgcolor="#dddddd" class="gray" >지국별 배달비 정산</td>
+          <td class="gray" >
+              <select name="BO_SEND_ADJM_medicd" size="1" class="sel_all" notEmpty>
+                <%= ds.medicdlistOptHtml("") %>
+              </select>
+<!--
+                  <select name="BO_SEND_ADJM_sendtype" size="1" class="sel_all" notEmpty>
+                    <option value="ALL">전체</option>
+                    <option value="01">일괄</option>
+                    <option value="02">일일/추가</option>
+                    <option value="03">추가</option>
+                  </select>
+          &nbsp;&nbsp;&nbsp;    호수 :
+                  <input type="text" name="BO_SEND_ADJM_fr" size="6"  maxlength="6" dataType="number" class="text_box" value="" > ~
+				  <input type="text" name="BO_SEND_ADJM_to" size="6"  maxlength="6" dataType="number" class="text_box" value="" >
+-->
+          &nbsp;&nbsp;&nbsp;    기준년월 :
+                  <input type="text" name="BO_SEND_ADJM_closyymm" size="6"  maxlength="6" dataType="number" class="text_box" value="" >
+<!--
+		  &nbsp;&nbsp;&nbsp; <font color="blue">*</font>통계&nbsp;<input type="checkbox" name="BO_SEND_ADJM_flag" value="P">
+
+                <select name="mediser_no" size="1" class="sel_all" style="width:80;" notEmpty caption="최종호수">
+                  < %= ds.medisercurOptHtml("") %>
+                </select>
+-->
+          </td>
+        </tr>
+<!--
+        <tr>
+          <td width="10" bgcolor="#ffffff" class="gray" >
+            <input type="radio" value="BO_SEND_RDR_LIST" name="chkPrint">
+          </td>
+          <td width="150" bgcolor="#dddddd" class="gray" >지국별 배달 목록</td>
+          <td class="gray" >
+                  <select name="BO_SEND_RDR_LIST_medicd" size="1" class="sel_all" notEmpty>
+                    < %= ds.medicdlistOptHtml("") %>
+                  </select>
+                  <select name="BO_SEND_RDR_LIST_sendtype" size="1" class="sel_all" notEmpty>
+                    <option value="ALL">전체</option>
+                    <option value="01">일괄</option>
+                    <option value="02">일일/추가</option>
+                    <option value="03">추가</option>
+                  </select>
+          &nbsp;&nbsp;&nbsp;    호수 :
+                  <input type="text" name="BO_SEND_RDR_LIST_fr" size="6"  maxlength="6" dataType="number" class="text_box" value="" > ~
+				  <input type="text" name="BO_SEND_RDR_LIST_to" size="6"  maxlength="6" dataType="number" class="text_box" value="" >
+          &nbsp;&nbsp;&nbsp;    기준년월 :
+                  <input type="text" name="BO_SEND_RDR_LIST_senddt" size="6"  maxlength="6" dataType="number" class="text_box" value="" >
+          </td>
+        </tr>
+-->
+		<tr>
+		  <td width="10" bgcolor="#ffffff" class="gray" >
+            <input type="radio" value="SEND_REST" name="chkPrint">
+          </td>
+		  <td width="150" bgcolor="#dddddd" class="gray" >발송잔여부수</td>
+          <td class="gray" >
+			매체 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+		    <select name="SEND_REST_medicd" class="sel_all" >
+		      <option value="ALL" >전체</option>
+		      <%=ds.medicdlistOptHtml("")%>
+		    </select>
+            &nbsp;&nbsp;&nbsp; 지사 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+		    <select name="SEND_REST_bocd" class="sel_all" >
+		      <option value="ALL" >전체</option>
+		      <%=ds.bocdcurlistOptHtml("")%>
+		    </select>
+		    <BR>
+			신청기간 :
+		    <input type="text" name="SEND_APLCDT_FR" size="10" maxlength="10" dataType="date" class="text_box" value="" > -
+		    <input type="text" name="SEND_APLCDT_TO" size="10" maxlength="10" dataType="date" class="text_box" value="" >
+		    &nbsp;&nbsp;&nbsp; 월간지발송호수 :
+		    <input type="text" name="SEND_REST_M" size="10"  maxlength="10" dataType="number" class="text_box" value=""  >
+		    &nbsp;&nbsp;&nbsp; 주간지발송호수 :
+		    <input type="text" name="SEND_REST_W" size="10"  maxlength="10" dataType="number" class="text_box" value=""  >
+		    &nbsp;&nbsp;
+          </td>
+		</tr>
+        <tr>
+          <td width="10" bgcolor="#ffffff" class="gray" >
+            <input type="radio" value="JD_CAL" name="chkPrint">
+          </td>
+          <td width="150" bgcolor="#dddddd" class="gray" >절독부수현황</td>
+          <td class="gray" >
+            매체 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+            <select name="JD_CAL_medicd" class="sel_all" notEmpty>
+              <option value="ALL" >전체</option>
+              <%=ds.medicdlistOptHtml("")%>
+            </select>
+            &nbsp;&nbsp;&nbsp; 지사 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :
+            <select name="JD_CAL_asinbocd" class="sel_all" >
+              <option value="ALL" >전체</option>
+              <%=ds.asinbocdcurOptHtml("")%>
+            </select>
+            &nbsp;&nbsp;&nbsp; 기간 :
+            <input type="text" name="JD_CAL_send_from" size="10"  maxlength="10" dataType="date" class="text_box" > -
+            <input type="text" name="JD_CAL_send_to" size="10"  maxlength="10" dataType="date" class="text_box" >
+          </td>
+		</tr>
+      </table>
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" >
+        <tr>
+          <td align="center" height="2">
+            <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td colspan=5 align="center" bgcolor="#E8E8E8" height="22" >
+            <img src="/html/comm_img/bu_print.gif" width="39" height="19" border="0" align="absmiddle" style="cursor:hand" onclick="print_list();window.event.returnValue=false;" >
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</form>
+</table>
+
+<!--HTML IFRAME START-->
+<iframe name="ifrm" width=100 height=0></iframe>
+<!--HTML IFRAME END-->
+
+</body>
+</html>

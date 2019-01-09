@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<branchCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</branchCombo>
+							<branchCombo2>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</branchCombo2>
+							<bankCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</bankCombo>
+							<accountCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</accountCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<reqform>
+								<list_form>
+									<js_fn_nm/>
+									<curr_page_no/>
+									<records_per_page/>
+									<slt_bocd/>
+								</list_form>
+								<detail_form>
+									<bankcd/>
+									<acctno/>
+									<deps_persnm/>
+									<asinbocd/>
+									<acctitem/>
+									<seq/>
+									<remk/>
+									<accflag/>
+								</detail_form>
+							</reqform>
+						</searchData>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<infoGrid>
+								<record>
+									<bocd/>
+									<bonm/>
+									<seq/>
+									<acctitem/>
+									<acctitem_nm/>
+									<depskind/>
+									<bankcd/>
+									<bankcd_nm/>
+									<deps_persnm/>
+									<acctno/>
+									<remk/>
+								</record>
+							</infoGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1501subInit" action="/ps/code/1501" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1506search" action="/ps/code/1506" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/list_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1511save" action="/ps/code/1511" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/detail_form" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					model.send("PID1501subInit", false);
+
+					//model.setValue("/root/reqData/searchData/reqform/list_form/records_per_page", model.getValue("/root/tempData/initTemp/recordPerPage"));
+					model.setValue("/root/reqData/searchData/reqform/list_form/records_per_page", "5000");
+					model.setValue("/root/reqData/searchData/reqform/list_form/curr_page_no", "1");
+					model.setValue("/root/reqData/searchData/reqform/list_form/js_fn_nm", model.getValue("/root/tempData/initTemp/js_fn_nm"));
+
+					model.copyNode("/root/initData/comboSet/branchCombo", "/root/tempData/initTemp/branchCombo");
+					model.copyNode("/root/initData/comboSet/branchCombo2", "/root/tempData/initTemp/branchCombo2");
+					model.copyNode("/root/initData/comboSet/bankCombo", "/root/tempData/initTemp/bankCombo");
+					model.copyNode("/root/initData/comboSet/accountCombo", "/root/tempData/initTemp/accountCombo");
+
+					model.removenode("/root/tempData/initTemp");
+					
+					model.refresh();
+					PID1501combo1.select(0);
+					PID1501combo2.select(0);
+					PID1501combo3.select(0);
+					PID1501combo8.select(0);
+				}
+				
+				function search()
+				{
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID1506search", false);
+					
+				       model.copyNode("/root/resData/gridData/infoGrid", "/root/tempData/dataTemp/infoGrid");
+				       
+					model.removenode("/root/tempData/dataTemp");
+					
+					if(instance1.selectNodes("/root/resData/gridData/infoGrid/record/bonm").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					PID1501datagrid1.rebuild();
+				}
+							
+				function save(flag)
+				{
+					if(!commValidate(PID1501group_scr))
+						return;
+
+					var accflag = model.getValue("/root/reqData/searchData/reqform/detail_form/accflag");
+					var seq = model.getValue("/root/reqData/searchData/reqform/detail_form/seq");
+					var msg = "";
+										
+					if(flag == "I" && seq =="") {
+						
+					      model.setValue("/root/reqData/searchData/reqform/detail_form/accflag","I");	
+					      msg = "저장하시겠습니까?"
+					    } else if(flag == "I" &&  seq !="") {
+					    	
+					      model.setValue("/root/reqData/searchData/reqform/detail_form/accflag","U");	
+					      msg = "수정하시겠습니까?"
+					    } else {
+					    	
+					      model.setValue("/root/reqData/searchData/reqform/detail_form/accflag","D");	
+					      msg = "삭제하시겠습니까?"
+					    }
+					
+					if(model.alert(msg, "", 4) == "6") { 
+
+						model.send("PID1511save", false);
+					
+						if(!submit_completed())
+							return;
+					
+						search();
+						resetChildControl("PID1501group_scr", true, false);
+					}
+				}
+				
+				function delete1()
+				{
+					model.setValue("/root/reqData/searchData/reqform/detail_form/accflag", "D");
+					model.send("PID1511save", false);
+					alert(model.getValue("/root/resData/MsgData"));
+					
+					search();
+					resetChildControl("PID1501group_scr", true, false);
+				}
+				
+				function gridClick() 
+				{
+					if( PID1501datagrid1.textMatrix(PID1501datagrid1.row, PID1501datagrid1.colRef("bocd")) == "" )
+					{
+						return;
+					}
+					
+					PID1501combo1.value= PID1501datagrid1.textMatrix(PID1501datagrid1.row, PID1501datagrid1.colRef("bocd"));
+					PID1501combo2.value= PID1501datagrid1.textMatrix(PID1501datagrid1.row, PID1501datagrid1.colRef("bankcd"));
+					PID1501combo3.value= PID1501datagrid1.textMatrix(PID1501datagrid1.row, PID1501datagrid1.colRef("acctitem"));
+					PID1501input1.value= PID1501datagrid1.textMatrix(PID1501datagrid1.row, PID1501datagrid1.colRef("deps_persnm"));
+					PID1501input2.value= PID1501datagrid1.textMatrix(PID1501datagrid1.row, PID1501datagrid1.colRef("acctno"));
+					PID1501input3.value= PID1501datagrid1.textMatrix(PID1501datagrid1.row, PID1501datagrid1.colRef("remk"));
+					model.setValue("/root/reqData/searchData/reqform/detail_form/seq",PID1501datagrid1.textMatrix(PID1501datagrid1.row, PID1501datagrid1.colRef("seq")));
+				}			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1501" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="grpCommonBtn" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnCommonSearch" class="btn02" crud="U" style="left:766px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						save("I");
+					]]>
+				</script>
+			</button>
+			<button id="btnCommonDelete" class="btn02" crud="D" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						save("D");
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+			<button id="PID1501button1" class="btn02" crud="R" style="left:712px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1501group_scr" class="gro_sel" style="left:10px; top:105px; width:926px; height:49px; ">
+			<caption id="PID1501caption14" class="list_cap01" style="left:278px; top:0px; width:100px; height:25px; text-align:left; ">은행</caption>
+			<caption id="PID1501caption15" class="list_cap01" style="left:0px; top:0px; width:100px; height:25px; text-align:left; ">지사</caption>
+			<caption id="PID1501caption20" class="list_cap02" style="left:99px; top:0px; width:180px; height:25px; "/>
+			<caption id="PID1501caption8" class="list_cap01" style="left:526px; top:0px; width:100px; height:25px; text-align:left; ">계좌항목</caption>
+			<caption id="PID1501caption1" class="list_cap02" style="left:377px; top:0px; width:150px; height:25px; "/>
+			<caption id="PID1501caption5" class="list_cap02" style="left:625px; top:0px; width:301px; height:25px; "/>
+			<caption id="PID1501caption10" class="list_cap02" style="left:99px; top:24px; width:180px; height:25px; "/>
+			<caption id="PID1501caption19" class="list_cap01" style="left:278px; top:24px; width:100px; height:25px; text-align:left; ">계좌번호</caption>
+			<caption id="PID1501caption21" class="list_cap01" style="left:0px; top:24px; width:100px; height:25px; text-align:left; ">예금주명</caption>
+			<caption id="PID1501caption2" class="list_cap02" style="left:377px; top:24px; width:150px; height:25px; "/>
+			<caption id="PID1501caption3" class="list_cap02" style="left:625px; top:24px; width:301px; height:25px; "/>
+			<caption id="PID1501caption4" class="list_cap01" style="left:526px; top:24px; width:100px; height:25px; text-align:left; ">비고</caption>
+			<select1 id="PID1501combo1" ref="/root/reqData/searchData/reqform/detail_form/asinbocd" class="req" appearance="minimal" caption="지사" style="left:103px; top:4px; width:165px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/branchCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="PID1501combo2" ref="/root/reqData/searchData/reqform/detail_form/bankcd" class="req" appearance="minimal" caption="은행" style="left:381px; top:4px; width:140px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/bankCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="PID1501combo3" ref="/root/reqData/searchData/reqform/detail_form/acctitem" class="req" appearance="minimal" caption="계좌항목" style="left:629px; top:4px; width:250px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/accountCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="PID1501input1" ref="/root/reqData/searchData/reqform/detail_form/deps_persnm" class="req" autonext="false" maxlength="10" caption="예금주명" style="left:103px; top:28px; width:165px; height:18px; "/>
+			<input id="PID1501input2" ref="/root/reqData/searchData/reqform/detail_form/acctno" class="req" autonext="false" maxlength="20" caption="계좌번호" style="left:381px; top:28px; width:140px; height:18px; "/>
+			<input id="PID1501input3" ref="/root/reqData/searchData/reqform/detail_form/remk" autonext="false" maxlength="50" style="left:629px; top:28px; width:250px; height:18px; "/>
+		</group>
+		<group id="PID1501group3" style="left:10px; top:160px; width:926px; height:25px; ">
+			<caption id="PID1501caption57" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; "/>
+			<select1 id="PID1501combo8" ref="/root/reqData/searchData/reqform/list_form/slt_bocd" appearance="minimal" style="left:103px; top:4px; width:150px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/branchCombo2/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="PID1501caption12" style="left:3px; top:4px; width:80px; height:20px; ">출판본사/지사</caption>
+		</group>
+		<datagrid id="PID1501datagrid1" nodeset="/root/resData/gridData/infoGrid/record" caption="지국지사명^계좌항목^은행명^예금주명^계좌번호^비고" colsep="^" colwidth="151, 203, 150, 150, 150, 100, 0, 0, 0, 0, 0" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:190px; width:926px; height:525px; cursor:hand; ">
+			<col ref="bonm"/>
+			<col ref="acctitem_nm"/>
+			<col ref="bankcd_nm"/>
+			<col ref="deps_persnm"/>
+			<col ref="acctno"/>
+			<col ref="remk" style="text-align:left; "/>
+			<col ref="bocd" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="acctitem" visibility="hidden"/>
+			<col ref="depskind" visibility="hidden"/>
+			<col ref="bankcd" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1501datagrid1.mouseCol>PID1501datagrid1.fixedCols-1 && PID1501datagrid1.mouseRow>PID1501datagrid1.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}														
+				]]>
+			</script>
+		</datagrid>
+		<group id="PID1501group1" style="left:10px; top:75px; width:926px; height:25px; ">
+			<caption id="PID1501caption55" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">출판지사계좌관리</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

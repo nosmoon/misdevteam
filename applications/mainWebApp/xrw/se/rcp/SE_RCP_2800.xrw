@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_RCP_2800.xrw
+* 기능 : 판매 - 입금관리 - 지대입금관리 - 보증인채무통보
+* 작성일자 : 2009.04.24
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var yymm		= model.getValue("/root/reqData/searchData/yymm");
+					var gubun 	= model.getValue("/root/reqData/searchData/gubun");
+					var gurt_yn	= model.getValue("/root/reqData/searchData/gurt_yn");
+					
+					if ( yymm == ""  ){
+						commAlert("기준년월이 없습니다");
+						return;
+					}
+					
+					if ( gubun == ""  ){
+						commAlert("구분이 없습니다");
+						return;
+					}
+					
+					if ( gurt_yn == ""  ){
+						commAlert("보증인 표시 유무가 없습니다");
+						return;
+					}
+
+					var rows = datagrid1.rows;
+					datagrid1.unmergebyfree(rows - 1,2);
+					
+					var action = "se_rcp_2810_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					//조회 결과가 있으면 변경가능 하도록 처리
+					var tf;
+					if ( datagrid1.rows > datagrid1.fixedRows ){
+						tf = false;
+					} else {
+						tf = true;
+					}
+					datagrid1.isReadOnly(1, 1, 1, datagrid1.cols - 1) = tf; 
+					
+					chkTf();
+					
+					model.refresh();
+				}
+
+				function chkTf(){
+					var rows = datagrid1.rows;
+					var val = "";
+					for ( var i = 1; i <= rows - 1 ; i++ ){
+						val = datagrid1.valueMatrix(i, 24);
+						
+						if ( val == "1" ){
+							datagrid1.isReadOnly(i, 1) = false;
+						} else {
+							datagrid1.isReadOnly(i, 1) = true;
+						}
+					}
+					if ( i > 1 ){
+						datagrid1.mergeByFree(i - 1, 2, i - 1, 6);
+					}
+				}
+				
+				function goSubSearch(){
+					var action = "se_rcp_2820_l";
+					model.send(action);
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<closInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team/>
+							<part/>
+							<area/>
+							<gubun>1</gubun>
+							<yymm/>
+							<gurt_yn>Y</gurt_yn>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData2>
+							<bo_cd/>
+							<bo_seq/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<cmpy_cd/>
+									<yymm/>
+									<bo_cd/>
+									<bo_seq/>
+									<dept_cd/>
+									<dept_nm/>
+									<sub_dept_cd/>
+									<part_nm/>
+									<area_cd/>
+									<area_nm/>
+									<dlco_no/>
+									<bo_head_nm/>
+									<cyov_bal/>
+									<net_sale_amt/>
+									<rcpm_amt/>
+									<uprcp_amt/>
+									<bal/>
+									<cntr_gurt_amt_stot/>
+									<jont_debtgurt_limt_amt/>
+									<sum_excs_uprcp_amt/>
+									<excs_uprcp_amt/>
+									<gurt_pers_flnm/>
+									<zip/>
+									<addr/>
+									<dtls_addr/>
+									<tel/>
+									<rn/>
+								</record>
+							</curlist>
+							<gurtlist>
+								<record>
+									<bo_head_nm/>
+									<bo_nm/>
+									<gurt_pers_flnm/>
+									<zip/>
+									<tel/>
+									<addr/>
+									<dtls_addr/>
+								</record>
+							</gurtlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					makeTeamSearch(
+									"se_rcp_2800_m"
+								  , "/se/rcp/2800"
+								  , "/root/reqData"  
+		                            , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  , "area_combo"
+								  );
+					var yymm		= model.getValue("/root/initData/yymm");			  
+					model.setValue("/root/reqData/searchData/yymm", yymm);
+					
+					datagrid1.isReadOnly(1, 1, 1, datagrid1.cols - 1) = true; 
+					
+					model.refresh();
+					
+				]]>
+			</script>
+			<submission id="se_rcp_2800_m" action="/se/rcp/2800" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_rcp_2810_l" action="/se/rcp/2810" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="se_rcp_2820_l" action="/se/rcp/2820" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/resData/gridData/gurtlist"/>
+			<submission id="se_rcp_2830_p" action="/se/rcp/2830" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:127px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="선택^팀^파트/지사^지역^센터^센터대표^전월미수계^당월순매출^당월입금액^당월미수액^미수누계^보증금계^초과미수누계액^초과당월미수액^보증한도액^보증인^우편번호^전화번호^주소1^주소2" colsep="#" colwidth="30, 90, 70, 70, 70, 60, 90, 90, 90, 90, 90, 90, 90, 90, 90, 60, 70, 90, 300, 300" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:145px; width:926px; height:400px; ">
+			<col checkvalue="Y,N" ref="check" type="checkbox"/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="part_nm" style="text-align:left; "/>
+			<col ref="area_nm" style="text-align:left; "/>
+			<col ref="bo_nm" style="text-align:left; "/>
+			<col ref="bo_head_nm" style="text-align:left; "/>
+			<col ref="cyov_bal" format="(-)#,###" style="text-align:right; "/>
+			<col ref="net_sale_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="rcpm_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="uprcp_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="bal" format="(-)#,###" style="text-align:right; "/>
+			<col ref="cntr_gurt_amt_stot" format="(-)#,###" style="text-align:right; "/>
+			<col ref="sum_excs_uprcp_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="excs_uprcp_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="jont_debtgurt_limt_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="gurt_pers_flnm" style="text-align:left; "/>
+			<col ref="zip"/>
+			<col ref="tel"/>
+			<col ref="addr" align="left" style="text-align:left; "/>
+			<col ref="dtls_addr" style="text-align:left; "/>
+			<col ref="bo_cd" visibility="hidden"/>
+			<col ref="bo_seq" visibility="hidden"/>
+			<col ref="yymm" visibility="hidden"/>
+			<col ref="rn" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					var row = datagrid1.row;
+					if ( row < 1 ) { 
+						return;
+					}
+					
+					var bo_cd 	= datagrid1.valueMatrix(row, 21);
+					var bo_seq	= datagrid1.valueMatrix(row, 22);
+					
+					if ( bo_cd == "" || bo_seq == "" ){
+						return;
+					}
+					var root = "/root/reqData/searchData2";
+					model.setValue(root + "/bo_cd"	, bo_cd	);
+					model.setValue(root + "/bo_seq"	, bo_seq	);
+					
+					goSubSearch();
+					
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:51px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">지대년월</caption>
+			<input id="input3" ref="/root/reqData/searchData/yymm" class="req" navindex="1" format="yyyy-mm" caption="지급시작일자" style="left:87px; top:4px; width:110px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team" appearance="minimal" style="left:274px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:207px; top:0px; width:60px; height:26px; ">팀</caption>
+			<caption id="caption2" class="list_cap01" style="left:394px; top:0px; width:70px; height:26px; ">파트</caption>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part" appearance="minimal" style="left:471px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption3" class="list_cap01" style="left:591px; top:0px; width:70px; height:26px; ">지역</caption>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area" appearance="minimal" style="left:668px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:207px; top:25px; width:60px; height:26px; ">구분</caption>
+			<select1 id="radio1" ref="/root/reqData/searchData/gubun" appearance="full" cols="4" overflow="visible" style="left:272px; top:29px; width:475px; height:22px; border-style:none; ">
+				<choices>
+					<item>
+						<label>보증금초과 당월미수액</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>미수누계액</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>당월미수액</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>보증금초과 미수누계액</label>
+						<value>4</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption6" class="list_cap01" style="left:0px; top:25px; width:80px; height:26px; ">보증인표시</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/gurt_yn" appearance="minimal" style="left:87px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<item>
+						<label>Y</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>N</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:716px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<caption id="caption8" class="tit02" style="left:13px; top:553px; width:130px; height:20px; ">보증인</caption>
+		<group id="group1" class="gro_line" style="left:10px; top:572px; width:926px; height:5px; "/>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/gurtlist/record" caption="센터^센터대표^보증인^우편번호^전화번호^주소1^주소2" colsep="#" colwidth="90, 70, 70, 80, 90, 200, 300" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:590px; width:926px; height:135px; ">
+			<col ref="bo_nm" style="text-align:left; "/>
+			<col ref="bo_head_nm" style="text-align:left; "/>
+			<col ref="gurt_pers_flnm" style="text-align:left; "/>
+			<col ref="zip"/>
+			<col ref="tel"/>
+			<col ref="addr" style="text-align:left; "/>
+			<col ref="dtls_addr" style="text-align:left; "/>
+		</datagrid>
+		<button id="button3" class="btn04" crud="C" style="left:783px; top:44px; width:90px; height:21px; ">
+			<caption>통지서 발행</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var rows = datagrid1.rows;
+					var tf = false;
+					var value;
+
+					for ( var i = 0 ; i <= rows - 2 ; i++ ){
+						value = datagrid1.valueMatrix(i, 1);
+						
+						if ( value == "Y" ){
+							tf = true;
+							break;
+						} 
+					}
+
+
+
+					if ( !tf ){
+						commAlert("통지서 발행 대상이 없습니다.");
+						return;
+					}
+					
+					
+					
+					
+   
+					var mode_ar  = new Array();
+					var check_ar  = new Array();
+					var yymm_ar  = new Array();
+					var bo_cd_ar    = new Array();
+					var bo_seq_ar   = new Array();		
+					
+					var chkv = "";
+					var cnt=0;
+					for (i=0;  i<rows-1; i++){
+						chkv = datagrid1.valueMatrix(i,datagrid1.colRef("check"));
+						if(chkv =="Y"){
+							mode_ar[cnt] = "U";
+							check_ar[cnt]= "Y"
+							yymm_ar[cnt] = datagrid1.valueMatrix(i,datagrid1.colRef("yymm"));
+							bo_cd_ar[cnt] = datagrid1.valueMatrix(i,datagrid1.colRef("bo_cd"));
+							bo_seq_ar[cnt] = datagrid1.valueMatrix(i,datagrid1.colRef("bo_seq"));
+							cnt++;
+						}
+						
+					}
+				
+					
+					/// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName",  "se/SP_SE_RCP_2830_P");
+					makeNodeValue("/root/oz_data/preview", "preview");											
+					makeNodeValue("/root/oz_data/printsize", "");														
+					makeNodeValue("/root/oz_data/conParam/sv_url","19110");					
+					makeNodeValue("/root/oz_data/conParam/sv_uid");					
+					makeNodeValue("/root/oz_data/conParam/sv_bonm");					
+					makeNodeValue("/root/oz_data/conParam/uv_line");					
+					makeNodeValue("/root/oz_data/conParam/uv_summary");	
+
+
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));				
+					makeNodeValue("/root/oz_data/odiParam/iv_mode",mode_ar.join("#"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_check",check_ar.join("#"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_yymm",yymm_ar.join("#"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_bo_cd",bo_cd_ar.join("#"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_bo_seq",bo_seq_ar.join("#"));											 
+					makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers",model.property("ss_emp_no"));	
+				
+				
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+					
+					
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

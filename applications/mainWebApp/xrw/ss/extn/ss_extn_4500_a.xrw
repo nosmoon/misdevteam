@@ -1,0 +1,540 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<gs_request>N</gs_request>
+						<session/>
+						<comboSet>
+							<gubunCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</gubunCombo>
+							<codeData/>
+							<useData/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<search_form>
+								<deptcd/>
+								<partcd/>
+								<areacd/>
+								<bonm/>
+								<bocd/>
+								<todt/>
+								<frdt/>
+								<medicd>110</medicd>
+							</search_form>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<deptcd/>
+									<deptnm/>
+									<areacd/>
+									<areanm/>
+									<partcd/>
+									<partnm/>
+									<bocd/>
+									<bonm/>
+									<head_cnt/>
+									<brnc_cnt/>
+									<publ_cnt/>
+									<double_cnt/>
+									<thrw_cnt/>
+									<camp_cnt/>
+									<set_cnt/>
+									<tactic_cnt/>
+									<center_cnt/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1598search" ref="/root/reqData/reqform/search_form" action="/ss/extn/1598" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID4510search" ref="/root/reqData/reqform/search_form" action="/ss/extn/4510" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				commEventHandler(PID4500group_scr);
+				
+				makeTeamSearch("getTeamInit", "/ss/extn/1596", "", "/root/initData/comboSet/codeData", "cmbCommonTeamQ", "cmbCommonPartQ", "cmbCommonAreaQ");
+				
+				
+				//reset을 위해 데이터를 복사해 놓는다.
+				model.copyNode("/root/initData/defaultData", "/root/initData/comboSet/codeData");
+				
+		
+/*				 				
+				model.setValue("/root/reqData/reqform/search_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/search_form/pageno", "1");
+				//model.setValue("/root/reqData/reqform/search_form/pagesize", "20");
+				model.setValue("/root/reqData/reqform/search_form/pagesize", "5000");
+*/				
+								
+				model.refresh();
+//				PID4500combo1.select(0);				
+			}
+			
+		
+			function search()
+			{
+				
+				if(!commValidate(PID4500group_scr))
+					return;        				
+				
+				remakeNode("/root/tempData/resTemp");
+				
+				model.send("PID4510search", false);
+				
+				if(!submit_completed())
+					return;
+				
+				//-조회목록
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+				PID4500datagrid1.refresh();
+				
+				if(instance1.selectNodes("/root/resData/gridData/listGrid/record/bocd").length == 0)
+					model.alert("검색결과가 없습니다.");
+					
+				model.removenode("/root/tempData/resTemp");					
+			}
+			
+			
+			function gridClick(flag)
+			{
+				if(PID4500datagrid1.textMatrix(PID4500datagrid1.row, PID4500datagrid1.colRef("bocd")) == "")
+				{
+					return;
+				}
+			 
+//			 	alert(flag);
+				/*model.setValue("/root/reqData/reqform/search_form/bocd", PID4500datagrid1.textMatrix(PID4500datagrid1.row, PID4500datagrid1.colRef("bocd")));	
+				
+				//model.send("PID1599print", false);
+				
+				if(!submit_completed())
+					return;
+				*/
+				
+
+				resetOznode();
+
+				makeNodeValue("/root/oz_data/ozrName","SP_SL_P_RDRLIST_CONT")
+				
+				makeNodeValue("/root/oz_data/conParam/iv_subsum", "N");
+				makeNodeValue("/root/oz_data/conParam/iv_line", "0");
+				//makeNodeValue("/root/oz_data/conParam/sv_bonm", "/root/reqData/reqform/extnmovm_search_form/bonm");
+				makeNodeValue("/root/oz_data/conParam/sv_bonm", PID4500datagrid1.textMatrix(PID4500datagrid1.row, PID4500datagrid1.colRef("bonm")));
+				makeNodeValue("/root/oz_data/conParam/sv_uid", "");
+				makeNodeValue("/root/oz_data/conParam/sv_url", "");
+				makeNodeValue("/root/oz_data/conParam/uv_rpttype", "3");
+
+				makeNodeValue("/root/oz_data/odiParam/iv_bocd", PID4500datagrid1.textMatrix(PID4500datagrid1.row, PID4500datagrid1.colRef("bocd")));
+				makeNodeValue("/root/oz_data/odiParam/iv_medicd", "110"); //조선일보만
+				makeNodeValue("/root/oz_data/odiParam/iv_frdst", "");
+				makeNodeValue("/root/oz_data/odiParam/iv_todst", "");
+				makeNodeValue("/root/oz_data/odiParam/iv_addrgb", "R"); //도로명주소로
+				makeNodeValue("/root/oz_data/odiParam/iv_jm_extn", "0");   //재무확장 불포함.
+				makeNodeValue("/root/oz_data/odiParam/iv_frsubsuprc", "0");       
+				makeNodeValue("/root/oz_data/odiParam/iv_tosubsuprc", "9999999");
+				makeNodeValue("/root/oz_data/odiParam/iv_frextndt", PID4500input1.value);
+				makeNodeValue("/root/oz_data/odiParam/iv_toextndt", PID4500input2.value);
+				makeNodeValue("/root/oz_data/odiParam/iv_extntp", "");
+				makeNodeValue("/root/oz_data/odiParam/iv_extnbocd", PID4500datagrid1.textMatrix(PID4500datagrid1.row, PID4500datagrid1.colRef("bocd"))); 
+				makeNodeValue("/root/oz_data/odiParam/iv_extnblngcd", ""); 
+				makeNodeValue("/root/oz_data/odiParam/iv_stafno", ""); 
+				makeNodeValue("/root/oz_data/odiParam/iv_frvalmm", ""); 
+				makeNodeValue("/root/oz_data/odiParam/iv_tovalmm", ""); 
+				makeNodeValue("/root/oz_data/odiParam/iv_frmnths", ""); 
+				makeNodeValue("/root/oz_data/odiParam/iv_tomnths", ""); 
+				makeNodeValue("/root/oz_data/odiParam/iv_rpttp", "2"); 
+				makeNodeValue("/root/oz_data/odiParam/iv_clamtmthdcd", ""); 
+				
+				makeNodeValue("/root/oz_data/odiParam/iv_free", flag); 
+
+				openOzwin("/root/oz_data");			
+
+			}
+			
+			
+			
+			
+/*		
+			
+			//기존의 bo_list_search
+			function searchWithBranch()
+			{
+				model.setValue("/root/initData/gs_request", "L");
+				
+				if(iptCommonmBranchQ.value == "")
+				{
+					model.setValue("/root/reqData/reqform/search_form/bocd", "");
+					model.setValue("/root/initData/gs_request", "N");
+					search();
+				}
+				else
+				{
+					modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+					searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+				}
+			}
+*/				
+			function onClickBranchPopup()
+			{
+				//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+				openBranch("/root/reqData/reqform/search_form", "/root/tempData/tempBranch");
+
+               		if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+					return;
+				
+				iptCommonmBranchQ.value = model.getValue("/root/tempData/tempBranch/bonm");
+				modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/tempBranch/bocd");
+
+				if(model.getValue("/root/initData/gs_request") == "L")
+				{
+					model.setValue("/root/initData/gs_request", "N");
+					search();
+				}
+			}
+			
+/*
+			function onKeyDown()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("btnSearchBranchQ");
+					
+					if(iptCommonmBranchQ.value == '')
+						onClickBranchPopup();
+					else
+					{
+						//화면별 선처리
+						modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+						//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+						//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+						//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+						searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+					}
+				}
+			}
+*/
+								
+			//지국 enter key 검색 시 callback 함수. onKeyDown
+			function searchBranchCallBack()
+			{
+				//검색 후처리.
+				if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+				{
+					iptCommonmBranchQ.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+					modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+				}
+				else
+					onClickBranchPopup();
+			}
+			
+			function set_default(flag)
+			{
+				if(flag == '1') {			// 부서(팀),지역,지국 초기화
+					// 부서(팀) 초기화
+					//model.copyNode("/root/initData/comboSet/codeData/teamlist", "/root/initData/defaultData/teamlist");
+					cmbCommonTeamQ.select(0);		//event 등록으로 인해 team을 첫번째로 선택하면 area 역시 reset.
+					
+					// 지역 초기화
+					//model.copyNode("/root/initData/comboSet/codeData/arealist", "/root/initData/defaultData/arealist");
+					
+					// 지국코드,지국명 초기화, 포커스이동
+					model.setValue("/root/reqData/reqform/search_form/bocd", "");
+					iptCommonmBranchQ.value = "";
+					model.setFocus("iptCommonmBranchQ");
+					
+				} else if(flag == '2') {		// 기간 초기화
+				} else if(flag == '3') {		// 기타 초기화
+				}
+			}
+
+			function Excel()
+			{
+				var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+				
+				if(filePath != "") {
+					PID4500datagrid1.saveExcel(filePath);
+					window.exec(filePath);
+				}
+			}
+		
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID4500" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:766px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//searchWithBranch();
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+			<button id="PID4500button1" class="btn02" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						Excel();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID4500group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:55px; ">
+			<caption id="PID4500caption5" class="list_cap02" style="left:666px; top:0px; width:260px; height:25px; "/>
+			<group id="grpCommonSelectQ" style="left:0px; top:0px; width:667px; height:25px; ">
+				<caption id="capCommonTeamQ" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">팀</caption>
+				<caption id="capCommonTeamQB" class="list_cap02" style="left:49px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonTeamQ" ref="/root/reqData/reqform/search_form/deptcd" class="req_100" appearance="minimal" style="left:54px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/teamlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonPartQ" class="list_cap01" style="left:158px; top:0px; width:50px; height:25px; ">파트</caption>
+				<caption id="capCommonPartQB" class="list_cap02" style="left:207px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonPartQ" ref="/root/reqData/reqform/search_form/partcd" class="req_100" appearance="minimal" style="left:212px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/partlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonAreaQ" class="list_cap01" style="left:316px; top:0px; width:50px; height:25px; ">지역</caption>
+				<caption id="capCommonAreaQB" class="list_cap02" style="left:365px; top:0px; width:70px; height:25px; "/>
+				<select1 id="cmbCommonAreaQ" ref="/root/reqData/reqform/search_form/areacd" class="req_60" appearance="minimal" style="left:370px; top:4px; width:60px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/arealist/record">
+							<label ref="area_nm"/>
+							<value ref="area_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonmBranchQ" class="list_cap01" style="left:434px; top:0px; width:50px; height:25px; ">센터</caption>
+				<caption id="capCommonmBranchQB" class="list_cap02" style="left:483px; top:0px; width:110px; height:25px; "/>
+				<input id="iptCommonmBranchQ" ref="/root/reqData/reqform/search_form/bonm" class="req" imemode="hangul" style="left:488px; top:4px; width:100px; height:18px; ">
+					<!--					<script type="javascript" ev:event="onkeydown">
+						<![CDATA[
+						onKeyDown();				
+						]]>
+					</script>
+-->
+				</input>
+				<caption id="capCommonmBranchBB" class="list_cap02" style="left:592px; top:0px; width:75px; height:25px; "/>
+				<button id="btnSearchBranchQ" class="btn05" style="left:596px; top:4px; width:40px; height:18px; ">
+					<caption>찾기</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						onClickBranchPopup();				
+						]]>
+					</script>
+				</button>
+				<button id="btnResetBranchQ" class="btn05" style="left:640px; top:4px; width:20px; height:18px; ">
+					<caption>-</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						set_default("1");				
+						]]>
+					</script>
+				</button>
+			</group>
+			<caption id="PID4500caption1" class="list_cap01" style="left:0px; top:24px; width:50px; height:25px; ">기간</caption>
+			<caption id="PID4500caption2" class="list_cap02" style="left:49px; top:24px; width:877px; height:25px; "/>
+			<input id="PID4500input1" ref="/root/reqData/reqform/search_form/frdt" class="req" inputtype="date" dataType="datefrom" caption="확장시작일자" setHandler="true" relid="PID4500input2" style="left:54px; top:28px; width:100px; height:18px; "/>
+			<input id="PID4500input2" ref="/root/reqData/reqform/search_form/todt" class="req" inputtype="date" dataType="dateto" caption="확장종료일자" setHandler="true" relid="PID4500input1" style="left:170px; top:28px; width:100px; height:18px; "/>
+			<caption id="PID4500caption3" style="left:158px; top:28px; width:10px; height:20px; ">-</caption>
+		</group>
+		<group id="PID4500group_line" class="gro_line" style="left:10px; top:140px; width:926px; height:5px; "/>
+		<datagrid id="PID4500datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="팀^파트^지역^센터^센터코드^전략투입^상가홍보^중앙제휴^더블홍보^본사기증^센터기증^홍보^강투^캠페인기증^세트기증^합계" colwidth="70, 70, 70, 70, 67, 65, 65, 65, 65, 65, 65, 65, 76, 65, 65, 100, 100, 100" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" selectionmode="free" rowsep="|" colsep="^" tooltip="true" style="left:10px; top:150px; width:926px; height:575px; ">
+			<col ref="deptnm"/>
+			<col ref="partnm"/>
+			<col ref="areanm"/>
+			<col ref="bonm"/>
+			<col ref="bocd"/>
+			<col ref="tactic_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("32");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="shop_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("34");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="center_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("33");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="double_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("35");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="head_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("10");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="brnc_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("20");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="publ_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("30");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="thrw_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("40");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="camp_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("50");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="set_cnt">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID4500datagrid1.mouseCol>PID4500datagrid1.fixedCols-1 && PID4500datagrid1.mouseRow>PID4500datagrid1.fixedRows-1)
+					       {
+							gridClick("60");
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="all_cnt"/>
+			<col ref="deptcd" visibility="hidden"/>
+			<col ref="partcd" visibility="hidden"/>
+			<col ref="areacd" visibility="hidden"/>
+		</datagrid>
+		<caption id="PID4500caption4" style="left:10px; top:730px; width:925px; height:25px; "/>
+	</xhtml:body>
+</xhtml:html>

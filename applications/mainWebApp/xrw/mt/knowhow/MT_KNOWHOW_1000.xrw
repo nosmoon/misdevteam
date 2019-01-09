@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session>
+							<uid/>
+							<cmpy_cd/>
+							<emp_no/>
+							<emp_nm/>
+							<dept_cd/>
+							<dept_nm/>
+						</session>
+						<!-- 선택계열의 정보를 담당 -->
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<comboSet>
+							<lcls>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</lcls>
+						</comboSet>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+					<reqData>
+						<!-- 검색조건 처리 -->
+						<searchData>
+							<lcls/>
+							<qust_answer/>
+							<reg_dt_fr/>
+							<reg_dt_to/>
+							<searchDetail>
+								<reg_dt/>
+								<lcls/>
+								<reg_seq/>
+							</searchDetail>
+						</searchData>
+						<!-- 등록/수정/삭제 요청 Form Data -->
+						<reqForm>
+							<mode/>
+							<reg_dt/>
+							<lcls/>
+							<reg_seq/>
+						</reqForm>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<multiUpDate>
+						</multiUpDate>
+						<!-- POPUP 페이지 Forward Data -->
+						<fwdData>
+						</fwdData>
+					</reqData>
+					<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+					<resData>
+						<!-- 전달 받은 리스트 데이터를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<grid1>
+								<record>
+									<question/>
+									<answer/>
+									<reg_dt/>
+									<qust_emp_nm/>
+									<ans_emp_nm/>
+									<lcls/>
+									<reg_seq/>
+									<qna/>
+									<seq/>
+								</record>
+							</grid1>
+							<grid2>
+								<record>
+									<reg_dt/>
+									<seq/>
+									<make_pers_emp_nm/>
+									<qust_answer/>
+								</record>
+							</grid2>
+						</gridData>
+						<!-- 전달 받은 Msg를 담당 ( submit의 결과가 담김) -->
+						<msg>
+							<errCode/>
+							<errMsg/>
+						</msg>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<reg_dt/>
+							<lcls/>
+							<reg_seq/>
+							<make_pers_emp_nm/>
+							<qust_answer/>
+						</resForm>
+					</resData>
+					<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function makeComboSet(gubun, source_ref, target_ref, ref_label, ref_value){
+					    //var tempNode = "/root/tempCombo";
+					    var desNode = target_ref + "/item";
+					    
+					    var label, value;
+					    
+					    //model.makeNode(tempNode);
+					    
+					    //원 데이타를 임시 노드에 옮긴다.
+					    //model.copyNode(tempNode, source_ref);
+					    
+					    if ( gubun == "A" ) {
+					        label = "전체";
+					        value = "";
+					    } else if ( gubun == "S" ){
+					        label = "선택";
+					        value = "";
+					    } else if ( gubun == "N" ){
+					    } else {
+					        label = " ";
+					        value = "";
+					    }
+					    
+					    //원 노드를 삭제하고 전체, 선택, ""을 셋팅한다.
+					    if (gubun != "N") {
+							    model.removeNodeset(target_ref);
+							    model.makeNode(target_ref); 
+							    model.makeNode(desNode);
+							    
+							    model.makeNode(desNode + "/label");
+							    model.makeNode(desNode + "/value");
+							    
+							    model.setValue(desNode + "/label", label);
+							    model.setValue(desNode + "/value", value) ;
+					    } else {
+					        model.removeNodeset(target_ref);
+					    }    
+					    //전체, 선택 다음 노드에 원자료를 셋팅한다.
+					    if ( instance1.selectSingleNode(source_ref) != null ) {
+					        var arr = instance1.selectSingleNode(source_ref); 
+					        var len = arr.length;
+					
+					        if ( len > 0 ) {
+					            for ( var i = 1 ; i <= len ; i++ ) {
+					                model.makeNode(desNode + "[" + (i+1) + "]");
+					                model.makeNode(desNode + "[" + (i+1) + "]/label");
+					                model.makeNode(desNode + "[" + (i+1) + "]/value");
+					                model.setValue(desNode + "[" + (i+1) + "]/label", model.getValue(source_ref + "[" + i + "]/" + ref_label));
+					                model.setValue(desNode + "[" + (i+1) + "]/value", model.getValue(source_ref + "[" + i + "]/" + ref_value));
+					            }
+					        } else {
+					            model.makeNode(desNode + "[" + 2 + "]");
+					            model.makeNode(desNode + "[" + 2 + "]/label");
+					            model.makeNode(desNode + "[" + 2 + "]/value");
+					            model.setValue(desNode + "[" + 2 + "]/label", model.getValue(source_ref + "/" + ref_label));
+					            model.setValue(desNode + "[" + 2 + "]/value", model.getValue(source_ref + "/" + ref_value));
+					        }
+					    } 
+					    model.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//공통코드 조회
+					model1.send("mt_knowhow_1001");
+					makeComboSet("", "/root/tempData/dataSet/CURLIST/record", "/root/initData/comboSet/lcls", "cdabrvnm_cd", "cd")
+					model1.removeNodeset("/root/tempData/dataSet");
+					//model1.setValue("/root/reqData/searchData/reg_dt_fr", commCurDate("ymd"));
+					//model1.setValue("/root/reqData/searchData/reg_dt_to", commCurDate("ymd"));
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="mt_knowhow_1001" action="/mt/knowhow/1001" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/dataSet"/>
+			<submission id="mt_knowhow_1002" action="/mt/knowhow/1002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="mt_knowhow_1003" action="/mt/knowhow/1003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/searchDetail" resultref="/root/tempData/dataSet"/>
+			<submission id="mt_knowhow_1004" action="/mt/knowhow/1004" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm" resultref="/root/tempData/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;2,754;1,935;" style="font-family:굴림; ">
+		<group id="group_btnT" class="gro_tab" style="left:10px; top:65px; width:926px; height:24px; ">
+			<caption id="caption1" class="tabline" style="left:0px; top:23px; width:926px; height:1px; "/>
+			<button id="button2" class="tab10" group="tab" selected="true" style="left:0px; top:0px; width:209px; height:23px; ">
+				<caption>기본조회</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						group1.visible = false;
+						group2.visible = true;
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="tab10" group="tab" style="left:156px; top:0px; width:156px; height:23px; ">
+				<caption>일자별</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+						group1.visible = true;
+						group2.visible = false;
+					]]>
+				</script>
+			</button>
+		</group>
+		<button id="button6" class="btn02" style="left:629px; top:40px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (!commReqCheck(group2))
+						return;
+					
+					model1.send("mt_knowhow_1002");
+					model1.copyNode("/root/resData/gridData/grid1", "/root/tempData/dataSet/CURLIST");
+					model1.removeNodeset("/root/tempData/dataSet");
+					model1.refresh();
+					
+					if (datagrid1.rows == 1)
+						datagrid1.addRow();
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn04" style="left:684px; top:40px; width:87px; height:21px; ">
+			<caption>질문답변 등록</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.load("./MT_KNOWHOW_1010.xrw","modal", "MT_KNOWHOW_1010", "align:center; width:805; height:605; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");	
+					button6.dispatch("onclick");
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" style="left:830px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn02" style="left:885px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<group id="group5" style="left:10px; top:465px; width:925px; height:290px; ">
+			<caption id="caption10" class="list_cap02" style="left:84px; top:0px; width:841px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:84px; top:0px; width:85px; height:26px; ">대분류</caption>
+			<caption id="caption8" class="list_cap01" style="left:0px; top:0px; width:85px; height:77px; ">질문</caption>
+			<caption id="caption9" class="list_cap01" style="left:0px; top:76px; width:85px; height:213px; ">답변</caption>
+			<caption id="caption11" class="list_cap02" style="left:84px; top:25px; width:841px; height:52px; "/>
+			<caption id="caption12" class="list_cap02" style="left:84px; top:76px; width:841px; height:213px; "/>
+			<output id="input4" ref="/root/resData/resForm/lcls" appearance="output" style="left:173px; top:4px; width:130px; height:18px; text-align:left; "/>
+			<textarea id="textarea1" ref="/root/resData/resForm/qust_answer" editable="false" style="left:90px; top:30px; width:830px; height:42px; border-color:#c0c0c0; border-style:solid; "/>
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData/grid2/record" autoresize="true" caption="작성일자^작성순번^작성자^답변내용" colsep="^" colwidth="80, 60, 60, 600" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:90px; top:80px; width:830px; height:203px; ">
+				<col ref="reg_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+				<col ref="seq" style="text-align:center; "/>
+				<col ref="make_pers_emp_nm" style="text-align:center; "/>
+				<col ref="qust_answer" style="text-align:left; "/>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						model1.makeNode("/root/reqData/fwdData/reg_dt");
+						model1.makeNode("/root/reqData/fwdData/lcls");
+						model1.makeNode("/root/reqData/fwdData/reg_seq");
+						model1.makeNode("/root/reqData/fwdData/seq");
+						model1.setValue("/root/reqData/fwdData/reg_dt", model1.getValue("/root/resData/resForm/reg_dt"));
+						model1.setValue("/root/reqData/fwdData/lcls", model1.getValue("/root/resData/resForm/lcls").substring(0, 2));
+						model1.setValue("/root/reqData/fwdData/reg_seq", model1.getValue("/root/resData/resForm/reg_seq"));
+						model1.setValue("/root/reqData/fwdData/seq", datagrid2.valueMatrix(datagrid2.row, 2));
+						
+						window.load("./MT_KNOWHOW_1010.xrw","modal", "MT_KNOWHOW_1010", "align:center; width:805; height:605; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");	
+						
+						model1.removenode("/root/reqData/fwdData/reg_dt");
+						model1.removenode("/root/reqData/fwdData/lcls");
+						model1.removenode("/root/reqData/fwdData/reg_seq");
+						model1.removenode("/root/reqData/fwdData/seq");
+					]]>
+				</script>
+			</datagrid>
+			<caption id="caption13" class="list_cap01" style="left:325px; top:0px; width:85px; height:26px; ">작성일자</caption>
+			<output id="input5" ref="/root/resData/resForm/reg_dt" format="yyyy-mm-dd" appearance="output" style="left:414px; top:4px; width:71px; height:18px; text-align:center; "/>
+			<caption id="caption14" class="list_cap01" style="left:510px; top:0px; width:85px; height:26px; ">작성순번</caption>
+			<output id="input6" ref="/root/resData/resForm/reg_seq" appearance="output" style="left:599px; top:4px; width:36px; height:18px; text-align:center; "/>
+			<caption id="caption15" class="list_cap01" style="left:660px; top:0px; width:85px; height:26px; ">작성자</caption>
+			<output id="input7" ref="/root/resData/resForm/make_pers_emp_nm" appearance="output" style="left:749px; top:4px; width:66px; height:18px; text-align:center; "/>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<switch id="switch1" style="left:10px; top:87px; width:925px; height:358px; ">
+			<case id="case1">
+				<group id="group1" style="left:0px; top:0px; width:580px; height:40px; ">
+					<caption id="caption4" class="list_cap01" style="left:10px; top:7px; width:85px; height:24px; ">일자별</caption>
+					<caption id="caption5" class="list_cap02" style="left:94px; top:7px; width:426px; height:24px; "/>
+					<caption id="caption6" style="left:189px; top:13px; width:20px; height:13px; text-align:center; ">~</caption>
+					<input id="input2" ref="/root/reqData/searchData/reg_dt_fr" inputtype="date" format="yyyy-mm-dd" style="left:100px; top:10px; width:85px; height:18px; text-align:center; "/>
+					<input id="input3" ref="/root/reqData/searchData/reg_dt_to" inputtype="date" format="yyyy-mm-dd" style="left:209px; top:10px; width:85px; height:18px; text-align:center; "/>
+				</group>
+				<group id="group2" style="left:0px; top:0px; width:580px; height:40px; ">
+					<caption id="caption2" class="list_cap01" style="left:10px; top:7px; width:85px; height:24px; ">기본조회</caption>
+					<caption id="caption3" class="list_cap02" style="left:94px; top:7px; width:426px; height:24px; "/>
+					<input id="input1" ref="/root/reqData/searchData/qust_answer" style="left:248px; top:10px; width:261px; height:18px; "/>
+					<select1 id="combo1" ref="/root/reqData/searchData/lcls" class="req" appearance="minimal" caption="대분류코드" style="left:99px; top:10px; width:144px; height:18px; ">
+						<choices>
+							<itemset nodeset="/root/initData/comboSet/lcls/item">
+								<label ref="label"/>
+								<value ref="value"/>
+							</itemset>
+						</choices>
+					</select1>
+				</group>
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/grid1/record" autoresize="true" caption="QnA^답변^작성일자^질문자^작성자^caption1^caption2^caption3^caption4" colsep="^" colwidth="210, 420, 80, 80, 80, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:35px; width:902px; height:310px; ">
+					<col ref="question" style="text-align:left; "/>
+					<col ref="answer" style="text-align:left; "/>
+					<col ref="reg_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+					<col ref="qust_emp_nm" style="text-align:center; "/>
+					<col ref="ans_emp_nm" style="text-align:center; "/>
+					<col ref="lcls" visibility="hidden"/>
+					<col ref="reg_seq" visibility="hidden"/>
+					<col ref="qna" visibility="hidden"/>
+					<col ref="seq" visibility="hidden"/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+							if (datagrid1.rows == 1)
+								return;
+								
+							if (datagrid1.valueMatrix(1, 1) == "")
+								return;
+								
+							selectedRow = datagrid1.row;
+							
+							model1.setValue("/root/reqData/searchData/searchDetail/reg_dt", datagrid1.valueMatrix(selectedRow, 3));
+							model1.setValue("/root/reqData/searchData/searchDetail/lcls", datagrid1.valueMatrix(selectedRow, 6));
+							model1.setValue("/root/reqData/searchData/searchDetail/reg_seq", datagrid1.valueMatrix(selectedRow, 7));
+							
+							model1.send("mt_knowhow_1003");
+							model1.setValue("/root/resData/resForm/lcls", model1.getValue("/root/tempData/dataSet/CURLIST1/record/lcls"));
+							model1.setValue("/root/resData/resForm/make_pers_emp_nm", model1.getValue("/root/tempData/dataSet/CURLIST1/record/make_pers_emp_nm"));
+							model1.setValue("/root/resData/resForm/reg_seq", model1.getValue("/root/tempData/dataSet/CURLIST1/record/reg_seq"));
+							model1.setValue("/root/resData/resForm/reg_dt", model1.getValue("/root/tempData/dataSet/CURLIST1/record/reg_dt"));
+							model1.setValue("/root/resData/resForm/qust_answer", model1.getValue("/root/tempData/dataSet/CURLIST1/record/qust_answer"));
+							model1.copyNode("/root/resData/gridData/grid2", "/root/tempData/dataSet/CURLIST2");
+							model1.removeNodeset("/root/tempData/dataSet");
+							model1.refresh();
+							
+							datagrid2.autoResize = true;
+							
+							if (datagrid2.rows == 1)
+								datagrid2.addRow();
+								
+							datagrid2.select(1, 1, 1, 4) = true;
+							datagrid2.row = 1;
+						]]>
+					</script>
+				</datagrid>
+			</case>
+		</switch>
+		<button id="button7" class="btn03" style="left:867px; top:468px; width:64px; height:21px; ">
+			<caption>답변 등록</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.makeNode("/root/reqData/fwdData/reg_dt");
+					model1.makeNode("/root/reqData/fwdData/lcls");
+					model1.makeNode("/root/reqData/fwdData/reg_seq");
+					model1.setValue("/root/reqData/fwdData/reg_dt", model1.getValue("/root/resData/resForm/reg_dt"));
+					model1.setValue("/root/reqData/fwdData/lcls", model1.getValue("/root/resData/resForm/lcls").substring(0, 2));
+					model1.setValue("/root/reqData/fwdData/reg_seq", model1.getValue("/root/resData/resForm/reg_seq"));
+					
+					window.load("./MT_KNOWHOW_1010.xrw","modal", "MT_KNOWHOW_1010", "align:center; width:805; height:605; sysmenu:visible; min:visible; max:true; resize:true; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");	
+					
+					model1.removenode("/root/reqData/fwdData/reg_dt");
+					model1.removenode("/root/reqData/fwdData/lcls");
+					model1.removenode("/root/reqData/fwdData/reg_seq");
+					model1.removenode("/root/reqData/fwdData/seq");
+					
+					var selectedRow = datagrid1.row;
+					button6.dispatch("onclick");
+					datagrid1.select(selectedRow, 1, selectedRow, 5) = true;
+					datagrid1.dispatch("ondblclick");
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn02" style="left:775px; top:40px; width:50px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (window.alert("해당 질문 및 질문에 대한 답변내용 전체가 삭제됩니다. 삭제하시겠습니까?", "확인", 1) == 1) {
+						model1.setValue("/root/reqData/reqForm/mode", "D");
+						model1.setValue("/root/reqData/reqForm/reg_dt", datagrid1.valueMatrix(datagrid1.row, 3));
+						model1.setValue("/root/reqData/reqForm/lcls", datagrid1.valueMatrix(datagrid1.row, 6));
+						model1.setValue("/root/reqData/reqForm/reg_seq", datagrid1.valueMatrix(datagrid1.row, 7));
+						model1.send("mt_knowhow_1004");
+						if (submit_completed()) {
+							button6.dispatch("onclick");
+						}
+					}
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

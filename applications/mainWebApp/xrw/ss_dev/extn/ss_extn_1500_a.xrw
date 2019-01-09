@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<mcCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mcCombo>
+						</comboSet>
+						<comboSet>
+							<deptCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</deptCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<serv_search_form>
+								<todt/>
+								<js_fn_nm/>
+								<frdt/>
+								<pageno/>
+								<pagesize/>
+							</serv_search_form>
+							<serv_list_form>
+								<basidt/>
+							</serv_list_form>
+							<serv_detail_form>
+								<basidt/>
+								<frdt/>
+								<todt/>
+								<closdt/>
+								<clamdt/>
+								<remk/>
+								<medicdary/>
+								<deptcdary/>
+								<basiamt1ary/>
+								<basiamt2ary/>
+								<basiamt3ary/>
+								<accflag/>
+								<closyn/>
+							</serv_detail_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<basidt/>
+									<frdt/>
+									<todt/>
+									<closdt/>
+								</record>
+							</listGrid>
+							<detailGrid>
+								<record>
+									<check/>
+									<medicd/>
+									<deptcd/>
+									<basiamt1/>
+									<basiamt2/>
+									<basiamt3/>
+								</record>
+							</detailGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1500subInit" action="/ss/extn/1500" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1505search" action="/ss/extn/1505" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/serv_search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1510search" action="/ss/extn/1510" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/serv_list_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1515insert" action="/ss/extn/1515" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/serv_detail_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1520save" action="/ss/extn/1520" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/serv_detail_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID1525delete" action="/ss/extn/1525" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/serv_detail_form" resultref="/root/tempData/dataTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				commEventHandler(PID1500group3);
+				
+				model.send("PID1500subInit", false);
+								
+				model.setValue("/root/reqData/reqform/serv_search_form/js_fn_nm", "page_move");
+				model.setValue("/root/reqData/reqform/serv_search_form/pageno", 	"1");
+				//model.setValue("/root/reqData/reqform/serv_search_form/pagesize", 	"20");
+				model.setValue("/root/reqData/reqform/serv_search_form/pagesize", 	"5000");
+				
+				modelCopyValue("/root/reqData/reqform/serv_search_form/frdt", 	"/root/tempData/initTemp/defalutDate");
+				modelCopyValue("/root/reqData/reqform/serv_search_form/todt", 	"/root/tempData/initTemp/defalutDate");
+
+				model.copyNode("/root/initData/comboSet/mcCombo", "/root/tempData/initTemp/mcCombo");
+				model.copyNode("/root/initData/comboSet/deptCombo", "/root/tempData/initTemp/deptCombo");
+				model.removenode("/root/tempData/initTemp");
+			
+				PID1500caption13.value= "N";
+				PID1500caption15.value= "N";
+				
+				for(var i=1; i<13; i++)
+				{
+					PID1500datagrid2.additem();
+				}
+				
+				serv_add();
+				
+				model.setValue("/root/reqData/reqform/serv_detail_form/accflag", "I");
+				
+				model.refresh();
+			}
+			
+			function search()
+			{
+				remakeNode("/root/tempData/resTemp");
+				model.send("PID1505search", false);
+				
+				if(!submit_completed())
+					return;
+				
+			       model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+			       
+			      // PID1500caption6.value= "총건수 " + model.getValue("/root/tempData/resTemp/totalCount") + " 건";
+
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/basidt").length == 0)
+					model.alert("검색결과가 없습니다.");
+													
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1500datagrid1.rebuild();
+			}
+			
+			function gridClick()
+			{
+				if(PID1500datagrid1.textMatrix(PID1500datagrid1.row, PID1500datagrid1.colRef("basidt")) == "" )
+					return;
+					
+				model.setValue("/root/reqData/reqform/serv_list_form/basidt", PID1500datagrid1.textMatrix(PID1500datagrid1.row, PID1500datagrid1.colRef("basidt")));	
+				
+				model.send("PID1510search", false);
+				
+				if(!submit_completed())
+					return;
+					
+				childValueCopy("/root/reqData/reqform/serv_detail_form","/root/tempData/resTemp/detailData");
+				model.copyNode("/root/resData/gridData/detailGrid", "/root/tempData/resTemp/listGrid");
+				PID1500caption13.value= model.getValue("/root/tempData/resTemp/detailData/closyn");
+				PID1500caption15.value= model.getValue("/root/tempData/resTemp/detailData/splychrgclosyn");
+				
+				PID1500input5.disabled= true;
+				PID1500button2.disabled = false;
+								
+				model.setValue("/root/reqData/reqform/serv_detail_form/accflag", "U");
+								
+				PID1500datagrid2.rebuild();
+				model.refresh();
+				
+				var tempCount = model.getValue("/root/tempData/resTemp/listCount");
+				
+				/*for(var i=0; i<=12 - tempCount; i++)
+				{
+					PID1500datagrid2.additem();
+				}*/
+			}
+			
+			function reset()
+			{
+				model.setValue("/root/reqData/reqform/serv_search_form/frdt", "");
+				model.setValue("/root/reqData/reqform/serv_search_form/todt", "");
+				PID1500input7.refresh();
+				PID1500input8.refresh();
+			}
+			
+			function serv_add()
+			{
+				PID1500input5.disabled= false;
+				PID1500button2.disabled = true;
+				
+				clearChildNodes("/root/reqData/reqform/serv_detail_form", false);
+				
+				PID1500caption13.value= "N";
+				PID1500caption15.value= "N";
+				
+				for(var i=1; i<14; i++)
+				{
+					PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("check")) = "N";
+					PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("medicd")) = "";
+					PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("deptcd")) = "";
+					PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt1")) = 0;
+					PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt2")) = 0;
+					PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt3")) = 0;					
+				}
+				PID1500datagrid2.rebuild();
+				
+				model.setValue("/root/reqData/reqform/serv_detail_form/accflag", "I");
+			}
+			
+			function save()
+			{
+				var flag = model.getValue("/root/reqData/reqform/serv_detail_form/accflag");
+				
+				if(flag == "D")
+					model.setValue("/root/reqData/reqform/serv_detail_form/accflag", "U");
+				
+				if(!commValidate("PID1500group5"))
+					return;
+					
+				var frdt = model.getValue("/root/reqData/reqform/serv_detail_form/frdt");
+				var todt = model.getValue("/root/reqData/reqform/serv_detail_form/todt");
+				var closdt = model.getValue("/root/reqData/reqform/serv_detail_form/closdt");
+				
+				// 시작일자 < 종료일자 체크
+				if(frdt >= todt){
+					alert("종료일자가 시작일자보다 작거나 같습니다.");
+					return;
+				}
+				
+				// 등록종료일자 < 종료일자 체크
+				if(todt > closdt){
+					alert("등록종료일자가 종료일자보다 작습니다.");
+					return;
+				}
+	
+				for(var i=0; i<PID1500datagrid2.rows; i++) {
+					
+					if(PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("medicd")) != "")
+					{
+						if(PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("deptcd")) == "")
+						{
+							alert("선택된 매체의 부서를 선택하세요.");
+							return;
+						}
+						
+						if(PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt1")) == 0 || PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt2")) == 0 || PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt3")) == 0 )
+						{
+							alert("선택된 매체의 주거형태별 수당을 입력하세요.");
+							return;
+						}
+						
+						PID1500datagrid2.valueMatrix(i,1) = "Y";
+					} 
+					else if(PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("medicd")) == "")
+					{
+						if(PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("deptcd")) != "")
+						{
+							alert("매체를 선택한 후 부서를 선택하세요.");
+							return;
+						}
+						
+						if(PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt1")) != 0 || PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt2")) != 0 || PID1500datagrid2.valueMatrix(i, PID1500datagrid2.colRef("basiamt3")) != 0 )
+						{
+							alert("매체를 선택한 후 수당을 입력하세요.");
+							return;
+						}						
+					}																				
+				}
+					
+				makeNodesetToAppendForm("/root/resData/gridData/detailGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+
+				model.setValue("/root/reqData/reqform/serv_detail_form/medicdary", model.getValue("/root/tempData/gridTemp/medicd"));
+				model.setValue("/root/reqData/reqform/serv_detail_form/deptcdary", model.getValue("/root/tempData/gridTemp/deptcd"));
+				model.setValue("/root/reqData/reqform/serv_detail_form/basiamt1ary", model.getValue("/root/tempData/gridTemp/basiamt1"));
+				model.setValue("/root/reqData/reqform/serv_detail_form/basiamt2ary", model.getValue("/root/tempData/gridTemp/basiamt2"));
+				model.setValue("/root/reqData/reqform/serv_detail_form/basiamt3ary", model.getValue("/root/tempData/gridTemp/basiamt3"));
+
+				if( model.getValue("/root/reqData/reqform/serv_detail_form/medicdary") == "") {
+					alert("매체설정은 필수 입력 항목 입니다.");
+					return;
+				}
+																
+				if(flag == "I")
+					model.send("PID1515insert", false);
+				else if(flag == "U")
+					model.send("PID1520save", false);
+				else
+					return;
+				
+				if(!submit_completed())
+					return;
+				
+				serv_add();
+				search();
+			}
+			
+			function delete1()
+			{
+				if(model.getValue("/root/reqData/reqform/serv_detail_form/basidt") == '') {								// 기준일자 존재여부를 확인한다.
+				        alert("해당목록을 클릭 후 삭제하세요.");
+				        return;
+				}
+				
+				if(model.alert("삭제하시겠습니까?", "", 4) == "6") {
+					model.setValue("/root/reqData/reqform/serv_detail_form/accflag", "D");
+					PID1500input5.disabled= true;
+					
+					model.send("PID1525delete", false);
+					
+					if(!submit_completed())
+						return;
+						
+					serv_add();
+					search();
+				}				
+			}
+			
+			function chgMediCd()
+			{				
+				if(PID1500datagrid2.textMatrix(PID1500datagrid2.row, PID1500datagrid2.colRef("medicd")) == "")
+				{
+					PID1500datagrid2.textMatrix(PID1500datagrid2.row, PID1500datagrid2.colRef("check")) = "N";
+					PID1500datagrid2.textMatrix(PID1500datagrid2.row, PID1500datagrid2.colRef("deptcd")) = "";
+					PID1500datagrid2.textMatrix(PID1500datagrid2.row, PID1500datagrid2.colRef("basiamt1")) = 0;
+					PID1500datagrid2.textMatrix(PID1500datagrid2.row, PID1500datagrid2.colRef("basiamt2")) = 0;
+					PID1500datagrid2.textMatrix(PID1500datagrid2.row, PID1500datagrid2.colRef("basiamt3")) = 0;
+				}
+			}
+			
+			
+			function cancel()
+			{
+				gridClick();
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1500" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA4" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<!--<group id="PID1500group2" style="left:10px; top:685px; width:460px; height:25px; ">
+			<caption id="PID1500caption6" class="list_cap01" style="left:0px; top:0px; width:460px; height:25px; text-align:right; ">총건수 건</caption>
+		</group>-->
+		<group id="PID1500group3" class="gro_tab1" style="left:10px; top:75px; width:460px; height:25px; text-align:left; ">
+			<caption id="PID1500caption20" class="list_cap01" style="left:0px; top:0px; width:460px; height:25px; "/>
+			<caption id="PID1500caption8" style="left:5px; top:0px; width:50px; height:25px; ">기간</caption>
+			<button id="PID1500button1" class="btn02" style="left:405px; top:3px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					search();
+					]]>
+				</script>
+			</button>
+			<input id="PID1500input7" ref="/root/reqData/reqform/serv_search_form/frdt" inputtype="date" format="yyyy-mm-dd" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID1500input8" style="left:40px; top:4px; width:100px; height:18px; "/>
+			<input id="PID1500input8" ref="/root/reqData/reqform/serv_search_form/todt" inputtype="date" format="yyyy-mm-dd" dataType="dateto" caption="종료일자" setHandler="true" relid="PID1500input7" style="left:165px; top:4px; width:100px; height:18px; "/>
+			<button id="PID1500button9" class="btn05" style="left:270px; top:3px; width:25px; height:21px; ">
+				<caption>-</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					reset();
+					]]>
+				</script>
+			</button>
+			<caption id="PID1500caption26" style="left:147px; top:4px; width:8px; height:20px; ">-</caption>
+		</group>
+		<group id="PID1500group4" class="gro_tab1" style="left:475px; top:75px; width:460px; height:25px; text-align:left; ">
+			<caption id="PID1500caption1" class="list_cap01" style="left:0px; top:0px; width:460px; height:25px; "/>
+			<caption id="PID1500caption21" style="left:4px; top:3px; width:121px; height:20px; ">조선IS확장마감 상세</caption>
+		</group>
+		<datagrid id="PID1500datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="기준일자(년월)^시작일자^종료일자^등록종료일자" colsep="^" colwidth="105, 109, 109, 115" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:105px; width:460px; height:605px; ">
+			<col ref="basidt" format="yyyy-mm" style="text-align:center; "/>
+			<col ref="frdt" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="todt" format="yyyy-mm-dd" style="text-align:center; "/>
+			<col ref="closdt" format="yyyy-mm-dd" style="text-align:center; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1500datagrid1.mouseCol>PID1500datagrid1.fixedCols-1 && PID1500datagrid1.mouseRow>PID1500datagrid1.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}				
+					]]>
+			</script>
+		</datagrid>
+		<group id="PID1500group5" style="left:475px; top:105px; width:460px; height:195px; ">
+			<caption id="PID1500caption2" class="list_cap03" style="left:0px; top:0px; width:100px; height:25px; ">기준일자</caption>
+			<caption id="PID1500caption3" class="list_cap02" style="left:99px; top:0px; width:361px; height:25px; "/>
+			<caption id="PID1500caption4" class="list_cap03" style="left:0px; top:24px; width:100px; height:25px; ">시작일자</caption>
+			<caption id="PID1500caption5" class="list_cap02" style="left:99px; top:24px; width:361px; height:25px; "/>
+			<caption id="PID1500caption7" class="list_cap03" style="left:0px; top:48px; width:100px; height:25px; ">종료일자</caption>
+			<caption id="PID1500caption9" class="list_cap02" style="left:99px; top:48px; width:361px; height:25px; "/>
+			<caption id="PID1500caption10" class="list_cap03" style="left:0px; top:72px; width:100px; height:25px; ">등록종료일자</caption>
+			<caption id="PID1500caption11" class="list_cap02" style="left:99px; top:72px; width:361px; height:25px; "/>
+			<input id="PID1500input5" ref="/root/reqData/reqform/serv_detail_form/basidt" class="req" format="yyyy-mm" dataType="month" caption="기준일자" style="left:103px; top:4px; width:80px; height:18px; "/>
+			<input id="PID1500input1" ref="/root/reqData/reqform/serv_detail_form/frdt" class="req" inputtype="date" format="yyyy-mm-dd" dataType="date" caption="시작일자" style="left:103px; top:28px; width:100px; height:18px; "/>
+			<input id="PID1500input2" ref="/root/reqData/reqform/serv_detail_form/todt" class="req" inputtype="date" format="yyyy-mm-dd" dataType="date" caption="종료일자" style="left:103px; top:52px; width:100px; height:18px; "/>
+			<caption id="PID1500caption12" class="list_cap03" style="left:0px; top:96px; width:100px; height:25px; ">조선IS마감여부</caption>
+			<caption id="PID1500caption13" class="list_cap02" style="left:99px; top:96px; width:361px; height:25px; text-align:left; "/>
+			<caption id="PID1500caption14" class="list_cap03" style="left:0px; top:120px; width:100px; height:25px; ">지원부마감여부</caption>
+			<caption id="PID1500caption15" class="list_cap02" style="left:99px; top:120px; width:361px; height:25px; text-align:left; "/>
+			<caption id="PID1500caption16" class="list_cap03" style="left:0px; top:144px; width:100px; height:25px; ">청구일자</caption>
+			<caption id="PID1500caption17" class="list_cap02" style="left:99px; top:144px; width:361px; height:25px; "/>
+			<caption id="PID1500caption19" class="list_cap03" style="left:0px; top:168px; width:100px; height:25px; ">비고</caption>
+			<caption id="PID1500caption22" class="list_cap02" style="left:99px; top:168px; width:361px; height:25px; "/>
+			<input id="PID1500input3" ref="/root/reqData/reqform/serv_detail_form/closdt" class="req" inputtype="date" format="yyyy-mm-dd" dataType="date" caption="등록종료일자" style="left:103px; top:76px; width:100px; height:18px; "/>
+			<input id="PID1500input4" ref="/root/reqData/reqform/serv_detail_form/clamdt" class="req" inputtype="date" format="yyyy-mm-dd" dataType="date" caption="청구일자" style="left:103px; top:147px; width:100px; height:18px; "/>
+			<input id="PID1500input6" ref="/root/reqData/reqform/serv_detail_form/remk" style="left:103px; top:172px; width:327px; height:18px; "/>
+		</group>
+		<group id="PID1500group6" style="left:475px; top:685px; width:460px; height:25px; ">
+			<caption id="PID1500caption18" class="list_cap01" style="left:0px; top:0px; width:460px; height:25px; "/>
+			<button id="PID1500button2" class="btn02" style="left:285px; top:3px; width:52px; height:18px; ">
+				<caption>취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					cancel();
+					]]>
+				</script>
+			</button>
+			<button id="PID1500button3" class="btn02" style="left:120px; top:3px; width:52px; height:18px; ">
+				<caption>추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					serv_add();
+					]]>
+				</script>
+			</button>
+			<button id="PID1500button4" class="btn02" style="left:175px; top:3px; width:52px; height:18px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					save();
+					]]>
+				</script>
+			</button>
+			<button id="PID1500button5" class="btn02" style="left:230px; top:3px; width:52px; height:18px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					delete1();
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="PID1500datagrid2" nodeset="/root/resData/gridData/detailGrid/record" caption="^매체^부서^아파트^주택^상가" colsep="^" colwidth="0, 96, 96, 82, 82, 82" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" tooltip="true" style="left:475px; top:300px; width:460px; height:385px; ">
+			<col checkvalue="Y,N" ref="check" type="checkbox"/>
+			<col ref="medicd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mcCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="deptcd" type="combo" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/deptCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="basiamt1" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="basiamt2" type="input" format="#,###" style="text-align:right; "/>
+			<col ref="basiamt3" type="input" format="#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[				
+					if(PID1500datagrid2.col == 1) {
+						chgMediCd();										
+					}										
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

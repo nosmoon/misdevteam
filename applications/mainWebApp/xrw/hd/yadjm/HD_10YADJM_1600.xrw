@@ -1,0 +1,586 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<pub_flag/>
+							<dept_cd>
+								<item/>
+							</dept_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<searchData>
+							<dept_cd/>
+							<dept_nm/>
+							<emp_no/>
+							<flnm/>
+							<adjm_rvrs_yy>2010</adjm_rvrs_yy>
+							<pub_flag/>
+							<use_flag/>
+							<oz_flag/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+							<emp_no/>
+						</fwdData>
+						<reqForm/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<emp_no/>
+							</record>
+						</gridData>
+						<resForm>
+							<emp_no/>
+							<nm_korn/>
+							<nm_chin/>
+							<nm_engl/>
+							<prn/>
+							<zip/>
+							<addr/>
+							<dtls_addr/>
+						</resForm>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setEmp_no_i(emp_no, nm_korn){
+						if(emp_no != "" || nm_korn != ""){
+							model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+							model1.setValue("/root/reqData/searchData/flnm", nm_korn);
+						}
+						
+						/*model1.send("hd_yadjm_3000");
+						alert(model.getValue("/root/tempData/dataSet/CURLIST/record/emp_no"));
+						alert(model.getValue("/root/tempData/dataSet/CURLIST/record/nm_korn"));
+						model1.setValue("/root/reqData/searchData/emp_no", model.getValue("/root/tempData/dataSet/CURLIST/record/emp_no"));
+						model1.setValue("/root/reqData/searchData/flnm", model.getValue("/root/tempData/dataSet/CURLIST/record/nm_korn"));
+						model1.removenode("/root/tempData");*/
+						
+						model1.send("hd_yadjm_1603");
+						model1.copyNode("/root/resData/resForm","/root/dataSet/CURLIST/record");
+						model1.removenode("/root/dataSet");
+						
+						model1.setValue("/root/reqData/searchData/dept_cd", "");
+						model1.refresh();
+					}
+
+					function makeComboSet(gubun, source_ref, target_ref, ref_label, ref_value){
+					    var desNode = target_ref + "/item";
+					    var label, value;
+					    
+					    if ( gubun == "A" ) {
+					        label = "전체";
+					        value = "";
+					    } else if ( gubun == "S" ){
+					        label = "선택";
+					        value = "";
+					    } else if ( gubun == "N" ){
+					    } else {
+					        label = " ";
+					        value = "";
+					    }
+					    
+					    //원 노드를 삭제하고 전체, 선택, ""을 셋팅한다.
+					    if (gubun != "N") {
+							    model.removeNodeset(target_ref);
+							    model.makeNode(target_ref); 
+							    model.makeNode(desNode);
+							    
+							    model.makeNode(desNode + "/label");
+							    model.makeNode(desNode + "/value");
+							    
+							    model.setValue(desNode + "/label", label);
+							    model.setValue(desNode + "/value", value) ;
+					    } else {
+					        model.removeNodeset(target_ref);
+					    }    
+					    //전체, 선택 다음 노드에 원자료를 셋팅한다.
+					    if ( instance1.selectSingleNode(source_ref) != null ) {
+					        var arr = instance1.selectSingleNode(source_ref); 
+					        var len = arr.length;
+					
+					        if ( len > 0 ) {
+					            for ( var i = 1 ; i <= len ; i++ ) {
+					                model.makeNode(desNode + "[" + (i+1) + "]");
+					                model.makeNode(desNode + "[" + (i+1) + "]/label");
+					                model.makeNode(desNode + "[" + (i+1) + "]/value");
+					                model.setValue(desNode + "[" + (i+1) + "]/label", model.getValue(source_ref + "[" + i + "]/" + ref_label));
+					                model.setValue(desNode + "[" + (i+1) + "]/value", model.getValue(source_ref + "[" + i + "]/" + ref_value));
+					            }
+					        } else {
+					            model.makeNode(desNode + "[" + 2 + "]");
+					            model.makeNode(desNode + "[" + 2 + "]/label");
+					            model.makeNode(desNode + "[" + 2 + "]/value");
+					            model.setValue(desNode + "[" + 2 + "]/label", model.getValue(source_ref + "/" + ref_label));
+					            model.setValue(desNode + "[" + 2 + "]/value", model.getValue(source_ref + "/" + ref_value));
+					        }
+					    } 
+					    model.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[	
+					model1.send("hd_yadjm_1600");
+					makeComboSet("N", "/root/tempData/dataSet/CURLIST/record", "/root/initData/comboSet/pub_flag", "cdabrvnm_cd", "cd")
+					model1.removenode("/root/tempData");
+					combo1.disabled = true;
+					combo2.disabled = true;
+					combo3.disabled = true;
+					model1.send("hd_yadjm_1602");
+					model1.copyNode("/root/initData/comboSet/dept_cd","/root/dataSet/CURLIST");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_yadjm_3000" action="/hd/yadjm/3000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_yadjm_1600" action="/hd/yadjm/1600" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="hd_yadjm_3004" action="/hd/yadjm/3004" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_yadjm_1601" action="/hd/yadjm/1601" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_yadjm_1602" action="/hd/yadjm/1602" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_yadjm_1603" action="/hd/yadjm/1603" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/emp_no" resultref="/root/tempData"/>
+			<submission id="hd_yadjm_1604" action="/hd/yadjm/1604" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="2,684;1,934;1,10;2,701;1,934;" style="font-family:굴림; ">
+		<caption id="caption1" class="list_cap02" style="left:109px; top:278px; width:206px; height:26px; text-align:center; "/>
+		<caption id="caption14" class="list_cap02" style="left:109px; top:70px; width:206px; height:26px; text-align:center; "/>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption3" class="list_cap01" style="left:10px; top:228px; width:100px; height:26px; text-align:center; ">사번/성명</caption>
+		<caption id="caption7" class="list_cap02" style="left:109px; top:228px; width:206px; height:26px; text-align:center; "/>
+		<input id="input4" ref="/root/reqData/searchData/emp_no" navindex="3" inputtype="button" maxlength="6" style="left:114px; top:232px; width:71px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					model1.setValue("/root/reqData/fwdData/func_nm", "setEmp_no_i");
+					window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");												
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode ==13) {
+						var emp_no = input4.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/flnm", "");
+						setInfoSearchInput(emp_no, "", "", "setEmp_no_i"); //사번, 성명, 주민번호
+						if (model1.getValue("/root/tempData/totalcnt") != 1) {
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/flnm", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						var flnm = model1.getValue("/root/reqData/searchData/flnm");
+						setEmp_no_i(emp_no, flnm);
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onmaxlength">
+				<![CDATA[
+						var emp_no = input4.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/flnm", "");
+						setInfoSearchInput(emp_no, "", "", "setEmp_no_i"); //사번, 성명, 주민번호
+						if (model1.getValue("/root/tempData/totalcnt") != 1) {
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/flnm", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						var flnm = model1.getValue("/root/reqData/searchData/flnm");
+						setEmp_no_i(emp_no, flnm);
+				]]>
+			</script>
+		</input>
+		<input id="output3" ref="/root/reqData/searchData/flnm" navindex="4" appearance="output" style="left:189px; top:232px; width:71px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode ==13) {
+						var nm_korn = output3.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", "");
+						model1.setValue("/root/reqData/searchData/flnm", nm_korn);
+						setInfoSearchInput("", nm_korn, "", "setEmp_no_i"); //사번, 성명, 주민번호
+						if (model1.getValue("/root/tempData/totalcnt") != 1) {
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/flnm", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						var flnm = model1.getValue("/root/reqData/searchData/flnm");
+						setEmp_no_i(emp_no, flnm);
+					}
+				]]>
+			</script>
+		</input>
+		<caption id="caption12" class="list_cap01" style="left:10px; top:278px; width:100px; height:26px; text-align:center; ">발행구분</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/pub_flag" navindex="7" appearance="minimal" style="left:114px; top:282px; width:196px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/pub_flag/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<import id="import1" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button1" class="btn02" style="left:209px; top:40px; width:53px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var emp_no  = "";
+					var adjm_yy = "";
+					var pub_flag = "";
+					var oz_flag = "";
+					var dept_cd = "";
+					var use_flag = "";
+					
+					emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+					adjm_yy = model1.getValue("/root/reqData/searchData/adjm_rvrs_yy");
+					pub_flag = model1.getValue("/root/reqData/searchData/pub_flag");
+					oz_flag = model1.getValue("/root/reqData/searchData/oz_flag");
+					dept_cd = model1.getValue("/root/reqData/searchData/dept_cd");
+					use_flag = model1.getValue("/root/reqData/searchData/use_flag");
+					
+					if(adjm_yy == "") {
+						alert("연말정산년도는 필수 입력 항목입니다.");
+						return;
+					}
+					if(oz_flag == ""){
+						alert("장표선택은 필수 입력 항목입니다.");
+						return;
+					}
+					if((emp_no == "") && (dept_cd == "")) {
+						alert("사번 또는 부서명은 필수 입력 항목입니다.");
+						return;
+					}
+					if(oz_flag == "1"){
+						if(pub_flag == "") {
+							alert("발행구분은 필수 입력 항목입니다.");
+							return;
+						}
+					}
+					
+					if((oz_flag == "1") && (emp_no == "")){ // 근로소득원청징수 영수증
+						model1.send("hd_yadjm_1601");
+						model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+					}else if((oz_flag == "1") && (emp_no != "")){
+						model1.setValue("/root/resData/gridData/record[1]/emp_no", emp_no);
+					}
+					
+					if((oz_flag == "2") && (emp_no == "")){ // 부양가족 소득공제 명세서
+						model1.send("hd_yadjm_1604");
+						model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+					}else if((oz_flag == "2") && (emp_no != "")){
+						model1.setValue("/root/resData/gridData/record[1]/emp_no", emp_no);
+					}
+					
+					if((oz_flag == "5") && (emp_no == "")){ // 근로소득자소득공제신고서
+						model1.send("hd_yadjm_1604");
+						model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+					}else if((oz_flag == "5") && (emp_no != "")){
+						model1.setValue("/root/resData/gridData/record[1]/emp_no", emp_no);
+					}
+										
+					if(oz_flag == "1"){ // 근로소득원청징수 영수증
+						resetOznode();											//오즈node 초기화
+						
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_YADJM_101610");	//odi 파일경로('/' root경로 제외)
+						makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+						makeNodeValue("/root/oz_data/printsize",""); 				//페이지용지설정(기본 A4)
+						
+						emp_no = model1.getValue("/root/resData/gridData/record[1]/emp_no");
+						//Parameter setting
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd"));
+						makeNodeValue("/root/oz_data/odiParam/iv_emp_no",emp_no);
+						makeNodeValue("/root/oz_data/odiParam/iv_adjm_rvrs_yy",adjm_yy);
+						makeNodeValue("/root/oz_data/odiParam/iv_pub_clsf",pub_flag);
+											
+						for(var i = 1; i < datagrid1.rows; i++){
+							var cnt = i;
+							if(Number(cnt + 1) != datagrid1.rows){
+								emp_no = model1.getValue("/root/resData/gridData/record["+ Number(cnt+1) +"]/emp_no");
+								
+								makeNodeValue("/root/oz_data/childCount", cnt );
+							
+								makeNodeValue("/root/oz_data/child" + cnt + "/ozrName","hd/HD_YADJM_101610");
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_cmpy_cd" ,getProperty("ss_cmpycd") );	
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_emp_no"  ,emp_no);
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_adjm_rvrs_yy" ,adjm_yy);
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_pub_clsf",pub_flag);
+							}
+						}
+						
+						openOzwin("/root/oz_data");
+					}else if(oz_flag == "2"){	// 부양가족 소득공제 명세서
+						resetOznode();											//오즈node 초기화
+						
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_YADJM_101620");	//odi 파일경로('/' root경로 제외)
+						makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+						makeNodeValue("/root/oz_data/printsize",""); 				//페이지용지설정(기본 A4)
+						
+						emp_no = model1.getValue("/root/resData/gridData/record[1]/emp_no");
+						//Parameter setting
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd"));
+						makeNodeValue("/root/oz_data/odiParam/iv_emp_no",emp_no);
+						makeNodeValue("/root/oz_data/odiParam/iv_adjm_rvrs_yy",adjm_yy);
+											
+						for(var i = 1; i < datagrid1.rows; i++){
+							var cnt = i;
+							if(Number(cnt + 1) != datagrid1.rows){
+								emp_no = model1.getValue("/root/resData/gridData/record["+ Number(cnt+1) +"]/emp_no");
+								
+								makeNodeValue("/root/oz_data/childCount", cnt );
+							
+								makeNodeValue("/root/oz_data/child" + cnt + "/ozrName","hd/HD_YADJM_101620");
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_cmpy_cd" ,getProperty("ss_cmpycd") );	
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_emp_no"  ,emp_no);
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_adjm_rvrs_yy" ,adjm_yy);
+							}
+						}
+						
+						openOzwin("/root/oz_data");
+					}else if(oz_flag == "3"){
+						resetOznode();											//오즈node 초기화
+						
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_LVCMPY_2720");	//odi 파일경로('/' root경로 제외)
+						makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+						makeNodeValue("/root/oz_data/printsize",""); 				//페이지용지설정(기본 A4)
+						
+						//Parameter setting
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_LVCMPY_2720");
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" ,getProperty("ss_cmpycd") );	
+						makeNodeValue("/root/oz_data/odiParam/iv_emp_no"  ,emp_no);
+						makeNodeValue("/root/oz_data/odiParam/iv_saly_yy" ,adjm_yy);
+						
+						openOzwin("/root/oz_data");
+					}else if(oz_flag == "4"){
+						resetOznode();											//오즈node 초기화
+						
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_YADJM_1630");	//odi 파일경로('/' root경로 제외)
+						makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+						makeNodeValue("/root/oz_data/printsize",""); 				//페이지용지설정(기본 A4)
+						
+						//Parameter setting
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_YADJM_1630");
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" ,getProperty("ss_cmpycd") );	
+						makeNodeValue("/root/oz_data/odiParam/iv_adjm_rvrs_yy",adjm_yy);
+						makeNodeValue("/root/oz_data/odiParam/iv_emp_no"  ,emp_no);
+						makeNodeValue("/root/oz_data/odiParam/iv_use_flag" ,use_flag);
+						
+						openOzwin("/root/oz_data");
+					}else if(oz_flag == "5"){	// 근로소득자소득공제신고서
+						resetOznode();											//오즈node 초기화
+						
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_YADJM_101241");	//odi 파일경로('/' root경로 제외)
+						makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+						makeNodeValue("/root/oz_data/printsize",""); 				//페이지용지설정(기본 A4)
+						
+						emp_no = model1.getValue("/root/resData/gridData/record[1]/emp_no");
+						//Parameter setting
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd"));
+						makeNodeValue("/root/oz_data/odiParam/iv_emp_no",emp_no);
+						makeNodeValue("/root/oz_data/odiParam/iv_adjm_yy",adjm_yy);
+											
+						for(var i = 1; i < datagrid1.rows; i++){
+							var cnt = i;
+							if(Number(cnt + 1) != datagrid1.rows){
+								emp_no = model1.getValue("/root/resData/gridData/record["+ Number(cnt+1) +"]/emp_no");
+								
+								makeNodeValue("/root/oz_data/childCount", cnt );
+							
+								makeNodeValue("/root/oz_data/child" + cnt + "/ozrName","hd/HD_YADJM_101241");
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_cmpy_cd" ,getProperty("ss_cmpycd") );	
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_emp_no"  ,emp_no);
+								makeNodeValue("/root/oz_data/child" + cnt + "/odiParam/iv_adjm_yy" ,adjm_yy);
+							}
+						}
+						
+						openOzwin("/root/oz_data");						
+					}
+					
+					model1.reset();
+					combo1.disabled = true;
+					combo2.disabled = true;
+					combo3.disabled = true;
+					model1.refresh();
+			     ]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" style="left:264px; top:40px; width:53px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<import id="import2" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<input id="input21" ref="/root/reqData/searchData/adjm_rvrs_yy" navindex="1" maxlength="4" format="####" appearance="input" style="left:114px; top:74px; width:60px; height:18px; text-align:center; "/>
+		<caption id="caption13" class="list_cap01" style="left:10px; top:70px; width:100px; height:26px; text-align:center; ">연말정산년도</caption>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" visibility="hidden" caption="사번" colsep="^" mergecellsfixedrows="bycolrec" rowsep="|" style="left:800px; top:35px; width:105px; height:615px; ">
+			<col ref="emp_no"/>
+		</datagrid>
+		<caption id="caption5" class="list_cap02" style="left:109px; top:303px; width:206px; height:26px; text-align:center; "/>
+		<select1 id="combo2" ref="/root/reqData/searchData/use_flag" navindex="8" appearance="minimal" style="left:114px; top:307px; width:196px; height:18px; ">
+			<choices>
+				<item>
+					<label>비자발급</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>은행제출</label>
+					<value>2</value>
+				</item>
+			</choices>
+		</select1>
+		<caption id="caption6" class="list_cap01" style="left:10px; top:303px; width:100px; height:26px; text-align:center; ">사용목적</caption>
+		<caption id="caption8" class="list_cap02" style="left:10px; top:97px; width:305px; height:123px; text-align:center; "/>
+		<caption id="caption2" class="tit02" style="left:12px; top:98px; width:301px; height:20px; font-weight:bold; ">장표선택</caption>
+		<select1 id="radio1" ref="/root/reqData/searchData/oz_flag" navindex="2" appearance="full" overflow="visible" style="left:14px; top:119px; width:270px; height:96px; border-style:none; ">
+			<choices>
+				<item>
+					<label>근로소득원청징수 영수증</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>부양가족 소득공제 명세서</label>
+					<value>2</value>
+				</item>
+				<item>
+					<label>소득자별 근로소득 원천징수부</label>
+					<value>3</value>
+				</item>
+				<item>
+					<label>갑근세 납세필 증명서</label>
+					<value>4</value>
+				</item>
+				<item>
+					<label>근로소득자소득공제신고서</label>
+					<value>5</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(model1.getValue("/root/reqData/searchData/oz_flag") == "1"){ // 근로소득원청징수
+						combo1.disabled = false;
+						combo2.disabled = true;
+						model1.setValue("/root/reqData/searchData/use_flag", "");
+						combo3.disabled = false;
+					}else if(model1.getValue("/root/reqData/searchData/oz_flag") == "2"){ // 부양가족 소득공제 명세서
+						combo1.disabled = true;
+						model1.setValue("/root/reqData/searchData/pub_flag", "");
+						combo2.disabled = true;
+						model1.setValue("/root/reqData/searchData/use_flag", "");
+						combo3.disabled = false;
+					}else if(model1.getValue("/root/reqData/searchData/oz_flag") == "3"){ // 소득자별근로소득 원천징수부
+						combo1.disabled = true;
+						model1.setValue("/root/reqData/searchData/pub_flag", "");
+						combo2.disabled = true;
+						model1.setValue("/root/reqData/searchData/use_flag", "");
+						combo3.disabled = true;
+						model1.setValue("/root/reqData/searchData/dept_cd", "");
+					}else if(model1.getValue("/root/reqData/searchData/oz_flag") == "4"){ // 갑근세 납세필 증명서
+						combo1.disabled = true;
+						model1.setValue("/root/reqData/searchData/pub_flag", "");
+						combo2.disabled = false;
+						combo3.disabled = true;
+						model1.setValue("/root/reqData/searchData/dept_cd", "");
+					}else if(model1.getValue("/root/reqData/searchData/oz_flag") == "5"){ // 근로소득자소득공제신고서
+						combo1.disabled = true;
+						model1.setValue("/root/reqData/searchData/pub_flag", "");
+						combo2.disabled = true;
+						model1.setValue("/root/reqData/searchData/use_flag", "");
+						combo3.disabled = false;
+					}
+					combo1.refresh(); // 발행구분
+					combo2.refresh(); // 사용목적
+					combo3.refresh(); // 국검색
+				]]>
+			</script>
+		</select1>
+		<caption id="caption9" class="list_cap01" style="left:10px; top:253px; width:100px; height:26px; text-align:center; ">국 검 색</caption>
+		<caption id="caption11" class="list_cap02" style="left:109px; top:253px; width:206px; height:26px; text-align:center; "/>
+		<select1 id="combo3" ref="/root/reqData/searchData/dept_cd" appearance="minimal" style="left:114px; top:257px; width:196px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/dept_cd/item">
+					<label ref="abrv_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					model1.setValue("/root/reqData/searchData/emp_no" ,"");
+					model1.setValue("/root/reqData/searchData/flnm" ,"");
+					model1.setValue("/root/resData/resForm/emp_no", "");
+					model1.setValue("/root/resData/resForm/nm_korn", "");
+					model1.setValue("/root/resData/resForm/nm_chin", "");
+					model1.setValue("/root/resData/resForm/nm_engl", "");
+					model1.setValue("/root/resData/resForm/prn", "");
+					model1.setValue("/root/resData/resForm/zip", "");
+					model1.setValue("/root/resData/resForm/addr", "");
+					model1.setValue("/root/resData/resForm/dtls_addr", "");
+					model1.refresh();
+				]]>
+			</script>
+		</select1>
+		<caption id="caption4" class="list_cap02" style="left:138px; top:345px; width:176px; height:26px; text-align:center; "/>
+		<caption id="caption10" class="list_cap01" style="left:39px; top:345px; width:100px; height:26px; text-align:center; ">사    번</caption>
+		<caption id="caption15" class="list_cap01" style="left:10px; top:345px; width:30px; height:201px; text-align:center; ">
+			<![CDATA[개
+
+
+
+
+
+인]]>
+		</caption>
+		<caption id="caption16" class="list_cap01" style="left:39px; top:370px; width:100px; height:26px; text-align:center; ">성    명</caption>
+		<caption id="caption17" class="list_cap01" style="left:39px; top:395px; width:100px; height:26px; text-align:center; ">성명(한자)</caption>
+		<caption id="caption18" class="list_cap01" style="left:39px; top:420px; width:100px; height:26px; text-align:center; ">성명(영문)</caption>
+		<caption id="caption19" class="list_cap01" style="left:39px; top:445px; width:100px; height:26px; text-align:center; ">주민등록번호</caption>
+		<caption id="caption20" class="list_cap01" style="left:39px; top:470px; width:31px; height:76px; text-align:center; ">
+			<![CDATA[주
+
+소]]>
+		</caption>
+		<caption id="caption21" class="list_cap01" style="left:69px; top:470px; width:70px; height:26px; text-align:center; ">우편번호</caption>
+		<caption id="caption22" class="list_cap01" style="left:69px; top:495px; width:70px; height:51px; text-align:center; ">집주소</caption>
+		<caption id="caption23" class="list_cap02" style="left:138px; top:370px; width:176px; height:26px; text-align:center; "/>
+		<caption id="caption24" class="list_cap02" style="left:138px; top:395px; width:176px; height:26px; text-align:center; "/>
+		<caption id="caption25" class="list_cap02" style="left:138px; top:420px; width:176px; height:26px; text-align:center; "/>
+		<caption id="caption26" class="list_cap02" style="left:138px; top:445px; width:176px; height:26px; text-align:center; "/>
+		<caption id="caption27" class="list_cap02" style="left:138px; top:470px; width:176px; height:26px; text-align:center; "/>
+		<caption id="caption28" class="list_cap02" style="left:138px; top:495px; width:362px; height:26px; text-align:center; "/>
+		<caption id="caption29" class="list_cap02" style="left:138px; top:520px; width:362px; height:26px; text-align:center; "/>
+		<input id="input1" ref="/root/resData/resForm/emp_no" editable="false" style="left:142px; top:349px; width:168px; height:18px; "/>
+		<input id="input2" ref="/root/resData/resForm/nm_korn" editable="false" style="left:142px; top:374px; width:168px; height:18px; "/>
+		<input id="input3" ref="/root/resData/resForm/nm_chin" editable="false" style="left:142px; top:399px; width:168px; height:18px; "/>
+		<input id="input5" ref="/root/resData/resForm/nm_engl" editable="false" style="left:142px; top:424px; width:168px; height:18px; "/>
+		<input id="input6" ref="/root/resData/resForm/prn" editable="false" format="999999-9999999" style="left:142px; top:449px; width:168px; height:18px; "/>
+		<input id="input7" ref="/root/resData/resForm/zip" editable="false" style="left:142px; top:474px; width:168px; height:18px; "/>
+		<input id="input8" ref="/root/resData/resForm/addr" editable="false" style="left:142px; top:499px; width:353px; height:18px; text-align:left; "/>
+		<input id="input9" ref="/root/resData/resForm/dtls_addr" editable="false" style="left:142px; top:524px; width:353px; height:18px; text-align:left; "/>
+	</xhtml:body>
+</xhtml:html>

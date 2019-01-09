@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>업무차량 조회</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<codeSY>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</codeSY>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+							<pageID/>
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<drvr_nm/>
+							<start_dt/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<resForm>
+							<searchBFmodl/>
+						</resForm>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<datagrid>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<drvr_cd/>
+								<drvr_nm/>
+								<tel_no/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</datagrid>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function makeComboSet(gubun, source_ref, target_ref, ref_label, ref_value){
+					    //var tempNode = "/root/tempCombo";
+					    var desNode = target_ref + "/item";
+					    
+					    var label, value;
+					    
+					    //model.makeNode(tempNode);
+					    
+					    //원 데이타를 임시 노드에 옮긴다.
+					    //model.copyNode(tempNode, source_ref);
+					    
+					    if ( gubun == "A" ) {
+					        label = "전체";
+					        value = "";
+					    } else if ( gubun == "S" ){
+					        label = "선택";
+					        value = "";
+					    } else if ( gubun == "N" ){
+					    } else {
+					        label = " ";
+					        value = "";
+					    }
+					    
+					    //원 노드를 삭제하고 전체, 선택, ""을 셋팅한다.
+					    if (gubun != "N") {
+							    model.removeNodeset(target_ref);
+							    model.makeNode(target_ref); 
+							    model.makeNode(desNode);
+							    
+							    model.makeNode(desNode + "/label");
+							    model.makeNode(desNode + "/value");
+							    
+							    model.setValue(desNode + "/label", label);
+							    model.setValue(desNode + "/value", value) ;
+					    } else {
+					        model.removeNodeset(target_ref);
+					    }    
+					    //전체, 선택 다음 노드에 원자료를 셋팅한다.
+					    if ( instance1.selectSingleNode(source_ref) != null ) {
+					        var arr = instance1.selectSingleNode(source_ref); 
+					        var len = arr.length;
+					
+					        if ( len > 0 ) {
+					            for ( var i = 1 ; i <= len ; i++ ) {
+					                model.makeNode(desNode + "[" + (i+1) + "]");
+					                model.makeNode(desNode + "[" + (i+1) + "]/label");
+					                model.makeNode(desNode + "[" + (i+1) + "]/value");
+					                model.setValue(desNode + "[" + (i+1) + "]/label", model.getValue(source_ref + "[" + i + "]/" + ref_label));
+					                model.setValue(desNode + "[" + (i+1) + "]/value", model.getValue(source_ref + "[" + i + "]/" + ref_value));
+					            }
+					        } else {
+					            model.makeNode(desNode + "[" + 2 + "]");
+					            model.makeNode(desNode + "[" + 2 + "]/label");
+					            model.makeNode(desNode + "[" + 2 + "]/value");
+					            model.setValue(desNode + "[" + 2 + "]/label", model.getValue(source_ref + "/" + ref_label));
+					            model.setValue(desNode + "[" + 2 + "]/value", model.getValue(source_ref + "/" + ref_value));
+					        }
+					    } 
+					    model.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.setValue("/root/reqData/searchData/start_dt",model.getValue("/root/reqData/fwdData/start_dt"));	
+			
+				]]>
+			</script>
+			<submission id="mt_etccar_9003_L" action="/mt/etccar/9003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="740" pageheight="600" guideline="1,-82;" style="font-family:굴림; ">
+		<!--<import id="maint" src="../../../common/xrw/iv_TitleBar_pop400.xrw" style="left:10px; top:5px; width:485px; height:35px; " title="기기관리번호 찾기"/>-->
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:445px; height:27px; ">운전자 조회</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:83px; width:455px; height:5px; "/>
+		<group id="group1" class="gro_sel" style="left:10px; top:41px; width:450px; height:29px; ">
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:75px; height:25px; text-align:center; ">운전자명</caption>
+			<caption id="caption5" class="list_cap02" style="left:74px; top:0px; width:366px; height:25px; text-align:center; "/>
+			<input id="input2" ref="/root/reqData/searchData/drvr_nm" navindex="4" style="left:79px; top:3px; width:127px; height:18px; "/>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/datagrid/record" caption="운전자코드^운전자명^전화번호" colsep="^" colwidth="110, 150, 161" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" navindex="7" noeset="/root/gridData/main/a" style="left:10px; top:95px; width:450px; height:205px; ">
+			<col ref="drvr_cd"/>
+			<col ref="drvr_nm" style="text-align:left; "/>
+			<col ref="tel_no"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					if (datagrid1.row  < 1){
+						alert("운전자를 선택해주십시오.");
+						return;
+					} else {
+						var drvr_cd = datagrid1.valueMatrix(datagrid1.row,1);
+						var drvr_nm = datagrid1.valueMatrix(datagrid1.row,2);
+						var tel_no = datagrid1.valueMatrix(datagrid1.row,3);
+						
+						var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");	
+						if (retFunc == "setCar_drvr"){	
+							eval("window.opener.javascript." + retFunc + "('" +drvr_nm+"', '" +drvr_cd+"', '" +tel_no+"')" );
+							window.close();
+
+						}else{
+							eval("window.opener.javascript." + retFunc + "('" +drvr_nm+"', '" +drvr_cd+"', '" +tel_no+"')" );
+							window.close();
+						}
+							
+					}
+				]]>
+			</script>
+		</datagrid>
+		<group id="group2" class="gro_btn" style="left:215px; top:8px; width:231px; height:21px; ">
+			<button id="btnA4" class="btn02" style="left:6px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.send("mt_etccar_9003_L");
+
+						model1.copyNode("/root/resData/datagrid","/root/tempData/CURLIST");
+						datagrid1.refresh();
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:64px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:121px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (datagrid1.row  < 1){
+						alert("운전자를 선택해주십시오.");
+						return;
+					} else {
+						var drvr_nm = datagrid1.valueMatrix(datagrid1.row,2);
+						var drvr_cd = datagrid1.valueMatrix(datagrid1.row,1);
+						var tel_no = datagrid1.valueMatrix(datagrid1.row,3);
+						var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+
+						eval("window.opener.javascript." + retFunc + "('" +drvr_nm+"', '" +drvr_cd+"', '" +tel_no+"')" );
+						window.close();
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:179px; top:0px; width:52px; height:21px; ">
+				<caption>취소</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

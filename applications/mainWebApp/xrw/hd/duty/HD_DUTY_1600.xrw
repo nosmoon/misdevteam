@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>근태내역상세조회(개인)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<fr_dt/>
+							<to_dt/>
+							<aply_yy/>
+							<emp_no/>
+							<nm_korn/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<clndr_a/>
+								<clndr_wkdy/>
+								<hody_clsf/>
+								<vaca_cd/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+						<resForm>
+							<tot_occr_year_dds/>
+							<use_year_dds/>
+							<rmn_year_dds/>
+						</resForm>
+						<totcnt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setEmp_no(emp_no){
+						setInfoSearchInput(emp_no, "", "", "");
+						model1.setValue("/root/reqData/searchData/emp_no",model1.getValue( "/root/tempData/emp_no"));
+						model1.setValue("/root/reqData/searchData/nm_korn",model1.getValue( "/root/tempData/nm_korn"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+					maintitle.text = "근태내역상세조회(개인)";
+					iv_Title.visible = false;  // 숨김
+					iv_PopTitle.visible = true;  // 보임
+					input1.disabled = true;
+					input5.disabled = true;
+				}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					iv_Title.visible = true;  // 보임
+					iv_PopTitle.visible = false;  // 숨김
+				}
+				var obj = htmldocument.SessionInfo;
+    	 			setProperty("ss_emp_no"   , obj.emp_no.value);
+    	 			model1.setValue("/root/reqData/searchData/emp_no", obj.emp_no.value);
+    	 			model1.setValue("/root/reqData/searchData/nm_korn", obj.emp_nm.value);
+				model1.refresh();
+				
+				model1.send("hd_saly_5003");
+				var mng_salyprt_yn = model.getValue("/root/dataSet/CURLIST/record/mng_salyprt_yn");
+				if(mng_salyprt_yn == "Y"){
+					caption12.visible = true;
+					input1.visible = true;
+					input5.visible = true;
+				}
+				model1.removenode("/root/dataSet");
+				
+				var now_date = new Date();
+				var year = now_date.getYear();
+				var month = now_date.getMonth() + 1;
+				var day = now_date.getDate();    
+				var month_tm = '0' + month;
+				var day_tm = '0' + day;  
+				if(month_tm.length == 3){
+					month_tm = month_tm.substring(1, 3);
+				}
+				if(day_tm.length == 3){
+					day_tm = day_tm.substring(1, 3);
+				}
+				var now_dt = year + month_tm + day_tm;
+				var now_dt_sub = year + month_tm + "01";
+				model1.setValue("/root/reqData/searchData/to_dt", now_dt);
+				model1.setValue("/root/reqData/searchData/fr_dt", now_dt_sub);
+				model1.setValue("/root/reqData/searchData/aply_yy", year);
+				model1.send("hd_duty_1600");
+				model1.setValue("/root/resData/resForm/tot_occr_year_dds", model1.getValue("/root/dataSet/CURLIST/record/tot_occr_year_dds"));
+				model1.setValue("/root/resData/resForm/use_year_dds", model1.getValue("/root/dataSet/CURLIST/record/use_year_dds"));
+				model1.setValue("/root/resData/resForm/rmn_year_dds", model1.getValue("/root/dataSet/CURLIST/record/rmn_year_dds"));
+				model1.removenode("/root/dataSet");
+				
+				/*if(model1.getValue("/root/resData/resForm/tot_occr_year_dds") == ""){
+					model1.makeNode("/root/resData/resForm/tot_occr_year_dds");
+					model1.setValue("/root/resData/resForm/tot_occr_year_dds", "0");
+				}
+				if(model1.getValue("/root/resData/resForm/use_year_dds") == ""){
+					model1.makeNode("/root/resData/resForm/use_year_dds");
+					model1.setValue("/root/resData/resForm/use_year_dds", "0");
+				}
+				if(model1.getValue("/root/resData/resForm/rmn_year_dds") == ""){
+					model1.makeNode("/root/resData/resForm/rmn_year_dds");
+					model1.setValue("/root/resData/resForm/rmn_year_dds", "0");
+				}*/
+				model1.send("hd_duty_1601");
+				model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+				model1.removenode("/root/dataSet");
+				model1.refresh();
+				var totcnt = datagrid1.rows;
+				model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+				model1.refresh();
+				
+				//datagrid1.isReadOnly(1, 1, 1, 11) = true;
+						
+				model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_duty_1600" action="/hd/duty/1600" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1601" action="/hd/duty/1601" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_saly_5003" action="/hd/saly/5003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="2,50;2,70;2,80;2,80;2,680;1,672;1,926;1,926;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:640px; height:21px; ">
+			<button id="btnA2" class="btn02" style="left:478px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:588px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:533px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var fr_dt = model1.getValue("/root/reqData/searchData/fr_dt");
+					var to_dt = model1.getValue("/root/reqData/searchData/to_dt");
+					if(fr_dt == "" || to_dt == ""){
+						alert("근태기간을 입력 후 조회해주세요.");
+						return;
+					}
+					if(fr_dt.length != 8 || to_dt.length != 8){
+						alert("근태기간을 정확히 입력해주세요.");
+						return;
+					}
+					if(fr_dt > to_dt){
+						alert("근태기간을 확인해 주세요.");
+						return;
+					}		
+				//---------------------------------------------------------------------------	
+				 // if(fr_dt.substring(4, 8) > "1201"){
+				 // 	alert("시작일은 12월 01일 보다 작아야 합니다.");
+				 //	 return;
+				 // }
+			         //		if(to_dt.substring(4, 8) > "1130"){
+				 //		alert("종료일은 11월 30일 보다 작아야 합니다.");
+				 //		return;
+				 //	}
+				//--------------------------------------------------------------------------- 
+					//if(fr_dt.substring(0,4) != to_dt.substring(0,4)){
+					//	alert("근태기간의 조회 년도가 같아야합니다.");
+					//	return;
+					//}
+					model1.send("hd_duty_1600");
+					model1.setValue("/root/resData/resForm/tot_occr_year_dds", model1.getValue("/root/dataSet/CURLIST/record/tot_occr_year_dds"));
+					model1.setValue("/root/resData/resForm/use_year_dds", model1.getValue("/root/dataSet/CURLIST/record/use_year_dds"));
+					model1.setValue("/root/resData/resForm/rmn_year_dds", model1.getValue("/root/dataSet/CURLIST/record/rmn_year_dds"));
+					model1.removenode("/root/dataSet");
+					model1.send("hd_duty_1601");
+					model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					var totcnt = datagrid1.rows;
+					model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+					model1.refresh();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" style="left:10px; top:80px; width:643px; height:30px; ">
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:90px; height:26px; text-align:center; ">근태기간</caption>
+			<caption id="caption10" class="list_cap02" style="left:89px; top:0px; width:553px; height:26px; text-align:center; "/>
+			<input id="input3" ref="/root/reqData/searchData/fr_dt" class="req" inputtype="date" format="yyyy.mm.dd" style="left:94px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var fr_dt = model1.getValue("/root/reqData/searchData/fr_dt");
+					var to_dt = model1.getValue("/root/reqData/searchData/to_dt");
+					if(fr_dt.substring(4, 8) > "1201"){
+						alert("시작일은 12월 01일 보다 작아야 합니다.");
+						return;
+					}
+					//if(fr_dt.substring(0,4) != to_dt.substring(0,4)){
+					//	alert("근태기간의 조회 년도가 같아야합니다.");
+					//	return;
+					//}
+					]]>
+				</script>
+			</input>
+			<input id="input4" ref="/root/reqData/searchData/to_dt" class="req" inputtype="date" format="yyyy.mm.dd" style="left:215px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var fr_dt = model1.getValue("/root/reqData/searchData/fr_dt");
+					var to_dt = model1.getValue("/root/reqData/searchData/to_dt");
+				
+				      //	if(to_dt.substring(4, 8) > "1130"){
+				      //		alert("종료일은 11월 30일 보다 작아야 합니다.");
+			              //		 	return;
+				      //	}
+					//if(fr_dt.substring(0,4) != to_dt.substring(0,4)){
+					//	alert("근태기간의 조회 년도가 같아야합니다.");
+					//	return;
+					//}		
+					]]>
+				</script>
+			</input>
+			<caption id="caption15" style="left:199px; top:7px; width:11px; height:15px; ">~</caption>
+			<caption id="caption12" class="list_cap01" visibility="hidden" style="left:319px; top:0px; width:90px; height:26px; text-align:center; ">사번/성명</caption>
+			<input id="input1" ref="/root/reqData/searchData/emp_no" class="req" visibility="hidden" inputtype="button" maxlength="6" format="999999" style="left:412px; top:4px; width:71px; height:18px; text-align:center; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/func_nm");
+					model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+					window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+				]]>
+				</script>
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+					if (event.keyCode ==13){
+						var emp_no = input1.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", "");
+						
+						setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no",model1.getValue( "/root/tempData/emp_no"));
+						model1.setValue("/root/reqData/searchData/nm_korn",model1.getValue( "/root/tempData/nm_korn"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					}
+				]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						var emp_no = input1.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", "");
+						
+						setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no",model1.getValue( "/root/tempData/emp_no"));
+						model1.setValue("/root/reqData/searchData/nm_korn",model1.getValue( "/root/tempData/nm_korn"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input5" ref="/root/reqData/searchData/nm_korn" visibility="hidden" imemode="hangul" appearance="output" style="left:485px; top:4px; width:73px; height:18px; text-align:center; ">
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+					if (event.keyCode ==13){
+						var nm_korn = input5.currentText;
+						
+						model1.setValue("/root/reqData/searchData/nm_korn", nm_korn);
+						model1.setValue("/root/reqData/searchData/emp_no", "");
+						
+						setInfoSearchInput("", nm_korn, "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no",model1.getValue( "/root/tempData/emp_no"));
+						model1.setValue("/root/reqData/searchData/nm_korn",model1.getValue( "/root/tempData/nm_korn"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					}
+				]]>
+				</script>
+			</input>
+		</group>
+		<group id="group2" style="left:10px; top:120px; width:425px; height:580px; ">
+			<caption id="caption9" class="tit02" style="left:0px; top:0px; width:140px; height:20px; font-weight:bold; ">휴일/휴가내역 조회</caption>
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="근무일자^요일^휴일구분^휴가구분" colsep="#" colwidth="100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:0px; top:20px; width:425px; height:555px; ">
+				<col ref="clndr_ma" format="yyyy-mm-dd"/>
+				<col ref="clndr_wkdy"/>
+				<col ref="hody_clsf"/>
+				<col ref="vaca_cd"/>
+			</datagrid>
+		</group>
+		<group id="group3" style="left:455px; top:120px; width:199px; height:100px; ">
+			<caption id="caption1" class="list_cap01" style="left:0px; top:21px; width:45px; height:76px; text-align:center; line-spacing:0; ">
+				<![CDATA[근
+태
+기
+간]]>
+			</caption>
+			<caption id="caption3" class="list_cap02" style="left:44px; top:21px; width:90px; height:26px; text-align:center; ">연차발생개수</caption>
+			<caption id="caption5" class="tit02" style="left:0px; top:0px; width:115px; height:20px; font-weight:bold; ">연차 현황(전체)</caption>
+			<caption id="caption6" class="list_cap02" style="left:44px; top:46px; width:90px; height:26px; text-align:center; ">연차사용개수</caption>
+			<caption id="caption8" class="list_cap02" style="left:44px; top:71px; width:90px; height:26px; text-align:center; ">연차잔여개수</caption>
+			<caption id="caption4" class="list_cap02" style="left:133px; top:21px; width:62px; height:26px; text-align:center; "/>
+			<caption id="caption7" class="list_cap02" style="left:133px; top:46px; width:62px; height:26px; text-align:center; "/>
+			<caption id="caption11" class="list_cap02" style="left:133px; top:71px; width:62px; height:26px; text-align:center; "/>
+			<output id="output1" ref="/root/resData/resForm/tot_occr_year_dds" style="left:136px; top:25px; width:55px; height:18px; "/>
+			<output id="output2" ref="/root/resData/resForm/use_year_dds" style="left:136px; top:50px; width:55px; height:18px; "/>
+			<output id="output3" ref="/root/resData/resForm/rmn_year_dds" style="left:136px; top:75px; width:55px; height:18px; "/>
+		</group>
+		<caption id="caption14" ref="/root/resData/totcnt" style="left:347px; top:700px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

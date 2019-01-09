@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_SND_2600.xrw
+* 기능 : 판매 - 발송관리 - 수송단가조회
+* 작성일자 : 2009.02.23
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				//조회
+				function goSearch(){
+					var value = model.getValue("/root/reqData/searchData/aply_dt");
+					
+					if ( value == "" ){
+						commAlert("기준일자가 없습니다.");
+						return;
+					}
+					
+					var action = "se_snd_2610_l";
+					model.send(action);
+					
+					datagrid1.rows = datagrid1.fixedRows;
+					/* 라이트 그리드는 인스터스와 매핑을 하지는 않지만
+					   실제 컬럼 수만큼 컬럼의 인스턴스는 생성되어져 있어야한다.
+					   기본 70개를 선언하여 놓고 많으면 삭제하고 모자라면 인스턴스를 추가한다.   
+					*/   
+					var len = parseInt(model.getValue("/root/initData/rowInfo/rownum")) + 10;         			//datagrid2의 실제 컬럼수
+					var colLen = datagrid1.cols;                                                   	       	//datagrid2의 현재 선언된 컬럼수 
+
+					datagrid1.addRow();
+					if ( colLen > len ){
+						for ( var i = 0 ; i < colLen - len ; i++ ){
+							datagrid1.removeColumn();
+						}
+					} else if ( colLen < len ) {
+						for ( var i = 0 ; i < len - colLen ; i++ ){
+							datagrid1.addColumn("ref:c" + colLen + i + ";");
+						}
+					}
+					datagrid1.removeRow();					
+					
+					action = "se_snd_2620_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					model.refresh();
+				}
+				
+				function openRoutePopup(gubun){
+					
+					var root            = "/root/reqData/searchData";
+					var route_clsf	= model.getValue(root + "/route_clsf");
+					
+					if(route_clsf==""){ //전체일때 
+						model.setValue(root + "/route_clsf","01");
+						combo1.refresh();
+					}
+					
+					if ( gubun == ""){					
+						
+						var code     = model.getValue("/root/reqData/searchData/route_cd");				
+						 var codecnt = 0;
+						 for ( var i=0; i<code.length; i++ ) {
+						  ch = code.charAt(i);
+							if (! isNaN(ch)) {
+							  	codecnt++;
+							 }
+						 }	
+										 
+						 if(codecnt !=3){						 	
+							model.setValue("/root/reqData/searchData/route_nm", code);							
+						 	model.setValue("/root/reqData/searchData/route_cd", "");
+						 						 		
+						 }else{
+						 	model.setValue("/root/reqData/searchData/route_nm", "");							
+						 	model.setValue("/root/reqData/searchData/route_cd", code);
+						 }		 
+					
+						model.refresh();					
+						se_getRouteCd("N", "/root/reqData/searchData", "/root/reqData/searchData", "route_cd", "route_nm", "", "");
+					} else {
+						se_getRouteCd("P", "/root/reqData/searchData", "/root/reqData/searchData", "route_cd", "route_nm", "", "");
+					}					
+					
+					if(route_clsf==""){ //팝업 검색후 다사ㅣ 전체로 셋팅 
+						model.setValue(root + "/route_clsf","");
+						combo1.refresh();
+						
+					}
+								
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<curlist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</curlist>
+							<routelist>
+								<record>
+									<cd/>
+									<cdnm/>
+								</record>
+							</routelist>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<rowInfo>
+							<rownum/>
+						</rowInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<prt_plac_cd/>
+							<route_clsf/>
+							<route_cd/>
+							<route_nm/>
+							<aply_dt/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate>
+						</multiUpDate>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<aply_dt/>
+									<route_cnt/>
+									<resn/>
+									<incmg_dt_tm/>
+									<decid_stat_clsf/>
+									<aply_yn/>
+									<remk/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action = "se_snd_2600_m";
+					model.send(action);
+				
+					combo3.select(0);
+					combo1.select(0);
+					
+					var aply_dt	= model.getValue("/root/initData/aply_dt");
+					model.setValue("/root/reqData/searchData/aply_dt", aply_dt);
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_snd_2600_m" action="/se/snd/2600" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_snd_2610_l" action="/se/snd/2610" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/initData/rowInfo"/>
+			<submission id="se_snd_2620_l" action="/se/snd/2620" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/curlist/record"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;2,358;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" allowselection="false" autoresize="true" caption="분류^노선구분^코드^단가노선명^인쇄처^차종(톤)^거리(km)^본지^경제^특집^소년^스포츠조선^해당센터^일일수송료^적용일자" colsep="#" colwidth="58, 56, 45, 74, 53, 55, 56, 45, 44, 42, 45, 65, 265, 85, 112" datatype="delimeter" mergecellsfixedrows="bycolrec" rowheader="seq" rows="2" rowsep="|" selectionmode="free" style="left:10px; top:120px; width:926px; height:606px; ">
+			<col ref="c1"/>
+			<col ref="c2"/>
+			<col ref="c3"/>
+			<col ref="c4"/>
+			<col ref="c5"/>
+			<col ref="c6"/>
+			<col ref="c7"/>
+			<col ref="c8"/>
+			<col ref="c9"/>
+			<col ref="c10"/>
+			<col ref="c11"/>
+			<col ref="c12"/>
+			<col ref="c13"/>
+			<col ref="c14"/>
+			<col ref="c15"/>
+		</datagrid>
+		<group id="group_scr" class="gro_sel" overflow="hidden" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption3" class="list_cap01" style="left:287px; top:0px; width:70px; height:26px; ">인쇄처</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/prt_plac_cd" appearance="minimal" style="left:364px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/curlist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:60px; height:26px; ">노선</caption>
+			<caption id="caption2" class="list_cap01" style="left:485px; top:0px; width:80px; height:26px; ">노선구분</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/route_clsf" appearance="minimal" style="left:573px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/routelist/record">
+						<label ref="cdnm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption5" style="left:359px; top:73px; width:15px; height:20px; ">~</caption>
+			<caption id="caption1" class="list_cap01" style="left:695px; top:0px; width:80px; height:26px; ">기준일자</caption>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<button id="button1" navindex="2" crud="R" style="left:180px; top:74px; width:20px; height:18px; background-color:#dce5ec; border-color:#000000; border-style:solid; ">
+			<caption>...</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					openRoutePopup("P");
+				]]>
+			</script>
+		</button>
+		<input id="input1" ref="/root/reqData/searchData/route_cd" navindex="1" caption="코드" style="left:77px; top:74px; width:98px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[		
+					if ( event.keyCode == 13 ){
+						goSearch();
+					}else{
+						model.setValue("/root/reqData/searchData/route_nm", "");	
+						input22.refresh();
+					}
+
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="DOMFocusOut">
+				<![CDATA[
+						if ( event.keyCode == 9 ){
+							var code = input1.currentText;
+							model.setValue("/root/reqData/searchData/route_cd", code);						
+							if ( code == "" ){
+								return;
+							}						
+							openRoutePopup("");
+							if(submit_completed()){								
+								model.setfocus("input1");
+							}
+						}
+					]]>
+			</script>
+		</input>
+		<output id="input22" ref="/root/reqData/searchData/route_nm" appearance="output" style="left:203px; top:74px; width:90px; height:18px; "/>
+		<button id="button4" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<input id="input2" ref="/root/reqData/searchData/aply_dt" class="req" navindex="3" inputtype="date" caption="기준일자" style="left:788px; top:74px; width:90px; height:18px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					if ( event.keyCode == 13 ){
+						var code = input2.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/aply_dt", code);
+						goSearch();
+					}
+				]]>
+			</script>
+		</input>
+	</xhtml:body>
+</xhtml:html>

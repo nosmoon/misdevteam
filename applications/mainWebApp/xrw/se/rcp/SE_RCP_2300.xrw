@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_RCP_2300.xrw
+* 기능 : 입금관리 - 기간별지국입금현황
+* 작성일자 : 2009-04-02
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medi_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</medi_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<yymm1/>
+							<yymm2/>
+							<bo_cd/>
+							<bo_nm/>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<record>
+								<rcpm_yymm/>
+								<bo_head_nm/>
+								<cyov_bal/>
+								<net_sale_amt/>
+								<tot_amt/>
+								<rcpm_amt/>
+								<ajggiw/>
+								<jamt/>
+								<ajrgiw/>
+								<rcpm_rate/>
+								<fpymt_dt/>
+								<pdlv_altn_amt/>
+							</record>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_rcp_2310_l" action="/se/rcp/2310" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[									
+					var fryymm = getCurrentMonth();
+					fryymm = fryymm.substring(0,4)+"01";
+					model.setValue("/root/reqData/searchData/yymm1", fryymm);
+					model.setValue("/root/reqData/searchData/yymm2", getCurrentMonth());
+					ipt_yymm1.refresh();
+					ipt_yymm2.refresh();
+					
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				//지국선택(팝업에서 호출)
+				function jsGetBocdSeq(bo_cd,bo_seq,bo_nm,callgb){
+					model.setValue("/root/reqData/searchData/bo_cd", bo_cd+bo_seq);
+					model.setValue("/root/reqData/searchData/bo_nm", bo_nm);
+					
+					model.refresh();
+				}
+
+				//조회
+				function go_search(){						
+					if(!commReqCheck(group_scr)) return;
+					var strdt1 = model.getValue("/root/reqData/searchData/yymm1")+"01";
+					var strdt2 = model.getValue("/root/reqData/searchData/yymm2")+"30";
+					if(!se_chkOverDate(strdt1,strdt2)) return;
+					model.send("se_rcp_2310_l");
+					se_chkGridCnt("datagrid1");									
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="R" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_search();
+				
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:245px; top:0px; width:45px; height:26px; ">센터</caption>
+			<input id="input1" ref="/root/reqData/searchData/bo_cd" class="req" inputtype="button" format="99999-999" caption="센터코드" style="left:294px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+			
+						window.load(
+							"/xrw/se/comm/SE_COMM_1100.xrw", 
+							"modal", 
+							"", 
+							"left:30px; top:100px; width:660px; height:500; align:center; caption:hidden;"
+							,"/root/reqData/fwdData"
+							,"/root/bodyData/rcvData"
+						);					
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+			
+						model.setValue("/root/reqData/searchData/bo_nm", "");
+						se_getBocdnm("/root/reqData/searchData"
+									,"bo_cd"
+									,"bo_nm"
+									,"N"
+									,"");					
+					]]>
+				</script>
+			</input>
+			<output id="output2" ref="/root/reqData/searchData/bo_nm" style="left:398px; top:4px; width:100px; height:18px; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:65px; height:26px; ">기준년월</caption>
+			<input id="ipt_yymm1" ref="/root/reqData/searchData/yymm1" class="req" format="yyyy-mm" caption="기준년월1" style="left:69px; top:4px; width:70px; height:18px; "/>
+			<caption id="caption2" style="left:141px; top:5px; width:15px; height:15px; ">~</caption>
+			<input id="ipt_yymm2" ref="/root/reqData/searchData/yymm2" class="req" format="yyyy-mm" caption="기준년월2" style="left:155px; top:4px; width:70px; height:18px; "/>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="기준년월^센터대표^전월미수^순매출액^우송대체금액^합계^입금액^센터간이월^잔액^정리구좌이월^입금율^완납일자" colsep="^" colwidth="80, 95, 100, 100, 100, 100, 100, 108, 100, 60, 100" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:120px; width:926px; height:580px; ">
+			<col ref="rcpm_yymm" format="yyyy-mm"/>
+			<col ref="bo_head_nm"/>
+			<col ref="cyov_bal" format="#,###" style="text-align:right; "/>
+			<col ref="net_sale_amt" format="#,###" style="text-align:right; "/>
+			<col ref="pdlv_altn_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="tot_amt" format="#,###" style="text-align:right; "/>
+			<col ref="rcpm_amt" format="#,###" style="text-align:right; "/>
+			<col ref="ajggiw" format="(-)#,###" style="text-align:right; "/>
+			<col ref="jamt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="ajrgiw" format="(-)#,###" style="text-align:right; "/>
+			<col ref="rcpm_rate" format="#,##0.## %" style="text-align:right; "/>
+			<col ref="fpymt_dt" format="yyyy-mm-dd" style="text-align:center; "/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

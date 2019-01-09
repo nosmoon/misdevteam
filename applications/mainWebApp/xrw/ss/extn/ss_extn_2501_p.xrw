@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>지국검색</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<searchBranch>
+								<srch_word/>
+							</searchBranch>
+						</searchData>
+						<reqform>
+							<inForm/>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<userGrid>
+								<record>
+									<empseq/>
+									<cmpycd/>
+									<prn/>
+									<empnm/>
+									<deptnm/>
+								</record>
+							</userGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+						<searchBranch>
+							<deptcd/>
+							<partcd/>
+							<areacd/>
+							<bonm/>
+						</searchBranch>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="subBranch" ref="/root/reqData/searchData/searchBranch" action="/ss/extn/2502" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{				
+					modelCopyValue("/root/reqData/searchData/searchBranch/srch_word", "/root/reqData/reqform/inForm/extnflnm");
+					
+					if(model.getValue("/root/reqData/searchData/searchBranch/srch_word") != "")
+					{
+						//modelCopyValue("/root/reqData/searchData/searchBranch/srch_word", "/root/reqData/searchData/searchBranch/bonm");
+						
+						input1.refresh();
+						
+						model.send("subBranch", false);
+						model.copyNode("/root/resData/gridData/userGrid", "/root/tempData/resTemp/userGrid");
+						datagrid1.refresh();												
+					}
+					model.setFocus("input1");
+				}
+				
+				function search()
+				{
+					if(!commReqCheck("group_scr"))
+						return;
+																
+					model.send("subBranch", true);
+					model.copyNode("/root/resData/gridData/userGrid", "/root/tempData/resTemp/userGrid");
+					
+					datagrid1.refresh();					
+				}
+				
+				function onKeyDown()
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("multilinegrid1");
+						search();
+					}
+				}
+				
+				function onSelectBranch()
+				{
+					if(event.button == 1)
+					{
+						var resPath = model.property("BRANCH_RES_XPATH");
+	
+						//window.opener.javaScript.remakeNode(resPath);
+						window.opener.javaScript.makeValueNode(resPath+"/extnflnm", curRowRefColValue(datagrid1, "empnm"));
+						window.opener.javaScript.makeValueNode(resPath+"/dept_nm", curRowRefColValue(datagrid1, "deptnm"));
+						window.opener.javaScript.makeValueNode(resPath+"/acct_cd", curRowRefColValue(datagrid1, "empseq"));
+						window.opener.javaScript.makeValueNode(resPath+"/cmpycd", curRowRefColValue(datagrid1, "cmpycd"));
+						window.opener.javaScript.makeValueNode(resPath+"/prn", curRowRefColValue(datagrid1, "prn"));
+						//window.opener.javaScript.makeValueNode(resPath+"/deptnm", curRowRefColValue(multilinegrid1, "deptnm"));
+						//window.opener.javaScript.makeValueNode(resPath+"/partcd", curRowRefColValue(multilinegrid1, "partcd"));
+						//window.opener.javaScript.makeValueNode(resPath+"/partnm", curRowRefColValue(multilinegrid1, "partnm"));
+						//window.opener.javaScript.makeValueNode(resPath+"/areacd", curRowRefColValue(multilinegrid1, "areacd"));
+						//window.opener.javaScript.makeValueNode(resPath+"/areanm", curRowRefColValue(multilinegrid1, "areanm"));
+					
+						close();
+					}
+				}
+				
+				function close()
+				{
+					window.close();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="650" pageheight="400" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:50px; width:630px; height:25px; ">
+			<caption id="caption20" class="list_cap02" style="left:0px; top:0px; width:630px; height:25px; "/>
+			<input id="input1" ref="/root/reqData/searchData/searchBranch/srch_word" class="req" imemode="hangul" caption="검색어" style="left:5px; top:4px; width:150px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+						onKeyDown();
+					]]>
+				</script>
+			</input>
+			<button id="button2" class="btn_grid02" style="left:159px; top:5px; width:64px; height:17px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="PID1901caption4" class="tit01" style="left:10px; top:20px; width:630px; height:25px; text-align:left; ">사원 찾기</caption>
+		<group id="group2" style="left:10px; top:365px; width:630px; height:25px; ">
+			<caption id="caption1" class="list_cap03" style="left:0px; top:0px; width:630px; height:25px; text-align:left; "/>
+			<button id="button1" class="btn_grid02" style="left:316px; top:4px; width:42px; height:17px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();		
+					]]>
+				</script>
+			</button>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/userGrid/record" caption="이름^부서^사번" colwidth="130, 400,100" mergecellsfixedrows="bycolrec" rowsep="|" colsep="^" style="left:10px; top:80px; width:630px; height:280px; ">
+			<col ref="empnm"/>
+			<col ref="deptnm"/>
+			<col ref="empseq"/>
+			<col ref="cmpycd" visibility="hidden"/>
+			<col ref="prn" visibility="hidden"/>
+			<script type="javascript" ev:event="onrowchanged">
+				<![CDATA[
+					onSelectBranch();
+				]]>
+			</script>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

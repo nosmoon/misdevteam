@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 공장 -->
+							<dstb_rat_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</dstb_rat_cd>
+						</comboSet>
+					</initData>
+					<resData>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<dstb_rat_cd/>
+								<dstb_rat_nm/>
+								<basi/>
+								<calc_styl/>
+							</record>
+							<totalcnt/>
+						</gridData>
+						<searchData>
+						</searchData>
+						<totalcnt/>
+					</resData>
+					<reqData>
+						<gubun/>
+						<func_nm/>
+						<multiUpData/>
+					</reqData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+				init_controls();
+				
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					//-------------------------------------------------------------------------------
+					//	컨트롤의 기본 설정 적용 및 컨트롤 별 포맷 적용
+					//-------------------------------------------------------------------------------
+					function init_controls() {
+						//control의 기본 설정 적용
+										
+						//datagrid init
+						set_default(
+								"it was comment field"
+							,	datagrid1
+						);
+						
+		//				datagrid1.attribute("explorerbar") = "";
+				
+						//combo init
+						set_default(
+								"it was comment field"
+						);
+						//input init
+						set_default(
+								"it was comment field"
+						);
+						//input button init
+						set_default(
+								"it was comment field"
+						);
+						//input date init
+						set_default(
+								"it was comment field"
+						);
+		
+						//control format 설정 적용
+						
+						//코드
+						set_format(
+								"code"						//코드포맷,중간정렬,중간정렬
+						);
+						
+						//금액
+						set_format(
+								"number5"						//숫자포맷,오른쪽정렬,중간정렬,(#,###)
+						);
+						
+						//날짜
+						set_format(
+								"date_1"						//날짜포맷,중간정렬,중간정렬,yyyy-mm-dd
+						);
+						
+						//문자열(왼쪽)
+						set_format(
+								"string_l"						//문자열,왼쪽정렬,중간정렬
+						);
+					}
+			
+					// 조회
+					function funSelect() {
+
+						datagrid1.clearStatus();
+						model1.send("mt_close_4000");
+						model1.copyNode("/root/resData/gridData","/root/tempData/gridData");
+
+						var totalCnt = model1.getValue("/root/tempData/gridData/totalcnt");
+						if (totalCnt == 0) {
+							datagrid1.addStatus(1, "insert");
+							datagrid1.deleteRow(1);
+						}
+							
+						datagrid1.refresh();					
+						datagrid1.isReadOnly( 1, 1, eval(totalCnt), 4)  = true;
+					
+					}
+					
+					// 저장(입력, 수정, 삭제)
+					function funSave() {
+						//그리드 값체크
+						if(!datagrid_data_check("datagrid1")){
+							show_message("대상이 없습니다.");
+							return false;
+						}
+						/* 필수입력 Check */
+						if(!commGridReqCheck("datagrid1")) return;
+						
+						if (window.alert("저장하시겠습니까?", "확인", 1) != 1) return;
+						
+						model1.setValue("/root/reqData/multiUpData",datagrid1.getUpdateData());
+
+						model1.send("mt_close_4001");
+						
+						if(submit_completed()) {
+							alert("저장 완료되었습니다.");
+						}
+						funSelect();
+					}
+					
+					
+					// 행추가
+					function funRowAdd() {
+						
+						datagrid1.addRow(true, true);
+						
+						var iAddRow = datagrid1.row;
+						if (iAddRow == '1') datagrid1.addStatus(iAddRow, "insert");
+					}
+					
+					// 행삭제
+					function funRowDelete() {
+						
+						var iSelectedRow = 0;
+						var sDelGubun = "";
+						
+						iSelectedRow = datagrid1.row;
+						sDelGubun = model1.getValue("/root/resData/gridData/record["+iSelectedRow+"]/dstb_rat_cd");
+
+						if(sDelGubun != "") {
+							datagrid1.addStatus(iSelectedRow, "delete");
+						} else {
+							datagrid1.deleteRow(iSelectedRow,true);
+						}
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript" src="/js/fcmc_common.js"/>
+			<submission id="mt_close_4000" action="/mt/close/4000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/searchData" resultref="/root/tempData"/>
+			<submission id="mt_close_4001" action="/mt/close/4001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+			<submission id="mt_close_4002" action="/mt/close/4002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript">
+			<![CDATA[
+			var	_oth_clsf = "1";
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="2,403;2,10;1,5;1,921;2,33;2,48;">
+		<button id="button4" class="btn05" CRUD="R" style="left:761px; top:95px; width:60px; height:21px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[	funRowAdd();	]]>
+			</script>
+		</button>
+		<button id="button6" class="btn05" CRUD="R" style="left:826px; top:95px; width:60px; height:21px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[	funRowDelete();	]]>
+			</script>
+		</button>
+		<!-- 그리드 셋팅 시작 -->
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="회사코드^배부비코드^배부비명^기준^계산식" colsep="#" colwidth="5, 100, 150, 130, 450" explorerbar="sort" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:15px; top:125px; width:920px; height:620px; ">
+			<col ref="cmpy_cd" type="output" visibility="hidden"/>
+			<col class="req" ref="dstb_rat_cd" type="input" caption="배부비코드" style="left:20px; top:20px; width:70px; height:20px; text-align:center; "/>
+			<col class="req" ref="dstb_rat_nm" type="input" caption="배부비명" style="left:20px; top:20px; width:70px; height:20px; text-align:left; "/>
+			<col class="req" ref="basi" type="input" caption="기준" style="left:20px; top:20px; width:70px; height:20px; text-align:left; "/>
+			<col ref="calc_styl" type="input" caption="계산식" calss="req" style="left:90px; top:20px; width:100px; height:20px; text-align:center; "/>
+		</datagrid>
+		<!-- 그리드 셋팅 끝 -->
+		<group id="grp_buttons" class="gro_sel" style="left:10px; top:50px; width:926px; height:21px; ">
+			<button id="button1" class="btn05" CRUD="R" style="left:677px; top:0px; width:60px; height:21px; ">
+				<caption>조 회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[	funSelect();	]]>
+				</script>
+			</button>
+			<button id="button2" class="btn05" style="left:860px; top:0px; width:65px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					formClose();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn05" CRUD="R" style="left:799px; top:0px; width:60px; height:21px; ">
+				<caption>저 장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[	funSave();	]]>
+				</script>
+			</button>
+			<button id="btn_help" class="btn05" CRUD="R" style="left:738px; top:0px; width:60px; height:21px; ">
+				<caption>엑셀</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var grid = null;
+					
+					if(_oth_clsf == "1"){			
+						grid = datagrid1;
+					}
+					
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						grid.saveExcel(filename, "sheetname: ");
+					}	
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+	</xhtml:body>
+</xhtml:html>

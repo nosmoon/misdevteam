@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>공통매입세액안분계산내역 팝업(FC_ACCT_6251)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<!-- 저장소 -->
+					<popupData>
+						<fwdData1>
+							<comn_purc_suply_amt/>
+							<comn_purc_vat_amt/>
+							<suply_amt_etc/>
+							<rtax_suply_amt_etc/>
+							<rtax_enpr_ratio/>
+							<non_dduc_purc_vat_amt/>
+							<calc_aft_suply_amt/>
+						</fwdData1>
+					</popupData>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript" src="/js/fcmc_common.js"/>
+		</model>
+		<script type="javascript">
+			<![CDATA[
+				function se_eval(strNum){
+					var rtnNum = 0;
+					if(strNum != "") rtnNum = eval(strNum);
+					return rtnNum; 
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;" style="font-family:굴림; ">
+		<group id="group1" class="gro_sel" style="left:15px; top:85px; width:420px; height:270px; ">
+			<caption id="caption42" class="list_cap02" style="left:224px; top:171px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption11" class="list_cap02" style="left:224px; top:84px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption33" class="list_cap02" style="left:224px; top:113px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption14" class="list_cap02" style="left:224px; top:26px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption9" class="list_cap02" style="left:0px; top:26px; width:225px; height:30px; text-align:left; ">(9)과세, 면세사업 공통매입 공급가액</caption>
+			<caption id="caption17" class="list_cap02" style="left:224px; top:55px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption40" class="list_cap03" style="left:0px; top:1px; width:225px; height:26px; text-align:center; ">구분</caption>
+			<caption id="caption43" class="list_cap02" style="left:224px; top:142px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption51" class="list_cap02" style="left:224px; top:200px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption16" class="list_cap02" style="left:0px; top:55px; width:225px; height:30px; text-align:left; ">(10)과세,면세사업 공통매입 세액</caption>
+			<caption id="caption19" class="list_cap02" style="left:0px; top:84px; width:225px; height:30px; text-align:left; ">(11)총 공급가액등</caption>
+			<caption id="caption32" class="list_cap02" style="left:0px; top:113px; width:225px; height:30px; text-align:left; ">(12)면세 공급가액등</caption>
+			<caption id="caption5" class="list_cap02" style="left:0px; top:142px; width:225px; height:30px; text-align:left; ">(A)면세비율((12)/(11))</caption>
+			<caption id="caption25" class="list_cap02" style="left:0px; top:171px; width:225px; height:30px; text-align:left; ">(13)불공제매입세액((10) * A)</caption>
+			<caption id="caption30" class="list_cap02" style="left:0px; top:200px; width:225px; height:30px; text-align:left; ">안분후 공급가액((13)/0.1)</caption>
+			<caption id="caption8" class="list_cap03" style="left:224px; top:1px; width:171px; height:26px; text-align:center; ">금액</caption>
+			<input id="draft_expn_amt" ref="/root/popupData/fwdData1/comn_purc_suply_amt" navindex="11" format="(-)#,###" style="left:230px; top:32px; width:160px; height:18px; text-align:right; "/>
+			<input id="input9" ref="/root/popupData/fwdData1/rtax_suply_amt_etc" navindex="11" format="(-)#,###" style="left:230px; top:119px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (A)면세비율, (13)불공제매입세액, 안분후 공급가액 값을 새로 계산한다.
+						
+						//1.A(면세비율) 계산
+						var tmp_a12 = model1.getValue("/root/popupData/fwdData1/rtax_suply_amt_etc"); //12번.면세공급가액
+						var tmp_a11 = model1.getValue("/root/popupData/fwdData1/suply_amt_etc"); //11번.총 공급가액
+						
+						//1_1 계산수행
+						var tmpA_result = Number((tmp_a12) / Number(tmp_a11));
+						var tmpA_str = String(tmpA_result); //소수 8자리로 자르기 위해 문자열로 변환
+						var result_a = Number(tmpA_str.substring(0,10));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/rtax_enpr_ratio",result_a);
+
+						//2.(불공제매입세액 13번) 계산
+						var tmp13_10 = model1.getValue("/root/popupData/fwdData1/comn_purc_vat_amt"); //10번.과세,면세사업 공통매입 세액
+						var tmp13_a = model1.getValue("/root/popupData/fwdData1/rtax_enpr_ratio"); //A번.면세비율
+						//2_1 계산 수행
+						var tmp13_result = Number(tmp13_10) * Number(tmp13_a);
+						//2_2 불공제매입세액은 금액이 소수점으로 나오지 않으므로 소수자리는 잘라버린다.
+						var result13 = parseInt(tmp13_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/non_dduc_purc_vat_amt",result13);
+						
+						//3.안분후 공급가액 계산
+						var tmp_an1 = model1.getValue("/root/popupData/fwdData1/non_dduc_purc_vat_amt"); //불공제매입세액						
+						//3_1 계산 수행
+						var tmp_an_result= Number(tmp_an1) / 0.1;
+						//3_2 소수자리 잘라버린다.
+						var result_an = parseInt(tmp_an_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/calc_aft_suply_amt",result_an);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input20" ref="/root/popupData/fwdData1/calc_aft_suply_amt" navindex="11" format="(-)#,###" style="left:230px; top:206px; width:160px; height:18px; text-align:right; "/>
+			<input id="input14" ref="/root/popupData/fwdData1/non_dduc_purc_vat_amt" navindex="11" format="(-)#,###" style="left:230px; top:177px; width:160px; height:18px; text-align:right; "/>
+			<input id="input16" ref="/root/popupData/fwdData1/rtax_enpr_ratio" navindex="11" format="(-)#,###.#" style="left:230px; top:148px; width:160px; height:18px; text-align:right; "/>
+			<input id="input1" ref="/root/popupData/fwdData1/suply_amt_etc" navindex="11" format="(-)#,###" style="left:230px; top:90px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (A)면세비율, (13)불공제매입세액, 안분후 공급가액 값을 새로 계산한다.
+						
+						//1.A(면세비율) 계산
+						var tmp_a12 = model1.getValue("/root/popupData/fwdData1/rtax_suply_amt_etc"); //12번.면세공급가액
+						var tmp_a11 = model1.getValue("/root/popupData/fwdData1/suply_amt_etc"); //11번.총 공급가액
+						
+						//1_1 계산수행
+						var tmpA_result = Number((tmp_a12) / Number(tmp_a11));
+						var tmpA_str = String(tmpA_result); //소수 8자리로 자르기 위해 문자열로 변환
+						var result_a = Number(tmpA_str.substring(0,10));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/rtax_enpr_ratio",result_a);
+
+						//2.(불공제매입세액 13번) 계산
+						var tmp13_10 = model1.getValue("/root/popupData/fwdData1/comn_purc_vat_amt"); //10번.과세,면세사업 공통매입 세액
+						var tmp13_a = model1.getValue("/root/popupData/fwdData1/rtax_enpr_ratio"); //A번.면세비율
+						//2_1 계산 수행
+						var tmp13_result = Number(tmp13_10) * Number(tmp13_a);
+						//2_2 불공제매입세액은 금액이 소수점으로 나오지 않으므로 소수자리는 잘라버린다.
+						var result13 = parseInt(tmp13_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/non_dduc_purc_vat_amt",result13);
+						
+						//3.안분후 공급가액 계산
+						var tmp_an1 = model1.getValue("/root/popupData/fwdData1/non_dduc_purc_vat_amt"); //불공제매입세액						
+						//3_1 계산 수행
+						var tmp_an_result= Number(tmp_an1) / 0.1;
+						//3_2 소수자리 잘라버린다.
+						var result_an = parseInt(tmp_an_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/calc_aft_suply_amt",result_an);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input3" ref="/root/popupData/fwdData1/comn_purc_vat_amt" navindex="11" format="(-)#,###" style="left:230px; top:61px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (A)면세비율, (13)불공제매입세액, 안분후 공급가액 값을 새로 계산한다.
+						
+						//1.A(면세비율) 계산
+						var tmp_a12 = model1.getValue("/root/popupData/fwdData1/rtax_suply_amt_etc"); //12번.면세공급가액
+						var tmp_a11 = model1.getValue("/root/popupData/fwdData1/suply_amt_etc"); //11번.총 공급가액
+						
+						//1_1 계산수행
+						var tmpA_result = Number((tmp_a12) / Number(tmp_a11));
+						var tmpA_str = String(tmpA_result); //소수 8자리로 자르기 위해 문자열로 변환
+						var result_a = Number(tmpA_str.substring(0,10));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/rtax_enpr_ratio",result_a);
+
+						//2.(불공제매입세액 13번) 계산
+						var tmp13_10 = model1.getValue("/root/popupData/fwdData1/comn_purc_vat_amt"); //10번.과세,면세사업 공통매입 세액
+						var tmp13_a = model1.getValue("/root/popupData/fwdData1/rtax_enpr_ratio"); //A번.면세비율
+						//2_1 계산 수행
+						var tmp13_result = Number(tmp13_10) * Number(tmp13_a);
+						//2_2 불공제매입세액은 금액이 소수점으로 나오지 않으므로 소수자리는 잘라버린다.
+						var result13 = parseInt(tmp13_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/non_dduc_purc_vat_amt",result13);
+						
+						//3.안분후 공급가액 계산
+						var tmp_an1 = model1.getValue("/root/popupData/fwdData1/non_dduc_purc_vat_amt"); //불공제매입세액						
+						//3_1 계산 수행
+						var tmp_an_result= Number(tmp_an1) / 0.1;
+						//3_2 소수자리 잘라버린다.
+						var result_an = parseInt(tmp_an_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData1/calc_aft_suply_amt",result_an);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+		</group>
+		<caption id="caption1" class="tit01" style="left:10px; top:6px; width:295px; height:27px; ">3.공통매입세액 안분계산내역</caption>
+		<group id="grp_buttons" class="gro_sel" style="left:10px; top:51px; width:400px; height:21px; ">
+			<button id="btn_insert" class="btn02" style="left:285px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//부모 인스턴스로 값 셋팅
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/comn_purc_suply_amt", model.getValue("/root/popupData/fwdData1/comn_purc_suply_amt")); //과세,면세사업 공통매입 공급가액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/comn_purc_vat_amt", model.getValue("/root/popupData/fwdData1/comn_purc_vat_amt")); //과세, 면세사업 공통매입 세액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/suply_amt_etc", model.getValue("/root/popupData/fwdData1/suply_amt_etc")); //총 공급가액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/rtax_suply_amt_etc", model.getValue("/root/popupData/fwdData1/rtax_suply_amt_etc")); //면세 공급가액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/rtax_enpr_ratio", model.getValue("/root/popupData/fwdData1/rtax_enpr_ratio")); //면세비율
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/calc_aft_suply_amt", model.getValue("/root/popupData/fwdData1/calc_aft_suply_amt")); //안분후 공급가액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/non_dduc_purc_vat_amt", model.getValue("/root/popupData/fwdData1/non_dduc_purc_vat_amt")); //불공제매입세액
+
+						window.close();	
+					]]>
+				</script>
+			</button>
+			<button id="btn_update" class="btn02" style="left:344px; top:0px; width:52px; height:21px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();	
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

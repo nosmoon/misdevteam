@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!--*************************************************************************************************
+* 파일명 : SE_BOI_1000.xrw
+* 기능 : 지국관리 - 지국주소일괄변경
+* 작성일자 : 2009-02-02
+* 작성자 : 배창희
+**************************************************************************************************-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<issu_dt/>
+							<ser_no1/>
+							<ser_no2/>
+							<send_clos_grp_clsf>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</send_clos_grp_clsf>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<issu_dt/>
+							<send_clos_grp_clsf/>
+						</fwdData>
+						<searchData>
+							<issu_dt/>
+							<send_clos_grp_clsf/>
+						</searchData>
+						<reqform>
+							<multiUpDate/>
+							<accflag/>
+						</reqform>
+					</reqData>
+					<resData>
+						<resform>
+							<issu_dt/>
+							<send_clos_grp_clsf/>
+							<clos_yn/>
+							<clos_tms/>
+							<setl_stat_nm/>
+							<clos_dt/>
+							<ser_no1/>
+							<ser_no2/>
+							<sect_remk/>
+							<remk/>
+							<chg_matt/>
+							<tab1grid>
+								<record>
+									<rstat/>
+									<send_proc_seq/>
+									<prt_dt/>
+									<route_clsf/>
+									<route_clsf_nm/>
+									<medi_cd/>
+									<medi_nm/>
+									<sect_cd/>
+									<sect_nm/>
+									<pcnt/>
+									<clr_pcnt/>
+									<add_prt_seq/>
+								</record>
+							</tab1grid>
+							<tab2grid>
+								<record>
+									<medi_nm/>
+									<sect_nm/>
+									<pcnt/>
+									<rptv_route_prt_plac_nm/>
+									<ecnt_nm/>
+									<ledt_nm/>
+									<gnr_qty/>
+									<spsl_qty/>
+									<tot_qty/>
+								</record>
+							</tab2grid>
+						</resform>
+						<gridData>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData>
+							<bo_cd/>
+							<send_plac_seq/>
+							<tempcd/>
+						</keyData>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="se_qty_2300_m" action="/se/qty/2300" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_qty_2305_m" action="/se/qty/2305" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/initData/comboSet/medicombo"/>
+			<submission id="se_qty_2310_l" action="/se/qty/2310" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resform"/>
+			<submission id="se_qty_2320_l" action="/se/qty/2320" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resform"/>
+			<submission id="se_qty_2330_a" action="/se/qty/2330" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<submission id="se_qty_2340_a" action="/se/qty/2340" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform" resultref="/root/resData/MsgData"/>
+			<submission id="se_qty_2350_a" action="/se/qty/2350" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resform" resultref="/root/resData/MsgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[				
+					jsPageInit();
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			
+				//초기화면 세팅
+				function jsPageInit(){
+					
+					model.send("se_qty_2300_m");	
+					
+					srch_send_clos_grp.select(0);					
+					cbo_send_clos_grp.select(0);
+						
+					ipt_issu_dt.disabled = false;
+					cbo_send_clos_grp.disabled = false;
+				
+					model.setValue("/root/reqData/searchData/issu_dt", getCurrentDate());
+					model.setValue("/root/resData/resform/issu_dt", model.getValue("/root/initData/comboSet/issu_dt"));
+					model.setValue("/root/resData/resform/ser_no1", model.getValue("/root/initData/comboSet/ser_no1"));
+					model.setValue("/root/resData/resform/ser_no2", model.getValue("/root/initData/comboSet/ser_no2"));
+
+					datagrid2.removeRow();
+					model.refresh();
+					
+				}
+				
+				//조회
+				function go_search(){
+						
+					var iSel = switch1.selectedIndex;
+					
+					ipt_issu_dt.disabled = true;
+					cbo_send_clos_grp.disabled = true;
+					
+					if(iSel == 0){
+						if(commReqCheck(group_scr)) model.send("se_qty_2310_l");
+							
+						if(submit_completed()){
+							var closyn = model.getValue("/root/resData/resform/clos_yn");
+							if(closyn == ""){
+								commAlert("검색결과가 없습니다.");
+							}else{
+								if(submit_completed()) jsmergelist();						
+								model.setValue("/root/reqData/reqform/accflag", "U");
+							}
+						}
+					}else{
+						if(commReqCheck(group_scr)) model.send("se_qty_2320_l");
+							
+						if(submit_completed()){
+							var closyn = model.getValue("/root/resData/resform/clos_yn");
+							if(closyn == "") commAlert("검색결과가 없습니다.");
+						}
+					}					
+				}
+				
+				//발송정보 추가팝업에서 선택후
+				function jsSetissu(prt_dt,route_clsf,route_nm){
+	
+					datagrid2.refresh();
+					var oriLen = datagrid2.rows;	
+					
+					model.makeNode("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/rstat");
+					model.setValue("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/rstat","insert");	
+					datagrid2.valueMatrix(oriLen-1, 1) = "insert";	
+					model.makeNode("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/send_proc_seq");
+					model.setValue("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/send_proc_seq","000");	
+					datagrid2.valueMatrix(oriLen-1, 2) = "000";	
+					model.makeNode("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/prt_dt");
+					model.setValue("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/prt_dt",prt_dt);
+					datagrid2.valueMatrix(oriLen-1, 3) = prt_dt;
+					model.makeNode("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/route_clsf");
+					model.setValue("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/route_clsf",route_clsf);
+					datagrid2.valueMatrix(oriLen-1, 4) = route_clsf;
+					model.makeNode("/root/resData/resform/tab1grid/record[" + (oriLen-2)+ "]/route_nm");
+					model.setValue("/root/resData/resform/tab1grid/record[" + (oriLen-2) + "]/route_nm",route_nm);
+					datagrid2.valueMatrix(oriLen-1, 5) = route_nm;
+							
+				}			
+				
+				//발송정보 추가팝업에서 선택후
+				function jsSetstatus(){
+					
+					datagrid2.refresh();	
+					
+					var maxseq=0;
+					var rseq=0;
+					var strseq = "";
+					for(var i=2; i<datagrid2.rows; i++){
+						rseq = se_eval(datagrid2.valueMatrix(i, 2));
+						if(maxseq < rseq)  maxseq = rseq;
+					}
+					
+					//순번 부여
+					maxseq++;
+					for(var i=2; i<datagrid2.rows; i++){
+						if(datagrid2.valueMatrix(i, 2)=="000"){
+							//datagrid2.addStatus(i, "insert");
+							strseq = lpad(maxseq+"", 3, "0");
+							model.setValue("/root/resData/resform/tab1grid/record[" + (i-1) + "]/send_proc_seq", strseq);
+							datagrid2.valueMatrix(i, 2) = strseq;	
+						}						
+					}
+					
+					//상태 재세팅
+					for(var i=2; i<datagrid2.rows; i++){
+						if(datagrid2.valueMatrix(i, 1)=="insert") datagrid2.addStatus(i, "insert");
+						else if(datagrid2.valueMatrix(i, 1)=="delete") datagrid2.addStatus(i, "delete");						
+					}
+						
+					jsmergelist();		
+				}				
+				
+				//셀병합
+				function jsmergelist(){
+					
+					var begin_r = 2;
+					var tmpseq = "";
+					for(var i=2; i<datagrid2.rows; i++){
+						
+						//순번바뀌면 병합
+						if(tmpseq != datagrid2.valueMatrix(i,2)){
+							if(i != 2){
+								datagrid2.mergebyfree(begin_r,2,i-1,2);
+								datagrid2.mergebyfree(begin_r,3,i-1,3);
+								datagrid2.mergebyfree(begin_r,5,i-1,5);
+							}
+							begin_r = i;
+							tmpseq = datagrid2.valueMatrix(i,2);
+						}
+						//마지막 로우는 병합
+						if((i+1) == datagrid2.rows){
+							datagrid2.mergebyfree(begin_r,2,i,2);
+							datagrid2.mergebyfree(begin_r,3,i,3);
+							datagrid2.mergebyfree(begin_r,5,i,5);
+						}
+					}
+				}
+						
+				//발송처 팝업검색
+				function getSendPlacCode(){
+					/* 팝업을 위한 전역 변수를 사용하여 가져갈 코드값과 결과 값을 받을 경로를 지정한다. */
+					model.property("bo_cd_path") 			= "/root/tempData/keyData/bo_cd";								
+					model.property("bo_seq_path")			= "/root/tempData/keyData/tempcd";								
+					model.property("send_plac_seq_path") 	= "/root/tempData/keyData/send_plac_seq";
+					model.property("send_plac_nm_path") 	= "/root/resData/resform/send_plac_nm";
+					model.property("area_cd_path") 	    	= "/root/tempData/keyData/tempcd";
+					model.property("area_nm_path") 		= "/root/tempData/keyData/tempcd";
+					
+					window.load(
+							"/xrw/se/comm/SE_COMM_2000.xrw", 
+							"modal", 
+							"", 
+							"left:30px; top:200px; width:655px; height:520; align:center; resize:false; caption:hidden"
+							,""
+							,""
+						);
+						
+					var bo_cd = model.getValue("/root/tempData/keyData/bo_cd");
+					var send_plac_seq = model.getValue("/root/tempData/keyData/send_plac_seq");
+					model.setValue("/root/resData/resform/bo_cd"	, bo_cd + send_plac_seq);
+					
+					model.refresh();
+				}
+
+				//발송처 검색
+				function goCodeSearch(){
+					var code     = model.getValue("/root/resData/resform/bo_cd");
+					code         = code.replace("-", "");
+					
+					if ( code.length != 8 ) {
+						return;
+					}
+					
+					var bo_cd, send_plac_seq;
+					bo_cd         = code.substr(0, 5);
+					send_plac_seq = code.substr(5);
+					
+					model.setValue("/root/reqData/searchData/searchCdnm/bo_cd", bo_cd);
+					model.setValue("/root/reqData/searchData/searchCdnm/send_plac_seq", send_plac_seq);
+					
+					modelSendNoMake("se_comm_2020_s", "/se/comm/2020", "/root/reqData/searchData/searchCdnm", "/root/resData/code");
+					
+					model.setValue("/root/resData/resform/send_plac_nm", model.getValue("/root/resData/code/record/send_plac_nm"));
+					model.refresh();
+				}
+
+				//인쇄전표출력
+				function goReport(gubun){
+					var report	= "";
+					if(gubun == "01"){
+						report	= "SP_SE_QTY_2670_P";
+					}else{
+						report	= "SP_SE_QTY_2350_P";
+					}
+													
+					var report_gubun = model.getValue("/root/reqData/searchData/gubun");
+					//var report_index		= parseInt(report_gubun) - 1;							
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+										
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+					makeNodeValue("/root/oz_data/ozrName", "se/" + report);
+					/*									
+					makeNodeValue("/root/oz_data/conParam/sv_url","19110");					
+					makeNodeValue("/root/oz_data/conParam/sv_uid");					
+					makeNodeValue("/root/oz_data/conParam/sv_bonm");					
+					makeNodeValue("/root/oz_data/conParam/uv_line");					
+					makeNodeValue("/root/oz_data/conParam/uv_summary");	
+					*/										
+														
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", model.property("ss_cmpycd"));	
+					makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers",model.property("ss_emp_no"));
+						
+					makeNodeValue("/root/oz_data/odiParam/iv_issu_dt"	, model.getValue("/root/resData/resform/issu_dt"));
+					makeNodeValue("/root/oz_data/odiParam/iv_send_clos_grp_clsf"	, model.getValue("/root/resData/resform/send_clos_grp_clsf"));
+					makeNodeValue("/root/oz_data/odiParam/iv_clos_tms"	, model.getValue("/root/resData/resform/clos_tms"));				
+				
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,726;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<button id="button7" class="btn03" crud="R" style="left:353px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				go_search();
+								
+				]]>
+			</script>
+		</button>
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:70px; height:26px; ">발행일자</caption>
+			<input id="ipt_issu_dt_sch" ref="/root/reqData/searchData/issu_dt" class="req" inputtype="date" format="yyyy-mm-dd" caption="발행일자" style="left:74px; top:4px; width:90px; height:18px; "/>
+			<caption id="caption1" class="list_cap01" style="left:180px; top:0px; width:70px; height:26px; ">마감구분</caption>
+			<select1 id="srch_send_clos_grp" ref="/root/reqData/searchData/send_clos_grp_clsf" appearance="minimal" style="left:254px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/send_clos_grp_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" crud="C" style="left:421px; top:44px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				clearNode("/root/resData/resform");	
+				model.reset();
+				jsPageInit();
+				model.setValue("/root/reqData/reqform/accflag","I");	
+				model.setValue("/root/resData/resform/clos_yn","N");	
+				model.setValue("/root/resData/resform/setl_stat_nm","N");	
+				cbo_send_clos_grp.select(0);
+				model.refresh();
+					
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn03" crud="U" style="left:489px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(switch1.selectedIndex == 1) return;
+				
+				if(!commConfirmBox("저장 하시겠습니까?", "저장")) return;
+				
+				var sAccflag = model.getValue("/root/reqData/reqform/accflag");	
+				
+				if(commReqCheck(group_dtl)){
+					
+					model.copyNode("/root/reqData/reqform","/root/resData/resform");
+					
+					var node1 = instance1.createElement("accflag");	
+					var node2 = instance1.createElement("multiUpDate");	
+					var selnode = instance1.selectSingleNode("/root/reqData/reqform");		
+					selnode.appendChild(node1);		
+					selnode.appendChild(node2);		
+										
+					model.setValue("/root/reqData/reqform/accflag",sAccflag);
+					model.setValue("/root/reqData/reqform/multiUpDate",datagrid2.getUpdateData());
+					
+					model.send("se_qty_2330_a");
+					
+					//조회 태움
+					if(submit_completed()){
+						model.setValue("/root/reqData/searchData/issu_dt", model.getValue("/root/resData/resform/issu_dt"));
+						srch_send_clos_grp.value = cbo_send_clos_grp.value;
+						srch_send_clos_grp.refresh();
+						ipt_issu_dt_sch.refresh();
+						go_search();
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<group id="group_dtl" class="gro_line" style="left:10px; top:120px; width:926px; height:176px; ">
+			<caption id="caption4" class="list_cap02" style="left:0px; top:75px; width:300px; height:26px; "/>
+			<caption id="caption3" class="list_cap02" style="left:0px; top:50px; width:300px; height:26px; "/>
+			<caption id="caption5" class="list_cap02" style="left:0px; top:100px; width:300px; height:26px; "/>
+			<caption id="caption37" class="list_cap02" style="left:0px; top:25px; width:300px; height:26px; "/>
+			<caption id="caption96" class="list_cap03" style="left:0px; top:75px; width:110px; height:26px; text-align:center; ">마감일시</caption>
+			<caption id="caption25" class="list_cap03" style="left:0px; top:100px; width:110px; height:26px; text-align:center; ">마감자</caption>
+			<caption id="caption27" class="list_cap03" style="left:299px; top:0px; width:40px; height:51px; text-align:center; ">
+				<![CDATA[섹션
+비고]]>
+			</caption>
+			<caption id="caption29" class="list_cap03" style="left:0px; top:25px; width:110px; height:26px; text-align:center; ">마감구분</caption>
+			<select1 id="cbo_send_clos_grp" ref="/root/resData/resform/send_clos_grp_clsf" class="req" appearance="minimal" caption="마감구분" style="left:114px; top:29px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/send_clos_grp_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="ipt_issu_dt" ref="/root/resData/resform/issu_dt" class="req" navindex="47" inputtype="date" caption="발행일자" style="left:114px; top:4px; width:100px; height:18px; "/>
+			<caption id="caption2" class="list_cap03" style="left:0px; top:50px; width:110px; height:26px; text-align:center; ">마감여부</caption>
+			<output id="output1" ref="/root/resData/resform/clos_yn" style="left:114px; top:54px; width:100px; height:18px; "/>
+			<output id="output2" ref="/root/resData/resform/setl_stat_nm" style="left:114px; top:104px; width:110px; height:18px; "/>
+			<output id="output3" ref="/root/resData/resform/clos_dt" style="left:114px; top:79px; width:130px; height:18px; "/>
+			<caption id="caption6" class="list_cap02" style="left:0px; top:125px; width:300px; height:26px; "/>
+			<caption id="caption8" class="list_cap02" style="left:0px; top:150px; width:300px; height:26px; "/>
+			<caption id="caption9" class="list_cap03" style="left:0px; top:125px; width:110px; height:26px; text-align:center; ">본지호수</caption>
+			<caption id="caption10" class="list_cap03" style="left:0px; top:150px; width:110px; height:26px; text-align:center; ">소년호수</caption>
+			<input id="input1" ref="/root/resData/resform/ser_no1" style="left:114px; top:129px; width:100px; height:18px; "/>
+			<input id="input2" ref="/root/resData/resform/ser_no2" style="left:114px; top:154px; width:100px; height:18px; "/>
+			<caption id="caption11" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">발행일자</caption>
+			<textarea id="textarea1" ref="/root/resData/resform/sect_remk" style="left:339px; top:0px; width:587px; height:50px; vertical-align:top; "/>
+			<caption id="caption12" class="list_cap03" style="left:299px; top:50px; width:40px; height:126px; text-align:center; ">
+				<![CDATA[비
+고]]>
+			</caption>
+			<caption id="caption13" class="list_cap03" style="left:613px; top:50px; width:40px; height:126px; text-align:center; ">
+				<![CDATA[변
+동
+현
+황]]>
+			</caption>
+			<textarea id="textarea3" ref="/root/resData/resform/remk" style="left:339px; top:50px; width:273px; height:126px; vertical-align:top; "/>
+			<textarea id="textarea2" ref="/root/resData/resform/chg_matt" style="left:653px; top:50px; width:273px; height:126px; vertical-align:top; "/>
+		</group>
+		<button id="button1" class="btn03" crud="D" style="left:557px; top:44px; width:63px; height:21px; ">
+			<caption>마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+								
+				if(!commConfirmBox("마감실행 하시겠습니까?", "마감")) return;
+				
+				var listyn = "N";	
+				var saveyn = "N";		
+				for(var i=2; i<datagrid2.rows; i++){
+					if(datagrid2.rowStatus(i) == 0) listyn = "Y";
+					if(datagrid2.rowStatus(i) == 1) saveyn = "Y";
+				}		
+						
+				if(saveyn == "Y"){
+					commAlert("추가된 내역을 저장후 마감실행 해야합니다.");
+					return;
+				}
+				
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(accflag != "U" || listyn=="N"){
+					commAlert("조회된 내역이 없습니다.");
+					return;
+				}
+				
+				if(commReqCheck(group_dtl)){				
+					var accflag = model.getValue("/root/reqData/reqform/accflag");	
+					model.copyNode("/root/reqData/reqform","/root/resData/resform");
+					model.setValue("/root/reqData/reqform/clos_yn", "Y");		//마감
+					
+					model.send("se_qty_2340_a");
+					model.makeNode("/root/reqData/reqform/accflag");
+					model.setValue("/root/reqData/reqform/accflag", accflag);
+					
+					if(submit_completed()){
+						model.setValue("/root/reqData/searchData/issu_dt", model.getValue("/root/resData/resform/issu_dt"));
+						srch_send_clos_grp.value = cbo_send_clos_grp.value;
+						srch_send_clos_grp.refresh();
+						ipt_issu_dt_sch.refresh();
+						go_search();
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn03" crud="D" style="left:625px; top:44px; width:63px; height:21px; ">
+			<caption>마감취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				if(!commConfirmBox("마감취소 하시겠습니까?", "마감취소")) return;
+				
+				var listyn = "N";		
+				for(var i=2; i<datagrid2.rows; i++){
+					if(datagrid2.rowStatus(i) == 0) listyn = "Y";
+				}		
+						
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(accflag != "U" || listyn=="N"){
+					commAlert("조회된 내역이 없습니다.");
+					return;
+				}
+				
+				if(commReqCheck(group_dtl)){
+					var accflag = model.getValue("/root/reqData/reqform/accflag");
+					model.copyNode("/root/reqData/reqform","/root/resData/resform");
+					model.setValue("/root/reqData/reqform/clos_yn", "N");		//마감취소
+					
+					model.send("se_qty_2340_a");
+					model.makeNode("/root/reqData/reqform/accflag");
+					model.setValue("/root/reqData/reqform/accflag", accflag);
+					
+					if(submit_completed()){
+						model.setValue("/root/reqData/searchData/issu_dt", model.getValue("/root/resData/resform/issu_dt"));
+						srch_send_clos_grp.value = cbo_send_clos_grp.value;
+						srch_send_clos_grp.refresh();
+						ipt_issu_dt_sch.refresh();
+						go_search();
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<!--
+		<button id="button3" class="btn03" crud="D" style="left:805px; top:44px; width:63px; height:21px; ">
+			<caption>전자결재</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				if(!commConfirmBox("전자결재 하시겠습니까?", "결재")) return;
+				
+				var listyn = "N";		
+				for(var i=2; i<datagrid2.rows; i++){
+					if(datagrid2.rowStatus(i) == 0) listyn = "Y";
+				}		
+						
+				var accflag = model.getValue("/root/reqData/reqform/accflag");
+				if(accflag != "U" || listyn=="N"){
+					commAlert("조회된 내역이 없습니다.");
+					return;
+				}
+				
+				model.send("se_qty_2350_a");
+				
+				]]>
+			</script>
+		</button>
+		-->
+		<switch id="switch1" style="left:9px; top:335px; width:927px; height:391px; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid2" nodeset="/root/resData/resform/tab1grid/record" caption="(상태)^순번^인쇄일자^(코드)^노선구분^발행정보^발행정보^발행정보^발행정보^발행정보^발행정보^발행정보|(상태)^순번^인쇄일자^(코드)^노선구분^(코드)^매체^(코드)^섹션^전체면^컬러면^(합쇄)" colsep="#" colwidth="42, 90, 130, 39, 140, 39, 140, 38, 160, 110, 100, 64" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:0px; top:30px; width:924px; height:335px; ">
+					<col ref="rstat" visibility="hidden"/>
+					<col ref="send_proc_seq"/>
+					<col ref="prt_dt" format="yyyy-mm-dd"/>
+					<col ref="route_clsf" visibility="hidden"/>
+					<col ref="route_clsf_nm"/>
+					<col ref="medi_cd" visibility="hidden"/>
+					<col ref="medi_nm"/>
+					<col ref="sect_cd" visibility="hidden"/>
+					<col ref="sect_nm"/>
+					<col ref="pcnt"/>
+					<col ref="clr_pcnt"/>
+					<col ref="add_prt_seq" visibility="hidden"/>
+				</datagrid>
+				<button id="button6" class="btn_grid04" crud="C" style="left:785px; top:10px; width:65px; height:17px; ">
+					<caption>순번 추가</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						
+						var clos_yn = model.getValue("/root/resData/resform/clos_yn");
+						if(clos_yn == "Y"){
+							commAlert("이미 마감처리 되었습니다");
+							return;
+						}
+										
+						if(!commReqCheck(group_dtl)) return;		//발행일자,마감구분을 팝업에 넘김
+				
+					/*
+						var issu_dt = model.getValue("/root/resData/resform/issu_dt");
+						if(issu_dt == ""){
+							commAlert("발행일자를 입력해 주십시오.");
+							return;
+						}
+						*/
+							/*
+						var type  = new Array();
+						var value;
+	
+						for ( var i = 1 ; i < datagrid2.rows ; i++ ){
+							value = datagrid2.rowStatus(i);
+							if ( value == 1 ){
+								value = "insert";
+							} else if ( value == 2 ){
+								value = "update";
+							} else if ( value == 4 ){
+								value = "delete";
+							} else {
+								value = "";
+							}
+							type[i - 1] = value;
+						}
+						*/
+						model.setValue("/root/reqData/fwdData/issu_dt", model.getValue("/root/resData/resform/issu_dt"));
+						model.setValue("/root/reqData/fwdData/send_clos_grp_clsf", model.getValue("/root/resData/resform/send_clos_grp_clsf"));
+						
+						//발송팝업	
+						window.load(
+								"/xrw/se/qty/SE_QTY_2305.xrw", 
+								"modal", 
+								"", 
+								"left:30px; top:100px; width:660px; height:500; align:center; caption:hidden;"
+								,"/root/reqData/fwdData"
+								,"/root/reqData/fwdData"
+						);							
+						
+					]]>
+					</script>
+				</button>
+				<button id="button10" class="btn_grid04" crud="C" style="left:855px; top:10px; width:65px; height:17px; ">
+					<caption>순번 삭제</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						var clos_yn = model.getValue("/root/resData/resform/clos_yn");
+						if(clos_yn == "Y"){
+							commAlert("이미 마감처리 되었습니다");
+							return;
+						}
+								
+						var nowseq = datagrid2.valueMatrix(datagrid2.row, 2);
+
+						for(var i=2; i<datagrid2.rows; i++){
+							if(datagrid2.valueMatrix(i, 2)==nowseq){
+								datagrid2.valueMatrix(i, 1) = "delete";	
+								//datagrid2.addStatus(i, "delete");	
+								datagrid2.rowStatus(i) = 4;
+							}
+						}				
+					]]>
+					</script>
+				</button>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid4" nodeset="/root/resData/resform/tab2grid/record" caption="매체명^섹션명^면수^인쇄처^판수^지방판^일반부수^특판부수^부수합계" colsep="^" colwidth="110, 110, 90, 110, 90, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowsep="|" style="left:0px; top:0px; width:924px; height:365px; ">
+					<col ref="medi_nm"/>
+					<col ref="sect_nm"/>
+					<col ref="pcnt"/>
+					<col ref="rptv_route_prt_plac_nm"/>
+					<col ref="ecnt_nm"/>
+					<col ref="ledt_nm"/>
+					<col ref="gnr_qty" format="#,###" style="text-align:right; "/>
+					<col ref="spsl_qty" format="#,###" style="text-align:right; "/>
+					<col ref="tot_qty" format="#,###" style="text-align:right; "/>
+				</datagrid>
+			</case>
+		</switch>
+		<button id="button5" class="tab07" group="tab" style="left:105px; top:312px; width:118px; height:23px; ">
+			<caption>인쇄부수 내역</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.toggle("case2");
+				
+				if(commReqCheck(group_scr)) model.send("se_qty_2320_l");
+				//se_chkGridCnt("datagrid4");
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="tab05" group="tab" selected="true" style="left:11px; top:312px; width:92px; height:23px; ">
+			<caption>발송정보</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.toggle("case1");
+			
+				if(commReqCheck(group_scr)) model.send("se_qty_2310_l");
+				se_chkGridCnt("datagrid2");
+				
+				if(submit_completed()) jsmergelist();	
+				
+				model.setValue("/root/reqData/reqform/accflag", "U");
+				]]>
+			</script>
+		</button>
+		<button id="button12" class="btn04" crud="D" style="left:693px; top:44px; width:86px; height:21px; ">
+			<caption>인쇄전표출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				var sAccflag = model.getValue("/root/reqData/reqform/accflag");	
+				if(sAccflag != "U"){
+					alert("대상 내역을 먼저 조회하십시오.");
+					return;
+				}
+				
+				goReport("01");
+					
+				]]>
+			</script>
+		</button>
+		<button id="button13" class="btn04" crud="D" style="left:783px; top:44px; width:86px; height:21px; ">
+			<caption>인쇄의뢰서출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				var sAccflag = model.getValue("/root/reqData/reqform/accflag");	
+				if(sAccflag != "U"){
+					alert("대상 내역을 먼저 조회하십시오.");
+					return;
+				}
+				
+				goReport("02");
+					
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

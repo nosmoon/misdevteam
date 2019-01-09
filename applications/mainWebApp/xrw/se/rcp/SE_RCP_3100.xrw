@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_RCP_3100.xrw
+* 기능 : 판매 - 입금관리 - 지대입금관리 - 신문판매경리발행
+* 작성일자 : 2009.05.25
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goReport(gubun){
+					var report			= new Array(	         "SP_SE_RCP_3010_P"
+													, "SP_SE_RCP_3020_P"
+													, "SP_SE_RCP_3030_P"
+													, "SP_SE_RCP_3040_P"
+													, "SP_SE_RCP_3050_P"
+													, "SP_SE_RCP_3055_P"
+													, "SP_SE_RCP_3056_P"
+													, "SP_SE_RCP_3060_P"
+													, "SP_SE_RCP_3070_P"
+													, "SP_SE_RCP_3080_P"
+													, "SP_SE_RCP_3090_P");
+													
+					var report_gubun		= model.getValue("/root/reqData/searchData/gubun");
+					var report_index		= parseInt(report_gubun) - 1;							
+					
+					// 오즈관련 노드 초기화..					
+					resetOznode();					
+																			
+					//makeNodeValue("/root/oz_data/preview", "preview")	;										
+					//makeNodeValue("/root/oz_data/printsize", "");	
+					
+					var root			= "/root/reqData/searchData";
+					var dt			= model.getValue(	root + "/dt");
+					var yymm			= model.getValue(	root + "/yymm");
+
+					if ( report_index == 0 || report_index == 1 || report_index == 2 || report_index == 3){
+						if ( dt == "" ){
+							commAlert("일자가 없습니다");
+							return;
+						}
+					} else {
+						if ( yymm == "" ){
+							commAlert("년월이 없습니다.");
+							return;
+						}								
+					}
+				
+					if ( report_gubun == "1" ){
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+						makeNodeValue("/root/oz_data/ozrName", "se/SP_SE_RCP_3010_P");		
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	
+						makeNodeValue("/root/oz_data/odiParam/iv_occr_dt"		, dt				);	
+						makeNodeValue("/root/oz_data/odiParam/iv_selldeptcd"	, ""				);	
+						makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers_ip"	,""						);	
+						makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers"	,model.property("ss_emp_no"));		
+						
+						//makeNodeValue("/root/oz_data/childCount", "1");	
+					}else if( report_gubun == "12" ){			
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)				
+						makeNodeValue("/root/oz_data/ozrName", "se/SP_SE_RCP_3012_P");			
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	
+						makeNodeValue("/root/oz_data/odiParam/iv_occr_dt"		, dt				);	
+						makeNodeValue("/root/oz_data/odiParam/iv_selldeptcd"	, ""				);	
+						makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers_ip"	,""						);	
+						makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers"	,model.property("ss_emp_no"));		
+						
+					}else{
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+						makeNodeValue("/root/oz_data/ozrName", "se/" + report[report_index]);		
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd",model.property("ss_cmpycd"));	
+						if (report_gubun == "2" || report_gubun == "3"){
+							makeNodeValue("/root/oz_data/odiParam/iv_occr_dt"		, dt				);	
+							makeNodeValue("/root/oz_data/odiParam/iv_selldeptcd"	, ""				);	
+						} else {
+							makeNodeValue("/root/oz_data/odiParam/iv_yymm"			, yymm			);	
+							makeNodeValue("/root/oz_data/odiParam/iv_selldeptcd"	, ""				);	
+						} 
+						makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers_ip"	,""						);	
+						makeNodeValue("/root/oz_data/odiParam/iv_incmg_pers"	,model.property("ss_emp_no"));						
+					}
+					
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");	
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData>
+							<dt/>
+							<yymm/>
+							<report_nm/>
+							<gubun>1</gubun>
+						</searchData>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action		= "se_rcp_3100_m";
+					model.send(action);
+											  
+					var dt			= model.getValue("/root/initData/dt"	);			  
+					model.setValue("/root/reqData/searchData/dt"	, dt		);
+					var yymm			= model.getValue("/root/initData/yymm"	);			  
+					model.setValue("/root/reqData/searchData/yymm"	, yymm	);
+
+					switch1.selectedIndex = 1;
+
+					model.refresh();
+					
+				]]>
+			</script>
+			<submission id="se_rcp_3100_m" action="/se/rcp/3100" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,64;2,70;2,725;" style="font-family:돋움; font-size:12px; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="R" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("P");
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<group id="selectBox" class="gro_tab2" style="left:10px; top:70px; width:270px; height:655px; ">
+			<select1 id="radio1" ref="/root/reqData/searchData/gubun" class="input1" appearance="full" vcellspacing="5" overflow="visible" style="left:10px; top:15px; width:250px; height:280px; border-style:none; ">
+				<choices>
+					<item>
+						<label>신문판매 입금일보</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>신문판매 입금 집계표</label>
+						<value>12</value>
+					</item>
+					<item>
+						<label>판촉물 입금 집계표</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>신문판매 해약집계표</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>신문판매 미수금 현황</label>
+						<value>4</value>
+					</item>
+					<item>
+						<label>신문판매 미수금 현황(부서별집계)</label>
+						<value>5</value>
+					</item>
+					<item>
+						<label>신문판매 정리계좌 현황</label>
+						<value>6</value>
+					</item>
+					<item>
+						<label>신문판매 정리계좌 현황(부서별집계)</label>
+						<value>7</value>
+					</item>
+					<item>
+						<label>판촉물 미수잔액 체크(말일자기준)</label>
+						<value>8</value>
+					</item>
+					<item>
+						<label>지대(0302) 미수잔액 체크(말일자기준)</label>
+						<value>9</value>
+					</item>
+					<item>
+						<label>정리구좌 미수잔액 체크(말일자기준)</label>
+						<value>10</value>
+					</item>
+					<item>
+						<label>계약보증금 미수잔액 체크(말일자기준)</label>
+						<value>11</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var index		= radio1.focusIndex; 
+
+						if ( index == 0 
+						  || index == 1
+						  || index == 2
+						  || index == 3){
+							switch1.selectedIndex = 1;
+						} else {
+							switch1.selectedIndex = 0;
+						}
+					]]>
+				</script>
+			</select1>
+		</group>
+		<button id="button1" class="btn03" visibility="hidden" crud="R" style="left:739px; top:44px; width:63px; height:21px; ">
+			<caption>미리보기</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("V");
+				]]>
+			</script>
+		</button>
+		<switch id="switch1" style="left:290px; top:70px; width:645px; height:225px; ">
+			<case id="case1" selected="true" style="left:0px; top:0px; width:645px; height:225px; ">
+				<group id="group_scr" class="gro_sel" style="left:10px; top:10px; width:625px; height:26px; ">
+					<caption id="caption5" class="list_cap02" style="left:0px; top:0px; width:625px; height:26px; "/>
+					<caption id="caption2" class="list_cap01" visibility="visible" style="left:0px; top:0px; width:80px; height:26px; ">년월</caption>
+					<input id="input2" ref="/root/reqData/searchData/yymm" class="req" visibility="visible" format="yyyy-mm" appearance="minimal" style="left:86px; top:4px; width:110px; height:18px; "/>
+				</group>
+			</case>
+			<case id="case2">
+				<group id="group1" class="gro_sel" style="left:10px; top:10px; width:625px; height:26px; ">
+					<caption id="caption4" class="list_cap02" style="left:0px; top:0px; width:625px; height:26px; "/>
+					<input id="input3" ref="/root/reqData/searchData/dt" class="req" inputtype="date" format="yyyy-mm-dd" appearance="minimal" style="left:86px; top:4px; width:110px; height:18px; "/>
+					<caption id="caption6" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">일자</caption>
+				</group>
+			</case>
+		</switch>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_BAS_1400.xrw
+* 기능 : 판매 - 기준정보 - 담당자 등록
+* 작성일자 : 2009.01.15
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				//action명을 받아서 model.send한 후 에러 메세지를 처리
+				function modelSend(action){
+					model.send(action);
+					
+					if(model.getValue("/root/errData/errcode") != ""){
+						showErrorMsgBox(model.getValue("/root/errData/errcode"), model.getValue("/root/errData/errmsg"));
+					} else {
+						if ( action == "se_bas_1420_a" ){
+							modelSend("se_bas_1410_l");
+						}
+					}
+				}
+				
+				function goSearch(){
+					datagrid1.disabled = false;
+					//담당자명을 조회 조건 node에 담는다.
+					var flnm = model.getValue("/root/formData/flnm");
+					model.setValue("/root/reqData/flnm", flnm);
+					
+					var action = "se_bas_1410_l";
+					modelSend(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					//조회된 지역코드는 수정불가
+					var rows 	= datagrid1.rows;
+					var value 	= "";
+					for ( var i = 1 ; i <= rows ; i++ ){
+						value 	= datagrid1.valueMatrix(i, 1);
+						if ( value != "" ){
+							datagrid1.isReadOnly(i, 1, i, 1) = true;
+						}
+					}
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo>
+							<pageTitle/>
+							<pageID/>
+							<pageUrl/>
+							<statusMsg/>
+						</pageInfo>
+					</initData>
+					<formData>
+						<flnm/>
+					</formData>
+					<codeData>
+						<clsflist>
+							<record>
+								<cd/>
+								<cdnm/>
+							</record>
+						</clsflist>
+						<deptlist>
+							<record>
+								<dept_cd/>
+								<dept_nm/>
+							</record>
+						</deptlist>
+					</codeData>
+					<resData/>
+					<reqData>
+						<flnm/>
+					</reqData>
+					<fwdData/>
+					<rcvData/>
+					<tempData/>
+					<gridData>
+						<record>
+							<cmpy_cd/>
+							<chrg_pers/>
+							<flnm/>
+							<clsf/>
+							<dept_cd/>
+							<use_yn/>
+						</record>
+					</gridData>
+					<multiUpdateData/>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action = "se_bas_1400_m";
+					modelSend(action);
+					
+					datagrid1.disabled = true;
+				]]>
+			</script>
+			<submission id="se_bas_1400_m" action="/se/bas/1400" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/initData" resultref="/root/codeData"/>
+			<submission id="se_bas_1410_l" action="/se/bas/1410" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/gridData"/>
+			<submission id="se_bas_1420_a" action="/se/bas/1420" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/multiUpdateData" resultref="/root/resData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,935;2,60;2,70;2,725;" style="font-family:돋움; font-size:12px; background-image:/html/images/bg_946.gif; ">
+		<caption id="caption74" class="list_cap02" style="left:10px; top:70px; width:926px; height:28px; "/>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:104px; width:926px; height:5px; "/>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:70px; width:45px; height:28px; ">담당자</caption>
+		<datagrid id="datagrid1" nodeset="/root/gridData/record" visibility="visible" caption="담당자코드^담당자명^담당구분^담당자부서^사용여부" colsep="#" colwidth="180, 180, 180, 180, 160" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:124px; width:926px; height:602px; unloadmark:visible; ">
+			<col ref="chrg_pers" type="input"/>
+			<col ref="flnm" type="input"/>
+			<col ref="clsf" type="combo">
+				<choices>
+					<itemset nodeset="/root/codeData/clsflist">
+						<label ref="record/cdnm"/>
+						<value ref="record/cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col ref="dept_cd" type="combo">
+				<choices>
+					<itemset nodeset="/root/codeData/deptlist">
+						<label ref="record/dept_nm"/>
+						<value ref="record/dept_cd"/>
+					</itemset>
+				</choices>
+			</col>
+			<col checkvalue="Y,N" ref="use_yn" type="checkbox"/>
+			<col ref="chrg_pers_key" visibility="hidden"/>
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+				
+				]]>
+			</script>
+		</datagrid>
+		<button id="button7" class="btn03" crud="R" style="left:600px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn03" crud="C" style="left:668px; top:44px; width:63px; height:21px; ">
+			<caption>입력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					datagrid1.disabled = false;
+					
+					var rows	= datagrid1.rows;
+					var status;
+
+					if ( rows == datagrid1.fixedRows + 1 ){
+						status = datagrid1.rowStatus(rows - 1);
+						if ( status == 0  && datagrid1.valueMatrix(1, 1) == ""){
+							model.removeNodeset("/root/gridData/record");
+							datagrid1.refresh();
+						}
+					}
+					datagrid1.addRow();
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn03" crud="C" style="left:736px; top:44px; width:63px; height:20px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				    var val = window.alert("저장하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					//저장 대상을 체크한다.
+					/*
+					if ( datagrid1.rows == datagrid1.fixedRows ) {
+						alert("저장할 대상이 없습니다.");
+						return;
+					}
+					*/
+					//저장할 데이터의 키값을 체크한다.
+					var chrg_pers = "";
+					for ( var i = 1 ; i < datagrid1.rows ; i++ ){
+						chrg_pers = datagrid1.valueMatrix(i, 1);
+						if ( chrg_pers == "" ){
+							commAlert(i + "행의 담당자코드가 없습니다.");
+							return;
+						}
+					}
+					model.setValue("/root/multiUpdateData", datagrid1.getUpdateData());
+					
+					var action = "se_bas_1420_a";
+					modelSend(action);
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn03" crud="D" style="left:804px; top:44px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					se_grid_delete("datagrid1");
+				]]>
+			</script>
+		</button>
+		<input id="input2" ref="/root/formData/flnm" style="left:58px; top:75px; width:100px; height:22px; ">
+			<script type="javascript" ev:event="onkeyup">
+				<![CDATA[
+					if ( event.keyCode == 13 ){
+						//키 이벤트로 조회함수를 호출하면 노드에 입력중인 텍스트 값이 입력되지 않음. 강제로 노드에 입력
+						model.setValue("/root/formData/flnm", input2.currentText);
+						goSearch();
+					}
+				]]>
+			</script>
+		</input>
+		<button id="btnClose" class="btn03" style="left:871px; top:44px; width:63px; height:20px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

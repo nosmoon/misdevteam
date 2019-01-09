@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<setl_clsf/>
+							<dlco_no/>
+							<dlco_nm/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+						<flag/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<dlco_no/>
+								<dlco_nm/>
+								<dlco_clsf/>
+								<setl_clsf/>
+								<bank_clsf/>
+								<rcpm_acct_no/>
+								<chrg_pers/>
+								<chrg_pers_nm/>
+								<strt_dt/>
+							</record>
+							<resForm/>
+						</gridData>
+					</resData>
+					<tempData>
+						<flag/>
+					</tempData>
+					<tempData2>
+						<tmp_dlco_nm/>
+						<tmp_dlco_no/>
+						<tmp_acct_nm/>
+						<tmp_acct_id/>
+					</tempData2>
+					<msgData/>
+					<codeData>
+						<setl_clsf>
+							<item>
+								<value/>
+								<label/>
+							</item>
+						</setl_clsf>
+						<bank_clsf>
+							<item>
+								<value/>
+								<label/>
+								<pcode/>
+							</item>
+						</bank_clsf>
+						<dlco_clsf>
+							<item>
+								<value/>
+								<label/>
+							</item>
+						</dlco_clsf>
+						<chrg_pers>
+							<item>
+								<value/>
+								<label/>
+							</item>
+						</chrg_pers>
+						<g_setl_clsf>
+							<item>
+								<value/>
+								<label/>
+							</item>
+						</g_setl_clsf>
+						<bank_no>
+							<item>
+								<value/>
+								<label/>
+								<pcode/>
+							</item>
+						</bank_no>
+					</codeData>
+				</root>
+			</instance>
+			<submission id="ad_dep_2200_m" action="/ad/dep/2200" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData"/>
+			<submission id="ad_dep_2210_l" action="/ad/dep/2210" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="ad_dep_2220_a" action="/ad/dep/2220" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/msgData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.send("ad_dep_2200_m");	
+				model.copyNode("/root/codeData/setl_clsf", "/root/tempData/setl_clsf");
+				model.copyNode("/root/codeData/g_setl_clsf", "/root/tempData/g_setl_clsf");
+				model.copyNode("/root/codeData/bank_clsf", "/root/tempData/bank_clsf");
+				model.copyNode("/root/codeData/bank_no", "/root/tempData/bank_no"); 
+				model.copyNode("/root/codeData/dlco_clsf", "/root/tempData/dlco_clsf");				
+//         			model.copyNode("/root/codeData/chrg_pers", "/root/tempData/chrg_pers");	
+
+				model.refresh();
+				initPage();         			
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function initPage(){
+				inp_setl_clsf.select(0);  
+				inp_setl_clsf.refresh();	
+			}
+			
+			function loadList(){
+				model.refresh();
+				model.send("ad_dep_2210_l");
+				resetDataGrid();				
+			}	
+			
+			function resetDataGrid(){ 
+				var rows = datagrid1.rows;
+				var cols  = datagrid1.cols;
+				for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){						
+							datagrid1.clearStatus();
+				}			
+			}	
+			
+			function setDlcoInfo(dlco_no, dlco_nm){
+				//var dlco_yn          = instance1.selectSingleNode("/root/reqData/fwdData/dlco_yn");
+				//if(dlco_yn != null){
+						if(model.property("pop_seq") == "1"){//그리드에서 사용
+							datagrid1.valueMatrix(datagrid1.row, 4) = dlco_no;
+							datagrid1.valueMatrix(datagrid1.row, 5) = dlco_nm;
+							datagrid1.addStatus(datagrid1.row, "update");  //상태 변경
+						}else if(model.property("pop_seq") == "2"){//폼에서 사용
+							model.setValue("/root/reqData/searchData/dlco_no", dlco_no);
+							model.setValue("/root/reqData/searchData/dlco_nm", dlco_nm);					
+							inp_dlco_no.refresh();
+							inp_dlco_nm.refresh();
+						}
+				//}				
+			}
+			
+			function setDlcoclsf(){
+				var row = datagrid1.row;
+				var dlco_clsf = datagrid1.valueMatrix(row,6)
+				model.removeNodeset("/root/reqData/fwdData");
+				/*if(dlco_clsf == '1'){
+					//일반광고주
+					model.makeNode("/root/reqData/fwdData/gnr_advcs_yn");
+					model.setValue("/root/reqData/fwdData/gnr_advcs_yn", "Y");							
+					//행광고주
+					model.makeNode("/root/reqData/fwdData/arow_advcs_yn");
+					model.setValue("/root/reqData/fwdData/arow_advcs_yn", "Y");								
+				}else if(dlco_clsf ==  '2'){
+					//대행사
+					model.makeNode("/root/reqData/fwdData/agn_yn");
+					model.setValue("/root/reqData/fwdData/agn_yn", "Y");																				
+				}else if(dlco_clsf == '4' ){
+					//광고지사
+					model.makeNode("/root/reqData/fwdData/advt_bo_yn");
+					model.setValue("/root/reqData/fwdData/advt_bo_yn", "Y");								
+				}else if(dlco_clsf == '5'){
+					//지사지국/해외지사
+					model.makeNode("/root/reqData/fwdData/bo_bof_yn");
+					model.setValue("/root/reqData/fwdData/bo_bof_yn", "Y");									
+				}
+				else{
+				}*/
+			}	
+			function setDlcoNoByName(dlco_nm, inp_dlco_no, inp_dlco_nm){//폼에서
+		
+				if(trim(dlco_nm) == "") return;
+												
+												
+				if(instance1.selectSingleNode("/root/reqData/searchData/srch_dlco_nm") == null){
+					model.makeNode("/root/reqData/searchData/srch_dlco_nm");
+				}
+				model.setValue("/root/reqData/searchData/srch_dlco_nm", dlco_nm);
+			
+				modelSendNoMake("ad_co_9002_s", "/ad/common/9002", "/root/reqData/searchData", "/root/tempData");				
+			
+			
+				var chk_cnt = model.getValue("/root/tempData/chk_cnt");
+				var dlco_no = model.getValue("/root/tempData/dlco_no");
+				
+				if(chk_cnt == 0){
+					alert("해당 거래처가 없습니다.");							
+				}
+				
+				if(chk_cnt == 1){
+					model.setValue(inp_dlco_no.attribute("ref"), model.getValue("/root/tempData/dlco_no"));
+					model.setValue(inp_dlco_nm.attribute("ref"), model.getValue("/root/tempData/dlco_nm"));					
+					inp_dlco_no.refresh();
+					inp_dlco_nm.refresh();	
+				}
+			
+				if(chk_cnt > 1) {
+					model.property("pop_seq") =  "2";
+					model.removeNodeset("/root/reqData/fwdData");
+					model.makeNode("/root/reqData/fwdData/dlco_nm");
+					model.setValue("/root/reqData/fwdData/dlco_nm", dlco_nm);
+					model.makeNode("/root/reqData/fwdData/dlco_yn");
+					model.setValue("/root/reqData/fwdData/dlco_yn", "Y");									
+
+					window.load("/xrw/ad/co/ad_co_1200.xrw"
+								, "modal"
+								, ""
+								, "align:center; left:100; top:100; width:650; height:520; sysmenu:visible; min:visible; max:true; resize:true; caption:visible;"
+								,"/root/reqData/fwdData"
+								,"/root/reqData/fwdData"
+					);																					
+				}
+			}	
+			//그리드에서 거래처 이름으로 거래처 번호 검색할 때 사용
+			//grid_dlco_no,grid_dlco_nm = 인덱스 포함한 인스턴스 경로 
+			function setDlcoNoByNameFromGrid(datagrid, dlco_nm, grid_dlco_no, grid_dlco_nm){
+								
+				if(trim(dlco_nm) == "") return;
+												
+												
+				if(instance1.selectSingleNode("/root/reqData/searchData/srch_dlco_nm") == null){
+					model.makeNode("/root/reqData/searchData/srch_dlco_nm");
+				}
+				model.setValue("/root/reqData/searchData/srch_dlco_nm", dlco_nm);
+				modelSendNoMake("ad_co_9002_s", "/ad/common/9002", "/root/reqData/searchData", "/root/tempData");				
+			
+			
+				var chk_cnt = model.getValue("/root/tempData/chk_cnt");
+				var dlco_no = model.getValue("/root/tempData/dlco_no");
+
+				if(chk_cnt == 0){
+					alert("해당 거래처가 없습니다.");							
+				}
+				
+				if(chk_cnt == 1){
+					model.setValue(grid_dlco_no,dlco_no);
+					model.setValue(grid_dlco_nm,dlco_nm);
+					datagrid.addStatus(datagrid1.row, "update");
+					model.refresh();
+				}
+			
+				if(chk_cnt > 1) {
+					model.property("pop_seq") =  "1";
+
+					setDlcoclsf();
+
+					model.makeNode("/root/reqData/fwdData/dlco_nm");
+					model.setValue("/root/reqData/fwdData/dlco_nm", dlco_nm);
+					
+					model.makeNode("/root/reqData/fwdData/dlco_yn");
+					model.setValue("/root/reqData/fwdData/dlco_yn", "Y");	
+															
+					window.load("/xrw/ad/co/ad_co_1200.xrw"
+								, "modal"
+								, ""
+								, "align:center; left:100; top:100; width:650; height:520; sysmenu:visible; min:visible; max:true; resize:true; caption:visible;"
+								,"/root/reqData/fwdData"
+								,"/root/reqData/fwdData"
+					);																					
+				}
+			}		
+			
+			function goReport(gubun){
+				
+				// 오즈관련 노드 초기화..					
+				resetOznode();					
+									
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+				makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_DEP_2210_P");									
+							
+				var root			= "/root/reqData/searchData "; 
+								
+				var dlco_no      		= model.getValue(	root + "/dlco_no");		
+						
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd"			,model.property("ss_cmpycd"));	
+				makeNodeValue("/root/oz_data/odiParam/iv_dlco_no"			, dlco_no		);	
+					
+				// 레포트뷰어 호출.					
+				openOzwin("/root/oz_data");	
+			}			
+													
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,60;2,70;2,97;2,105;2,110;2,120;1,936;1,936;" style="font-family:굴림; ">
+		<caption id="caption44" class="list_cap02" style="left:10px; top:70px; width:927px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption4" class="list_cap01" style="left:10px; top:70px; width:90px; height:28px; ">결제구분</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:105px; width:926px; height:5px; "/>
+		<button id="button2" class="btn02" crud="C" style="left:766px; top:40px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(commGridReqCheck("datagrid1")){
+					if(window.alert("저장 하시겠습니까?", "확인", 1) == 1){
+						model.setValue("/root/reqData/multiUpdateData", datagrid1.getUpdateData());
+						model.send("ad_dep_2220_a");
+						if(submit_completed()){					
+							loadList();
+						}
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn02" crud="R" style="left:646px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.send("ad_dep_2210_l");
+				]]>
+			</script>
+		</button>
+		<caption id="caption3" class="list_cap01" style="left:276px; top:70px; width:90px; height:28px; ">거래처</caption>
+		<input id="inp_dlco_no" ref="/root/reqData/searchData/dlco_no" navindex="2" autonext="false" format="99999999" style="left:370px; top:75px; width:75px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var dlco_no = inp_dlco_no.currentText;
+				model.setValue("/root/reqData/searchData/dlco_no", lpad(dlco_no, 8, "0"));
+				inp_dlco_no.refresh();
+		
+				commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);				
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					var dlco_no = inp_dlco_no.currentText;
+					model.setValue("/root/reqData/searchData/dlco_no", lpad(dlco_no, 8, "0"));
+					inp_dlco_no.refresh();
+			
+					commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);	
+				}
+				]]>
+			</script>
+		</input>
+		<input id="inp_dlco_nm" ref="/root/reqData/searchData/dlco_nm" navindex="3" imemode="hangul" inputtype="button" style="left:450px; top:75px; width:190px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				model.property("pop_seq") =  "2";
+				showAdvcsSearchPopup("Y", "Y", "Y", "Y", "Y", inp_dlco_nm.currentText); 
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					model.property("pop_seq") =  "2";
+					findDlcoNoByName("", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);		
+				}					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					model.property("pop_seq") =  "2";
+					findDlcoNoByName("", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);						
+				]]>
+			</script>
+		</input>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="거래처번호^거래처^거래처구분^결제구분^거래은행^입금계좌번호^담당자^담당자^개시일자" colsep="#" colwidth="90, 110, 100, 140, 130, 90, 60, 70, 90" mergecellsfixedcols="byrowrec" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="byrow" style="left:10px; top:142px; width:926px; height:605px; ">
+			<col class="req" ref="dlco_no" type="input" caption="거래처번호" style="text-align:left; word-wrap:none; "/>
+			<col class="req" ref="dlco_nm" type="inputbutton" caption="거래처" style="text-align:left; "/>
+			<col class="req" ref="dlco_clsf" type="combo" caption="거래처구분" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/codeData/dlco_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="setl_clsf" type="combo" caption="결제구분" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/codeData/g_setl_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="bank_clsf" type="combo" caption="거래은행" style="text-align:left; ">
+				<choices>
+					<itemset nodeset="/root/codeData/bank_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="rcpm_acct_no" type="input" format="99999999" caption="입금계좌번호" style="text-align:center; "/>
+			<col class="req" ref="chrg_pers" type="input" format="999999" caption="담당자" style="text-align:center; "/>
+			<col class="req" imemode="hangul" ref="chrg_pers_nm" type="input" caption="담당자" style="text-align:left; "/>
+			<col class="req" ref="strt_dt" type="inputdate" format="yyyy-mm-dd" caption="개시일자"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					if (datagrid1.col == datagrid1.colRef("dlco_nm")){
+						var row = datagrid1.row;
+						var dlco_clsf = datagrid1.valueMatrix(row,datagrid1.colRef("dlco_clsf"));
+						
+						if(dlco_clsf == ""){
+							alert("거래처 구분 먼저 선택해 주세요");	
+						}else{
+							model.property("pop_seq") =  "1";
+							if(dlco_clsf == "1"){//광고주
+								showAdvcsSearchPopup("Y", "Y", "", "", "", inp_dlco_nm.currentText); 
+							}							
+							if(dlco_clsf == "2"){//대행사
+								showAdvcsSearchPopup("", "", "Y", "", "", inp_dlco_nm.currentText); 
+							}
+							if(dlco_clsf == "4"){//광고지사
+								showAdvcsSearchPopup("", "", "", "Y", "", inp_dlco_nm.currentText); 
+							}
+							if(dlco_clsf == "5" || dlco_clsf == "7"){//지사지국 || 해외지사 
+								showAdvcsSearchPopup("", "", "", "", "Y", inp_dlco_nm.currentText); 
+							}
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					
+					var dataIndex = getSelectedRecordIndex(datagrid1);	
+					
+					if (datagrid1.col == datagrid1.colRef("dlco_no")){				
+						var dlco_no = datagrid1.valuematrix(datagrid1.row, datagrid1.colRef("dlco_no"));
+						dlco_no = lpad(dlco_no, 8, "0");
+											
+						commonSubmissionWithXRef("9004", dlco_no, "/root/resData/gridData/record["+dataIndex+"]/dlco_no","/root/resData/gridData/record["+dataIndex+"]/dlco_nm");						
+					}
+					
+					if (datagrid1.col == datagrid1.colRef("chrg_pers")){
+						var chrg_pers	=	datagrid1.valuematrix(datagrid1.row, datagrid1.colRef("chrg_pers"));
+						
+						commonSubmissionWithXRef("9005", chrg_pers, "/root/resData/gridData/record["+dataIndex+"]/chrg_pers","/root/resData/gridData/record["+dataIndex+"]/chrg_pers_nm");						
+
+					}
+
+					if(datagrid1.col == datagrid1.colRef("chrg_pers_nm")){
+						var chrg_pers_nm = model.getValue("/root/resData/gridData/record["+dataIndex+"]/chrg_pers_nm");
+						findEmpNoByNameWithRef("setSlcrgPers", chrg_pers_nm, "/root/resData/gridData/record["+dataIndex+"]/chrg_pers", "/root/resData/gridData/record["+dataIndex+"]/chrg_pers_nm");
+					}	
+					
+					if(datagrid1.col == datagrid1.colRef("dlco_nm")){												
+						var dlco_nm = model.getValue("/root/resData/gridData/record["+dataIndex+"]/dlco_nm");
+						findDlcoNoByNameWithRef("", dlco_nm, "/root/resData/gridData/record["+dataIndex+"]/dlco_no", "/root/resData/gridData/record["+dataIndex+"]/dlco_nm");
+					}
+									
+					datagrid1.refresh();
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode == "13"){
+					var dataIndex = getSelectedRecordIndex(datagrid1);
+					
+					if(datagrid1.col == datagrid1.colRef("chrg_pers_nm")){
+						var chrg_pers_nm = model.getValue("/root/resData/gridData/record["+dataIndex+"]/chrg_pers_nm");
+						findEmpNoByNameWithRef("setSlcrgPers", chrg_pers_nm, "/root/resData/gridData/record["+dataIndex+"]/chrg_pers", "/root/resData/gridData/record["+dataIndex+"]/chrg_pers_nm");
+					}else if(datagrid1.col == datagrid1.colRef("dlco_nm")){												
+						var dlco_nm = model.getValue("/root/resData/gridData/record["+dataIndex+"]/dlco_nm");
+						findDlcoNoByNameWithRef("", dlco_nm, "/root/resData/gridData/record["+dataIndex+"]/dlco_no", "/root/resData/gridData/record["+dataIndex+"]/dlco_nm");
+					}
+					datagrid1.refresh();
+					
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onstartedit">
+				<![CDATA[
+					if(datagrid1.col == datagrid1.colRef("dlco_nm")){
+						var row = datagrid1.row;
+						var dlco_clsf = datagrid1.valueMatrix(row, datagrid1.colRef("dlco_clsf"));
+						if(dlco_clsf == ""){
+							alert("거래처 구분 먼저 선택해 주세요");
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if (datagrid1.col == datagrid1.colRef("bank_clsf")){
+					
+						var row = datagrid1.row;
+						var col = datagrid1.col;
+						
+						var rcpm_acct_no = datagrid1.valueMatrix(row,col);							
+						var dataIndex = getSelectedRecordIndex(datagrid1);
+					
+						var temp = datagrid1.labelmatrix(datagrid1.row, datagrid1.col);
+						
+						var index = temp.substr(0,1);
+					
+						model.setValue("/root/resData/gridData/record["+dataIndex+"]/rcpm_acct_no", model.getValue("/root/codeData/bank_no/item["+index+"]/pcode") );
+							
+					}
+				]]>
+			</script>
+		</datagrid>
+		<button id="btnClose" class="btn02" style="left:885px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				
+				]]>
+			</script>
+		</button>
+		<select1 id="inp_setl_clsf" ref="/root/reqData/searchData/setl_clsf" navindex="1" appearance="minimal" style="left:103px; top:75px; width:160px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/setl_clsf/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<button id="button1" class="btn02" crud="R" style="left:706px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnG2" class="btn_grid03" crud="R" style="left:778px; top:120px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				addRow(datagrid1);               //마직막행에 행추가
+//				datagrid1.insertitem(0, "after"); 	//첫번째 행에 추가
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn_grid02" crud="R" style="left:892px; top:120px; width:43px; height:17px; ">
+			<caption>취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				cancelRow(datagrid1);
+				]]>
+			</script>
+		</button>
+		<button id="button13" class="btn_grid03" crud="R" style="left:835px; top:120px; width:53px; height:17px; ">
+			<caption>행삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				deleteRow(datagrid1);
+				]]>
+			</script>
+		</button>
+		<button id="button5" class="btn02" style="left:826px; top:40px; width:52px; height:21px; ">
+			<caption>인쇄</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goReport("P");		
+				]]>
+			</script>
+		</button>
+		<input id="input1" ref="/root/tempData2/tmp_dlco_nm" visibility="hidden" style="left:365px; top:748px; width:100px; height:18px; "/>
+		<input id="input2" ref="/root/tempData2/tmp_dlco_no" visibility="hidden" style="left:468px; top:748px; width:100px; height:18px; "/>
+		<input id="inp_acct_nm" ref="/root/tempData2/tmp_acct_nm" visibility="hidden" style="left:585px; top:748px; width:100px; height:18px; "/>
+		<input id="inp_acct_id" ref="/root/tempData2/tmp_acct_id" visibility="hidden" style="left:690px; top:748px; width:100px; height:18px; "/>
+	</xhtml:body>
+</xhtml:html>

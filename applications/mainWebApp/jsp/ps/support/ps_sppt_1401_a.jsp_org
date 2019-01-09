@@ -1,0 +1,521 @@
+<%@ page language="java" contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_sppt_1401_a.jsp
+* 기능 : 현금영수증 리스트 초기 화면
+* 작성일자 : 2005-12-09
+* 작성자 : 전현표
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    PS_L_DSCT_SPPTDataSet ds = (PS_L_DSCT_SPPTDataSet)request.getAttribute("ds");  // request dataset
+    String records_per_page = "20";
+    int loop_cnt = Integer.parseInt(records_per_page) ;
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+    function jsinit(){
+        setEventHandler();
+//      setEnterKeyEventHandler();
+    }
+
+    // form 내의 모든 올바른 값인지 체크
+    function check_all(form){
+        if(!validate(form)) return false;
+        else{
+            makeValue(form);
+            //form.submit();
+            return true;
+        }
+    }
+
+    //현금영수증발급내역 등록
+    function cashrcpt_save() {
+        var lo_form1       = document.cashrcpt_form_detail;
+
+		if(lo_form1.cashrcpt_flag.value =="Y") {
+//			alert("이미 신청된 독자를 추가 신청할수 없습니다. 취소만 가능합니다.");
+//			return false;
+			lo_form1.flag.value 		=  "U";
+		} else {
+			lo_form1.flag.value 		=  "I";
+		}
+
+		if(lo_form1.aplcpath.value =="10") {
+			alert("모닝플러스를 통해 신청한 내역은 수정할수 없습니다. 독자가 직접 취소후 재신청해야 합니다");
+			return false;
+		}
+
+        //독자번호 체크
+        if (lo_form1.rdr_no.value.length != 9 || lo_form1.medicd.value.length < 1 || lo_form1.termsubsno.value.length != 4) {
+            alert("독자번호를 확인할 수 없는 데이타입니다.");
+            lo_form1.aplcpers.focus();
+            return;
+        }
+
+		if(lo_form1.prn.value =="" && ( lo_form1.ptphno1.value == "" ||  lo_form1.ptphno2.value =="" || lo_form1.ptphno3.value =="" )) {
+			alert("주민등록번호나 핸드폰번호 둘중 하나는 필수입니다.");
+			lo_form1.prn.focus();
+			return;
+		}
+
+		if(lo_form1.prn.value != "" &&  ( lo_form1.ptphno1.value == "" ||  lo_form1.ptphno2.value =="" || lo_form1.ptphno3.value =="" ) && lo_form1.rcptclsf.value =="20") {
+			alert("발행구분은 주민등록번호입니다.");
+			lo_form1.rcptclsf.focus();
+			return;
+		}
+
+		if(lo_form1.prn.value == "" &&  ( lo_form1.ptphno1.value != "" &&  lo_form1.ptphno2.value !="" && lo_form1.ptphno3.value !="" ) && lo_form1.rcptclsf.value =="10") {
+			alert("발행구분은 핸드폰입니다.");
+			lo_form1.rcptclsf.focus();
+			return;
+		}
+
+        //입력항목 전체 체크
+        if(!validate(lo_form1)) return false;
+
+		if(lo_form1.prn.value !="") {
+			if(!isValidJuminObj(lo_form1.prn)) {
+				lo_form1.prn.focus();
+				return false;
+			}
+		}
+
+        var ls_ptphno1             =   trim(lo_form1.ptphno1.value);          //신청자휴대폰(사업자번호)
+        var ls_ptphno2             =   trim(lo_form1.ptphno2.value);          //신청휴대폰(중간번호)
+        var ls_ptphno3             =   trim(lo_form1.ptphno3.value);          //신청자휴대폰(번호)
+
+        if((ls_ptphno1+ls_ptphno2+ls_ptphno3).length > 0) {
+            if(!isValidPcs(ls_ptphno1+'-'+ls_ptphno2+'-'+ls_ptphno3)) {
+                alert('유효한 휴대폰번호가 아닙니다.');
+                lo_form1.ptphno1.focus();
+                return false;
+            }
+        }
+
+        makeValue(lo_form1);
+        lo_form1.action = "/ps/support/1416";
+        lo_form1.target = "ifrm";
+        lo_form1.method = "post";
+        lo_form1.submit();
+    }
+
+
+    //현금영수증발급내역 삭제
+    function cashrcpt_delete() {
+        var lo_form1 = document.cashrcpt_form_detail;
+
+        var lb_delconfirm = false;
+
+        lb_delconfirm  =  confirm('정말 삭제 하시겠습니까?');
+
+		if(lo_form1.cashrcpt_flag.value =="N") {
+			alert("취소할 신청 내역이 없습니다. 취소할 독자를 선택 후 취소하세요.");
+			return false;
+		}
+
+		if(lo_form1.aplcpath.value =="10") {
+			alert("모닝플러스를 통해 신청한 내역은 삭제할수 없습니다. 독자가 직접 취소해야 합니다");
+			return false;
+		}
+
+        if (lb_delconfirm) {
+	        //독자번호 체크
+	        if (lo_form1.rdr_no.value.length != 9 || lo_form1.medicd.value.length < 1 || lo_form1.termsubsno.value.length != 4) {
+	            alert("독자번호를 확인할 수 없는 데이타입니다.");
+	            lo_form1.aplcpers.focus();
+	            return;
+	        }
+
+			lo_form1.flag.value 		=  "D";
+
+	        makeValue(lo_form1);
+	        lo_form1.action = "/ps/support/1416";
+	        lo_form1.target = "ifrm";
+	        lo_form1.method = "post";
+	        lo_form1.submit();
+	    }
+	    return;
+    }
+
+    // 현금영수증 발행 내역을 조회한다
+    function list_search(startpage){
+        var lo_form1 = document.cashrcpt_form;
+
+        if(!validate(lo_form1)) { return false; }
+        else{
+            makeValue(lo_form1);
+        }
+        lo_form1.curr_page_no.value = startpage;
+
+        lo_form1.action = "/ps/support/1406";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+    }
+
+    // 현금영수증 리스트 인쇄
+    function print_list() {
+        var lo_form1 = document.cashrcpt_form;
+
+        if(!validate(lo_form1)) { return false; }
+        else{
+            makeValue(lo_form1);
+        }
+
+        lo_form1.action = "/ps/support/1411";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+    }
+
+	function set_detail(rdr_no,medicd) {
+        var lo_form1 = document.cashrcpt_form;
+
+		lo_form1.rdr_no.value = rdr_no;
+		lo_form1.medicd_m.value = medicd;
+
+        lo_form1.action = "/ps/support/1421";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+	}
+
+    // 페이지 이동
+    function page_move(curr_page_no) {
+        var lo_form1 = document.cashrcpt_form;
+        if(!curr_page_no) {
+            lo_form1.curr_page_no.value = '1';
+        } else {
+            lo_form1.curr_page_no.value = curr_page_no;
+        }
+
+        list_search(curr_page_no);
+    }
+
+    // 독자 검색
+    function rdr_search()
+    {
+        var lo_form1 = document.cashrcpt_form_detail;
+        var rdrnm =  lo_form1.rdrnm.value ;
+        var rdrtel = lo_form1.rdrtel_no1.value ;
+        var rdrte2 = lo_form1.rdrtel_no2.value ;
+        var rdrte3 = lo_form1.rdrtel_no3.value ;
+        var rdrptph1 = lo_form1.rdrptph_no1.value;
+        var rdrptph2 = lo_form1.rdrptph_no2.value;
+        var rdrptph3 = lo_form1.rdrptph_no3.value;
+
+        var lo_chk = "";
+        lo_chk = ""
+        if (rdrnm == "" &&  (rdrtel == "" || rdrte2 == "" || rdrte3 == "" ) && (rdrptph1 == "" || rdrptph2 == "" ||rdrptph1 == "") ) {
+            alert("독자명을 입력하세요!");
+            lo_form1.rdrnm.focus();
+            return;
+        }
+
+        var ls_win      = "scrollbars=yes,toolbar=no,location=no,directories=no,width=700, height=300 resizable=no,mebar=no,left=200,top=100";
+            window.open("about:blank" , "acq_dtls", ls_win);
+            lo_form1.target = "acq_dtls";            
+            lo_form1.action = "/ps/support/1106";
+            lo_form1.submit();
+			lo_form1.reset();
+    }
+    // 팝업에서 선택된 독자 set
+    function set_rdr(prn,bocd,bocdnm,medicd,medinm,rdr_no,rdrnm,termsubsno,dlvzip,dlvaddr,dlvdtlsaddr,rdrtel1,rdrtel2,rdrtel3,subsfrser_no,substoser_no,rdrptph1,rdrptph2,rdrptph3){
+        var lo_form1 = document.cashrcpt_form_detail;
+        lo_form1.rdr_no.value = rdr_no ;
+        lo_form1.rdrnm.value = rdrnm ;
+        lo_form1.prn.value = prn ;
+        lo_form1.rdrbocd.value = bocd ;
+        lo_form1.termsubsno.value = termsubsno ;
+        lo_form1.bocdnm.value = bocdnm ;
+        lo_form1.medicd.value = medicd ;
+        lo_form1.medinm.value = medinm ;
+        //lo_form1.zip.value = dlvzip ;
+        //lo_form1.addr.value = dlvaddr ;
+        //lo_form1.dtlsaddr.value = dlvdtlsaddr ;
+        lo_form1.rdrtel_no1.value = rdrtel1 ;
+        lo_form1.rdrtel_no2.value = rdrtel2 ;
+        lo_form1.rdrtel_no3.value = rdrtel3 ;
+        lo_form1.subsfrser_no.value = subsfrser_no;
+        lo_form1.substoser_no.value = substoser_no;
+        lo_form1.addr_all.value = dlvaddr + " " + dlvdtlsaddr;
+        lo_form1.rdrptph_no1.value = rdrptph1 ;
+        lo_form1.rdrptph_no2.value = rdrptph2 ;
+        lo_form1.rdrptph_no3.value = rdrptph3 ;
+		lo_form1.aplcpers.focus();
+        window.close();
+    }
+
+
+function jsReset() {
+    var lo_form1    = cashrcpt_form_detail;
+
+    lo_form1.reset();
+    return;
+}
+</script>
+</head>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onload="jsinit();">
+<table width="100%" border="0" cellspacing="0" cellpadding="0" height="100%">
+  <tr>
+    <td valign="top" align="center">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <!--
+          <td bgcolor="#797777" height="25" class="home"><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle"><b>총괄
+          &gt; </b>현금영수증</td>
+          -->
+          <td bgcolor="#797777" height="25" class="home"><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle"><b>독자
+          &gt; </b>현금영수증조회</td>
+        </tr>
+        <tr>
+          <td height="10">
+          <!--내용을 위한 여백-->
+          </td>
+        </tr>
+      </table>
+
+      <table width="830" border="0" cellspacing="0" cellpadding="0" id="cashrcpt_detail">
+          <form name="cashrcpt_form_detail" method="post" action="">
+          <input type="hidden" name="selpubclsf"	 value="2">
+          <input type="hidden" name="flag" 			 value="">
+          <input type="hidden" name="cashrcpt_flag"  value="N">
+
+          <tr>
+            <td valign="top">
+				<table width="830" border="0" cellspacing="0" cellpadding="2" bgcolor="#FFFFFF" class="gray" >
+                    <tr>
+                      <td width="70" bgcolor="#dddddd" class="gray"> 성명<font color="blue">*</font></td>
+                      <td class="gray" width="160">
+                        <input name="rdrnm" type="text"  value="" size="20" class="text_box">
+                      </td>
+                      <td width="70" bgcolor="#dddddd" class="gray"> 전화번호<font color="blue">*</font></td>
+                      <td class="gray" width="130">
+                        <input name="rdrtel_no1" type="text"  value="" size="4" class="text_box"> -
+                        <input name="rdrtel_no2" type="text"  value="" size="4" class="text_box"> -
+                        <input name="rdrtel_no3" type="text"  value="" size="4" class="text_box">
+                      </td>
+                      <td width="70" bgcolor="#dddddd" class="gray"> 휴대폰번호<font color="blue">*</font></td>
+                      <td class="gray" width="300">
+                        <input name="rdrptph_no1" type="text" value="" size="4" class="text_box">-
+                        <input name="rdrptph_no2" type="text" value="" size="4" class="text_box">-
+                        <input name="rdrptph_no3" type="text" value="" size="4" class="text_box">
+                          <img src="/html/comm_img/bu_search07.gif" width="90" height="19" align="absmiddle" border="0" style="cursor:hand"  onclick="rdr_search();window.event.returnValue=false;" >
+                          <img src="/html/comm_img/bu_cencle.gif"   width="39" height="19" align="absmiddle" border="0" style="cursor:hand"  onclick="jsReset();" >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="70" bgcolor="#dddddd" class="gray" >소속지사<font color="red">*</font></td>
+                      <td class="gray"  width="160">
+                      <input type="text" name="bocdnm" value="" size="20" class="readonly_box" style="text-align:center" readonly caption="소속지사" notEmpty>
+                      <input type="hidden" name="rdrbocd" value=""  >
+                      </td>
+
+                      <td width="70" bgcolor="#dddddd" class="gray" >구독매체<font color="red">*</font></td>
+                      <td class="gray"  width="130">
+                      <input type="text" name="medinm" value="" class="readonly_box" style="text-align:center" readonly caption="구독매체" notEmpty>
+                      </td>
+
+                      <td width="70" bgcolor="#dddddd" class="gray" >독자번호<font color="red">*</font></td>
+                      <td class="gray"  width="300">
+                      <input type="text" name="rdr_no" value="" size="9" class="readonly_box" style="text-align:center" readonly notEmpty> -
+                      <input type="text" name="medicd" value="" size="3" class="readonly_box" style="text-align:center" readonly notEmpty> -
+                      <input type="text" name="termsubsno" value="" size="4" class="readonly_box" style="text-align:center" readonly notEmpty>
+                      </td>
+
+                    </tr>
+                    <tr>
+                      <td width="70" bgcolor="#dddddd" class="gray" >구독기간<font color="red">*</font></td>
+                      <td class="gray"  width="160">
+                      <input type="text" name="subsfrser_no" size="10" value="" class="readonly_box" style="text-align:center" readonly caption="구독기간" notEmpty> -
+                      <input type="text" name="substoser_no" size="10" value="" class="readonly_box" style="text-align:center" readonly caption="구독기간" notEmpty>
+                      </td>
+
+                      <td width="70" bgcolor="#dddddd" class="gray" >주소<font color="red">*</font></td>
+                      <td class="gray" colspan="3">
+                          <input type="text" size="70" name="addr_all" value="" class="readonly_box" style="text-align:left" readonly caption="주소" notEmpty>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td width="70" bgcolor="#dddddd" class="gray" >신청자명<font color="red">*</font></td>
+                      <td width="160" class="gray" >
+                        <input type="text" name="aplcpers" size="10" maxlength="10" class="text_box" caption="신청자명" notEmpty >
+                      </td>
+                      <td width="70"  bgcolor="#dddddd" class="gray" >주민번호<font color="blue">*</font></td>
+                      <td width="130" class="gray" >
+                        <input type="text" name="prn" size="13" maxlength="13" class="text_box" caption="주민번호" dataType="number">
+                      </td>
+                      <td width="70"  bgcolor="#dddddd" class="gray" >핸드폰번호<font color="blue">*</font></td>
+                      <td width="300" class="gray">
+                        <input type="text" name="ptphno1" size="3" maxlength="3" class="text_box" caption="핸드폰1" dataType="number">
+                        <input type="text" name="ptphno2" size="4" maxlength="4" class="text_box" caption="핸드폰2" dataType="number">
+                        <input type="text" name="ptphno3" size="4" maxlength="4" class="text_box" caption="핸드폰3" dataType="number">
+					  </td>
+					</tr>
+					<tr>
+                       <td width="70" bgcolor="#dddddd" class="gray" >발급구분<font color="red">*</font></td>
+                       <td width="160" class="gray">
+                          <select name="rcptclsf" size="1" class="sel_all" style="width:90;" notEmpty caption="현금영수증발급여부">
+                            <option value=''  selected  >선택</option>
+                            <%= ds.rcptclsfcurOptHtml("") %>
+                          </select>
+                        </td>
+                       <td width="70" bgcolor="#dddddd" class="gray" >신청경로<font color="red">*</font></td>
+                       <td width="160" class="gray">
+                          <select name="aplcpath" size="1" class="sel_all" style="width:90;" notEmpty caption="신청경로">
+                            <option value=''  selected  >선택</option>
+                            <%= ds.aplcpathcurOptHtml("") %>
+                          </select>
+                        </td>
+					  <td align="right" class="gray" colspan="2">
+                        <img src="/html/comm_img/bu_save.gif" width="39" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="cashrcpt_save();window.event.returnValue=false;">
+                        <img src="/html/comm_img/bu_del.gif"  width="39" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="cashrcpt_delete();window.event.returnValue=false;">
+                      </td>
+                    </tr>
+				</table>
+			</td></tr>
+          </form>
+      </table>
+
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <form name="cashrcpt_form" method="post" action="" >
+        <input type="hidden" name="curr_page_no"        value ="1">
+	    <input type="hidden" name="records_per_page"    value="<%=records_per_page%>"> <!--//화면에 보여줄  ROW수-->
+	    <input type="hidden" name="kubun"               value ="">
+        <input type="hidden" name="js_fn_nm"            value ="page_move">
+		<input type="hidden" name="selpubclsf"          value="2">
+		<input type="hidden" name="rdr_no"				value="">
+		<input type="hidden" name="medicd_m"			value="">
+
+        <tr>
+          <td bgcolor="#EBE9DC" class="title" colspan="9"><b>현금영수증 신청목록</b></td>
+		</tr>
+        <tr>
+            <td height="3" colspan="9">
+              <!------여백--- -->
+            </td>
+        </tr>
+        <tr>
+            <td height="27" class="title" bgcolor="#EBE9DC" width="70"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle"> 신청기간</td>
+            <td height="27" class="title"  bgcolor="#EBE9DC"  width="160">
+            <input type="text" name="cashrcpt_dtbgn" class="text_box" size="10" value="<%=Util.addDate(Util.getDate(),-30)%>" caption="검색 시작일" notEmpty dataType="date">
+            -
+            <input type="text" name="cashrcpt_dtend" class="text_box" size="10" value="<%=Util.getDate()%>" caption="검색 종료일" notEmpty dataType="date">
+            </td>
+
+          <td width="70"  bgcolor="#EBE9DC" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">매체코드</td>
+          <td width="90" bgcolor="#EBE9DC" class="title">
+            <select name="medicd" size="1" class="sel_all" style="width:80;">
+              <option value=''  selected  >전체</option>
+              <%= ds.medicdcurOptHtml("") %>
+            </select>
+          </td>
+          <td width="70"  bgcolor="#EBE9DC" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">확인지사</td>
+          <td width="90" bgcolor="#EBE9DC" class="title">
+            <select name="bocd" size="1" class="sel_all" style="width:80;">
+              <option value=''  selected  >전체</option>
+              <%= ds.bocdcurOptHtml("") %>
+            </select>
+          </td>
+          <td width="70"  bgcolor="#EBE9DC" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">발급여부</td>
+          <td width="70" bgcolor="#EBE9DC" class="title">
+            <select name="rcptclsf" size="1" class="sel_all" style="width:60;">
+              <option value=''  selected  >전체</option>
+              <%= ds.rcptclsfcurOptHtml("") %>
+            </select>
+          </td>
+          <td width="*"   bgcolor="#EBE9DC" class="title" align="right">
+            <input type="image" src="/html/comm_img/bu_search.gif" width="36" height="19" border="0" align="absmiddle"  style="cursor:hand" onclick="javascript:list_search(1);window.event.returnValue=false;">
+            <input type="image" src="/html/comm_img/bu_print.gif"  width="39" height="19" border="0" align="absmiddle"  style="cursor:hand" onclick="print_list();window.event.returnValue=false;"></td>
+          </td>
+        </tr>
+
+        <tr>
+          <td height="3" colspan="9">
+            <!--여백-->
+          </td>
+        </tr>
+        </form>
+      </table>
+
+      <table cellspacing="0" width="830" cellpadding="0" border="0">
+        <tr>
+          <td>
+            <table  cellspacing="0" width="830" cellpadding="2" border="0" class="gray" bgcolor="#FFFFFF" id="cashrcpt_list">
+
+              <tr bgcolor="#EBE9DC" class="title" align="center">
+                  <td class="gray" align="center" width="70"> 신청일자 </td>
+                  <td class="gray" align="center" width="60"> 독자번호 </td>
+                  <td class="gray" align="center" width="80"> 매체명 </td>
+                  <td class="gray" align="center" width="100"> 수취인명 </td>
+                  <td class="gray" align="center" width="80"> 신청자명 </td>
+                  <td class="gray" align="center" width="100"> 주민번호 </td>
+                  <td class="gray" align="center" width="100"> 핸드폰 </td>
+                  <td class="gray" align="center" width="70"> 발행구분 </td>
+                  <td class="gray" align="center" width="70"> 신청경로 </td>
+              </tr>
+
+<%
+    for(int i=0 ; i < loop_cnt ; i++) {
+%>
+              <tr onmouseover="this.style.backgroundColor='#EDFFF1'" onmouseout="this.style.backgroundColor=''">
+                    <td  class="gray" align="center" width="70"> &nbsp; </td>
+                    <td  class="gray" align="center" width="60"> &nbsp; </td>
+                    <td  class="gray" align="center" width="80"> &nbsp; </td>
+                    <td  class="gray" align="center" width="100"> &nbsp; </td>
+                    <td  class="gray" align="center" width="80"> &nbsp; </td>
+                    <td  class="gray" align="center" width="100"> &nbsp; </td>
+                    <td  class="gray" align="center" width="100"> &nbsp; </td>
+                    <td  class="gray" align="center" width="70"> &nbsp; </td>
+                    <td  class="gray" align="center" width="70"> &nbsp; </td>
+              </tr>
+<%
+    }
+%>
+            </table>
+            <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" id="navi">
+                <tr>
+                  <td align="center" height="2">
+                    <!--여백-->
+                  </td>
+                </tr>
+                <tr>
+                   <td colspan=5 align="center" bgcolor="#E8E8E8">
+                        <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+                        <jsp:param name = "curr_page_no"      value="1"/>
+                        <jsp:param name = "total_records"     value="20"/>
+             		    <jsp:param name = "js_fn_nm"          value="page_move"/>
+                        <jsp:param name = "records_per_page"  value="20"/>
+                        <jsp:param name = "page_set_gubun"    value="0"/>
+                        </jsp:include>
+                        <!--JSP PAGE END------------------------------------------------------------------------------------>
+                    </td>
+                </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="ifrm" width=830 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+<!--JSP FOOTER START-------------------------------------------------------------------------------->
+<!--%@ include file=="/common/footer.jsp" %-->
+<!--JSP FOOTER END---------------------------------------------------------------------------------->
+
+</body>
+</html>

@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_QTY_3100.xrw
+* 기능 : 판매 - 부수관리 - 발송부수증감검색
+* 작성일자 : 2009.03.10
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var bgn_issu_dt		= model.getValue("/root/reqData/searchData/bgn_issu_dt");
+					var end_issu_dt		= model.getValue("/root/reqData/searchData/end_issu_dt");
+					
+					if ( bgn_issu_dt == ""  ){
+						commAlert("발행 시작일이 없습니다");
+						return;
+					}
+					
+					if ( end_issu_dt == "" ){
+						end_issu_dt	= bgn_issu_dt;
+						model.setValue("/root/reqData/searchData/end_issu_dt", end_issu_dt);
+					}
+					
+					if ( bgn_issu_dt > end_issu_dt ){
+						commAlert("발행 종료일이 발행 시작일보다 클 수 없습니다.");
+						return;
+					}
+					
+					if(!se_chkOverDate(bgn_issu_dt,end_issu_dt)) return;
+					var root 	= "/root/reqData/searchData";
+					var tarRoot	= "/root/reqData/searchData2";
+					
+					var team				= model.getValue(root + "/team"			);
+					var part				= model.getValue(root + "/part"			);
+					var area				= model.getValue(root + "/area"			);
+					var bo_cd			= model.getValue(root + "/bo_cd"			);
+					var send_plac_seq 	= model.getValue(root + "/send_plac_seq"	);
+					var medi_cd			= model.getValue(root + "/medi_cd"			);
+					var spsl_gubun		= model.getValue(root + "/spsl_gubun"		);
+					
+					model.setValue(tarRoot + "/team"			, team			);
+					model.setValue(tarRoot + "/part"			, part			);
+					model.setValue(tarRoot + "/area"			, area			);
+					model.setValue(tarRoot + "/bo_cd"			, bo_cd			);
+					model.setValue(tarRoot + "/send_plac_seq"	, send_plac_seq	);
+					model.setValue(tarRoot + "/medi_cd"		, medi_cd		);
+					model.setValue(tarRoot + "/spsl_gubun"		, spsl_gubun		);
+					
+					var action = "se_qty_3110_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					var rows = datagrid1.rows;
+					if ( rows > datagrid1.fixedRows ){
+						goSubSearch()
+					}
+				}
+				
+				function goSubSearch(){
+					var row		= datagrid1.row;
+					
+					if ( row < 1 ){
+						row = 1;
+					}
+					
+					var issu_dt	= datagrid1.valueMatrix(row, 1);
+					
+					if ( issu_dt == "증감계" ){
+						return;
+					}
+					
+					var rows = datagrid2.rows;
+					datagrid2.unmergeByFree(rows - 1, 1);
+					
+					var searchForm	= model.getValue("/root/reqData/searchData/searchForm");
+					model.setValue("/root/reqData/searchData2/issu_dt"		, issu_dt	);
+					model.setValue("/root/reqData/searchData2/searchForm"	, searchForm	);
+					
+					var hiddenYn, width, hCnt = 0;
+					if ( searchForm == "1" ){
+						hiddenYn = new Array(false, true, true, true);
+						width = new Array("200", "0", "0", "0","220", "220", "220", "220");
+					} else if ( searchForm == "2" ){
+						hiddenYn = new Array(false, false, true, true);
+						width = new Array("160", "160", "0","0","190", "190", "190", "190");
+					} else if ( searchForm == "3" ){
+						hiddenYn = new Array(false, false, false, true);
+						width = new Array("130", "130", "130", "0","170", "170", "170", "170");
+					} else {
+						hiddenYn = new Array(false, false, false, false);
+						width = new Array("110", "110", "110", "110", "150", "150", "150", "150");
+					}
+
+					for ( var i = 0 ; i < hiddenYn.length ; i++ ){
+						datagrid2.colHidden(i + 1) = hiddenYn[i];
+						if ( !hiddenYn[i] ) { hCnt++ };
+					}
+					
+					for ( var i = 0 ; i < width.length ; i++ ){
+						datagrid2.colWidth(i + 1) = width[i];
+					}
+					
+					caption12.refresh();
+					
+					var action = "se_qty_3120_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					rows = datagrid2.rows;
+					if ( rows > datagrid2.fixedRows ){
+						datagrid2.mergeByFree(rows - 1, 1, rows - 1, hCnt);
+					}
+					
+				}
+				
+			//발송처를 조회한다.
+				function openSendPlacPopup(gubun){
+					var root = "/root/reqData/searchData";
+					var root2 = "/root/reqData/searchData";
+					
+					if(gubun =="N"){
+					var code     = model.getValue("/root/reqData/searchData/send_plac_cd_seq");					
+					 var codecnt = 0;
+					 for ( var i=0; i<code.length; i++ ) {
+					  ch = code.charAt(i);
+						if (! isNaN(ch)) {
+						  	codecnt++;
+						 }
+					 }					 
+					 if(codecnt !=8){
+						model.setValue("/root/reqData/searchData/send_plac_cd_seq","");		
+						model.setValue("/root/reqData/searchData/send_plac_nm",code);		
+						model.setValue(root + "/bo_cd"			, "");
+						model.setValue(root + "/send_plac_seq"		, "");					
+						
+					 }else{
+					 	var send_plac_cd_seq = model.getValue(root + "/send_plac_cd_seq");
+						send_plac_cd_seq = send_plac_cd_seq.replace("-", "");
+						model.setValue(root + "/bo_cd"				, send_plac_cd_seq.substr(0, 5));
+						model.setValue(root + "/send_plac_seq"		, send_plac_cd_seq.substr(5, 3));
+						model.setValue("/root/reqData/searchData/send_plac_nm","");	
+					 }
+					model.refresh();
+					}
+					se_getSendPlac01(gubun, root, root2, "send_plac_cd_seq", "send_plac_nm", "");
+
+					model.refresh();
+					
+					
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<medilist>
+								<record>
+									<cd/>
+									<cdnm/>
+									<cd_abrv_nm/>
+								</record>
+							</medilist>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<team/>
+							<part/>
+							<area/>
+							<bgn_issu_dt/>
+							<end_issu_dt/>
+							<send_plac_cd_seq/>
+							<bo_cd/>
+							<send_plac_seq/>
+							<spsl_gubun>1</spsl_gubun>
+							<searchForm>1</searchForm>
+							<send_plac_nm/>
+							<medi_cd/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<multiUpDate/>
+						<searchData2>
+							<team/>
+							<part/>
+							<area/>
+							<issu_dt/>
+							<bo_cd/>
+							<send_plac_seq/>
+							<spsl_gubun/>
+							<searchForm/>
+							<medi_cd/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<issu_dt/>
+									<before_qty/>
+									<qty/>
+									<after_qty/>
+								</record>
+							</curlist>
+							<chglist>
+								<record>
+									<dept_nm/>
+									<sub_dept_nm/>
+									<area_nm/>
+									<bo_nm/>
+									<before_qty/>
+									<qty/>
+									<after_qty/>
+								</record>
+							</chglist>
+						</gridData>
+						<MsgData/>
+						<code/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					makeTeamSearch(
+									"se_qty_3100_m"
+								  , "/se/qty/3100"
+								  , "/root/reqData"  
+		                            , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  , "area_combo"
+								  );
+					var bgn_issu_dt	= model.getValue("/root/initData/bgn_issu_dt");
+					var end_issu_dt	= model.getValue("/root/initData/end_issu_dt");
+					
+					model.setValue("/root/reqData/searchData/bgn_issu_dt", bgn_issu_dt);
+					model.setValue("/root/reqData/searchData/end_issu_dt", end_issu_dt);
+					
+					combo1.select(0);
+					combo2.select(0);
+					combo3.select(0);
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_qty_3100_m" action="/se/qty/3100" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet"/>
+			<submission id="se_qty_3110_l" action="/se/qty/3110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData"/>
+			<submission id="se_qty_3120_l" action="/se/qty/3120" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData2" resultref="/root/resData/gridData/chglist"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,11;1,935;2,65;2,70;2,725;" style="font-family:돋움; font-size:12px; background-image:/html/images/bg_946.gif; ">
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" allowselection="false" caption="발행일자^증감전부수^증감부수^증감후부수" colsep="#" colwidth="225,225,225,225" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:9px; top:145px; width:926px; height:298px; ">
+			<col ref="issu_dt"/>
+			<col ref="before_qty" format="#,###" style="text-align:right; "/>
+			<col ref="qty" format="(-)#,###" style="text-align:right; "/>
+			<col ref="after_qty" format="#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					goSubSearch();
+				]]>
+			</script>
+		</datagrid>
+		<button id="button7" class="btn03" crud="R" style="left:807px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+					model.refresh();
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:104px; width:926px; height:5px; background-image:/html/images/line_03.gif; "/>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/chglist/record" caption="팀^파트^지역^센터^증감전부수^증감부수^증감후부수" colsep="^" colwidth="110, 110, 110, 110, 150, 150, 150, 150" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" style="left:10px; top:473px; width:926px; height:253px; ">
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="sub_dept_nm" style="text-align:left; "/>
+			<col ref="area_nm" style="text-align:left; "/>
+			<col ref="bo_nm"/>
+			<col ref="before_qty" format="#,###" style="text-align:right; "/>
+			<col ref="qty" format="#,###" style="text-align:right; "/>
+			<col ref="after_qty" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<caption id="caption1" class="tit02" style="left:10px; top:454px; width:76px; height:20px; ">발행일자 :</caption>
+		<button id="btnClose" class="btn03" style="left:875px; top:44px; width:63px; height:20px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<group id="group_scr" class="gro_sel" ref="/root/reqData/searchData/medi_cd" style="left:10px; top:70px; width:926px; height:52px; ">
+			<caption id="caption5" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<select1 id="area_combo" ref="/root/reqData/searchData/area" navindex="3" appearance="minimal" style="left:501px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/arealist/record">
+						<label ref="area_nm"/>
+						<value ref="area_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption2" class="list_cap01" style="left:414px; top:0px; width:80px; height:26px; ">지역</caption>
+			<caption id="caption3" class="list_cap01" style="left:207px; top:0px; width:80px; height:26px; ">파트</caption>
+			<caption id="caption4" class="list_cap01" style="left:620px; top:0px; width:90px; height:26px; ">발행일자</caption>
+			<select1 id="part_combo" ref="/root/reqData/searchData/part" navindex="2" appearance="minimal" style="left:294px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/partlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="team_combo" ref="/root/reqData/searchData/team" navindex="1" appearance="minimal" style="left:87px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/teamlist/record">
+						<label ref="dept_nm"/>
+						<value ref="dept_cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">팀</caption>
+			<input id="input3" ref="/root/reqData/searchData/bgn_issu_dt" class="req" navindex="4" inputtype="date" format="yyyy-mm-dd" caption="지급시작일자" style="left:718px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/bgn_issu_dt", value);
+						goSearch();
+						model.refresh();
+					}
+				]]>
+				</script>
+			</input>
+			<caption id="caption6" class="list_cap01" style="left:620px; top:25px; width:90px; height:26px; ">발송처</caption>
+			<input id="input1" ref="/root/reqData/searchData/end_issu_dt" navindex="5" inputtype="date" format="yyyy-mm-dd" style="left:830px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input4.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/end_issu_dt", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<caption id="caption8" style="left:811px; top:4px; width:15px; height:20px; ">~</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/spsl_gubun" navindex="8" appearance="minimal" style="left:294px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<item>
+						<label>특판포함</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>특판제외</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>추가포함</label>
+						<value>3</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption9" class="list_cap01" style="left:207px; top:25px; width:80px; height:26px; ">구분</caption>
+			<input id="input2" ref="/root/reqData/searchData/send_plac_cd_seq" navindex="6" inputtype="button" caption="노선" style="left:718px; top:29px; width:80px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+						input4.currentText = "";							
+						if ( event.keyCode == 13 ){						
+							var code = input2.currentText;		
+							model.setValue("/root/reqData/searchData/send_plac_cd_seq", code);
+							if(code ==""){return;}
+							openSendPlacPopup("N");
+							
+						}
+				]]>
+				</script>
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var code = input2.currentText;
+						model.setValue("/root/reqData/searchData/send_plac_cd_seq", code);
+						openSendPlacPopup("P");
+					]]>
+				</script>
+			</input>
+			<input id="input4" ref="/root/reqData/searchData/send_plac_nm" class="output" disabled="true" style="left:803px; top:29px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="DOMFocusOut">
+					<![CDATA[
+					var code = input4.currentText;
+
+					model.setValue("/root/reqData/searchData/send_plac_cd_seq", "");	
+					input2.refresh();
+					model.setValue("/root/reqData/searchData/send_plac_nm", code);	
+					if ( code == "" ){
+						return;
+					}
+					
+					openSendPlacPopup("N");
+				]]>
+				</script>
+			</input>
+			<select1 id="combo2" ref="/root/reqData/searchData/searchForm" navindex="9" appearance="minimal" style="left:501px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<item>
+						<label>팀</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>파트</label>
+						<value>2</value>
+					</item>
+					<item>
+						<label>지역</label>
+						<value>3</value>
+					</item>
+					<item>
+						<label>센터</label>
+						<value>4</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="caption10" class="list_cap01" style="left:414px; top:25px; width:80px; height:26px; ">조회형태</caption>
+			<select1 id="combo3" ref="/root/reqData/searchData/medi_cd" navindex="7" appearance="minimal" style="left:87px; top:29px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medilist/record">
+						<label ref="cd_abrv_nm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption11" class="list_cap01" style="left:0px; top:25px; width:80px; height:26px; ">매체</caption>
+		</group>
+		<group id="group1" class="gro_line" style="left:10px; top:128px; width:926px; height:5px; "/>
+		<caption id="caption12" ref="/root/reqData/searchData2/issu_dt" style="left:90px; top:454px; width:85px; height:20px; "/>
+	</xhtml:body>
+</xhtml:html>

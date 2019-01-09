@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>소득세법</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<simp_tax_rate>
+								<item/>
+							</simp_tax_rate>
+							<dept_cd>
+								<item/>
+							</dept_cd>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<dept_cd/>
+							<emp_no/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<cmpy_cd/>
+								<emp_no/>
+								<nm_korn/>
+								<dept_nm/>
+								<non_tax_yn_jrnst/>
+								<non_tax_yn_frnc/>
+								<simp_tax_rate/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+						<temp/>
+						<totcnt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				
+					function loadData(){
+						datagrid1.clearStatus();
+						model1.setValue("/root/resData/temp", "1");
+						model1.send("hd_saly_2600");
+
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet/CURLIST");
+
+						datagrid1.refresh();
+						var totcnt = datagrid1.rows;
+												
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "소득세법";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					var obj = htmldocument.SessionInfo;
+					
+					if(obj.cmpycd.value  ==  "100" || obj.cmpycd.value  ==  "500")
+					{
+						//회사 에 따라 보이고 안보이게 함 
+						datagrid1.colhidden(datagrid1.colRef("non_tax_yn_jrnst"))=false;
+						datagrid1.colhidden(datagrid1.colRef("non_tax_yn_frnc"))=false;				
+					}
+					else 
+					{
+						//회사 에 따라 보이고 안보이게 함 
+						datagrid1.colhidden(datagrid1.colRef("non_tax_yn_jrnst"))=true;
+						datagrid1.colhidden(datagrid1.colRef("non_tax_yn_frnc"))=true;				
+					}
+					
+					
+					model1.send("hd_co_1000");
+					model1.copyNode("/root/initData/comboSet/dept_cd", "/root/dataSet/dept_cd");
+					model1.removenode("/root/dataSet");
+					
+					
+					model1.send("hd_saly_2601");
+					model1.copyNode("/root/initData/comboSet/simp_tax_rate", "/root/dataSet/simp_tax_rate");
+					model1.removenode("/root/dataSet");
+					//datagrid1.isReadOnly(1, 1, 1, 4) = true;
+					
+					
+					//model1.setValue("/root/resData/temp", "0");
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_saly_2601" action="/hd/saly/2601" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/dataSet"/>
+			<submission id="hd_saly_2600" action="/hd/saly/2600" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/dataSet"/>
+			<submission id="hd_saly_2602" action="/hd/saly/2602" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/tempData"/>
+			<submission id="hd_co_1000" action="/hd/co/1000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="2,55;2,70;2,84;2,80;2,680;1,936;1,927;1,926;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA2" class="btn02" style="left:399px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					datagrid1.clearStatus();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:621px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" crud="R" style="left:455px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						loadData();
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" crud="C" style="left:510px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[					
+				
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					if (!rowInSubmit(datagrid1)) {
+						return;
+					}
+					model1.setValue("/root/reqData/multiUpDate", datagrid1.getUpdateData());
+					//var cmpycd = model1.getValue("/root/resData/resForm/emp_no");
+
+					model1.send("hd_saly_2602");
+
+					if(submit_completed()) {
+						model1.reset();
+						loadData();
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" crud="C" style="left:565px; top:0px; width:52px; height:21px; ">
+				<caption>엑셀다운</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					//excel 파일로 저장한다
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+					if(filePath != "") {
+						datagrid1.saveExcel(filePath);
+						window.exec(filePath);
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" style="left:10px; top:80px; width:926px; height:30px; ">
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:90px; height:26px; text-align:center; ">부서</caption>
+			<caption id="caption10" class="list_cap02" style="left:85px; top:0px; width:591px; height:26px; text-align:center; "/>
+			<select1 id="combo2" ref="/root/reqData/searchData/dept_cd" class="req" appearance="minimal" caption="부서" style="left:94px; top:4px; width:210px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dept_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:325px; top:0px; width:90px; height:26px; text-align:center; ">사번</caption>
+			<input id="emp_no" ref="/root/reqData/searchData/emp_no" format="999999" style="left:420px; top:4px; width:100px; height:18px; "/>
+		</group>
+		<group id="group2" style="left:10px; top:105px; width:926px; height:595px; ">
+			<caption id="caption9" class="tit02" style="left:0px; top:5px; width:205px; height:20px; font-weight:bold; ">소득세법</caption>
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="부서^사번^성명^원천징수비율^기자비과세^외국비과세" colsep="#" colwidth="200, 75, 100, 90, 85, 85" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:0px; top:24px; width:675px; height:548px; ">
+				<col ref="dept_nm"/>
+				<col ref="emp_no"/>
+				<col ref="nm_korn"/>
+				<col ref="simp_tax_rate" type="combo">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/simp_tax_rate/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="non_tax_yn_jrnst"/>
+				<col ref="non_tax_yn_frnc"/>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+					var row = datagrid1.row;
+					var cell = datagrid1.selectedCells;
+					
+					var codeVal;
+					var cellCol = cell.item(0).col;
+					var cellRow = cell.item(0).row;
+					var selectValue = datagrid1.valueMatrix(cellRow, cellCol);
+					if (selectValue.indexOf(' ') > -1){
+						codeVal = selectValue.substring(0, selectValue.indexOf(' '));
+					} else {
+						codeVal = selectValue;
+					}
+				
+					//datagrid1.rowStatus(row) = "2";
+					]]>
+				</script>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					rowStatus(datagrid1);
+					/*var row = datagrid1.row;
+					var col = datagrid1.col;
+					
+					if(col == 0){
+						if(datagrid1.rowStatus(datagrid1.row)=="4" 
+						|| datagrid1.rowStatus(datagrid1.row)=="5" || datagrid1.rowStatus(datagrid1.row)=="6"){
+						//if(datagrid1.rowStatus(datagrid1.row)=="4"){
+							datagrid1.removeStatus(datagrid1.row,"delete");
+						}else if (datagrid1.rowStatus(datagrid1.row)=="0"){
+							datagrid1.addStatus(datagrid1.row, "delete");
+						}
+						if(datagrid1.rowStatus(datagrid1.row)=="3" || datagrid1.rowStatus(datagrid1.row)=="1"){
+							datagrid1.removeStatus(datagrid1.row,"insert");
+							datagrid1.addStatus(datagrid1.row, "delete");
+						}
+						if(datagrid1.rowStatus(datagrid1.row)=="2"){
+							datagrid1.removeStatus(datagrid1.row,"update");
+							datagrid1.addStatus(datagrid1.row, "delete");
+						}
+					}*/
+					]]>
+				</script>
+			</datagrid>
+			<caption id="caption14" ref="/root/resData/totcnt" style="left:579px; top:574px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

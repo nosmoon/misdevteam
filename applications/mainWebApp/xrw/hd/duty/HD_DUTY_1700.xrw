@@ -1,0 +1,522 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_duty_1404_m>
+							<dataSet>
+								<xx_proc_stat_010/>
+								<XX_EMP_CLSF_LIST>
+									<record>
+										<cd_nm/>
+										<cd/>
+									</record>
+								</XX_EMP_CLSF_LIST>
+							</dataSet>
+						</hd_duty_1404_m>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<proc_stat>
+								<item/>
+							</proc_stat>
+							<hody_clsf>
+								<item/>
+							</hody_clsf>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<hd_duty_1304_m>
+							<dataSet>
+								<xx_emp_no_010/>
+							</dataSet>
+						</hd_duty_1304_m>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<proc_stat/>
+							<dept_cd/>
+							<dept_nm/>
+							<emp_no/>
+							<nm_korn/>
+							<fr_dt/>
+							<to_dt/>
+							<hody_clsf/>
+							<emp_clsf/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+							<chkbox/>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<save/>
+								<dept_nm/>
+								<emp_no/>
+								<nm_korn/>
+								<posi_nm/>
+								<duty_dt/>
+								<hody_clsf_nm/>
+								<prsnt_tm/>
+								<finish_dd_nm/>
+								<finish_tm/>
+								<alon_pay_mm/>
+								<proc_stat_nm/>
+								<addm_rest_minute/>
+								<duty_clsf_nm/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+						<totcnt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function setDept_cd(dept_cd, dept_nm){
+						model1.setValue("/root/reqData/searchData/dept_cd", dept_cd);
+						model1.setValue("/root/reqData/searchData/dept_nm", dept_nm);
+						input2.refresh();
+						output1.refresh();
+					}
+					function setEmp_no(emp_no, nm_korn){
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", nm_korn);
+						input1.refresh();
+						output2.refresh();
+					}
+					function loadSearch(){
+						var fr_dt = model1.getValue("/root/reqData/searchData/fr_dt");
+						var to_dt = model1.getValue("/root/reqData/searchData/to_dt");
+						if(fr_dt == "" || to_dt == ""){
+							alert("근태기간을 입력 후 조회해주세요.");
+							return;
+						}
+						if(fr_dt.length != 8 || to_dt.length != 8){
+							alert("근태기간을 정확히 입력해주세요.");
+							return;
+						}
+						if(fr_dt > to_dt){
+							alert("근태기간을 확인해 주세요.");
+							return;
+						}
+						model1.send("hd_duty_1700");
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+						
+						var rows = datagrid1.rows;
+						var tm = model1.getValue("/root/resData/gridData/record[1]/emp_no");
+						if(tm != ""){
+							datagrid1.isReadOnly(1, 1, 1, 11) = false;
+							chkbox.disabled = true;
+							for(var i = 1; i < rows; i++){
+								datagrid1.isReadOnly(i, 11, i, 11) = true;
+								chkbox.disabled = false;
+								datagrid1.rowStatus(i) = 0;
+							}
+						}
+						model1.setValue("/root/reqData/reqForm/chkbox", "");
+						var totcnt = datagrid1.rows;
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				    model.send("hd_duty_1304_m");
+					//alert(model1.getValue("/root/initData/hd_duty_1304_m/dataSet/xx_emp_no_010"));
+					model.refresh();
+					// 권한관리
+				
+					var obj = htmldocument.SessionInfo;
+						//setProperty("ss_posicd"   , obj.posicd.value);
+						//setProperty("ss_emp_no"   , obj.emp_no.value);	
+					if(obj.emp_no.value == ""){
+						alert("세션 정보가 없습니다. 다시 ESS 로그인 후 사용해주세요.");
+						button4.dispatch("onclick");
+					}
+					
+					if(obj.cmpycd.value != "100") //조선일보가 아닐경우 추가휴게시간 및 근무구분 항목을 보이지 않게함 
+					{
+						datagrid1.colHidden(datagrid1.colRef("addm_rest_minute")) = true; 
+						datagrid1.colHidden(datagrid1.colRef("duty_clsf_nm")) = true; 
+						
+					}
+					
+					
+					model1.send("hd_duty_1205");
+					
+					var dept  = model1.getValue("/root/dataSet/CURLIST2/record/dept_cd");
+					model1.setValue("/root/reqData/searchData/dept_cd", dept);
+					model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/dataSet/CURLIST2/record/dept_nm"));
+						
+					var pattern = ","+obj.emp_no.value+",";
+					var validation  = (","+model.getValue("/root/initData/hd_duty_1304_m/dataSet/xx_emp_no_010")+",").indexOf(pattern)==-1;
+						
+					//if(obj.emp_no.value != model1.getValue("/root/dataSet/CURLIST1/record/emp_no") && validation ){
+    	 				//button4.dispatch("onclick");
+					//}else{
+					if(validation == false)
+					{
+						input2.disabled = false;
+					}
+					model1.removenode("/root/dataSet");
+					model.send("hd_duty_1404_m");
+					//alert(model1.getValue("/root/initData/hd_duty_1404_m/dataSet/xx_proc_stat_010"));
+					makeComboGubun("A","/root/initData/hd_duty_1404_m/dataSet/XX_EMP_CLSF_LIST","record","cd_nm", "cd");
+					model.refresh();
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "일일출근정보관리";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					
+					model1.send("hd_duty_1401");
+					//model1.copyNode("/root/initData/comboSet/proc_stat", "/root/dataSet/proc_stat");
+					model1.copyNode("/root/initData/comboSet", "/root/dataSet");
+					model1.removenode("/root/dataSet");
+					
+					var now_date = new Date();
+					var year = now_date.getYear();
+					var month = now_date.getMonth() + 1;
+					var day = now_date.getDate();    
+					var month_tm = '0' + month;
+					var day_tm = '0' + day;  
+					if(month_tm.length == 3){
+						month_tm = month_tm.substring(1, 3);
+					}
+					if(day_tm.length == 3){
+						day_tm = day_tm.substring(1, 3);
+					}
+					var now_dt = year + month_tm + day_tm;
+					var now_dt_sub = year + month_tm + "01";
+					model1.setValue("/root/reqData/searchData/to_dt", now_dt);
+					model1.setValue("/root/reqData/searchData/fr_dt", now_dt_sub);
+					
+					datagrid1.isReadOnly(1, 1, 1, 12) = true;
+					chkbox.disabled = true;
+					
+					model1.refresh();
+					
+					combo4.select(0);
+					//}
+				]]>
+			</script>
+			<submission id="hd_duty_1401" action="/hd/duty/1401" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_duty_1700" action="/hd/duty/1700" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_duty_1402" action="/hd/duty/1402" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/tempData"/>
+			<submission id="hd_duty_1403" action="/hd/duty/1403" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpDate" resultref="/root/tempData"/>
+			<submission id="hd_duty_1404_m" action="/hd/duty/1404" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/hd_duty_1404_m/dataSet"/>
+			<submission id="hd_com_1103" action="/hd/com/1103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/dept_cd" resultref="/root/tempData"/>
+			<submission id="hd_duty_1304_m" action="/hd/duty/1304" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/hd_duty_1304_m/dataSet"/>
+			<submission id="hd_duty_1205" action="/hd/duty/1205" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="2,70;2,80;2,80;1,937;1,926;1,926;2,336;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA2" class="btn02" style="left:693px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						datagrid1.clearStatus();
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:870px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+							viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+						}else{
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:747px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						loadSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn03" style="left:802px; top:0px; width:65px; height:21px; ">
+				<caption>엑셀다운</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//excel 파일로 저장한다
+						var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						if(filePath != "") {
+							datagrid1.saveExcel(filePath);
+							window.exec(filePath);
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group1" style="left:10px; top:80px; width:926px; height:55px; ">
+			<caption id="caption2" class="list_cap01" style="left:0px; top:0px; width:90px; height:26px; text-align:center; ">근태기간</caption>
+			<caption id="caption10" class="list_cap02" style="left:89px; top:0px; width:837px; height:26px; text-align:center; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:25px; width:90px; height:26px; text-align:center; ">진행상태</caption>
+			<caption id="caption3" class="list_cap02" style="left:89px; top:25px; width:837px; height:26px; text-align:center; "/>
+			<select1 id="combo4" ref="/root/reqData/searchData/proc_stat" appearance="minimal" style="left:94px; top:29px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/proc_stat/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption4" class="list_cap01" style="left:320px; top:0px; width:90px; height:26px; text-align:center; ">부     서</caption>
+			<input id="input2" ref="/root/reqData/searchData/dept_cd" disabled="true" inputtype="button" maxlength="6" style="left:415px; top:4px; width:70px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setDept_cd");
+						window.load("/xrw/hd/com/HD_COM_1100.xrw","mdichild", "hd_com_1100", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						model1.setValue("/root/reqData/searchData/dept_cd", input2.currentText);
+						model1.send("hd_com_1103");
+						if(model1.getValue("/root/dataSet/CURLIST/record/cnt") != "1"){
+							alert("없는 부서이거나 사용중이 아닌 부서 입니다.");
+							model1.setValue("/root/reqData/searchData/dept_cd", "");
+							model1.setValue("/root/reqData/searchData/dept_nm", "");
+							model1.removenode("/root/dataSet");
+							model1.refresh();
+							return;
+						}
+						model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/dataSet/CURLIST/record/dept_cd"));
+						model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/dataSet/CURLIST/record/abrv_nm"));
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<output id="output1" ref="/root/reqData/searchData/dept_nm" style="left:490px; top:4px; width:106px; height:18px; "/>
+			<caption id="caption5" class="list_cap01" style="left:625px; top:0px; width:90px; height:26px; text-align:center; ">사번/성명</caption>
+			<input id="input1" ref="/root/reqData/searchData/emp_no" inputtype="button" maxlength="6" style="left:720px; top:4px; width:70px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						model.removeNodeset("/root/reqData/fwdData");  
+						model.makeNode("/root/reqData/fwdData/func_nm");
+						model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+						window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+					]]>
+				</script>
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+						if (event.keyCode ==13){
+							var emp_no = input1.currentText;
+							model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+							model1.setValue("/root/reqData/searchData/nm_korn", "");
+							
+							setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+							if(model1.getValue("/root/tempData/totalcnt") != 1){
+								return;
+							} // 카운트
+							model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+							model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+							/*model1.setValue("", model1.getValue("/root/tempData/dept_cd")); // 부서코드
+							model1.setValue("", model1.getValue("/root/tempData/dept_nm")); // 부서명
+							model1.setValue("", model1.getValue("/root/tempData/dty_cd")); // 직책코드
+							model1.setValue("", model1.getValue("/root/tempData/dty_nm")); // 직책명
+							model1.setValue("", model1.getValue("/root/tempData/posi_cd")); // 직급코드
+							model1.setValue("", model1.getValue("/root/tempData/posi_nm")); // 직급명*/
+							model1.removenode("/root/tempData");
+							input1.refresh();
+							output2.refresh();
+						}		
+					]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						var emp_no = input1.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", "");
+						
+						setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+						/*model1.setValue("", model1.getValue("/root/tempData/dept_cd")); // 부서코드
+						model1.setValue("", model1.getValue("/root/tempData/dept_nm")); // 부서명
+						model1.setValue("", model1.getValue("/root/tempData/dty_cd")); // 직책코드
+						model1.setValue("", model1.getValue("/root/tempData/dty_nm")); // 직책명
+						model1.setValue("", model1.getValue("/root/tempData/posi_cd")); // 직급코드
+						model1.setValue("", model1.getValue("/root/tempData/posi_nm")); // 직급명*/
+						model1.removenode("/root/tempData");
+						input1.refresh();
+						output2.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="output2" ref="/root/reqData/searchData/nm_korn" style="left:795px; top:4px; width:106px; height:18px; ">
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+						if (event.keyCode ==13){
+							var nm_korn = output2.currentText;
+							model1.setValue("/root/reqData/searchData/emp_no", "");
+							model1.setValue("/root/reqData/searchData/nm_korn", nm_korn);
+							
+							setInfoSearchInput("", nm_korn, "", "setEmp_no"); // 사번, 성명, 주민번호
+							if(model1.getValue("/root/tempData/totalcnt") != 1){
+								return;
+							} // 카운트
+							model1.setValue("/root/reqData/searchData/emp_no", model1.getValue("/root/tempData/emp_no")); // 사번
+							model1.setValue("/root/reqData/searchData/nm_korn", model1.getValue("/root/tempData/nm_korn")); // 성명
+							/*model1.setValue("", model1.getValue("/root/tempData/dept_cd")); // 부서코드
+							model1.setValue("", model1.getValue("/root/tempData/dept_nm")); // 부서명
+							model1.setValue("", model1.getValue("/root/tempData/dty_cd")); // 직책코드
+							model1.setValue("", model1.getValue("/root/tempData/dty_nm")); // 직책명
+							model1.setValue("", model1.getValue("/root/tempData/posi_cd")); // 직급코드
+							model1.setValue("", model1.getValue("/root/tempData/posi_nm")); // 직급명*/
+							model1.removenode("/root/tempData");
+							input1.refresh();
+							output2.refresh();
+						}	
+					]]>
+				</script>
+			</input>
+			<input id="input3" ref="/root/reqData/searchData/fr_dt" class="req" inputtype="date" style="left:94px; top:4px; width:100px; height:18px; "/>
+			<input id="input4" ref="/root/reqData/searchData/to_dt" class="req" inputtype="date" style="left:215px; top:4px; width:100px; height:18px; "/>
+			<caption id="caption15" style="left:199px; top:7px; width:11px; height:15px; ">~</caption>
+			<caption id="caption6" class="list_cap01" style="left:320px; top:25px; width:90px; height:26px; text-align:center; ">휴일구분</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/hody_clsf" appearance="minimal" style="left:415px; top:29px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/hody_clsf/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<select1 id="combo2" ref="/root/reqData/searchData/emp_clsf" appearance="minimal" style="left:720px; top:29px; width:100px; height:18px; ">
+				<choices>
+					<!--
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>정사원</label>
+						<value>10</value>
+					</item>
+					<item>
+						<label>파견사원</label>
+						<value>20</value>
+					</item>
+					-->
+					<itemset nodeset="/root/initData/hd_duty_1404_m/dataSet/XX_EMP_CLSF_LIST/record">
+						<label ref="cd_nm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption7" class="list_cap01" style="left:625px; top:25px; width:90px; height:26px; text-align:center; ">사원구분</caption>
+		</group>
+		<group id="group2" style="left:10px; top:140px; width:926px; height:555px; ">
+			<caption id="caption9" class="tit02" style="left:0px; top:0px; width:205px; height:20px; font-weight:bold; ">일일 출근정보 조회</caption>
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="선택^부서^사번^성명^직급^근무일^휴일구분^출근시간^퇴근일구분^퇴근시간^추가휴게시간^근무구분^수당지급월^신청상태" colsep="#" colwidth="30, 110, 60, 70, 75, 70, 70, 70, 70, 70, 80, 70, 75, 80" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:0px; top:20px; width:926px; height:500px; ">
+				<col ref="save" type="checkbox"/>
+				<col ref="dept_nm" style="text-align:left; "/>
+				<col ref="emp_no"/>
+				<col ref="nm_korn"/>
+				<col ref="posi_nm"/>
+				<col ref="duty_dt" format="yyyy.mm.dd"/>
+				<col ref="hody_clsf_nm"/>
+				<col ref="prsnt_tm" format="hh:nn"/>
+				<col ref="finish_dd_nm"/>
+				<col ref="finish_tm" format="hh:nn"/>
+				<col ref="addm_rest_minute" format="hh:nn"/>
+				<col ref="duty_clsf_nm"/>
+				<col ref="alon_pay_mm" type="inputdate" format="yyyy.mm"/>
+				<col ref="proc_stat_nm"/>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var selectedIdx = datagrid1.selectedRow(0);
+						var save_tm = model1.getValue("/root/resData/gridData/record[" + (selectedIdx) + "]/save");
+						if(save_tm == "true"){
+							datagrid1.isReadOnly(selectedIdx, 11, selectedIdx, 11) = false;
+						}else if(save_tm == "false"){
+							datagrid1.isReadOnly(selectedIdx, 11, selectedIdx, 11) = true;
+						}
+					]]>
+				</script>
+			</datagrid>
+			<select id="chkbox" ref="/root/reqData/reqForm/chkbox" overflow="visible" appearance="full" style="left:1px; top:22px; width:15px; height:15px; border-style:none; ">
+				<choices>
+					<item>
+						<label/>
+						<value>chkbox</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+								var ii ;
+						if(model1.getValue("/root/reqData/reqForm/chkbox") == "chkbox"){
+							for(var i = 1; i < datagrid1.rows; i++){
+								//model1.setValue("/root/resData/gridData/record["+i+"]/save", "true");
+								//model1.setValue("/root/resData/gridData/record[3]/save", "true");
+								datagrid1.valueMatrix(i,datagrid1.colRef("save")) = "true" ;
+								datagrid1.rowStatus(i) = 2;
+							}
+						}else if(model1.getValue("/root/reqData/reqForm/chkbox") == ""){
+							for(var i = 1; i < datagrid1.rows; i++){
+								datagrid1.isReadOnly(i, 11, i, 11) = true;
+								//model1.setValue("/root/resData/gridData/record["+i+"]/save", "false");
+								datagrid1.valueMatrix(i,datagrid1.colRef("save")) = "false" ;
+								datagrid1.rowStatus(i) = 0;
+							}
+						}
+						datagrid1.refresh();
+					]]>
+				</script>
+			</select>
+		</group>
+		<caption id="caption14" ref="/root/resData/totcnt" style="left:839px; top:670px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+	</xhtml:body>
+</xhtml:html>

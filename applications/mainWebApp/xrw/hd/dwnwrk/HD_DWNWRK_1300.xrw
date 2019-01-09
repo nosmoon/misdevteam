@@ -1,0 +1,834 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<hd_dwnwrk_1305_m>
+							<dataSet>
+								<xx_proc_stat_010/>
+								<xx_proc_stat_020/>
+								<xx_proc_stat_030/>
+								<xx_proc_stat_040/>
+							</dataSet>
+						</hd_dwnwrk_1305_m>
+						<session/>
+						<pageInfo/>
+						<comboSet>
+							<temp_cd1>
+								<item/>
+							</temp_cd1>
+						</comboSet>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<duty_dt/>
+							<dept_cd/>
+							<dept_nm/>
+							<proc_stat/>
+							<actu_slip_no/>
+							<pay_dt/>
+							<s_pay_dt/>
+							<s_total_amt/>
+							<s_total_peple/>
+						</searchData>
+						<multiUpData/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<reqForm>
+							<slip_seq/>
+							<slip_occr_dt/>
+							<slip_clsf_cd/>
+							<slip_incmg_pers/>
+							<slip_incmg_pers_ipadd/>
+						</reqForm>
+						<multiUpData1/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<dept_nm/>
+								<emp_no/>
+								<nm_korn/>
+								<posi_nm/>
+								<duty_dt/>
+								<erl_prsnt_bgn_tm/>
+								<erl_prsnt_end_tm/>
+								<erl_prsnt_duty_tm/>
+								<alon_amt/>
+								<prsnt_tm/>
+								<finish_tm/>
+								<finish_dd_clsf/>
+								<duty_resn/>
+								<pay_dt/>
+								<proc_stat_nm/>
+								<slip_proc_seq/>
+								<actu_slip_no/>
+								<slip_proc_mang_dt/>
+								<slip_proc_mang_seq/>
+								<proc_stat/>
+								<dept_cd/>
+								<slip_seq/>
+								<db_status/>
+							</record>
+						</gridData>
+						<resForm>
+							<record>
+							</record>
+						</resForm>
+						<slipData>
+							<record>
+								<s_cmpy_cd/>
+								<s_emp_no/>
+								<s_dept_cd/>
+								<s_total_alon_amt/>
+								<s_pay_dt/>
+								<s_duty_dds/>
+								<s_total_amt/>
+								<s_total_peple/>
+								<slip_occr_dt/>
+								<slip_clsf_cd/>
+								<slip_seq/>
+								<actu_slip_no/>
+								<incmg_pres/>
+								<incmg_pres_ipadd/>
+								<proc_stat/>
+							</record>
+						</slipData>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("hd_dwnwrk_1305_m");
+					model.refresh();
+					/*
+					alert(model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_010"));
+					alert(model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_020"));
+					alert(model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_030"));
+					alert(model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_040"));
+					*/
+					
+					var now_date = new Date();
+					var year = now_date.getYear();
+					var month = now_date.getMonth() + 1;
+					var day = now_date.getDate();    
+					var month_tm = '0' + month;
+					if(month_tm.length == 3){
+						month_tm = month_tm.substring(1, 3);
+					}
+					var now_dt = year + month_tm;
+					model1.setValue("/root/reqData/searchData/duty_dt", now_dt);
+					//콤보박스 생성
+					model1.send("hd_dwnwrk_1301");
+					model.copyNode("/root/initData/comboSet/temp_cd1","/root/tempData/temp_cd1");
+					model1.removeNodeset("/root/tempData/temp_cd1");
+					model1.refresh();
+					
+					datagrid1.fixedcellcheckbox(0, 1, false) = true;
+					//그리드 첫번째행 삭제
+					model1.removenode("/root/resData/gridData/record[1]");
+					model1.refresh();
+					
+					//총인원 설정
+					caption8.value = "총 0 건";
+					caption8.refresh();
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					var searchFlag = false;
+					
+					function searchList(){
+						//그리드 초기화
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						model1.removenode("/root/resData/slipData");
+						model1.makeNode("/root/resData/slipData");
+						model1.refresh();
+						
+						datagrid1.clearStatus();
+						datagrid1.valueMatrix(1, 1) = "0";
+						
+						//조출근무 목록생성
+						model1.send("hd_dwnwrk_1300");
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.copyNode("/root/resData/slipData", "/root/dataSet/CURLIST1");
+						
+						//총인원 설정
+						caption8.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+					
+   						//setTotal_amt_pep();
+   						setDeleteValue();
+   						
+						for (i = 1; i < datagrid1.rows; i++) {
+							if (datagrid1.valueMatrix(i, datagrid1.colRef("actu_slip_no")) != "")
+								datagrid1.isReadOnly(i, 1, i, 1) = true;
+						}
+						
+						//전표번호가 입력된 상태에서 조회할 경우 플래그값 True
+						if (model1.getValue("/root/reqData/searchData/actu_slip_no") != "")
+							searchFlag = true;
+					}
+				
+					//부서정보 설정
+					function setDept_cd(dept_cd, dept_nm) {
+						model1.setValue("/root/reqData/searchData/dept_cd", dept_cd);
+					    model1.setValue("/root/reqData/searchData/dept_nm", dept_nm);
+						model1.refresh(); 
+					}
+						
+					//전표생성시 사용하기 위한 값을 첫번째 행의 셀에 임시버퍼링 하는것 같다.
+					//총금액 총인원 구하기
+					function setTotal_amt_pep(){
+					     	
+					    var row1 = datagrid2.rows;
+					    var total_amt = 0;
+					    var cnt = 0;
+					    if(row1 == 1 || row1 == -1){
+					    	return;
+					    }
+						if(row1 > 1 && datagrid2.valueMatrix(1, 2) != ""){				     	
+							var s_flnm = model1.getValue("/root/resData/slipData/record[1]/s_flnm");
+						   	for(var i=1;i < row1;i++){
+						   		var alon_amt = model1.getValue("/root/resData/slipData/record["+i+"]/s_total_alon_amt");
+						   		total_amt =  Number(total_amt) + Number(alon_amt);
+						   		cnt++;
+						   	}
+						   	cnt = cnt - 1;
+						   	if(cnt == 0){
+						     	model1.setValue("/root/resData/slipData/record[1]/s_total_amt",total_amt);
+								model1.setValue("/root/resData/slipData/record[1]/s_total_peple",s_flnm+" 시간외수당");								
+						     	model1.setValue("/root/reqData/searchData/s_total_amt",total_amt);
+								model1.setValue("/root/reqData/searchData/s_total_peple",s_flnm+" 시간외수당");								
+						    }else{
+								model1.setValue("/root/reqData/searchData/s_total_amt",total_amt);	
+								model1.setValue("/root/reqData/searchData/s_total_peple",s_flnm+" 외 "+cnt+"명 시간외수당");
+								model1.setValue("/root/resData/slipData/record[1]/s_total_amt",total_amt);
+								model1.setValue("/root/resData/slipData/record[1]/s_total_peple",s_flnm+" 외 "+cnt+"명 시간외수당");
+						    }							     	
+						}
+						model1.refresh();
+					}
+					
+					//전표취소시 필요데이터를 설정하는건가?
+					function setDeleteValue(){
+						//데이터가 없으면 취소
+					    if(datagrid2.rows == datagrid2.fixedRows){ return; }
+						
+						var slip_seq = model1.getValue("/root/resData/slipData/record[1]/slip_seq");
+						var slip_occr_dt = model1.getValue("/root/resData/slipData/record[1]/slip_occr_dt");
+						var slip_clsf_cd = model1.getValue("/root/resData/slipData/record[1]/slip_clsf_cd");
+						var incmg_pers = model1.getValue("/root/resData/slipData/record[1]/incmg_pres");
+						var incmg_pers_ipadd = model1.getValue("/root/resData/slipData/record[1]/incmg_pres_ipadd");
+							
+						model1.setValue("/root/reqData/reqForm/slip_seq",slip_seq);							//전표순번
+						model1.setValue("/root/reqData/reqForm/slip_occr_dt",slip_occr_dt);					//발생일자
+						model1.setValue("/root/reqData/reqForm/slip_clsf_cd",slip_clsf_cd);					//전표구분코드
+						model1.setValue("/root/reqData/reqForm/slip_incmg_pers",incmg_pers);				//입력자명
+						model1.setValue("/root/reqData/reqForm/slip_incmg_pers_ipadd",incmg_pers_ipadd);	//아이피주소		    		
+					}
+					  
+					function DateLastDemo(mydate){
+						var s="";
+						//var mydate=new Date() 
+						var year=mydate.getYear() 
+						    if (year < 1000) 
+						        year+=1900 
+						
+						var day=mydate.getDay() 
+						var month=mydate.getMonth()+1 
+						    if (month<10) 
+						        month="0"+month 
+						
+						var daym=mydate.getDate() 
+						    if (daym<10) 
+						        daym="0"+daym 
+						s  = year+month+daym;
+					       return(s);
+					}
+					
+					function setTitleAndTotAmt() {
+						for (i = 1; i < datagrid1.rows; i++) {
+							if (datagrid1.rowStatus(i) == 2)
+								datagrid2.rowStatus(i) = 1;
+							else
+								datagrid2.rowStatus(i) = 0;
+						}
+
+						var s_flnm = "";
+						var cnt = 0;
+						var total_amt = 0;
+					   	for(var i = 1; i < datagrid2.rows; i++){
+					   		if (datagrid2.rowStatus(i) == 1) {
+					   			if (cnt == 0)
+						   			s_flnm = model1.getValue("/root/resData/slipData/record[1]/s_flnm");
+						   			
+						   		total_amt =  Number(total_amt) + Number(model1.getValue("/root/resData/slipData/record["+i+"]/s_total_alon_amt"));
+						   		cnt++;
+					   		}
+					   	}
+					   	cnt = cnt - 1;
+					   	if(cnt == 0){
+					     	model1.setValue("/root/resData/slipData/record[1]/s_total_amt",total_amt);
+							model1.setValue("/root/resData/slipData/record[1]/s_total_peple",s_flnm+" 시간외수당");								
+					     	model1.setValue("/root/reqData/searchData/s_total_amt",total_amt);
+							model1.setValue("/root/reqData/searchData/s_total_peple",s_flnm+" 시간외수당");								
+					    }else{
+							model1.setValue("/root/resData/slipData/record[1]/s_total_amt",total_amt);
+							model1.setValue("/root/resData/slipData/record[1]/s_total_peple",s_flnm+" 외 "+cnt+"명 시간외수당");
+							model1.setValue("/root/reqData/searchData/s_total_amt",total_amt);	
+							model1.setValue("/root/reqData/searchData/s_total_peple",s_flnm+" 외 "+cnt+"명 시간외수당");
+					    }
+					    model1.refresh();
+					}
+				]]>
+			</script>
+			<submission id="hd_dwnwrk_1300" action="/hd/dwnwrk/1300" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_dwnwrk_1301" action="/hd/dwnwrk/1301" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/multiUpData" resultref="/root/tempData"/>
+			<submission id="hd_dwnwrk_1302" action="/hd/dwnwrk/1302" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_dwnwrk_1303" action="/hd/dwnwrk/1303" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_dwnwrk_1304" action="/hd/dwnwrk/1304" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_com_1103" action="/hd/com/1103" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/dept_cd" resultref="/root/tempData"/>
+			<submission id="hd_dwnwrk_1305_m" action="/hd/dwnwrk/1305" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/hd_dwnwrk_1305_m/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728" guideline="1,10;1,935;">
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="선택^부서^사번^성명^직급^근무일^조출시작시각^조출종료시각^조출근무시간^조출수당^출근시간^퇴근시간^퇴근일구분^근무사유^지급일^결재상태^관리번호^전표번호^전표진행관리일자^전표진행관리일련번호^진행상태코드^부서코드^연계번호^db상태값" colsep="#" colwidth="50, 100, 100, 100, 100, 100, 100, 100, 110, 100, 100, 100, 80, 250, 100, 100, 100, 100, 5, 5, 5, 5, 5, 5" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:150px; width:926px; height:554px; ">
+			<col checkvalue="1,0" type="checkbox">
+				<script type="javascript" ev:event="xforms-select">
+					<![CDATA[
+						var row = datagrid1.row;
+						var slip_proc_seq = model1.getValue("/root/resData/gridData/record["+row+"]/slip_proc_seq");
+						var tmp_slip_proc_seq = "";
+						for (i = 1; i < datagrid1.rows; i++) {
+							tmp_slip_proc_seq = model1.getValue("/root/resData/gridData/record["+i+"]/slip_proc_seq");
+							if (slip_proc_seq == tmp_slip_proc_seq) {
+								datagrid1.valueMatrix(i, 1) = "1";
+								datagrid1.rowstatus(i) = 2;
+							}
+						}
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-deselect">
+					<![CDATA[
+						var row = datagrid1.row;
+						var slip_proc_seq = model1.getValue("/root/resData/gridData/record["+row+"]/slip_proc_seq");
+						var tmp_slip_proc_seq = "";
+						for (i = 1; i < datagrid1.rows; i++) {
+							tmp_slip_proc_seq = model1.getValue("/root/resData/gridData/record["+i+"]/slip_proc_seq");
+							if (slip_proc_seq == tmp_slip_proc_seq) {
+								datagrid1.valueMatrix(i, 1) = "0";
+								datagrid1.rowstatus(i) = 0;
+							}
+						}
+					]]>
+				</script>
+			</col>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="emp_no"/>
+			<col ref="nm_korn"/>
+			<col ref="posi_nm" style="text-align:left; "/>
+			<col ref="duty_dt" format="yyyy-mm-dd"/>
+			<col ref="erl_prsnt_bgn_tm" format="hh:nn"/>
+			<col ref="erl_prsnt_end_tm" format="hh:nn"/>
+			<col ref="erl_prsnt_duty_tm" format="hh:nn"/>
+			<col ref="alon_amt" format="#,###" style="text-align:right; "/>
+			<col ref="prsnt_tm" format="hh:nn"/>
+			<col ref="finish_tm" format="hh:nn"/>
+			<col ref="finish_dd_clsf"/>
+			<col ref="duty_resn" format="yyyy-mm-dd" style="text-align:left; "/>
+			<col ref="pay_dt" format="yyyy-mm-dd"/>
+			<col ref="proc_stat_nm" style="text-align:left; "/>
+			<col ref="slip_proc_seq" format="99999999-99999" style="text-align:right; "/>
+			<col ref="actu_slip_no" format="99999999-99-999" style="text-align:right; "/>
+			<col ref="slip_proc_mang_dt" visibility="hidden"/>
+			<col ref="slip_proc_mang_seq" visibility="hidden"/>
+			<col ref="proc_stat" visibility="hidden"/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="slip_seq" visibility="hidden"/>
+			<col ref="db_status" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					var row = datagrid1.row;
+					
+					if (datagrid1.col == 1) {
+						if (datagrid1.valueMatrix(row, 1) == "1")
+							datagrid1.rowStatus(row) = 2;
+						else
+							datagrid1.rowStatus(row) = 0;
+					}
+					setTitleAndTotAmt();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+					if(event.target == "datagrid1") {
+						for(var i = 1; i < datagrid1.rows; i++){
+							if (datagrid1.rowStatus(i) == 0 && datagrid1.valueMatrix(i, datagrid1.colRef("actu_slip_no")) == "") 
+								datagrid1.rowStatus(i) = 2;
+						}		
+					}
+					setTitleAndTotAmt();
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-deselect">
+				<![CDATA[
+					if (event.target == "datagrid1") {
+						for(var i = 1; i < datagrid1.rows; i++){
+							if (datagrid1.rowStatus(i) == 2) 
+								datagrid1.rowStatus(i) = 0;
+						}	
+					}
+					setTitleAndTotAmt();
+				]]>
+			</script>
+		</datagrid>
+		<group id="group1" class="gro_btn" style="left:10px; top:70px; width:926px; height:76px; ">
+			<caption id="caption19" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap02" style="left:0px; top:50px; width:286px; height:26px; "/>
+			<caption id="caption4" class="list_cap02" style="left:0px; top:25px; width:926px; height:26px; "/>
+			<input id="actu_slip_no_in" ref="/root/reqData/searchData/actu_slip_no" format="99999999-99-999" style="left:91px; top:28px; width:110px; height:18px; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:86px; height:26px; ">근무년월</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/proc_stat" appearance="minimal" style="left:606px; top:4px; width:149px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/temp_cd1/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 46){
+						combo1.deselect();
+					}
+				]]>
+				</script>
+			</select1>
+			<caption id="caption2" class="list_cap01" style="left:0px; top:25px; width:86px; height:26px; ">전표번호</caption>
+			<caption id="caption3" class="list_cap01" style="left:200px; top:0px; width:86px; height:26px; ">부서명</caption>
+			<caption id="caption5" class="list_cap01" style="left:0px; top:50px; width:86px; height:26px; ">지급일</caption>
+			<caption id="caption6" class="list_cap01" style="left:515px; top:0px; width:86px; height:26px; ">진행상태</caption>
+			<input id="input2" ref="/root/reqData/searchData/duty_dt" class="req" inputtype="date" format="yyyy-mm" caption="근무년월" style="left:91px; top:4px; width:90px; height:18px; "/>
+			<input id="input3" ref="/root/reqData/searchData/pay_dt" inputtype="date" style="left:91px; top:54px; width:90px; height:18px; "/>
+			<output id="input5" ref="/root/reqData/searchData/dept_nm" inputtype="button" appearance="output" style="left:369px; top:4px; width:121px; height:18px; "/>
+			<input id="input6" ref="/root/reqData/searchData/dept_cd" inputtype="button" maxlength="6" style="left:291px; top:4px; width:75px; height:18px; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+					model1.setValue("/root/reqData/fwdData/func_nm", "setDept_cd");
+     				window.load("/xrw/hd/com/HD_COM_1100.xrw","mdichild", "hd_com_1100", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");				
+				]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						model1.setValue("/root/reqData/searchData/dept_cd", input6.currentText);
+						model1.send("hd_com_1103");
+						if(model1.getValue("/root/dataSet/CURLIST/record/cnt") != "1"){
+							alert("없는 부서이거나 사용중이 아닌 부서 입니다.");
+							model1.setValue("/root/reqData/searchData/dept_cd", "");
+							model1.setValue("/root/reqData/searchData/dept_nm", "");
+							model1.removenode("/root/dataSet");
+							model1.refresh();
+							return;
+						}
+						model1.setValue("/root/reqData/searchData/dept_cd", model1.getValue("/root/dataSet/CURLIST/record/dept_cd"));
+						model1.setValue("/root/reqData/searchData/dept_nm", model1.getValue("/root/dataSet/CURLIST/record/abrv_nm"));
+						model1.removenode("/root/dataSet");
+						model1.refresh();		
+					]]>
+				</script>
+			</input>
+			<button id="button3" class="btn_grid04" style="left:186px; top:54px; width:70px; height:17px; ">
+				<caption>수당생성</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//생성데이터 체크
+						//if(datagrid1.rows == datagrid1.fixedRows){
+						//	alert("수당생성 적용데이터가 없습니다.");
+						//	return;
+						//}
+						
+						//근무월이 전월이고 진행상태는 현업결제를 선택해야 수당생성을 할 수 있다.
+						var currDate = new Date();
+						var currYear = currDate.getYear();
+						if(currYear < 1000) currYear+=1900;
+						var currMonth = currDate.getMonth() + 1;
+						if(currMonth<10) currMonth="0"+currMonth; 
+						var prevYYYYMM = currYear+currMonth;
+						
+						//alert(model1.getValue("/root/reqData/searchData/duty_dt") + ":" + prevYYYYMM + ":" + model1.getValue("/root/reqData/searchData/proc_stat"));
+						
+						//if(model1.getValue("/root/reqData/searchData/duty_dt")!=prevYYYYMM && model1.getValue("/root/reqData/searchData/proc_stat")!='14'){
+						if(model1.getValue("/root/reqData/searchData/duty_dt")!=prevYYYYMM && model1.getValue("/root/reqData/searchData/proc_stat")!=model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_010")){
+							alert("조회조건중 근무월이 전월이고 진행상태가 현업결재인 결과에 대해서만 수당생성이 가능합니다.");
+							return;
+						}
+						
+						//지급일설정 체크
+						if(model1.getValue("/root/reqData/searchData/pay_dt") == ""){
+							alert("지급일을 입력하십시오.");	
+							return;
+						}
+						
+						var pay_dt = model1.getValue("/root/reqData/searchData/pay_dt");
+						model1.setValue("/root/reqData/searchData/s_pay_dt",pay_dt);
+						
+						//조출근무수당 데이터와 전표결제상태 변경
+						for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){ 
+							var proc_stat = model1.getValue("/root/resData/gridData/record["+i+"]/proc_stat");
+							//현업결제('14')값일 때에만 조출근무 정보변경과 전표결제상태를 인사금액확정('25')로 변경
+							//if(proc_stat == 14){
+							if(proc_stat == model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_010")){
+								datagrid1.addStatus(i, "update");
+							}
+						}
+						model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+						
+						//월별조출근무수당 데이터
+						for(var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+							var proc_stat = model1.getValue("/root/resData/slipData/record["+i+"]/proc_stat");
+							//현업결제('14')값일 때에만 월별조출근무수당 적재
+							//if(proc_stat == 14){
+							if(proc_stat == model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_010")){
+								datagrid2.addStatus(i, "insert");
+							}
+						}
+						model1.setValue("/root/reqData/multiUpData1", datagrid2.getUpdateData());
+
+						//수당생성
+						model1.send("hd_dwnwrk_1302");
+						if(submit_completed()) {
+							//강제로 인사결제 항목으로 수정
+							//combo1.value = "25";
+							combo1.value = model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_020");
+							searchList();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn02" style="left:615px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (!commReqCheck(group1))
+						return;
+						
+					searchList();
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid2" nodeset="/root/resData/slipData/record" visibility="hidden" caption="회사코드^사번^부서^조출수당(개인별)^지급일^근무일수^이름^총합계^적요1^전표번호^발생일자^전표구분코드^전표순번^입력자^입력자아이피^진행상태" colsep="#" colwidth="63, 79, 100, 100, 100, 63, 100, 100, 154, 100, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:9px; top:330px; width:926px; height:150px; ">
+			<col ref="s_cmpy_cd"/>
+			<col ref="s_emp_no"/>
+			<col ref="s_dept_cd"/>
+			<col ref="s_total_alon_amt"/>
+			<col ref="s_pay_dt"/>
+			<col ref="s_duty_dds"/>
+			<col ref="s_flnm"/>
+			<col ref="s_total_amt" format="#,###"/>
+			<col ref="s_total_peple"/>
+			<col ref="actu_slip_no"/>
+			<col ref="slip_occr_dt"/>
+			<col ref="slip_clsf_cd"/>
+			<col ref="slip_seq"/>
+			<col ref="incmg_pres"/>
+			<col ref="incmg_pres_ipadd"/>
+			<col ref="proc_stat"/>
+		</datagrid>
+		<button id="button7" class="btn02" style="left:561px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button8" class="btn02" style="left:885px; top:40px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="caption8" style="left:835px; top:703px; width:100px; height:20px; text-align:right; "/>
+		<button id="button9" class="btn02" style="left:669px; top:40px; width:52px; height:21px; ">
+			<caption>전표생성</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var iv_duty_dt = model1.getValue("/root/reqData/searchData/duty_dt"); 						
+					var iv_pay_dt = model1.getValue("/root/reqData/searchData/pay_dt"); 
+					var flag = true;
+					
+					if(datagrid1.rows < 2){
+						alert("전표를 생성할 조출수당 내역이 존재하지 않습니다.");
+						return;
+					}					
+
+					var checked_rows = 0;
+					for (i = 1; i < datagrid1.rows; i++) {
+						if (datagrid1.valueMatrix(i, 1) == "1" && datagrid1.valueMatrix(i, datagrid1.colRef("actu_slip_no")) == "")
+							checked_rows++;
+					}
+					if (checked_rows == 0) {
+						alert("전표를 생성할 대상을 선택하십시오.");
+						return;
+					}
+					
+					for(var i = 1; i < datagrid1.rows; i++){
+						var proc_stat = model1.getValue("/root/resData/gridData/record["+i+"]/proc_stat");
+						var actu_slip_no = model1.getValue("/root/resData/gridData/record["+i+"]/actu_slip_no");
+						var pay_dt = model1.getValue("/root/resData/gridData/record["+i+"]/pay_dt");
+						//수당생성 체크
+						//if(datagrid1.valueMatrix(i, 1) == "1" && (pay_dt == "" || proc_stat == 14) ){
+						if(datagrid1.valueMatrix(i, 1) == "1" && (pay_dt == "" || proc_stat == model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_010") ) ){
+							alert("수당생성을 먼저 실행하십시오.");
+							return;
+						}
+						
+						var pattern = ","+proc_stat+",";
+						var validation  = (","+model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_030")+",").indexOf(pattern)>-1;
+
+						//전표 등록 체크
+						//if(datagrid1.valueMatrix(i, 1) == "1" && (proc_stat == 25 || proc_stat == 28)){
+						if(datagrid1.valueMatrix(i, 1) == "1" && validation ){
+							flag = false;
+						}
+					}
+					if(flag){
+						alert("전표를 생성할 대상이 없습니다.");
+						return;								
+					}
+					
+					if (window.alert("전표생성 하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					model1.setValue("/root/reqData/multiUpData1", datagrid2.getUpdateData());
+					model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+					datagrid2.clearStatus();
+					datagrid1.clearStatus();
+					//setTotal_amt_pep();
+					model1.send("hd_dwnwrk_1303");
+					
+					//전표번호
+					var actu_slip_no = model1.getValue("/root/dataSet/CURLIST/record/actu_slip_no");
+					model1.removenode("/root/slipNoData/slip_no");
+					model1.makeValue("/root/slipNoData/slip_no",actu_slip_no);
+					model1.removenode("/root/dataSet");
+						
+					if(submit_completed()) {
+						searchList();
+						
+						// 오즈관련 노드 초기화..					
+						resetOznode();					
+			
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_DWNWRK_1310");
+						makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+						//makeNodeValue("/root/oz_data/printsize",""); 				//페이지용지설정(기본 A4)
+						makeNodeValue("/root/oz_data/printsize","B5 (JIS)");   //페이지용지설정(기본 A4)
+										
+						// odi 파라미터 설정.					
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+						makeNodeValue("/root/oz_data/odiParam/iv_actu_slip_no" , actu_slip_no );
+						makeNodeValue("/root/oz_data/odiParam/iv_duty_dt" , iv_duty_dt);
+						makeNodeValue("/root/oz_data/odiParam/iv_pay_dt" , iv_pay_dt);
+						
+						makeNodeValue("/root/oz_data/childCount","1");
+						
+						makeNodeValue("/root/oz_data/child1/ozrName","hd/HD_DWNWRK_1320")
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd"     ,getProperty("ss_cmpycd") );	
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_duty_dt"  ,iv_duty_dt);	
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_pay_dt"      ,iv_pay_dt);
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_actu_slip_no",actu_slip_no);
+						makeNodeValue("/root/oz_data/child1/printsize","B5 (JIS)");   //페이지용지설정(기본 A4)
+						
+						// 레포트뷰어 호출.					
+						openOzwin("/root/oz_data");
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn02" style="left:723px; top:40px; width:52px; height:21px; ">
+			<caption>전표취소</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//윤석주과장 작업분
+					if(searchFlag == false && actu_slip_no_in.value == ""){
+						alert("취소할 전표번호를 입력하여 조회 후 진행하십시오.");	
+						return;
+					}
+					if(datagrid1.rows < 2){
+						alert("취소할 전표가 존재하지 않습니다.");
+						return;
+					}
+					/*
+					if(searchFlag == false && actu_slip_no_in.value == ""){
+						alert("취소할 전표번호를 조회해 주세요.");	
+						return;
+					}								
+					if(datagrid2.rows == -1){
+						alert("취소할 전표가 없습니다.");
+						return;
+					}					
+					if(datagrid2.rows == 1){
+						alert("취소할 전표번호를 조회해 주세요.");	
+						return;
+					}					
+					*/
+					for(var i=1; i<datagrid2.rows;i++){
+						var proc_stat = model1.getValue("/root/resData/slipData/record["+i+"]/proc_stat");
+//							var actu_slip_no = model1.getValue("/root/resData/slipData/record["+i+"]/actu_slip_no");
+
+						var pattern = ","+proc_stat+",";
+						var validation  = (","+model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_040")+",").indexOf(pattern)>-1;
+
+						//전표 등록 체크
+						//if(proc_stat == 29 || proc_stat == 36){
+						if(validation){
+						}else{
+							alert("취소할 전표번호를 조회하십시오.");
+							return;								
+						}
+					}
+					if (window.alert("전표취소 하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}							
+					for(var i=0;i<datagrid1.rows;i++){ 
+						datagrid1.addStatus(i, "update");							
+					}
+					model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+					model1.send("hd_dwnwrk_1304");
+					datagrid2.clearStatus();
+					datagrid1.clearStatus();
+					if(submit_completed()) {
+						var duty_dt = model1.getValue("/root/reqData/searchData/duty_dt");
+						model1.reset();
+						model1.setValue("/root/reqData/searchData/duty_dt", duty_dt);
+						searchList();
+						/*
+						model1.send("hd_dwnwrk_1300");
+						caption8.value = "총 " + model1.getValue("/root/dataSet/CURLIST/totalcnt") + " 건";
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.copyNode("/root/resData/slipData", "/root/dataSet/CURLIST1");
+						model1.removenode("/root/dataSet");
+						*/
+						//var totalcnt = model1.getValue("/root/tempData/totalcnt");
+						//model1.copyNode("/root/resData/gridData", "/root/tempData/CURLIST");
+						//model1.copyNode("/root/resData/slipData", "/root/tempData/CURLIST1");							
+						//model1.removenode("/root/tempData");
+
+						for(var i=1 ;i< datagrid1.rows;i++){
+							var proc_stat = model1.getValue("/root/resData/gridData/record["+i+"]/proc_stat");		
+							
+							var pattern = ","+proc_stat+",";
+							var validation  = (","+model.getValue("/root/initData/hd_dwnwrk_1305_m/dataSet/xx_proc_stat_040")+",").indexOf(pattern)>-1;					
+							//if(proc_stat == '29' || proc_stat == '36'){
+							if(validation){
+								datagrid1.isReadOnly(i, 1, i, 10) = true;
+							}else{
+								datagrid1.isReadOnly(i, 1, i, 10) = false;
+							}					
+						}													
+						
+						//setTotal_amt_pep();
+						datagrid1.clearStatus();											
+						model1.refresh();	
+						//alert("전표취소 되었습니다.")
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button11" class="btn02" style="left:777px; top:40px; width:52px; height:21px; ">
+			<caption>장표출력</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						var iv_duty_dt = model1.getValue("/root/reqData/searchData/duty_dt"); 						
+						var iv_pay_dt = model1.getValue("/root/reqData/searchData/pay_dt"); 						
+						//var iv_actu_slip_no = datagrid1.valueMatrix(1, datagrid1.colRef("actu_slip_no"));	
+						var iv_actu_slip_no = model1.getValue("/root/reqData/searchData/actu_slip_no");
+						
+						if(iv_actu_slip_no == "") {
+							//alert("전표번호가 존재하지 않습니다.\n전표생성을 수행한 후 다시 진행하십시오.");
+							alert("전표번호를 입력하십시오.");
+							return;
+						}
+
+						if(iv_duty_dt == "") {
+							alert("근무년월을 입력하십시오.");
+							return;
+						}
+						
+						if(iv_pay_dt == "") {
+							alert("수당지급일을 입력하십시오.");
+							return;
+						}
+						
+						/*
+						if(iv_actu_slip_no == "") {
+							alert("전표번호를  입력하십시오.");
+							return;
+						}
+						*/
+						
+						// 오즈관련 노드 초기화..					
+						resetOznode();					
+			
+						// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+						makeNodeValue("/root/oz_data/ozrName","hd/HD_DWNWRK_1310");
+						makeNodeValue("/root/oz_data/preview","preview"); 			//preview : 미리보기, print : 인쇄
+						//makeNodeValue("/root/oz_data/printsize",""); 				//페이지용지설정(기본 A4)						
+						makeNodeValue("/root/oz_data/printsize","B5 (JIS)");   //페이지용지설정(기본 A4)
+										
+						// odi 파라미터 설정.					
+						makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd" , getProperty("ss_cmpycd") );
+						makeNodeValue("/root/oz_data/odiParam/iv_actu_slip_no" , iv_actu_slip_no );
+						makeNodeValue("/root/oz_data/odiParam/iv_duty_dt" , iv_duty_dt);
+						makeNodeValue("/root/oz_data/odiParam/iv_pay_dt" , iv_pay_dt);
+						
+						makeNodeValue("/root/oz_data/childCount","1");
+						
+						makeNodeValue("/root/oz_data/child1/ozrName","hd/HD_DWNWRK_1320")
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_cmpy_cd"     ,getProperty("ss_cmpycd") );	
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_duty_dt"  ,iv_duty_dt);	
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_pay_dt"      ,iv_pay_dt);
+						makeNodeValue("/root/oz_data/child1/odiParam/iv_actu_slip_no",iv_actu_slip_no);
+						makeNodeValue("/root/oz_data/child1/printsize","B5 (JIS)");   //페이지용지설정(기본 A4)
+						
+						// 레포트뷰어 호출.					
+						openOzwin("/root/oz_data");
+				]]>
+			</script>
+		</button>
+		<button id="button12" class="btn02" style="left:831px; top:40px; width:52px; height:21px; ">
+			<caption>엑셀다운</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					//excel 파일로 저장한다
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+							
+					if(filePath != "") {
+						datagrid1.saveExcel(filePath);
+						window.exec(filePath);
+					}
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

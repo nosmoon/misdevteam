@@ -1,0 +1,354 @@
+<!doctype html>
+<html ng-app="app">
+  <head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">   
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-touch.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.0/angular-animate.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/csv.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/pdfmake.js"></script>
+    <script src="http://ui-grid.info/docs/grunt-scripts/vfs_fonts.js"></script>
+    <script src="http://ui-grid.info/release/ui-grid.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.9.12/xlsx.full.min.js"></script>
+    <script src="https://fastcdn.org/FileSaver.js/1.1.20151003/FileSaver.min.js"></script>  
+	<!--script src="http://ui-grid.info/release/ui-grid-unstable.js"></script--> <!-- 페이지 안끊어지게 표현 -->
+    <link rel="stylesheet" href="http://ui-grid.info/release/ui-grid.css" type="text/css">
+	<style type="text/css">
+	.grid {
+	  width: 1120px;
+	  height: 450px;
+	}	
+	.input{
+		width: 900px;
+	}
+	</style>	
+  </head>
+  <body>
+
+<div ng-controller="MainCtrl">
+  <br>
+  <button id='schBtn' ng-click='ad_bas_3310_l()' class="btn btn-success" >조회</button>
+  <button id='fndBtn' ng-click='getCurrentSelection()' class="btn btn-success" >선택</button>
+  <button id='fndBtn1' ng-click='getFocusedCell()' class="btn btn-success" >선택2</button>  
+  <button id='fndBtn2' ng-click='downExcel()' class="btn btn-success" >엑셀</button>  
+  <button id='fndBtn3' ng-click='addRow()' class="btn btn-success" >행추가</button> 
+	<table>
+		<tr>
+			<td>거래처구분</td>
+			<td>
+				<select ng-model="dlco_clsf">
+				<option ng-repeat="x in names">{{x}}</option>
+				</select>			
+			</td>
+			<td>거래처명</td>
+			<td>
+				<input type="text" ng-model="dlco_nm" kr-input ng-keypress="keyEnter($event)">
+			</td>
+		</tr>
+	</table>
+	<p>{{dlco_clsf}}</p>
+	<p>{{dlco_nm}}</p>
+	<p><span ng-bind="currentFocused"></span>   </p>
+	<input type="text" ng-model="printSelection" class="input"> 
+  <div id="grid1" ui-grid="gridOptions1" ui-grid-cellnav ui-grid-exporter class="grid"></div>
+
+  <br>
+
+</div>
+
+
+    <script>
+	var app = angular.module('app', ['ngAnimate', 'ngTouch', 'ui.grid', 'ui.grid.cellNav','ui.grid.exporter']);
+	//서버 통신간 한글깨짐 방지
+	app.config(function ($httpProvider,$httpParamSerializerJQLikeProvider){
+		$httpProvider.defaults.transformRequest.unshift($httpParamSerializerJQLikeProvider.$get());
+	});	
+	
+	//kr-input 설정:한글입력시 실시간 바인드 되게 설정함 
+	app.directive('krInput', ['$parse', function($parse) {
+	    return {
+	        priority : 2,
+	        restrict : 'A',
+	        compile : function(element) {
+	            element.on('compositionstart', function(e) {
+	                e.stopImmediatePropagation();
+	            });
+	        },
+	    };
+	}]);
+	//scope와 http는 필수,	exportUiGridService:그리드에서 csv,pdf,엑셀 다운시 필요 
+	app.controller('MainCtrl', ['$scope', '$http', 'exportUiGridService', function ($scope, $http, exportUiGridService) {
+	
+	    $scope.names = ["전체", "광고주", "대행사","광고지사"];
+		
+		//그리드 설정  	
+		$scope.gridOptions1 = {
+			//enableFiltering: true, //필터링 여부
+			showGridFooter: true, //토탈건수
+			//flatEntityAccess: true,//?			
+			//fastWatch: true,       //??
+					
+			modifierKeysToMultiSelectCells: true,
+			keyDownOverrides: [ { keyCode: 39, ctrlKey: true }],		
+			enableSorting: true,
+			columnDefs: [
+			  { name:'관리번호',   field: 'dlco_no' , width:100},
+			  { name:'거래처명',   field: 'dlco_nm' , width:150, pinnedLeft:true},
+			  { name:'대표자',     field: 'presi_nm' , width:100, pinnedLeft:true},
+			  { name:'사업자번호',  field: 'ern' , width:120},
+			  { name:'주소',       field: 'addr' , width:150, pinnedLeft:true},
+			  { name:'전화번호',    field: 'tel_no' , width:100, pinnedLeft:true},
+			  { name:'업태',       field: 'bizcond' , width:100, pinnedLeft:true},
+			  { name:'종목',       field: 'item' , width:100, pinnedLeft:true},
+			  { name:'영업담당',    field: 'slcrg_nm' , width:100},
+			  { name:'관리담당',    field: 'mchrg_nm', width:100}
+			],
+			//exporter 설정-시작
+			
+			enableGridMenu: true,
+			exporterMenuCsv: false,//csv안보이게함
+			exporterMenuPdf: false,//pdf안보이게함
+			enableSelectAll: true,
+			exporterCsvFilename: '거래처검색.csv',
+			exporterPdfDefaultStyle: {fontSize: 9},
+			exporterPdfTableStyle: {margin: [30, 30, 30, 30]},
+			exporterPdfTableHeaderStyle: {fontSize: 10, bold: true, italics: true, color: 'red'},
+			exporterPdfHeader: { text: "my header", style: 'headerStyle' },
+			exporterPdfFooter: function ( currentPage, pageCount ) {
+			  return { text: currentPage.toString() + ' of ' + pageCount.toString(), style: 'footerStyle' };
+			},
+			exporterPdfCustomFormatter: function ( docDefinition ) {
+			  docDefinition.styles.headerStyle = { fontSize: 22, bold: true };
+			  docDefinition.styles.footerStyle = { fontSize: 10, bold: true };
+			  return docDefinition;
+			},
+			exporterPdfOrientation: 'portrait',
+			exporterPdfPageSize: 'LETTER',
+			exporterPdfMaxGridWidth: 500,
+			exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
+			
+			//exporter 설정-끝			
+			onRegisterApi: function( gridApi ) {
+			  $scope.gridApi = gridApi;
+			},
+			//그리드에서  엑셀 다운로드 추가-시작
+			//exporter 설정에서 enableGridMenu: true인경우에 사용함
+            gridMenuCustomItems: [{
+                    title: 'Export all data as EXCEL',
+                    action: function ($event) {
+                        exportUiGridService.exportToExcel('sheet 1', $scope.gridApi, 'all', 'all');
+                    },
+                    order: 110
+                },
+                {
+                    title: 'Export visible data as EXCEL',
+                    action: function ($event) {
+                        exportUiGridService.exportToExcel('sheet 1', $scope.gridApi, 'visible', 'visible');
+                    },
+                    order: 111
+                }
+            ]//그리드에 엑셀 다운로드 추가-끝			
+		};
+		
+		//엔터키 이벤트
+		$scope.keyEnter = function($event) { 
+			var keyCode = $event.which || $event.keyCode; 
+			if(keyCode === 13){
+				$scope.ad_bas_3310_l();
+			}
+		};
+		
+		var dlco_clsf_cd = "";
+		//조회		
+		$scope.ad_bas_3310_l = function() {
+			if($scope.dlco_clsf == "전체"){
+				$scope.dlco_clsf_cd = "0";
+			}else if($scope.dlco_clsf == "광고주"){
+				$scope.dlco_clsf_cd = "1";
+			}else if($scope.dlco_clsf == "대행사"){
+				$scope.dlco_clsf_cd = "2";
+			}else if($scope.dlco_clsf == "광고지사"){
+				$scope.dlco_clsf_cd = "4";
+			}		
+			var dataObject = 
+			{
+				dlco_clsf : $scope.dlco_clsf_cd,
+				dlco_no : $scope.dlco_nm
+			};	
+			
+			//서버호출
+			$http({
+				method: 'POST',
+				url: '/ad/bas/3310',
+				params: dataObject
+			})
+			   .success(function(data) {
+			     $scope.gridOptions1.data = data.root.gridData.record;
+			});
+		};
+		
+		$scope.currentFocused = '';
+		//선택2
+		$scope.getFocusedCell = function(){
+			var rowCol = $scope.gridApi.cellNav.getFocusedCell();
+			if(rowCol !== null) {
+			    $scope.currentFocused = 'Row:' + rowCol.row.entity.dlco_no + ' col:' + rowCol.col.colDef.name;
+			}
+		};		
+		//선택
+		$scope.getCurrentSelection = function(){
+			var values = [];
+			var currentSelection = $scope.gridApi.cellNav.getCurrentSelection();
+			for (var i = 0; i < currentSelection.length; i++) {
+			  values.push(currentSelection[i].row.entity[currentSelection[i].col.field])
+			}
+			$scope.printSelection = values.toString();
+		};
+		
+		//엑셀 버튼으로 다운받기
+		$scope.downExcel = function(){
+			exportUiGridService.exportToExcel('sheet 1', $scope.gridApi, 'all', 'all');
+		};
+		
+		//행추가
+		$scope.addRow = function(){
+			//$scope.gridOptions1.data.unshift({});;//첫row추가
+			$scope.gridOptions1.data.push({});;	//마지막row추가		
+		};
+		
+		$scope.gridOptions1.onRegisterApi = function(gridApi){
+			$scope.gridApi = gridApi;
+			gridApi.cellNav.on.navigate($scope,function(newRowCol, oldRowCol){
+			       //var rowCol = {row: newRowCol.row.index, col:newRowCol.col.colDef.name};
+			       //var msg = 'New RowCol is ' + angular.toJson(rowCol);
+			       //if(oldRowCol){
+			       //   rowCol = {row: oldRowCol.row.index, col:oldRowCol.col.colDef.name};
+			       //   msg += ' Old RowCol is ' + angular.toJson(rowCol);
+			       //}
+			       //alert('msg:'+msg);
+			       //$scope.printSelection = msg;
+			 });
+			 gridApi.cellNav.on.viewPortKeyDown($scope,function(event, newRowCol){
+			         var row = newRowCol.row;
+			         var col = newRowCol.col;
+			         if (event.keyCode === 39) {
+			             $scope.gridApi.cellNav.scrollToFocus(row.entity, $scope.gridApi.grid.columns[$scope.gridApi.grid.columns.length - 1]);
+			         }
+			  });
+		};
+	}]); 
+	//엑셀 설정:엑셀 다운 필수 함수
+	app.factory('exportUiGridService', exportUiGridService);
+	
+	    exportUiGridService.inject = ['uiGridExporterService'];
+	    function exportUiGridService(uiGridExporterService) {
+	        var service = {
+	            exportToExcel: exportToExcel
+	    	};
+	
+	        return service;
+	
+	        function Workbook() {
+	            if (!(this instanceof Workbook)) return new Workbook();
+	            this.SheetNames = [];
+	            this.Sheets = {};
+	        }
+	
+	        function exportToExcel(sheetName, gridApi, rowTypes, colTypes) {
+	            var columns = gridApi.grid.options.showHeader ? uiGridExporterService.getColumnHeaders(gridApi.grid, colTypes) : [];
+	            var data = uiGridExporterService.getData(gridApi.grid, rowTypes, colTypes);
+	            var fileName = gridApi.grid.options.exporterExcelFilename ? gridApi.grid.options.exporterExcelFilename : '거래처 검색';
+	            fileName += '.xlsx';
+	            var wb = new Workbook(),
+	                ws = sheetFromArrayUiGrid(data, columns);
+	            wb.SheetNames.push(sheetName);
+	            wb.Sheets[sheetName] = ws;
+	            var wbout = XLSX.write(wb, {
+	                bookType: 'xlsx',
+	                bookSST: true,
+	                type: 'binary'
+	            });
+	            saveAs(new Blob([s2ab(wbout)], {
+	                type: 'application/octet-stream'
+	            }), fileName);
+	        }
+	
+	        function sheetFromArrayUiGrid(data, columns) {
+	            var ws = {};
+	            var range = {
+	                s: {
+	                    c: 10000000,
+	                    r: 10000000
+	                },
+	                e: {
+	                    c: 0,
+	                    r: 0
+	                }
+	            };
+	            var C = 0;
+	            columns.forEach(function (c) {
+	                var v = c.displayName || c.value || columns[i].name;
+	                addCell(range, v, 0, C, ws);
+	                C++;
+	            }, this);
+	            var R = 1;
+	            data.forEach(function (ds) {
+	                C = 0;
+	                ds.forEach(function (d) {
+	                    var v = d.value;
+	                    addCell(range, v, R, C, ws);
+	                    C++;
+	                });
+	                R++;
+	            }, this);
+	            if (range.s.c < 10000000) ws['!ref'] = XLSX.utils.encode_range(range);
+	            return ws;
+	        }
+	        /**
+	         * 
+	         * @param {*} data 
+	         * @param {*} columns 
+	         */
+	
+	        function datenum(v, date1904) {
+	            if (date1904) v += 1462;
+	            var epoch = Date.parse(v);
+	            return (epoch - new Date(Date.UTC(1899, 11, 30))) / (24 * 60 * 60 * 1000);
+	        }
+	
+	        function s2ab(s) {
+	            var buf = new ArrayBuffer(s.length);
+	            var view = new Uint8Array(buf);
+	            for (var i = 0; i != s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
+	            return buf;
+	        }
+	
+	        function addCell(range, value, row, col, ws) {
+	            if (range.s.r > row) range.s.r = row;
+	            if (range.s.c > col) range.s.c = col;
+	            if (range.e.r < row) range.e.r = row;
+	            if (range.e.c < col) range.e.c = col;
+	            var cell = {
+	                v: value
+	            };
+	            if (cell.v == null) cell.v = '-';
+	            var cell_ref = XLSX.utils.encode_cell({
+	                c: col,
+	                r: row
+	            });
+	
+	            if (typeof cell.v === 'number') cell.t = 'n';
+	            else if (typeof cell.v === 'boolean') cell.t = 'b';
+	            else if (cell.v instanceof Date) {
+	                cell.t = 'n';
+	                cell.z = XLSX.SSF._table[14];
+	                cell.v = datenum(cell.v);
+	            } else cell.t = 's';
+	
+	            ws[cell_ref] = cell;
+	        }
+	    }
+	    //엑셀 설정:엑셀 다운 필수 함수	   
+    </script>
+  </body>
+</html>

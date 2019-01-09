@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<pageInfo/>
+					</initData>
+					<codeData>
+						<MORTG_CLSF>
+							<item>
+								<label/>
+								<value/>
+							</item>
+						</MORTG_CLSF>
+					</codeData>
+					<reqData>
+						<searchData>
+							<mortg_clsf/>
+							<data_clsf>01</data_clsf>
+							<frdt/>
+							<todt/>
+							<cntr_yymm/>
+							<cg_yn1>Y</cg_yn1>
+							<cg_yn2/>
+							<dlco_no/>
+							<dlco_nm/>
+							<checkall>Y</checkall>
+							<cg_gb/>
+							<prev_yn>N</prev_yn>
+							<curr_yn>Y</curr_yn>
+							<basi_dt/>
+							<over_yn/>
+							<dlco_clsf/>
+						</searchData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<mortg_clsf/>
+								<dlco_nm/>
+								<cntr_type/>
+								<mortg_cont/>
+								<acct_no/>
+								<mortg_amt/>
+								<cntr_dt/>
+								<cntr_todt/>
+								<gurt_frdt/>
+								<gurt_todt/>
+								<ewh_dt/>
+								<owh_dt/>
+								<setup_pers/>
+								<remk/>
+								<del_yn/>
+							</record>
+							<tot_mortg_amt/>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					
+				var currentdt = getCurrentDate();
+				var frdt = dateAdd("d", 0, currentdt);	//현재일자
+				var todt = dateAdd("d",0, currentdt);	//현재일자
+
+				model.setValue("/root/reqData/searchData/frdt", dateAdd("y", -1, frdt));
+				model.setValue("/root/reqData/searchData/todt", todt);
+				model.setValue("/root/reqData/searchData/basi_dt", currentdt);
+				
+				model.send("ad_bas_1300_m");	
+				model.copyNode("/root/codeData/MORTG_CLSF", "/root/resData/MORTG_CLSF");
+				model.refresh();
+				
+				var key_dlco_no = model.property(KEY_DLCO_NO) ;
+				var key_dlco_nm = model.property(KEY_DLCO_NM) ;
+				
+				if(key_dlco_no != ""){
+					model.setValue("/root/reqData/searchData/checkall", "N");
+					model.setValue("/root/reqData/searchData/dlco_no", key_dlco_no);
+					model.setValue("/root/reqData/searchData/dlco_nm", key_dlco_nm);
+					loadList();
+					
+					if(submit_completed()){
+						model.property(KEY_DLCO_NO) = "";
+						model.property(KEY_DLCO_NM) = "";
+					}
+				}
+					
+				]]>
+			</script>
+			<submission id="ad_bas_1300_m" action="/ad/bas/1300" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/resData"/>
+			<submission id="ad_bas_1310_l" action="/ad/bas/1310" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+									
+			function setDlcoInfo(dlco_no, dlco_nm){
+				model.setValue("/root/reqData/searchData/dlco_no", dlco_no);   
+				model.setValue("/root/reqData/searchData/dlco_nm",dlco_nm);  
+				inp_dlco_no.refresh(); inp_dlco_nm.refresh();			
+			}
+			function loadList(){
+				
+				model1.send("ad_bas_1310_l");	
+				if(submit_completed()){
+					var basi_dt	=	model.getValue("/root/reqData/searchData/basi_dt");
+					if(basi_dt	==	""){
+						basi_dt	= getCurrentDate();
+					}
+					datagrid1.allStyle("data", "background-color") = "#FFFFFF";
+					for(var i=datagrid1.fixedRows;i<datagrid1.rows;i++){
+						var gurt_todt = datagrid1.valueMatrix(i, datagrid1.colRef("gurt_todt"));
+						if(gurt_todt != "" && basi_dt > gurt_todt){
+							datagrid1.cellStyle("background-color", i, datagrid1.colRef("gurt_todt")) = "#FFF000";
+						}
+						//대행사 삭제된 담보내역 표시
+						var del_yn = datagrid1.valueMatrix(i, datagrid1.colRef("del_yn"));
+						if(del_yn == "Y"){
+							datagrid1.cellStyle("background-color", i, datagrid1.colRef("dlco_nm")) = "#FF0000";
+						}						
+					}
+				}
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,936;2,60;" style="font-family:돋움; font-size:12px; background-color:transparent; ">
+		<caption id="caption6" class="list_cap02" style="left:10px; top:69px; width:927px; height:28px; "/>
+		<button id="button7" class="btn02" crud="R" style="left:599px; top:39px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				if(validateReq()){
+					
+					var cg_gb = "0";
+					var cg_yn1 = model.getValue("/root/reqData/searchData/cg_yn1");
+					var cg_yn2 = model.getValue("/root/reqData/searchData/cg_yn2");
+					
+					if(cg_yn1 == "N" && cg_yn2 == "N") 	cg_gb = "0";
+					if(cg_yn1 == "Y" && cg_yn2 == "") 		cg_gb = "1";
+					if(cg_yn1 == "" && cg_yn2 == "Y") 		cg_gb = "2";
+					if(cg_yn1 == "Y" && cg_yn2 == "Y") 	cg_gb = "3";
+					
+					model.setValue("/root/reqData/searchData/cg_gb", cg_gb);
+					
+					loadList();
+					
+				}
+									
+				]]>
+			</script>
+		</button>
+		<input id="input12" ref="/root/reqData/searchData/frdt" class="req" navindex="3" inputtype="date" caption="시작일자" style="left:274px; top:74px; width:87px; height:18px; "/>
+		<input id="input20" ref="/root/reqData/searchData/todt" class="req" navindex="4" inputtype="date" caption="종료일자" style="left:376px; top:74px; width:87px; height:18px; "/>
+		<button id="button14" class="btn02" crud="R" style="left:825px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				model1.reset();
+				
+				]]>
+			</script>
+		</button>
+		<caption id="caption23" class="list_cap01" style="left:10px; top:69px; width:80px; height:28px; text-align:center; ">담보구분</caption>
+		<select1 id="combo2" ref="/root/reqData/searchData/data_clsf" navindex="2" appearance="minimal" style="left:191px; top:74px; width:77px; height:18px; ">
+			<choices>
+				<item>
+					<label>1 계약일</label>
+					<value>01</value>
+				</item>
+				<item>
+					<label>2 기준일</label>
+					<value>02</value>
+				</item>
+				<item>
+					<label>3 입고일</label>
+					<value>03</value>
+				</item>
+				<item>
+					<label>4 출고일</label>
+					<value>04</value>
+				</item>
+				<item>
+					<label>5 만기일</label>
+					<value>05</value>
+				</item>
+			</choices>
+		</select1>
+		<caption id="caption62" class="list_cap01" style="left:540px; top:69px; width:80px; height:28px; text-align:center; ">보관</caption>
+		<select id="checkbox1" ref="/root/reqData/searchData/cg_yn1" navindex="6" overflow="visible" appearance="full" cols="5" style="left:630px; top:76px; width:32px; height:13px; text-align:left; border-style:none; ">
+			<choices>
+				<item>
+					<label>유</label>
+					<value>Y</value>
+				</item>
+			</choices>
+		</select>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:134px; width:927px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="구분^대행사/지사명^계약형태^담보내용^계좌번호^금액^계약시작일^계약종료일^보증시작일^보증종료일^입고일^출고일^소유주^비고^삭제여부" colsep="^" colwidth="80, 130, 70, 130, 110, 85, 70, 70, 70, 70, 70, 70, 80, 120,30" explorerbar="sort" extendlastcol="scroll" frozencols="2" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:11px; top:150px; width:927px; height:578px; text-align:center; ">
+			<col ref="mortg_clsf" style="text-align:left; "/>
+			<col ref="dlco_nm" style="text-align:left; word-wrap:none; "/>
+			<col ref="cntr_type"/>
+			<col ref="mortg_cont" style="text-align:left; word-wrap:none; "/>
+			<col ref="acct_no" style="text-align:left; word-wrap:none; "/>
+			<col ref="mortg_amt" format="#,###" style="text-align:right; "/>
+			<col ref="cntr_dt" format="yyyy-mm-dd"/>
+			<col ref="cntr_todt" format="yyyy-mm-dd"/>
+			<col ref="gurt_frdt" format="yyyy-mm-dd"/>
+			<col ref="gurt_todt" format="yyyy-mm-dd"/>
+			<col ref="ewh_dt" format="yyyy-mm-dd"/>
+			<col ref="owh_dt" format="yyyy-mm-dd"/>
+			<col ref="setup_pers"/>
+			<col ref="remk" style="text-align:left; word-wrap:none; "/>
+			<col ref="del_yn" visibility="hidden"/>
+		</datagrid>
+		<select1 id="combo1" ref="/root/reqData/searchData/mortg_clsf" navindex="1" appearance="minimal" style="left:94px; top:74px; width:92px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/codeData/MORTG_CLSF/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<caption id="caption11" style="left:363px; top:77px; width:15px; height:17px; ">~</caption>
+		<button id="btnClose" class="btn02" crud="R" style="left:885px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				if(window.type == "mdi"){
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				}else{													
+					window.close();
+				}
+				]]>
+			</script>
+		</button>
+		<select id="checkbox3" ref="/root/reqData/searchData/cg_yn2" navindex="7" overflow="visible" appearance="full" cols="5" style="left:664px; top:76px; width:32px; height:13px; text-align:left; border-style:none; ">
+			<choices>
+				<item>
+					<label>무</label>
+					<value>Y</value>
+				</item>
+			</choices>
+		</select>
+		<button id="button1" class="btn02" crud="R" style="left:660px; top:39px; width:52px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				
+				if(!checkGridData(datagrid1)){
+					alert("처리할 내역이 없습니다.");
+					return;
+				}
+				var filename = window.fileDialog("save", ",", false, "대행사지사 담보내역 조회", "xls", "Excel File(*.xls)|*.xls");
+				
+				if(filename!=""){
+					datagrid1.saveExcel(filename, "sheetname:대행사/지사 담보내역 조회;");
+				}
+									
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap02" style="left:10px; top:96px; width:927px; height:28px; "/>
+		<input id="inp_dlco_no" ref="/root/reqData/searchData/dlco_no" navindex="8" autonext="false" format="99999999" style="left:179px; top:101px; width:62px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					var dlco_no = inp_dlco_no.currentText;
+					model.setValue("/root/reqData/searchData/dlco_no", lpad(dlco_no, 8, "0"));
+					inp_dlco_no.refresh();
+					commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);	
+				}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[			
+				var dlco_no = inp_dlco_no.currentText;
+				model.setValue("/root/reqData/searchData/dlco_no", lpad(dlco_no, 8, "0"));
+				inp_dlco_no.refresh();
+				commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);								
+				]]>
+			</script>
+		</input>
+		<caption id="caption50" class="list_cap01" style="left:10px; top:96px; width:80px; height:28px; text-align:center; ">대행사/지사</caption>
+		<input id="inp_dlco_nm" ref="/root/reqData/searchData/dlco_nm" navindex="9" imemode="hangul" inputtype="button" appearance="input" style="left:247px; top:101px; width:146px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[					
+					showAdvcsSearchPopup("", "", "Y", "Y", "Y", inp_dlco_nm.currentText);		
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					findDlcoNoByName("24", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+				}	
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				findDlcoNoByName("24", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+				]]>
+			</script>
+		</input>
+		<select1 id="combo3" ref="/root/reqData/searchData/cntr_yymm" navindex="5" appearance="minimal" style="left:468px; top:74px; width:67px; height:18px; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value/>
+				</item>
+				<item>
+					<label>1월</label>
+					<value>01</value>
+				</item>
+				<item>
+					<label>2월</label>
+					<value>02</value>
+				</item>
+				<item>
+					<label>3월</label>
+					<value>03</value>
+				</item>
+				<item>
+					<label>4월</label>
+					<value>04</value>
+				</item>
+				<item>
+					<label>5월</label>
+					<value>05</value>
+				</item>
+				<item>
+					<label>6월</label>
+					<value>06</value>
+				</item>
+				<item>
+					<label>7월</label>
+					<value>07</value>
+				</item>
+				<item>
+					<label>8월</label>
+					<value>08</value>
+				</item>
+				<item>
+					<label>9월</label>
+					<value>09</value>
+				</item>
+				<item>
+					<label>10월</label>
+					<value>10</value>
+				</item>
+				<item>
+					<label>11월</label>
+					<value>11</value>
+				</item>
+				<item>
+					<label>12월</label>
+					<value>12</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+
+				]]>
+			</script>
+		</select1>
+		<caption id="caption2" class="list_cap01" style="left:715px; top:69px; width:80px; height:28px; text-align:center; ">담보이력</caption>
+		<bool id="bool1" checkvalue="Y,N" ref="/root/reqData/searchData/curr_yn" style="left:800px; top:73px; width:20px; height:20px; "/>
+		<caption id="caption3" style="left:819px; top:74px; width:30px; height:20px; ">현재</caption>
+		<bool id="bool2" checkvalue="Y,N" ref="/root/reqData/searchData/prev_yn" style="left:855px; top:73px; width:20px; height:20px; "/>
+		<caption id="caption4" style="left:874px; top:74px; width:30px; height:20px; ">이전</caption>
+		<caption id="caption5" class="list_cap01" style="left:540px; top:96px; width:80px; height:28px; text-align:center; ">기준일자</caption>
+		<input id="inp_basi_dt" ref="/root/reqData/searchData/basi_dt" inputtype="date" style="left:626px; top:101px; width:100px; height:18px; "/>
+		<bool id="bool3" checkvalue="Y,N" ref="/root/reqData/searchData/over_yn" style="left:738px; top:100px; width:20px; height:20px; "/>
+		<caption id="caption7" style="left:760px; top:101px; width:124px; height:20px; ">
+			<![CDATA[(기준일자 > 만기일자)]]>
+		</caption>
+		<output id="output1" ref="/root/resData/gridData/tot_mortg_amt" format="#,###" style="left:405px; top:101px; width:129px; height:18px; text-align:right; "/>
+		<select1 id="combo4" ref="/root/reqData/searchData/dlco_clsf" appearance="minimal" style="left:95px; top:101px; width:80px; height:18px; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value/>
+				</item>
+				<item>
+					<label>대행사</label>
+					<value>2</value>
+				</item>
+				<item>
+					<label>지사</label>
+					<value>4</value>
+				</item>
+			</choices>
+		</select1>
+		<button id="button2" class="btn04" crud="R" style="left:720px; top:39px; width:97px; height:21px; ">
+			<caption>담보물확인</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)	
+					makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_BAS_1320_P");				
+				
+					makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd", model.property("ss_cmpycd"));	//테스트는 고정   model.property("ss_cmpycd")
+											
+					// 레포트뷰어 호출.					
+					openOzwin("/root/oz_data");					
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

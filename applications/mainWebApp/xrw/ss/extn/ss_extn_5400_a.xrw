@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<gs_request>N</gs_request>
+						<defaultData/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<search_form>
+								<deptcd/>
+								<common_deptcd/>
+								<bocd/>
+								<partcd/>
+								<areacd/>
+								<bocd/>
+								<bonm/>
+								<fryymm/>
+								<toyymm/>
+								<clos/>
+								<paydt/>
+								<extn_gb/>
+								<extn_gbcd/>
+							</search_form>
+							<popupForm>
+								<valmm/>
+								<bocd/>
+								<area/>
+								<bonm/>
+								<extn_gbcd/>
+							</popupForm>
+						</reqform>
+						<multiUpDate>
+							<multiUpDate1/>
+						</multiUpDate>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<deptnm/>
+									<partnm/>
+									<areanm/>
+									<bonm/>
+									<rdrnm/>
+									<rdr_no/>
+									<qty/>
+									<telno/>
+									<ptphno/>
+									<rdr_extndt/>
+									<valmm/>
+									<svcmm/>
+									<suspdt/>
+									<suspresncd/>
+									<rdr_extntype1/>
+									<nowsubsyn/>
+									<resitype/>
+									<addr/>
+								</record>
+							</listGrid>
+							<detailData>
+								<rdr_no/>
+								<bocd/>
+							</detailData>
+							<listGrid_extn_gb>
+								<record>
+									<extn_gb/>
+								</record>
+							</listGrid_extn_gb>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID5400search" ref="/root/reqData/reqform/search_form" action="/ss/extn/5410" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/dataTemp"/>
+		</model>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamCommSE.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					commEventHandler(PID5400group_scr);
+					
+					makeTeamSearch("getTeamInit", "/ss/extn/5400", "", "/root/initData/comboSet/codeData", "cmbCommonTeamQ", "cmbCommonPartQ", "cmbCommonAreaQ");
+					//아래는 임시용. makeTeamEvent
+					//makeTeamEvent("getAreaList", "/ss/common/1100", "/root/reqData/reqform/extn_search_form", "/root/initData/comboSet/codeData", "cmbCommonTeamQ", "cmbCommonAreaQ", "preActionTeam();");
+					
+					model.copyNode("/root/initData/defaultData", "/root/initData/comboSet/codeData");
+					model.setValue("/root/reqData/reqform/search_form/fryymm", model.getValue("/root/initData/comboSet/codeData/fryymm"));
+					model.setValue("/root/reqData/reqform/search_form/toyymm", model.getValue("/root/initData/comboSet/codeData/toyymm"));
+					
+					model.copyNode("/root/resData/gridData/listGrid_extn_gb", "/root/initData/comboSet/codeData/listGrid_extn_gb");
+					
+					PID5400datagrid2.visible = false;
+					PID5400input2.value = "선택";
+
+					/*if( model.getValue("/root/initData/comboSet/codeData/uid") == "cit0031"
+						|| model.getValue("/root/initData/comboSet/codeData/uid") == "c214035"
+						|| model.getValue("/root/initData/comboSet/codeData/uid") == "c204022"
+					){
+						btnA4.visible = true;
+						btnA5.visible = true;
+					}else{
+						btnA4.visible = false;
+						btnA5.visible = false;
+					}	*/					
+															
+					PID5400group_scr.refresh();
+					
+				}
+				
+				function search()
+				{
+					PID5400datagrid2.visible = false;
+						
+					if(!commValidate("PID5400group_scr"))
+						return;
+					
+					remakeNode("/root/tempData/dataTemp");
+					
+					makeNodesetToAppendForm("/root/resData/gridData/listGrid_extn_gb/record", "/root/tempData/gridTemp", "check", "Y", "##", true);
+					model.setValue("/root/reqData/reqform/search_form/extn_gbcd", model.getValue("/root/tempData/gridTemp/cicodeval"));
+				
+					model.send("PID5400search", false);
+					
+					if(!submit_completed())
+						return;
+					//데이터셋팅
+					//-조회목록
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/dataTemp/listGrid");					
+											
+					//model.refresh();
+					PID5400datagrid1.refresh();
+					
+					PID5400caption12.value = model.getValue("/root/tempData/dataTemp/cnfm_qty");
+					PID5400caption13.value = model.getValue("/root/tempData/dataTemp/cnfm_amt");
+					PID5400caption14.value = model.getValue("/root/tempData/dataTemp/nocnfm_qty");
+					PID5400caption15.value = model.getValue("/root/tempData/dataTemp/nocnfm_amt");
+					PID5400caption20.value = model.getValue("/root/tempData/dataTemp/meda_amt");
+					PID5400caption21.value = model.getValue("/root/tempData/dataTemp/set_amt");
+					PID5400caption22.value = model.getValue("/root/tempData/dataTemp/pay_amt");
+					PID5400caption23.value = model.getValue("/root/tempData/dataTemp/nopay_amt");
+					
+					PID5400caption101.value = model.getValue("/root/tempData/dataTemp/closdt_A");
+					PID5400caption102.value = model.getValue("/root/tempData/dataTemp/paydt_A");
+					PID5400caption104.value = model.getValue("/root/tempData/dataTemp/closdt_C");
+					PID5400caption105.value = model.getValue("/root/tempData/dataTemp/paydt_C");
+															
+					if(instance1.selectNodes("/root/resData/gridData/listGrid/record/valmm").length == 0){
+						model.alert("검색결과가 없습니다.");
+						PID5400caption12.value = "";
+						PID5400caption13.value = "";
+						PID5400caption14.value = "";
+						PID5400caption15.value = "";
+						PID5400caption20.value = "";
+						PID5400caption21.value = "";
+						PID5400caption22.value = "";
+						PID5400caption23.value = "";
+						
+						PID5400caption101.value = "";
+						PID5400caption102.value = "";
+						PID5400caption104.value = "";
+						PID5400caption105.value = "";
+					}	
+					model.removenode("/root/tempData/dataTemp");
+					
+					PID5400datagrid1.rebuild();
+					
+				}
+									
+				function preActionTeam()
+				{
+					modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+				}
+				
+				//기존의 bo_list_search
+				function searchWithBranch()
+				{
+					model.setValue("/root/initData/gs_request", "L");
+					
+					if(iptCommonmBranchQ.value == "")
+					{
+						model.setValue("/root/reqData/reqform/search_form/bocd", "");
+						model.setValue("/root/initData/gs_request", "N");
+						search();
+					}
+					else
+					{
+						modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+						searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+					}
+				}
+				
+				function onClickBranchPopup()
+				{
+					//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+					openBranch("/root/reqData/reqform/search_form", "/root/tempData/tempBranch");
+	
+	               		if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+						return;
+					
+					iptCommonmBranchQ.value = model.getValue("/root/tempData/tempBranch/bonm");
+					modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/tempBranch/bocd");
+	
+					if(model.getValue("/root/initData/gs_request") == "L")
+					{
+						model.setValue("/root/initData/gs_request", "N");
+						search();
+					}
+				}
+				
+				function onKeyDown()
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("btnSearchBranchQ");
+						
+						if(iptCommonmBranchQ.value == '')
+							onClickBranchPopup();
+						else
+						{
+							//화면별 선처리
+							modelCopyValue("/root/reqData/reqform/search_form/common_deptcd", "/root/reqData/reqform/search_form/deptcd");
+							//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+							//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+							//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+							searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+						}
+					}
+				}
+									
+				//지국 enter key 검색 시 callback 함수. onKeyDown
+				function searchBranchCallBack()
+				{
+					//검색 후처리.
+					if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+					{
+						iptCommonmBranchQ.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+						modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+					}
+					else
+						onClickBranchPopup();
+				}
+					
+				function set_default(flag)
+				{
+					if(flag == '1') {			// 부서(팀),지역,지국 초기화
+						// 부서(팀) 초기화
+						//model.copyNode("/root/initData/comboSet/codeData/teamlist", "/root/initData/defaultData/teamlist");
+						cmbCommonTeamQ.select(0);		//event 등록으로 인해 team을 첫번째로 선택하면 area 역시 reset.
+						
+						// 지역 초기화
+						//model.copyNode("/root/initData/comboSet/codeData/arealist", "/root/initData/defaultData/arealist");
+						
+						// 지국코드,지국명 초기화, 포커스이동
+						model.setValue("/root/reqData/reqform/search_form/bocd", "");
+						iptCommonmBranchQ.value = "";
+						model.setFocus("iptCommonmBranchQ");
+						
+					} else if(flag == '2') {		// 기간 초기화
+					} else if(flag == '3') {		// 기타 초기화
+					}
+				}
+				
+				function excel(){					
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+						
+					if(filePath != "") {
+						PID5400datagrid1.saveExcel(filePath);
+						window.exec(filePath);
+					}
+				}
+								
+				function detail_popup(){
+					if(PID5400datagrid1.textMatrix(PID5400datagrid1.row, PID5400datagrid1.colRef("bocd")) == "")
+						return;
+					
+					model.setValue("/root/reqData/reqform/popupForm/bocd",PID5400datagrid1.textMatrix(PID5400datagrid1.row, PID5400datagrid1.colRef("bocd")));
+					model.setValue("/root/reqData/reqform/popupForm/area",PID5400datagrid1.textMatrix(PID5400datagrid1.row, PID5400datagrid1.colRef("area")));
+					model.setValue("/root/reqData/reqform/popupForm/bonm",PID5400datagrid1.textMatrix(PID5400datagrid1.row, PID5400datagrid1.colRef("bonm")));
+					model.setValue("/root/reqData/reqform/popupForm/valmm",PID5400datagrid1.textMatrix(PID5400datagrid1.row, PID5400datagrid1.colRef("valmm")));
+					model.setValue("/root/reqData/reqform/popupForm/extn_gbcd",model.getValue("/root/reqData/reqform/search_form/extn_gbcd"));
+					
+					var style = "width:840px; height:420; align:center";
+					window.load("/xrw/ss/extn/ss_extn_5401_p.xrw", "new", "", style, "/root/reqData/reqform/popupForm", "/root/initData/searchData/search_form");
+				}		
+								
+				function showGrid_extn_gb()
+				{				
+					if(PID5400datagrid2.visible == true) {
+						PID5400datagrid2.visible = false;
+					} else {
+						PID5400datagrid2.visible = true;
+					}									
+				}				
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="1000" idprefix="PID5400" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnA1" class="btn02" style="left:764px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						searchWithBranch();		
+					]]>
+				</script>
+			</button>
+			<button id="btnA2" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>Excel</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						excel();		
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID5400group_scr" class="gro_sel" style="left:10px; top:75px; width:926px; height:49px; ">
+			<group id="grpCommonSelectQ" style="left:0px; top:0px; width:926px; height:25px; ">
+				<caption id="capCommonTeamQ" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">팀</caption>
+				<caption id="capCommonTeamQB" class="list_cap02" style="left:49px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonTeamQ" ref="/root/reqData/reqform/search_form/deptcd" class="req_100" appearance="minimal" style="left:54px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/teamlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonPartQ" class="list_cap01" style="left:158px; top:0px; width:50px; height:25px; ">파트</caption>
+				<caption id="capCommonPartQB" class="list_cap02" style="left:207px; top:0px; width:110px; height:25px; "/>
+				<select1 id="cmbCommonPartQ" ref="/root/reqData/reqform/search_form/partcd" class="req_100" appearance="minimal" style="left:212px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/partlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonAreaQ" class="list_cap01" style="left:316px; top:0px; width:50px; height:25px; ">지역</caption>
+				<caption id="capCommonAreaQB" class="list_cap02" style="left:365px; top:0px; width:70px; height:25px; "/>
+				<select1 id="cmbCommonAreaQ" ref="/root/reqData/reqform/search_form/areacd" class="req_60" appearance="minimal" style="left:370px; top:4px; width:60px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/codeData/arealist/record">
+							<label ref="area_nm"/>
+							<value ref="area_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="capCommonmBranchQ" class="list_cap01" style="left:434px; top:0px; width:50px; height:25px; ">센터</caption>
+				<caption id="capCommonmBranchQB" class="list_cap02" style="left:483px; top:0px; width:110px; height:25px; "/>
+				<input id="iptCommonmBranchQ" ref="/root/reqData/reqform/search_form/bonm" class="req" imemode="hangul" style="left:488px; top:4px; width:100px; height:18px; ">
+					<script type="javascript" ev:event="onkeydown">
+						<![CDATA[
+						onKeyDown();				
+						]]>
+					</script>
+				</input>
+				<caption id="capCommonmBranchBB" class="list_cap02" style="left:592px; top:0px; width:334px; height:25px; "/>
+				<button id="btnSearchBranchQ" class="btn05" style="left:596px; top:3px; width:40px; height:20px; ">
+					<caption>찾기</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						onClickBranchPopup();				
+						]]>
+					</script>
+				</button>
+				<button id="btnResetBranchQ" class="btn05" style="left:640px; top:3px; width:20px; height:20px; ">
+					<caption>-</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						set_default("1");				
+						]]>
+					</script>
+				</button>
+			</group>
+			<caption id="PID5400caption6" class="list_cap01" style="left:0px; top:24px; width:80px; height:25px; ">유가월</caption>
+			<caption id="PID5400caption2" class="list_cap02" style="left:79px; top:24px; width:847px; height:25px; "/>
+			<input id="PID5400input1" ref="/root/reqData/reqform/search_form/fryymm" class="req" inputtype="date" format="yyyy-mm" style="left:84px; top:28px; width:100px; height:18px; "/>
+			<caption id="caption2" class="list_cap01" style="left:190px; top:24px; width:70px; height:25px; ">확장구분</caption>
+			<input id="PID5400input2" ref="/root/reqData/reqform/search_form/extn_gb" editable="false" style="left:265px; top:28px; width:65px; height:18px; "/>
+			<button id="button1" class="btn05" style="left:333px; top:26px; width:20px; height:21px; ">
+				<caption>▼</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						showGrid_extn_gb();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID5400group_line" class="gro_line" style="left:10px; top:130px; width:926px; height:5px; "/>
+		<datagrid id="PID5400datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="유가월^지역^센터코드^센터명^부수^부수^부수^부수^조정액^확정액^지급액^미지급액|유가월^지역^센터코드^센터명^확인^금액^미확인^금액^조정액^확정액^지급액^미지급액" colwidth="80,120,80,80,60,70,60,70,70,70,70,70" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" selectionmode="free" rowsep="|" colsep="#" tooltip="true" style="left:10px; top:140px; width:926px; height:525px; ">
+			<col ref="valmm" format="yyyy-mm"/>
+			<col ref="area"/>
+			<col ref="bocd"/>
+			<col ref="bonm"/>
+			<col ref="cnfm_qty" format="#,###" style="text-align:right; "/>
+			<col ref="cnfm_amt" format="#,###" style="text-align:right; "/>
+			<col ref="nocnfm_qty" format="#,###" style="text-align:right; "/>
+			<col ref="nocnfm_amt" format="#,###" style="text-align:right; "/>
+			<col ref="meda_amt" format="(-)#,###" style="text-align:right; "/>
+			<col ref="set_amt" format="#,###" style="text-align:right; "/>
+			<col ref="pay_amt" format="#,###" style="text-align:right; "/>
+			<col ref="nopay_amt" format="#,###" style="text-align:right; "/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID5400datagrid1.mouseCol>PID5400datagrid1.fixedCols-1 && PID5400datagrid1.mouseRow>PID5400datagrid1.fixedRows-1)
+				       {
+						detail_popup();
+				       }
+				}			
+				]]>
+			</script>
+		</datagrid>
+		<caption id="PID5400caption7" class="list_cap01" style="left:300px; top:675px; width:317x; height:20px; font-weight:bold; ">부수</caption>
+		<caption id="PID5400caption8" class="list_cap01" style="left:300px; top:694px; width:80px; height:20px; font-weight:bold; ">확인</caption>
+		<caption id="PID5400caption9" class="list_cap01" style="left:379px; top:694px; width:80px; height:20px; font-weight:bold; ">금액</caption>
+		<caption id="PID5400caption10" class="list_cap01" style="left:458px; top:694px; width:80px; height:20px; font-weight:bold; ">미확인</caption>
+		<caption id="PID5400caption11" class="list_cap01" style="left:537px; top:694px; width:80px; height:20px; font-weight:bold; ">금액</caption>
+		<caption id="PID5400caption12" class="list_cap02" format="#,###" style="left:300px; top:713px; width:80px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="PID5400caption13" class="list_cap02" format="#,###" style="left:379px; top:713px; width:80px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="PID5400caption14" class="list_cap02" format="#,###" style="left:458px; top:713px; width:80px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="PID5400caption15" class="list_cap02" format="#,###" style="left:537px; top:713px; width:80px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="PID5400caption16" class="list_cap01" style="left:616px; top:675px; width:80px; height:39px; font-weight:bold; ">조정액</caption>
+		<caption id="PID5400caption17" class="list_cap01" style="left:695px; top:675px; width:80px; height:39px; font-weight:bold; ">확정액</caption>
+		<caption id="PID5400caption18" class="list_cap01" style="left:774px; top:675px; width:80px; height:39px; font-weight:bold; ">지급액</caption>
+		<caption id="PID5400caption19" class="list_cap01" style="left:853px; top:675px; width:80px; height:39px; font-weight:bold; ">미지급액</caption>
+		<caption id="PID5400caption20" class="list_cap02" format="#,###" style="left:616px; top:713px; width:80px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="PID5400caption21" class="list_cap02" format="#,###" style="left:695px; top:713px; width:80px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="PID5400caption22" class="list_cap02" format="#,###" style="left:774px; top:713px; width:80px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="PID5400caption23" class="list_cap02" format="#,###" style="left:853px; top:713px; width:80px; height:20px; font-weight:bold; text-align:right; "/>
+		<datagrid id="PID5400datagrid2" nodeset="/root/resData/gridData/listGrid_extn_gb/record" caption="^확장구분" colwidth="20, 60" ellipsis="true" mergecellsfixedrows="bycolrec" selectionmode="free" rowsep="|" colsep="^" tooltip="true" style="left:275px; top:122px; width:85px; height:82px; ">
+			<col ref="check" type="checkbox" checkvalue="Y,N">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[											
+						//checkValue();					
+						var checkName = "";
+						var checkCount = 0;				
+						
+						for(var i=1; i<PID5400datagrid2.rows; i++) {
+							if(PID5400datagrid2.valueMatrix(i,0) == "Y") {
+								checkName = PID5400datagrid2.valueMatrix(i,1);
+								break;
+							}
+						}
+										
+						for(var i=1; i<PID5400datagrid2.rows; i++) {
+							if(PID5400datagrid2.valueMatrix(i,0) == "Y") {
+								checkCount ++;				
+							}
+						}
+						
+						checkCount = checkCount -1;
+						
+						if(checkName == "") { 
+							PID5400input2.value = "선택";
+						} else {
+							PID5400input2.value = checkName + (checkCount > 0 ? " 외" + checkCount + "건" : "");
+						}
+					]]>
+				</script>
+			</col>
+			<col ref="cicdnm"/>
+			<col ref="cicodeval" visibility="hidden"/>
+		</datagrid>
+		<caption id="PID5400caption100" class="list_cap01" style="left:10px; top:694px; width:70px; height:20px; font-weight:bold; ">지정,후원</caption>
+		<caption id="PID5400caption101" class="list_cap02" format="yyyy-mm-dd" style="left:79px; top:694px; width:100px; height:20px; font-weight:bold; "/>
+		<caption id="PID5400caption102" class="list_cap02" format="yyyy-mm-dd" style="left:178px; top:694px; width:100px; height:20px; font-weight:bold; "/>
+		<caption id="PID5400caption103" class="list_cap01" style="left:10px; top:713px; width:70px; height:20px; font-weight:bold; ">제휴</caption>
+		<caption id="PID5400caption104" class="list_cap02" format="yyyy-mm-dd" style="left:79px; top:713px; width:100px; height:20px; font-weight:bold; "/>
+		<caption id="PID5400caption105" class="list_cap02" format="yyyy-mm-dd" style="left:178px; top:713px; width:100px; height:20px; font-weight:bold;  "/>
+		<caption id="PID5400caption106" class="list_cap01" style="left:10px; top:675px; width:70px; height:20px; font-weight:bold; text-align:center; "/>
+		<caption id="PID5400caption107" class="list_cap01" style="left:79px; top:675px; width:100px; height:20px; font-weight:bold; text-align:center; ">마감일</caption>
+		<caption id="PID5400caption108" class="list_cap01" style="left:178px; top:675px; width:100px; height:20px; font-weight:bold; text-align:center; ">지급일</caption>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<bank_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</bank_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<searchData>
+							<adjm_rvrs_yy/>
+							<emp_no/>
+							<stok_savg_type/>
+							<payment_sum/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<reqForm>
+							<multiUpData/>
+						</reqForm>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<bank_cd/>
+								<account_no/>
+								<payment/>
+								<deduct_amt/>
+								<adjm_rvrs_yy/>
+								<emp_no/>
+								<occr_dt/>
+								<seq/>
+								<stok_savg_type/>
+							</record>
+						</gridData>
+						<resForm/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					
+					
+					function setEmp_no_i(emp_no, nm_korn){
+						
+						var get_year = parent.parent.window.javaScript.searchYear();
+						var emp_no = parent.parent.window.javaScript.searchEmp_no();
+						model1.setValue("/root/reqData/searchData/adjm_rvrs_yy",get_year);
+						model1.setValue("/root/reqData/searchData/emp_no",emp_no);
+						
+						
+						
+						button3.dispatch("onclick");
+
+						model1.refresh();
+					}
+
+					function makeComboSet(gubun, source_ref, target_ref, ref_label, ref_value){
+					    var desNode = target_ref + "/item";
+					    var label, value;
+					    
+					    if ( gubun == "A" ) {
+					        label = "전체";
+					        value = "";
+					    } else if ( gubun == "S" ){
+					        label = "선택";
+					        value = "";
+					    } else if ( gubun == "N" ){
+					    } else {
+					        label = " ";
+					        value = "";
+					    }
+					    
+					    //원 노드를 삭제하고 전체, 선택, ""을 셋팅한다.
+					    if (gubun != "N") {
+							    model.removeNodeset(target_ref);
+							    model.makeNode(target_ref); 
+							    model.makeNode(desNode);
+							    
+							    model.makeNode(desNode + "/label");
+							    model.makeNode(desNode + "/value");
+							    
+							    model.setValue(desNode + "/label", label);
+							    model.setValue(desNode + "/value", value) ;
+					    } else {
+					        model.removeNodeset(target_ref);
+					    }    
+					    //전체, 선택 다음 노드에 원자료를 셋팅한다.
+					    if ( instance1.selectSingleNode(source_ref) != null ) {
+					        var arr = instance1.selectSingleNode(source_ref); 
+					        var len = arr.length;
+					
+					        if ( len > 0 ) {
+					            for ( var i = 1 ; i <= len ; i++ ) {
+					                model.makeNode(desNode + "[" + (i+1) + "]");
+					                model.makeNode(desNode + "[" + (i+1) + "]/label");
+					                model.makeNode(desNode + "[" + (i+1) + "]/value");
+					                model.setValue(desNode + "[" + (i+1) + "]/label", model.getValue(source_ref + "[" + i + "]/" + ref_label));
+					                model.setValue(desNode + "[" + (i+1) + "]/value", model.getValue(source_ref + "[" + i + "]/" + ref_value));
+					            }
+					        } else {
+					            model.makeNode(desNode + "[" + 2 + "]");
+					            model.makeNode(desNode + "[" + 2 + "]/label");
+					            model.makeNode(desNode + "[" + 2 + "]/value");
+					            model.setValue(desNode + "[" + 2 + "]/label", model.getValue(source_ref + "/" + ref_label));
+					            model.setValue(desNode + "[" + 2 + "]/value", model.getValue(source_ref + "/" + ref_value));
+					        }
+					    } 
+					    model.refresh();
+					}
+					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[					
+					model1.send("hd_yadjm_101230");
+					makeComboSet("N", "/root/dataSet/CURLIST1/record", "/root/initData/comboSet/bank_cd", "cdnm", "cd")
+					model1.removeNodeset("/root/dataSet");
+					
+					//제목생성
+					caption24.text = model1.getValue("/root/reqData/fwdData/maintitle");
+					maintitle2.text =  model1.getValue("/root/reqData/fwdData/maintitle2");
+					model1.setValue("/root/reqData/searchData/stok_savg_type",model1.getValue("/root/reqData/fwdData/stok_savg_type"));
+					
+					var get_year = parent.parent.window.javaScript.searchYear();
+					var emp_no = parent.parent.window.javaScript.searchEmp_no();
+					var nm_korn = parent.parent.window.javaScript.searchFlnm();
+					setEmp_no_i(emp_no,nm_korn);
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_yadjm_101230" action="/hd/yadjm/101230" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/dataSet"/>
+			<submission id="hd_yadjm_101231" action="/hd/yadjm/101231" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/dataSet"/>
+			<submission id="hd_yadjm_101232" action="/hd/yadjm/101232" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/dataSet"/>
+			<submission id="hd_yadjm_101233" action="/hd/yadjm/101233" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="600" pageheight="480" guideline="1,10;1,913;" style="font-family:굴림; ">
+		<!--import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<!--import id="import1" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<button id="button1" class="btn02" style="left:345px; top:15px; width:53px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+	     			if (model1.getValue("/root/reqData/searchData/adjm_rvrs_yy") == ""){
+	     				alert("연말정산년도를 입력하십시오.");
+	     				return;
+	     			}
+	     			if (model1.getValue("/root/reqData/searchData/emp_no") == ""){
+	     				alert("사번을 입력하십시오.");
+	     				return;
+	     			}
+					
+					
+					if (!rowInSubmit(datagrid1))
+						return;
+					
+					if(!commGridReqCheck("datagrid1")) return;
+					
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					
+					model1.setValue("/root/reqData/reqForm/multiUpData", datagrid1.getUpdateData());
+					model1.send("hd_yadjm_101232");
+	
+					if(submit_completed()) {
+						button3.dispatch("onclick");
+						
+						//상위 메인화면 스크립트 실행
+						parent.window.javaScript.target_refresh_Script(model1.getValue("/root/reqData/searchData/stok_savg_type"));
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" style="left:405px; top:15px; width:51px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+			     ]]>
+			</script>
+		</button>
+		<button id="btnG1" class="btn_grid03" style="left:400px; top:60px; width:53px; height:17px; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var selectedIdx = 2;
+					//var prn = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/prn");		
+					datagrid1.addRow(true, true);
+				]]>
+			</script>
+		</button>
+		<!--import id="import2" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/-->
+		<button id="button3" class="btn02" style="left:235px; top:15px; width:53px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (model1.getValue("/root/reqData/searchData/adjm_rvrs_yy") == "") {
+						alert("정산년도를 입력하십시오.");
+						return;
+					}
+
+					if (model1.getValue("/root/reqData/searchData/emp_no") == "") {
+						alert("사번을 입력하십시오.");
+						return;
+					}
+					model1.removenode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					
+     				model1.send("hd_yadjm_101231");
+					model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+					model1.removeNodeset("/root/dataSet");
+					//datagrid2.clearStatus();
+					model1.refresh();			
+					if( model1.getValue("/root/reqData/searchData/stok_savg_type") == "4101" || model1.getValue("/root/reqData/searchData/stok_savg_type") == "4102" || model1.getValue("/root/reqData/searchData/stok_savg_type") == "4103" ){
+						model1.send("hd_yadjm_101233");
+						model1.setValue("/root/reqData/searchData/payment_sum", model1.getValue("/root/dataSet/CURLIST/record/payment_sum"));
+						model1.removenode("/root/dataSet");
+					}
+					//getTotalAmt();
+									
+					//var totcnt = datagrid2.rows;
+					//model1.setValue("/root/resData/tot_cnt", "총 " + Number(totcnt - 2) + " 건");
+					for(i=0;i<10;i++){
+						btnG1.dispatch("onclick");
+					}
+					model1.refresh();
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn02" style="left:290px; top:15px; width:53px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+	     			if (!rowDelSubmit(datagrid1))
+	     				return;
+	     				
+					if (window.alert("삭제하시겠습니까?", "확인", 1) != 1)
+						return;
+					
+					model1.setValue("/root/reqData/reqForm/multiUpData", datagrid1.getUpdateData());
+					model1.send("hd_yadjm_101232");
+
+					if(submit_completed()) {							
+						button3.dispatch("onclick");
+						
+						//상위 메인화면 스크립트 실행
+						parent.window.javaScript.target_refresh_Script(model1.getValue("/root/reqData/searchData/stok_savg_type"));
+					}
+				]]>
+			</script>
+		</button>
+		<group id="group2" class="gro_line" style="left:10px; top:45px; width:445px; height:5px; "/>
+		<caption id="caption24" class="tit02" style="left:10px; top:55px; width:235px; height:20px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="금융기관^계좌번호^공제불입금액^공제금액^aply_rvrs_yy^emp_no^occr_dt^seq^stok_savg_type" colsep="#" colwidth="100, 130, 100, 100, 100, 100, 100, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" style="left:10px; top:80px; width:455px; height:290px; ">
+			<col class="req" ref="bank_cd" type="combo" caption="금융기관">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/bank_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</col>
+			<col class="req" ref="account_no" type="input" format="99999999999999999999" caption="계좌번호" style="text-align:right; "/>
+			<col class="req" ref="payment" type="input" format="#,###" maxlength="10" caption="불입금액" style="text-align:right; "/>
+			<col ref="deduct_amt" type="output" format="#,###" maxlength="10" style="text-align:right; "/>
+			<col ref="adjm_rvrs_yy" visibility="hidden"/>
+			<col ref="emp_no" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="stok_savg_type" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					rowStatus(datagrid1);
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					if(datagrid1.col==datagrid1.colRef("payment")){
+						var payment = datagrid1.valueMatrix(datagrid1.row,datagrid1.col);
+						var stok_savg_type = model1.getValue("/root/reqData/searchData/stok_savg_type");
+						if(stok_savg_type == "21"){//개인연금저축
+							var deduct = payment*0.4;
+							if(parseInt(deduct) > 720000){
+								deduct = 720000;
+							}
+							
+							model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct ); //40%
+							datagrid1.refresh();
+							//소득공제구분별 불입금액한도 초과시 오류
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//공제금액 한도 체크
+							//alert(total_dedu_sum);
+							if(parseInt(total_dedu_sum)+parseInt(deduct) > 720000){
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", 720000-total_dedu_sum); 
+							}
+							//공제불입금액 한도 체크
+							if(parseInt(total_sum) > 12000000){
+								alert("공제불입금액 한도 초과입니다. 공제불입금액은 소득공제구분별로 1200만원 이하입니다.");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}
+							datagrid1.refresh();
+						}
+						if(stok_savg_type == "22"){//연금저축
+							var deduct = payment;
+							if(parseInt(deduct) > 3000000){
+								deduct = 3000000;
+							}
+							
+							model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct ); //100%
+							datagrid1.refresh();
+							//소득공제구분별 불입금액한도 초과시 오류
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+									//alert(total_dedu_sum);
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//공제금액 한도 체크
+							if(parseInt(total_dedu_sum)+parseInt(deduct) > 3000000){
+								//alert(total_dedu_sum);
+								//alert(deduct);
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", 3000000-total_dedu_sum); 
+							}
+							//공제불입금액 한도 체크
+							if(parseInt(total_sum) > 12000000){
+								alert("공제불입금액 한도 초과입니다. 공제불입금액은 소득공제구분별로 1200만원 이하입니다.");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}
+						}
+						if(stok_savg_type == "31"){//청약저축
+							var deduct = payment*0.4;
+							if(parseInt(deduct) > 480000){
+								deduct = 480000;
+							}
+							
+							model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct ); //40%
+							datagrid1.refresh();
+							//소득공제구분별 불입금액한도 초과시 오류
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//공제금액 한도 체크
+							if(parseInt(total_dedu_sum)+parseInt(deduct) > 480000){
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", 480000-total_dedu_sum); 
+							}
+							//공제불입금액 한도 체크
+							if(parseInt(total_sum) > 1200000){
+								alert("공제불입금액 한도 초과입니다. 공제불입금액은 소득공제구분별로 120만원 이하입니다.");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}
+						}
+						if(stok_savg_type == "32"){//주택청약종합저축
+							var deduct = payment*0.4;
+							if(parseInt(deduct) > 480000){
+								deduct = 480000;
+							}
+							
+							model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct ); //40%
+							datagrid1.refresh();
+							//소득공제구분별 불입금액한도 초과시 오류
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//공제금액 한도 체크
+							if(parseInt(total_dedu_sum)+parseInt(deduct) > 480000){
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", 480000-total_dedu_sum); 
+							}
+							//공제불입금액 한도 체크
+							if(parseInt(total_sum) > 1200000){
+								alert("공제불입금액 한도 초과입니다. 공제불입금액은 소득공제구분별로 120만원 이하입니다.");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}
+						}
+						if(stok_savg_type == "33"){//장기주택마련저축
+							var deduct = payment*0.4;
+							if(parseInt(deduct) > 3000000){
+								deduct = 3000000;
+							}
+							
+							model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct ); //40%
+							datagrid1.refresh();
+							//소득공제구분별 불입금액한도 초과시 오류
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//공제금액 한도 체크
+							if(parseInt(total_dedu_sum)+parseInt(deduct) > 3000000){
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", 3000000-total_dedu_sum); 
+							}
+							//공제불입금액 한도 체크
+							if(parseInt(total_sum) > 12000000){
+								alert("공제불입금액 한도 초과입니다. 공제불입금액은 소득공제구분별로 1200만원 이하입니다.");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}
+						}
+						if(stok_savg_type == "34"){//근로자주택마련저축
+							var deduct = payment*0.4;
+							if(parseInt(deduct) > 720000){
+								deduct = 720000;
+							}
+							
+							model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct ); //40%
+							datagrid1.refresh();
+							//소득공제구분별 불입금액한도 초과시 오류
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//공제금액 한도 체크
+							if(parseInt(total_dedu_sum)+parseInt(deduct) > 720000){
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", 720000-total_dedu_sum); 
+							}
+							//공제불입금액 한도 체크
+							if(parseInt(total_sum) > 1800000){
+								alert("공제불입금액 한도 초과입니다. 공제불입금액은 소득공제구분별로 180만원 이하입니다.");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}
+						}
+						if(stok_savg_type == "4101"){//1년차불입액
+							//db에 입력되어 있는 총합 // 한도 1200
+							var payment_sum = model1.getValue("/root/reqData/searchData/payment_sum");
+							//화면이 입력 된 값 sum
+							var deduct = payment*0.2;
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//불입금액 한도 초과
+							if ( parseInt(payment_sum) +  parseInt(total_sum) > 12000000){
+								alert("불입금액 한도 초과 입니다. ");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}else{
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct); 
+							}
+						}
+						if(stok_savg_type == "4102"){//2년차불입액
+							//db에 입력되어 있는 총합 // 한도 1200
+							var payment_sum = model1.getValue("/root/reqData/searchData/payment_sum");
+							//화면이 입력 된 값 sum
+							var deduct = payment*0.1;
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//불입금액 한도 초과 parseInt(total_dedu_sum)+parseInt(deduct)
+							if ( parseInt(payment_sum) +  parseInt(total_sum) > 12000000){
+								alert("불입금액 한도 초과 입니다. ");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}else{
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct); 
+							}
+						}
+						if(stok_savg_type == "4103"){//3년차불입액
+							//db에 입력되어 있는 총합 // 한도 1200
+							var payment_sum = model1.getValue("/root/reqData/searchData/payment_sum");
+							//화면이 입력 된 값 sum
+							var deduct = payment*0.05;
+							var total_sum = 0;
+							var total_dedu_sum = 0;
+							var rows = datagrid1.rows;
+							var col = datagrid1.colRef("payment");
+							for (i=datagrid1.fixedRows; i< rows ; i++){
+								var tmp1 = model1.getValue("/root/resData/gridData/record["+i+"]/payment");
+								var tmp2 = model1.getValue("/root/resData/gridData/record["+i+"]/deduct_amt");
+								if(tmp1 != "" && i != datagrid1.row ){
+									total_dedu_sum = parseInt(total_dedu_sum)+ parseInt(tmp2); //공제금액
+								}
+								if(tmp1 != ""){
+									total_sum = parseInt(total_sum)+ parseInt(tmp1); //공제불입금액
+								}
+							}
+							//불입금액 한도 초과
+							if ( parseInt(payment_sum) +  parseInt(total_sum) > 12000000){
+								alert("불입금액 한도 초과 입니다. ");
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/bank_cd", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/account_no", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/payment", ""); 
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", ""); 
+							}else{
+								model1.setValue("/root/resData/gridData/record["+datagrid1.row+"]/deduct_amt", deduct); 
+							}
+						}
+					}
+				]]>
+			</script>
+		</datagrid>
+		<caption id="maintitle2" style="left:20px; top:380px; width:435px; height:60px; text-align:left; vertical-align:top; "/>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>공통매입세액 정산 내역 팝업(FC_ACCT_6252)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<!-- 저장소 -->
+					<popupData>
+						<fwdData2>
+							<tot_comn_purc_vat_amt/>
+							<tot_suply_amt_etc/>
+							<tot_rtax_suply_amt_etc/>
+							<rtax_enpr_fix_ratio/>
+							<tot_non_dduc_purc_vat_amt/>
+							<pre_non_dduc_purc_vat_amt/>
+							<add_non_dduc_purc_vat_amt/>
+							<tot_calc_aft_suply_amt/>
+						</fwdData2>
+					</popupData>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript" src="/js/fcmc_common.js"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;" style="font-family:굴림; ">
+		<group id="group1" class="gro_sel" style="left:15px; top:85px; width:420px; height:270px; ">
+			<caption id="caption42" class="list_cap02" style="left:224px; top:171px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption11" class="list_cap02" style="left:224px; top:84px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption33" class="list_cap02" style="left:224px; top:113px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption14" class="list_cap02" style="left:224px; top:26px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption9" class="list_cap02" style="left:0px; top:26px; width:225px; height:30px; text-align:left; ">(14)총공통매입세액</caption>
+			<caption id="caption17" class="list_cap02" style="left:224px; top:55px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption40" class="list_cap03" style="left:0px; top:1px; width:225px; height:26px; text-align:center; ">구분</caption>
+			<caption id="caption43" class="list_cap02" style="left:224px; top:142px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption51" class="list_cap02" style="left:224px; top:200px; width:171px; height:30px; text-align:center; "/>
+			<caption id="caption16" class="list_cap02" style="left:0px; top:55px; width:225px; height:30px; text-align:left; ">(A)총공급가액</caption>
+			<caption id="caption19" class="list_cap02" style="left:0px; top:84px; width:225px; height:30px; text-align:left; ">(B)면세공급가액</caption>
+			<caption id="caption32" class="list_cap02" style="left:0px; top:113px; width:225px; height:30px; text-align:left; ">(15)면세사업확정비율(%)(B/A)</caption>
+			<caption id="caption5" class="list_cap02" style="left:0px; top:142px; width:225px; height:30px; text-align:left; ">(16)불공제매입세액총액</caption>
+			<caption id="caption25" class="list_cap02" style="left:0px; top:171px; width:225px; height:30px; text-align:left; ">(17)기불공제매입세액</caption>
+			<caption id="caption30" class="list_cap02" style="left:0px; top:200px; width:225px; height:30px; text-align:left; ">(18)가산또는공제매입세액((16)-(17))</caption>
+			<caption id="caption8" class="list_cap03" style="left:224px; top:1px; width:171px; height:26px; text-align:center; ">금액</caption>
+			<input id="draft_expn_amt" ref="/root/popupData/fwdData2/tot_comn_purc_vat_amt" navindex="11" format="(-)#,###" style="left:230px; top:32px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (15)면세사업확정비율, (18)가산또는공제매입세액, 정산후 공급가액 값을 새로 계산한다.
+						
+						//면세사업확정비율 계산(15번) 수식 B / A
+						var tmp15_a = model1.getValue("/root/popupData/fwdData2/tot_suply_amt_etc"); //A 총공급가액
+						var tmp15_b = model1.getValue("/root/popupData/fwdData2/tot_rtax_suply_amt_etc"); //B 면세공급가액
+						//계산수행
+						var tmp15_result = Number((tmp15_b) / Number(tmp15_a));
+						var tmp15_str = String(tmp15_result); //소수 6자리로 자르기 위해 문자열로 변환
+						var result_15 = Number(tmp15_str.substring(0,8));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/rtax_enpr_fix_ratio",result_15);
+
+						//가산또는공제매입세액 계산(18번) 수식 16-17
+						var tmp18_16 = model1.getValue("/root/popupData/fwdData2/tot_non_dduc_purc_vat_amt"); //16번 불공제매입세액총액
+						var tmp18_17 = model1.getValue("/root/popupData/fwdData2/pre_non_dduc_purc_vat_amt"); //17번 기불공제매입세액
+						//계산 수행
+						var tmp18_result = Number(tmp18_16) - Number(tmp18_17);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt",tmp18_result);
+						
+						//정산후 공급가액 계산 수식 18/0.1
+						var tmpsuply_18 = model1.getValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt"); //18번 가산또는 공제매입세액
+						//계산 수행
+						var tmpsuply_18_result= Number(tmpsuply_18) / 0.1;
+						//소수자리 잘라버린다.
+						var result_suply = parseInt(tmpsuply_18_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/tot_calc_aft_suply_amt",result_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input9" ref="/root/popupData/fwdData2/rtax_enpr_fix_ratio" navindex="11" format="(-)#,###.#" style="left:230px; top:119px; width:160px; height:18px; text-align:right; "/>
+			<input id="input20" ref="/root/popupData/fwdData2/add_non_dduc_purc_vat_amt" navindex="11" format="(-)#,###" style="left:230px; top:204px; width:160px; height:18px; text-align:right; "/>
+			<input id="input14" ref="/root/popupData/fwdData2/pre_non_dduc_purc_vat_amt" navindex="11" format="(-)#,###" style="left:230px; top:177px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (15)면세사업확정비율, (18)가산또는공제매입세액, 정산후 공급가액 값을 새로 계산한다.
+						
+						//면세사업확정비율 계산(15번) 수식 B / A
+						var tmp15_a = model1.getValue("/root/popupData/fwdData2/tot_suply_amt_etc"); //A 총공급가액
+						var tmp15_b = model1.getValue("/root/popupData/fwdData2/tot_rtax_suply_amt_etc"); //B 면세공급가액
+						//계산수행
+						var tmp15_result = Number((tmp15_b) / Number(tmp15_a));
+						var tmp15_str = String(tmp15_result); //소수 6자리로 자르기 위해 문자열로 변환
+						var result_15 = Number(tmp15_str.substring(0,8));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/rtax_enpr_fix_ratio",result_15);
+
+						//가산또는공제매입세액 계산(18번) 수식 16-17
+						var tmp18_16 = model1.getValue("/root/popupData/fwdData2/tot_non_dduc_purc_vat_amt"); //16번 불공제매입세액총액
+						var tmp18_17 = model1.getValue("/root/popupData/fwdData2/pre_non_dduc_purc_vat_amt"); //17번 기불공제매입세액
+						//계산 수행
+						var tmp18_result = Number(tmp18_16) - Number(tmp18_17);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt",tmp18_result);
+						
+						//정산후 공급가액 계산 수식 18/0.1
+						var tmpsuply_18 = model1.getValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt"); //18번 가산또는 공제매입세액
+						//계산 수행
+						var tmpsuply_18_result= Number(tmpsuply_18) / 0.1;
+						//소수자리 잘라버린다.
+						var result_suply = parseInt(tmpsuply_18_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/tot_calc_aft_suply_amt",result_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input16" ref="/root/popupData/fwdData2/tot_non_dduc_purc_vat_amt" navindex="11" format="(-)#,###" style="left:230px; top:148px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (15)면세사업확정비율, (18)가산또는공제매입세액, 정산후 공급가액 값을 새로 계산한다.
+						
+						//면세사업확정비율 계산(15번) 수식 B / A
+						var tmp15_a = model1.getValue("/root/popupData/fwdData2/tot_suply_amt_etc"); //A 총공급가액
+						var tmp15_b = model1.getValue("/root/popupData/fwdData2/tot_rtax_suply_amt_etc"); //B 면세공급가액
+						//계산수행
+						var tmp15_result = Number((tmp15_b) / Number(tmp15_a));
+						var tmp15_str = String(tmp15_result); //소수 6자리로 자르기 위해 문자열로 변환
+						var result_15 = Number(tmp15_str.substring(0,8));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/rtax_enpr_fix_ratio",result_15);
+
+						//가산또는공제매입세액 계산(18번) 수식 16-17
+						var tmp18_16 = model1.getValue("/root/popupData/fwdData2/tot_non_dduc_purc_vat_amt"); //16번 불공제매입세액총액
+						var tmp18_17 = model1.getValue("/root/popupData/fwdData2/pre_non_dduc_purc_vat_amt"); //17번 기불공제매입세액
+						//계산 수행
+						var tmp18_result = Number(tmp18_16) - Number(tmp18_17);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt",tmp18_result);
+						
+						//정산후 공급가액 계산 수식 18/0.1
+						var tmpsuply_18 = model1.getValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt"); //18번 가산또는 공제매입세액
+						//계산 수행
+						var tmpsuply_18_result= Number(tmpsuply_18) / 0.1;
+						//소수자리 잘라버린다.
+						var result_suply = parseInt(tmpsuply_18_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/tot_calc_aft_suply_amt",result_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input1" ref="/root/popupData/fwdData2/tot_rtax_suply_amt_etc" navindex="11" format="(-)#,###" style="left:230px; top:90px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (15)면세사업확정비율, (18)가산또는공제매입세액, 정산후 공급가액 값을 새로 계산한다.
+						
+						//면세사업확정비율 계산(15번) 수식 B / A
+						var tmp15_a = model1.getValue("/root/popupData/fwdData2/tot_suply_amt_etc"); //A 총공급가액
+						var tmp15_b = model1.getValue("/root/popupData/fwdData2/tot_rtax_suply_amt_etc"); //B 면세공급가액
+						//계산수행
+						var tmp15_result = Number((tmp15_b) / Number(tmp15_a));
+						var tmp15_str = String(tmp15_result); //소수 6자리로 자르기 위해 문자열로 변환
+						var result_15 = Number(tmp15_str.substring(0,8));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/rtax_enpr_fix_ratio",result_15);
+
+						//가산또는공제매입세액 계산(18번) 수식 16-17
+						var tmp18_16 = model1.getValue("/root/popupData/fwdData2/tot_non_dduc_purc_vat_amt"); //16번 불공제매입세액총액
+						var tmp18_17 = model1.getValue("/root/popupData/fwdData2/pre_non_dduc_purc_vat_amt"); //17번 기불공제매입세액
+						//계산 수행
+						var tmp18_result = Number(tmp18_16) - Number(tmp18_17);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt",tmp18_result);
+						
+						//정산후 공급가액 계산 수식 18/0.1
+						var tmpsuply_18 = model1.getValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt"); //18번 가산또는 공제매입세액
+						//계산 수행
+						var tmpsuply_18_result= Number(tmpsuply_18) / 0.1;
+						//소수자리 잘라버린다.
+						var result_suply = parseInt(tmpsuply_18_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/tot_calc_aft_suply_amt",result_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<input id="input3" ref="/root/popupData/fwdData2/tot_suply_amt_etc" navindex="11" format="(-)#,###" style="left:230px; top:61px; width:160px; height:18px; text-align:right; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						//입력값 변경시 (15)면세사업확정비율, (18)가산또는공제매입세액, 정산후 공급가액 값을 새로 계산한다.
+						
+						//면세사업확정비율 계산(15번) 수식 B / A
+						var tmp15_a = model1.getValue("/root/popupData/fwdData2/tot_suply_amt_etc"); //A 총공급가액
+						var tmp15_b = model1.getValue("/root/popupData/fwdData2/tot_rtax_suply_amt_etc"); //B 면세공급가액
+						//계산수행
+						var tmp15_result = Number((tmp15_b) / Number(tmp15_a));
+						var tmp15_str = String(tmp15_result); //소수 6자리로 자르기 위해 문자열로 변환
+						var result_15 = Number(tmp15_str.substring(0,8));
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/rtax_enpr_fix_ratio",result_15);
+
+						//가산또는공제매입세액 계산(18번) 수식 16-17
+						var tmp18_16 = model1.getValue("/root/popupData/fwdData2/tot_non_dduc_purc_vat_amt"); //16번 불공제매입세액총액
+						var tmp18_17 = model1.getValue("/root/popupData/fwdData2/pre_non_dduc_purc_vat_amt"); //17번 기불공제매입세액
+						//계산 수행
+						var tmp18_result = Number(tmp18_16) - Number(tmp18_17);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt",tmp18_result);
+						
+						//정산후 공급가액 계산 수식 18/0.1
+						var tmpsuply_18 = model1.getValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt"); //18번 가산또는 공제매입세액
+						//계산 수행
+						var tmpsuply_18_result= Number(tmpsuply_18) / 0.1;
+						//소수자리 잘라버린다.
+						var result_suply = parseInt(tmpsuply_18_result);
+						//셋팅
+						model1.setValue("/root/popupData/fwdData2/tot_calc_aft_suply_amt",result_suply);
+						
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<caption id="caption2" class="list_cap02" style="left:0px; top:225px; width:225px; height:30px; text-align:left; ">정산후 공급가액((18)/0.1)</caption>
+			<caption id="caption3" class="list_cap02" style="left:224px; top:225px; width:171px; height:30px; text-align:center; "/>
+			<input id="input2" ref="/root/popupData/fwdData2/tot_calc_aft_suply_amt" navindex="11" format="(-)#,###" style="left:230px; top:232px; width:160px; height:18px; text-align:right; "/>
+		</group>
+		<caption id="caption1" class="tit01" style="left:10px; top:6px; width:255px; height:27px; ">4.공통매입세액 정산 내역</caption>
+		<group id="grp_buttons" class="gro_sel" style="left:10px; top:51px; width:420px; height:21px; ">
+			<button id="btn_insert" class="btn02" style="left:285px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//부모 인스턴스로 값 셋팅
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/tot_comn_purc_vat_amt", model.getValue("/root/popupData/fwdData2/tot_comn_purc_vat_amt")); //총공통매입세액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/tot_suply_amt_etc", model.getValue("/root/popupData/fwdData2/tot_suply_amt_etc")); //총공급가액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/tot_rtax_suply_amt_etc", model.getValue("/root/popupData/fwdData2/tot_rtax_suply_amt_etc")); //면세공급가액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/rtax_enpr_fix_ratio", model.getValue("/root/popupData/fwdData2/rtax_enpr_fix_ratio")); //면세사업확정비율
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/tot_non_dduc_purc_vat_amt", model.getValue("/root/popupData/fwdData2/tot_non_dduc_purc_vat_amt")); //불공제매입세액총액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/pre_non_dduc_purc_vat_amt", model.getValue("/root/popupData/fwdData2/pre_non_dduc_purc_vat_amt")); //기불공제매입세액
+						//opener.model.setValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt", model.getValue("/root/acct_6251_ref/output_Data/resform/add_non_dduc_purc_vat_amt")); //가산또는공제매입세액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/add_non_dduc_purc_vat_amt", model.getValue("/root/popupData/fwdData2/add_non_dduc_purc_vat_amt")); //가산또는공제매입세액
+						opener.model.setValue("/root/acct_6251_ref/output_Data/resform/tot_calc_aft_suply_amt", model.getValue("/root/popupData/fwdData2/tot_calc_aft_suply_amt")); //정산후 공급가액
+
+						window.close();	
+					]]>
+				</script>
+			</button>
+			<button id="btn_update" class="btn02" style="left:344px; top:0px; width:52px; height:21px; ">
+				<caption>닫기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();	
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

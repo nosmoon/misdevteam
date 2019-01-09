@@ -1,0 +1,401 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<acct_num>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</acct_num>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<sys_clsf/>
+						</fwdData>
+						<searchData>
+							<sys_clsf/>
+							<acct_mang_cd/>
+							<frdt/>
+							<todt/>
+							<tran_content/>
+							<tran_amt/>
+							<tran_clsfy/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record1>
+								<bank_name/>
+								<tran_date/>
+								<tran_amt/>
+								<extnc_amt/>
+								<remain_amt/>
+								<tran_content/>
+								<cms_code/>
+								<tran_branch/>
+								<biz_reg_no/>
+								<bank_id/>
+								<acct_num/>
+								<tran_date_seq/>
+								<current_clsf/>
+								<remark/>
+							</record1>
+							<record2>
+								<bank_name/>
+								<tran_date/>
+								<tran_amt/>
+								<extnc_amt/>
+								<remain_amt/>
+								<tran_content/>
+								<acct_tonghwa/>
+								<tran_branch/>
+								<biz_reg_no/>
+								<bank_id/>
+								<acct_num/>
+								<tran_date_seq/>
+								<current_clsf/>
+								<remark/>
+							</record2>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="co_bank_1000_m" action="/co/bank/1000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				
+				model.setValue("/root/reqData/searchData/sys_clsf", model.getValue("/root/reqData/fwdData/sys_clsf"));
+				var acct_mang_no = model.getValue("/root/reqData/fwdData/acct_mang_no");
+				if(acct_mang_no == ""){
+					acct_mang_no = model.property("ss_acct_num");
+				}
+				//alert(":"+acct_mang_no+":");
+				//alert(opener.model.getValue("/root/reqData/fwdData/acct_mang_no"));
+				var tran_clsfy = model.getValue("/root/reqData/fwdData/tran_clsfy");
+
+				if(tran_clsfy != "" && tran_clsfy != " " && tran_clsfy != "1"){
+					model.setValue("/root/reqData/searchData/tran_clsfy",tran_clsfy);
+					maintitle.value = "통장출금내역";
+				}else{
+					model.setValue("/root/reqData/searchData/tran_clsfy","1");
+					maintitle.value = "통장입금내역";
+				}
+				
+				var currentmt = getCurrentMonth();
+				if(model.property("ss_cmpycd") == "550"){
+					var frdt = dateAdd("m", -1, currentmt+"01");
+					var pre_month = frdt.substring(0,6);
+					var todt = pre_month+commLastDay(pre_month); 	//전월의 말일 
+					model.setValue("/root/reqData/searchData/frdt", frdt);
+					model.setValue("/root/reqData/searchData/todt", todt);
+				}else{
+					model.setValue("/root/reqData/searchData/frdt", dateAdd("d", -6, getCurrentDate()));
+///					model.setValue("/root/reqData/searchData/frdt", "20090527");
+					model.setValue("/root/reqData/searchData/todt", getCurrentDate());
+				}
+				
+
+				
+				model.send("co_bank_1000_m");
+				if(submit_completed()){
+					model.copyNode("/root/initData/comboSet/acct_num", "/root/tempData/acct_num");
+					model.refresh();
+				}
+				
+				//alert(":"+acct_mang_no+":");
+
+				if(acct_mang_no != ""){
+					cb_acct_num.value = acct_mang_no;
+					//cb_acct_num.disabled = true;
+				}else{					
+					cb_acct_num.select(0);
+				}				
+				if(model.property("TN_DNS_1000_TO_BANK")=="Y"){
+					model.setValue("/root/reqData/searchData/frdt",model.property("TN_DNS_1000_tran_date"));
+					model.setValue("/root/reqData/searchData/todt",model.property("TN_DNS_1000_tran_date"));
+					model.setValue("/root/reqData/searchData/acct_mang_cd",model.property("TN_DNS_1000_acct_num"));
+					//model.setValue("/root/reqData/searchData/tran_content",model.property("TN_DNS_1000_tran_content"));
+					model.refresh();
+					loadList();
+					model.property("TN_DNS_1000_TO_BANK")="";
+					model.property("TN_DNS_1000_tran_date")="";
+					model.property("TN_DNS_1000_acct_num")="";
+				}
+
+//				loadList();
+				
+				]]>
+			</script>
+			<submission id="co_bank_1010_l" action="/co/bank/1010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function loadList(){				
+				model.send("co_bank_1010_l");	
+				if(submit_completed()){
+					var current_clsf = model.getValue("/root/resData/gridData/current_clsf");
+
+					if(current_clsf  == "D"){
+						model.toggle("case1");
+					}else if(current_clsf == "F"){
+						model.toggle("case2");
+					}else{
+						model.toggle("case1");
+					}
+				}
+			}
+			function select(){
+				
+				if(switch1.selectedIndex == 0){
+					var dataIndex      = getSelectedRecordIndex(datagrid1);
+					
+					if(dataIndex < 1) return;
+					
+					var 	biz_reg_no    = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/biz_reg_no");	
+					var 	bank_id       = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/bank_id");					
+					var 	acct_num      = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/acct_num");	
+					var 	tran_date     = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/tran_date");	
+					var 	tran_date_seq = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/tran_date_seq");	
+					var 	tran_amt      = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/remain_amt");	//거래금액-소멸금액 잔액을 넘겨줌
+					var 	cms_code      = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/cms_code");	//가상계좌
+					var 	current_clsf  = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/current_clsf");	//domestic, foreign
+					var 	tran_content  = model.getValue("/root/resData/gridData/record1["+dataIndex+"]/tran_content");	//입금처
+					
+				}else{
+					var dataIndex      = getSelectedRecordIndex(datagrid2);
+					if(dataIndex < 1) return;
+					
+					var 	biz_reg_no    = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/biz_reg_no");	
+					var 	bank_id       = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/bank_id");					
+					var 	acct_num      = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/acct_num");	
+					var 	tran_date     = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/tran_date");	
+					var 	tran_date_seq = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/tran_date_seq");	
+					var 	frex_amt      = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/remain_amt");	// 외환금액
+					var 	acct_tonghwa  = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/acct_tonghwa");	//통화구분
+					var 	current_clsf  = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/current_clsf");	//domestic, foreign
+					var 	tran_content  = model.getValue("/root/resData/gridData/record2["+dataIndex+"]/tran_content");	//입금처
+					
+				}
+			
+				var 	current_clsf_ref  = model.getValue("/root/reqData/fwdData/current_clsf_ref");	
+				var 	biz_reg_no_ref    = model.getValue("/root/reqData/fwdData/biz_reg_no_ref");	
+				var 	bank_id_ref       = model.getValue("/root/reqData/fwdData/bank_id_ref");		
+				var 	acct_num_ref      = model.getValue("/root/reqData/fwdData/acct_num_ref");	
+				var 	tran_date_ref     = model.getValue("/root/reqData/fwdData/tran_date_ref");	
+				var 	tran_date_seq_ref = model.getValue("/root/reqData/fwdData/tran_date_seq_ref");					
+				
+				var 	acct_mang_no_ref  = model.getValue("/root/reqData/fwdData/acct_mang_no_ref");	
+				var 	acct_mang_nm_ref  = model.getValue("/root/reqData/fwdData/acct_mang_nm_ref");	
+				var 	tran_amt_ref      = model.getValue("/root/reqData/fwdData/tran_amt_ref");	
+				var 	tran_content_ref  = model.getValue("/root/reqData/fwdData/tran_content_ref");		
+				var 	cms_code_ref      = model.getValue("/root/reqData/fwdData/cms_code_ref");	
+				var 	acct_tonghwa_ref  = model.getValue("/root/reqData/fwdData/acct_tonghwa_ref");	
+				var 	frex_amt_ref      = model.getValue("/root/reqData/fwdData/frex_amt_ref");	
+				var 	tran_clsfy_ref    = model.getValue("/root/reqData/fwdData/tran_clsfy_ref");
+				
+				var acct_mang_no   	= model.getValue("/root/reqData/searchData/acct_mang_cd");
+				var acct_mang_nm   	= cb_acct_num.label;
+				var tran_clsfy    = model.getValue("/root/reqData/searchData/tran_clsfy");
+				//alert("current_clsf_ref = " + current_clsf_ref +"\nbiz_reg_no_ref = " + biz_reg_no_ref +"\nbank_id_ref = " + bank_id_ref +"\nacct_num_ref = " + acct_num_ref +"\ntran_date_ref = " + tran_date_ref +"\ntran_date_seq_ref = " + tran_date_seq_ref);
+				
+				opener.model.setValue(current_clsf_ref		,current_clsf);
+				opener.model.setValue(biz_reg_no_ref		,biz_reg_no);
+				opener.model.setValue(bank_id_ref			,bank_id);
+				opener.model.setValue(acct_num_ref			,acct_num);
+				opener.model.setValue(tran_date_ref		,tran_date);
+				opener.model.setValue(tran_date_seq_ref	,tran_date_seq);
+				
+				if(acct_mang_no_ref != ""){
+					opener.model.setValue(acct_mang_no_ref ,acct_mang_no);
+				}
+				if(acct_mang_nm_ref != ""){
+					opener.model.setValue(acct_mang_nm_ref ,acct_mang_nm);
+				}
+				if(tran_amt_ref != ""){
+					opener.model.setValue(tran_amt_ref ,tran_amt);
+				}
+				if(tran_content_ref != ""){
+					opener.model.setValue(tran_content_ref ,tran_content);
+				}
+				if(cms_code_ref != ""){
+					opener.model.setValue(cms_code_ref,cms_code);
+				}
+				if(acct_tonghwa_ref != ""){
+					opener.model.setValue(acct_tonghwa_ref,acct_tonghwa);
+				}
+				if(frex_amt_ref != ""){
+					opener.model.setValue(frex_amt_ref,frex_amt);
+				}
+				if(tran_clsfy_ref != ""){
+					opener.model.setValue(tran_clsfy_ref,tran_clsfy);
+				}
+				window.close();				
+			}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body pagewidth="760" pageheight="485">
+		<caption id="caption5" class="list_cap02" style="left:10px; top:71px; width:740px; height:26px; "/>
+		<caption id="caption2" class="list_cap02" style="left:10px; top:46px; width:740px; height:26px; "/>
+		<button id="button1" class="btn02" style="left:639px; top:10px; width:50px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				select();
+				]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" style="left:699px; top:10px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();				
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn02" style="left:579px; top:10px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[		
+					model.reset();
+				]]>
+			</script>
+		</button>
+		<caption id="maintitle" class="tit01" style="left:10px; top:5px; width:350px; height:27px; ">통장입금내역</caption>
+		<button id="button7" class="btn02" style="left:519px; top:10px; width:50px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[			
+				if(validateReq()){
+					loadList();
+				}
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:46px; width:75px; height:26px; ">계좌번호</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:105px; width:740px; height:5px; "/>
+		<caption id="caption9" class="list_cap01" style="left:284px; top:46px; width:75px; height:26px; ">조회기간</caption>
+		<select1 id="cb_acct_num" ref="/root/reqData/searchData/acct_mang_cd" navindex="1" appearance="minimal" style="left:89px; top:50px; width:190px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/acct_num/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+			<script type="javascript" ev:event="xforms-select">
+				<![CDATA[
+		
+				if(validateReq()){
+					loadList();
+				}
+								
+				]]>
+			</script>
+		</select1>
+		<input id="input1" ref="/root/reqData/searchData/frdt" class="req" navindex="2" imemode="hangul" inputtype="date" format="yyyy-mm-dd" style="left:362px; top:50px; width:90px; height:18px; text-align:left; "/>
+		<input id="input2" ref="/root/reqData/searchData/todt" class="req" navindex="3" inputtype="date" format="yyyy-mm-dd" style="left:478px; top:50px; width:90px; height:18px; text-align:left; "/>
+		<caption id="caption6" class="list_cap01" style="left:284px; top:71px; width:75px; height:26px; ">금액</caption>
+		<input id="input3" ref="/root/reqData/searchData/tran_content" navindex="4" imemode="hangul" style="left:89px; top:75px; width:190px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if(event.keycode == "13"){
+						model.setValue("/root/reqData/searchData/tran_content",input3.currentText);
+						loadList();
+					}
+				]]>
+			</script>
+		</input>
+		<input id="input4" ref="/root/reqData/searchData/tran_amt" navindex="5" format="#,###" style="left:362px; top:75px; width:100px; height:18px; text-align:right; "/>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:75px; height:26px; ">예금주</caption>
+		<caption id="caption3" style="left:455px; top:50px; width:20px; height:20px; text-align:center; ">~</caption>
+		<switch id="switch1" style="left:10px; top:120px; width:740px; height:360px; border-color:transparent; border-style:none; ">
+			<case id="case1" selected="true">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/record1" caption="은행^거래일자^금액^소멸금액^잔액^예금주^비고^가상계좌^거래지점^biz_reg_no^bank_id^acct_num^tran_date_seq^current_clsf" colsep="^" colwidth="90, 80, 85, 85, 85, 138, 77, 100, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:0px; top:1px; width:740px; height:344px; ">
+					<col ref="bank_name"/>
+					<col ref="tran_date" format="yyyy-mm-dd"/>
+					<col ref="tran_amt" format="(-)#,###" style="text-align:right; word-wrap:none; "/>
+					<col ref="extnc_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="remain_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="tran_content" style="text-align:left; "/>
+					<col ref="remark" style="text-align:left; "/>
+					<col ref="cms_code" style="text-align:left; "/>
+					<col ref="tran_branch" style="text-align:left; "/>
+					<col ref="biz_reg_no"/>
+					<col ref="bank_id"/>
+					<col ref="acct_num"/>
+					<col ref="tran_date_seq"/>
+					<col ref="current_clsf"/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+						
+						if(!datagrid1.iscell(event.target))  return;
+						
+						select();
+				
+						]]>
+					</script>
+				</datagrid>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData/record2" caption="은행^거래일자^입금액^소멸금액^잔액^입금주^비고^통화구분^거래지점^biz_reg_no^bank_id^acct_num^tran_date_seq^current_clsf" colsep="^" colwidth="90, 89, 85, 85, 85, 126, 84, 100, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:0px; top:1px; width:740px; height:344px; ">
+					<col ref="bank_name"/>
+					<col ref="tran_date" format="yyyy-mm-dd"/>
+					<col ref="tran_amt" format="(-)#,###.99" style="text-align:right; word-wrap:none; "/>
+					<col ref="extnc_amt" format="(-)#,###.99" style="text-align:right; "/>
+					<col ref="remain_amt" format="(-)#,###.99" style="text-align:right; "/>
+					<col ref="tran_content" style="text-align:left; "/>
+					<col ref="remark" style="text-align:left; "/>
+					<col ref="acct_tonghwa" style="text-align:center; "/>
+					<col ref="tran_branch" style="text-align:left; "/>
+					<col ref="biz_reg_no"/>
+					<col ref="bank_id"/>
+					<col ref="acct_num"/>
+					<col ref="tran_date_seq"/>
+					<col ref="current_clsf"/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+						
+						if(!datagrid2.iscell(event.target))  return;
+						
+						select();
+						]]>
+					</script>
+				</datagrid>
+			</case>
+		</switch>
+		<select1 id="tran_clsfy" ref="/root/reqData/searchData/tran_clsfy" appearance="full" cols="2" rows="1" overflow="visible" style="left:610px; top:50px; width:125px; height:20px; border-style:none; ">
+			<choices>
+				<item>
+					<label>입금</label>
+					<value>1</value>
+				</item>
+				<item>
+					<label>출금</label>
+					<value>2</value>
+				</item>
+			</choices>
+		</select1>
+	</xhtml:body>
+</xhtml:html>

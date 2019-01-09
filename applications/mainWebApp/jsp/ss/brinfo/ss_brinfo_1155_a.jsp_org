@@ -1,0 +1,423 @@
+<%@ page contentType="text/html; charset=KSC5601" %>
+<%@ include file="/jsp/ss/comm_jsp/ss_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 	 : ss_brinfo_1155_a.jsp
+* 기능 		 : 은행계좌관리 초기화면
+* 작성일자 	 :
+* 작성자 	 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    //	dataset 인스턴스 선언부분
+    SS_L_BOACCT_LISTDataSet ds = (SS_L_BOACCT_LISTDataSet)request.getAttribute("ds");  // request dataset
+    int listCount = 20;	// 한 화면당 리스트 항목 수
+    String incmgpers = Util.getSessionParameterValue(request, "uid", true);
+%>
+
+<html>
+<head>
+<script language="javascript">
+<!--
+	// 페이지시작시 호출
+function jsInit(){
+  setEventHandler();
+  setEnterKeyEventHandler();
+  setInputBackgroundColor();
+}
+
+// 페이지 이동
+function page_move(pageno) {
+    var lo_form1 = document.boacct_search_form;
+
+    if(!pageno) {
+        lo_form1.pageno.value = '1';
+    } else {
+        lo_form1.pageno.value = pageno;
+    }
+
+    if(!check_all(lo_form1)) return;								// 폼 유효성 체크
+    lo_form1.action = "/ss/brinfo/1155";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+}
+
+// 계좌 정보보기
+function boacct_view( seq, bocd, bankcd, deps_persnm, acctno, remk, acctitem ){
+
+  var lo_form1 = document.acct_detail_form;
+
+  lo_form1.seq.value = seq;
+  lo_form1.bocd.value = bocd;
+  lo_form1.acctitem.value = acctitem;
+  lo_form1.bankcd.value = bankcd;
+  lo_form1.deps_persnm.value = deps_persnm;
+  lo_form1.acctno.value = acctno;
+  lo_form1.remk.value = remk;
+
+}
+
+// 계좌 등록취소
+function boacct_cancel()
+{
+  var lo_form = document.acct_detail_form;	// 상세정보 폼
+  for( var i =0; i< lo_form.length; i++){
+    lo_form(i).value = "";
+  }
+
+  lo_form.deps_persnm.focus();
+}
+
+// 계좌 등록
+function boacct_append()
+{
+  var lo_form = document.acct_detail_form;
+
+  if(lo_form.bocd.value == '') {
+    alert("등록할 지국을 선택해 주세요");
+    return;
+  }
+
+  if(lo_form.acctitem.value == '' || lo_form.bankcd.value == '') {
+    alert("필수항목(*)을 입력해주세요.");
+	return;
+  }
+
+  if(lo_form.deps_persnm.value == '' || lo_form.acctno.value == '') {
+    alert("필수항목(*)을 입력해주세요.");
+	return;
+  }
+
+  lo_form.accflag.value = "I";
+  lo_form.action = "/ss/brinfo/1180";
+  lo_form.target = "ifrm";
+  lo_form.method = "post";
+  check_all(lo_form);
+}
+
+// 계좌 수정
+function boacct_edit()
+{
+  var lo_form = document.acct_detail_form;
+
+  if(lo_form.seq.value == '') {
+     alert("수정할 계좌를 선택후 수정해주세요.");
+     return;
+  }
+
+  if(lo_form.acctitem.value == '' || lo_form.bankcd.value == '') {
+    alert("필수항목(*)을 입력해주세요.");
+	return;
+  }
+
+  if(lo_form.deps_persnm.value == '' || lo_form.acctno.value == '') {
+    alert("필수항목(*)을 입력해주세요.");
+	return;
+  }
+
+  if( confirm("정말 수정 하시겠습니까") == true ) {
+    lo_form.accflag.value = "U";
+    lo_form.action = "/ss/brinfo/1160";
+    lo_form.target = "ifrm";
+    lo_form.method = "post";
+    check_all(lo_form);
+  }
+}
+
+
+// 계좌 삭제
+function boacct_del()
+{
+  var lo_form = document.acct_detail_form;
+
+  if(lo_form.seq.value == '') {
+     alert("삭제할 계좌를 선택후 삭제해주세요.");
+     return;
+   }
+
+  if( confirm("정말 삭제 하시겠습니까") == true ) {
+      lo_form.accflag.value = "D";
+      lo_form.action = "/ss/brinfo/1170";
+      lo_form.target = "ifrm";
+      lo_form.method = "post";
+      check_all(lo_form);
+  }
+}
+
+// submit시 공통호출
+function check_all(form){
+  if(!validate(form)) return false;
+  else{
+    makeValue(form);
+	form.submit();
+  }
+}
+
+// 목록에서 선택된 로우 전역변수
+var go_sel_row;
+
+// 선택된 로우 색깔 바꾸기
+function change_sel_row(obj){
+	go_sel_row = obj;
+	obj.style.backgroundColor='d7e2dd';  //'#BFD2DD';
+	lo_table = obj.parentNode;
+	for(i=1; i<lo_table.rows.length-1; i++){
+		if(lo_table.rows[i] != go_sel_row){
+			lo_table.rows[i].style.backgroundColor='#FFFFFF';
+		}
+	}
+}
+
+// 목록에서 마우스 IN
+function mouse_in(obj){
+	if(obj != go_sel_row){
+		obj.style.backgroundColor='#d7e2f4';
+	}
+}
+
+// 목록에서 마우스 OUT
+function mouse_out(obj){
+	if(obj != go_sel_row){
+		obj.style.backgroundColor='#FFFFFF';
+	}
+}
+
+function bo_enter_search_result( no ) {
+  var lo_form1 = ifrm.document.bo_detail_form;
+
+  if( no == 1 ) {
+    parent.bo_enter_search_result( no, lo_form1.deptcd.value, lo_form1.areacd.value, lo_form1.bocd.value, lo_form1.bonm.value );
+  } else {
+    parent.bo_enter_search_result( no );
+  }
+}
+-->
+</script>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/sal.css" type="text/css">
+<script language="javascript" src="/html/comm_js/common.js"></script>
+</head>
+<body onload="jsInit()" bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1">
+<%--
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle">
+      기초 &gt; </b>은행계좌관리</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+--%>
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td>
+      <!--추가항목 -->
+<%--      <table width="829" border="0"  cellpadding="1" cellspacing="0" align="center">
+        <tr>
+          <td  height="25" bgcolor="#EBE9DC" class="title">은행계좌추가/삭제</td>
+        </tr>
+        <tr>
+          <td height="3">
+            <!--여백-->
+          </td>
+        </tr>
+      </table>--%>
+    <!-- 은행계좌 상세보기폼 시작 -->
+      <table id="acct_detail_id" width="830" border="0" cellpadding="2" cellspacing="0"  class="gray" bgcolor="#FFFFFF">
+      <form name="acct_detail_form" method="post" action="" >
+        <input name="seq" type="hidden" value="">
+        <input name="accflag" type="hidden" value="">
+        <input name="bocd" type="hidden" value="<%=request.getParameter("bocd")%>">
+        <input name="incmgpers" type="hidden" value="<%=incmgpers%>">
+        <tr align="center">
+          <td width="140" align="center" bgcolor="#dddddd" class="gray"> 계좌항목<font color="red">*</font></td>
+          <td width="150" align="center" height="18" bgcolor="#dddddd" class="gray"> 은행명<font color="red">*</font></td>
+          <td width="150" align="center" bgcolor="#dddddd" class="gray"> 예금주명<font color="red">*</font></td>
+          <td width="150" align="center" bgcolor="#dddddd" class="gray"> 계좌번호<font color="red">*</font></td>
+          <td width="230" align="center" bgcolor="#dddddd" class="gray"> 비고 </td>
+        </tr>
+        <tr align="center">
+          <td class="gray">
+            <select name="acctitem" class="sel_all" tabIndex="1" style="width:190;">
+              <option value="">전체</option>
+<%--              <option value="80" selected>지로(구독료)+실시간계좌이체</option>--%>
+              <%=ds.accitmcurOptHtml("")%>
+            </select>
+          </td>
+          <td  class="gray">
+            <select name="bankcd" class="sel_all" tabIndex="2">
+              <%=ds.bankcurOptHtml("")%>
+            </select>
+          </td>
+          <td class="gray">
+            <input name="deps_persnm" type="text" size="16" class="text_box" tabIndex="3">
+          </td>
+          <td class="gray">
+            <input name="acctno" type="text" size="20" class="text_box" tabIndex="4">
+          </td>
+          <td class="gray">
+            <input name="remk" type="text" style="width:170;" class="text_box" tabIndex="5" onkeydown="focus_to_obj(document.all('insert_btn'));">
+          </td>
+        </tr>
+       </form>
+      </table>
+    <!-- 은행계좌 상세보기폼 끝 -->
+      <table width="830" border="0" cellspacing="0" cellpadding="0" class="title2">
+        <tr>
+          <td align="center" height="4">
+            <!--여백-->
+          </td>
+        </tr>
+        <tr>
+          <td align="center" height="24" bgcolor="#E8E8E8">&nbsp;
+          <%
+          //if( incmgpers.equals("c205013") ) {
+          %>
+            <input type="image" src="/html/comm_img/bu_regist.gif" name="insert_btn" value="" align="absmiddle"
+          		onclick="boacct_append();window.event.returnValue=false;">&nbsp;&nbsp;
+          	<input type="image" src="/html/comm_img/bu_edit.gif" name="update_btn" value="" align="absmiddle"
+          		onclick="boacct_edit();window.event.returnValue=false;">
+          	<input type="image" src="/html/comm_img/bu_default.gif" name="cancel_btn" value="" align="absmiddle"
+          		onclick="boacct_cancel();window.event.returnValue=false;">&nbsp;&nbsp;
+          	<input type="image" src="/html/comm_img/bu_del.gif" name="delete_btn" value="" align="absmiddle"
+          		onclick="boacct_del();window.event.returnValue=false;">
+          <% //} %>
+
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--여백 -->
+    </td>
+  </tr>
+  <td>
+    <!--계좌목록 -->
+    <table width="829" border="0"  cellpadding="1" cellspacing="0" align="center">
+      <tr>
+        <td  height="25" bgcolor="#EBE9DC" class="title">&nbsp;지국계좌목록</td>
+      </tr>
+      <tr>
+        <td height="3">
+          <!--여백-->
+        </td>
+      </tr>
+    </table>
+      <table id="acct_list_id" width="830"  border="0" cellpadding="1" cellspacing="0" class="gray" bgcolor="#FFFFFF" >
+        <tr  bgcolor="#dddddd" align="center" >
+          <td width="50" align="center" class="gray">지역</td>
+          <td width="70" align="center" class="gray">지국명</td>
+          <td width="50" align="center" class="gray">지로번호</td>
+          <td width="30" align="center" class="gray">ATM</td>
+          <td width="*" align="center" class="gray">계좌항목</td>
+          <td width="105" align="center" class="gray">은행명</td>
+          <td width="100" align="center" class="gray">예금주명</td>
+          <td width="105" align="center" class="gray">계좌번호</td>
+          <td width="115" align="center" class="gray">변경일자</td>
+          <td width="48" align="center" class="gray">변경자</td>
+<%--          <td width="380" class="gray"> 비고 </td>--%>
+        </tr>
+      <%-- 은행계좌 리스트 화면출력 --%>
+      	<%
+          for(int i=0; i<ds.curcommlist.size(); i++){
+                		SS_L_BOACCT_LISTCURCOMMLISTRecord curcommlistRec = (SS_L_BOACCT_LISTCURCOMMLISTRecord)ds.curcommlist.get(i);
+		%>
+        </tr>
+        <tr align="left" style="cursor:hand;"
+             onClick="boacct_view('<%=curcommlistRec.seq%>','<%=curcommlistRec.bocd%>','<%=curcommlistRec.bankcd%>','<%=curcommlistRec.deps_persnm%>','<%=curcommlistRec.acctno%>','<%=curcommlistRec.remk%>', '<%=curcommlistRec.acctitem%>');change_sel_row(this);"
+             onMouseOver="mouse_in(this);" onMouseOut="mouse_out(this);">
+<%--        <tr align="left" style="cursor:hand;"
+             onClick="boacct_view('<%=curcommlistRec.seq%>','<%=curcommlistRec.bocd%>','<%=curcommlistRec.bankcd%>','<%=curcommlistRec.deps_persnm%>','<%=curcommlistRec.acctno%>','<%=curcommlistRec.remk%>');change_sel_row(this);"
+             onMouseOver='this.style.backgroundColor="#d7e2f4";' onMouseOut='this.style.backgroundColor="White";'>
+--%>
+          <td width="50" class="gray" align="center"><%=curcommlistRec.areanm%></td>
+          <td width="70" class="gray" align="center"><%=curcommlistRec.bonm%></td>
+          <td width="50" align="center" class="gray">&nbsp;<%=curcommlistRec.girono%>&nbsp;</td>
+          <td width="30" align="center" class="gray"><%=curcommlistRec.cd_atmyn%></td>
+          <td width="*" class="gray" align="center"><%=curcommlistRec.acctitem_nm%></td>
+          <td width="105" align="center" class="gray" >&nbsp;<%=curcommlistRec.bankcd_nm%>&nbsp;</td>
+          <td width="100" align="center" class="gray" >&nbsp;<%=curcommlistRec.deps_persnm%></td>
+          <td width="105" align="center" class="gray">&nbsp;<%=curcommlistRec.acctno%></td>
+          <td width="115" align="left" class="gray">&nbsp;<%=curcommlistRec.chgdt%></td>
+          <td width="48" align="left" class="gray" >&nbsp;<%=curcommlistRec.chgpers%></td>
+        </tr>
+        <% } %>
+        <%
+        if( ds.curcommlist.size()== 0 ) {
+          for( int i=0; i<12; i++ ) {
+        %>
+        <tr>
+          <td width="50" class="gray">&nbsp;</td>
+          <td width="70" class="gray">&nbsp;</td>
+          <td width="50" height="23" class="gray">&nbsp;</td>
+          <td width="30" class="gray">&nbsp;</td>
+          <td width="*" class="gray">&nbsp;</td>
+          <td width="105" class="gray">&nbsp;</td>
+          <td width="100" class="gray">&nbsp;</td>
+          <td width="105" class="gray">&nbsp;</td>
+          <td width="115" class="gray">&nbsp;</td>
+          <td width="48" class="gray">&nbsp;</td>
+        </tr>
+        <%
+          }
+        }
+        %>
+      </table>
+  </td>
+  </tr>
+</table>
+<center>
+<!-- 페이지 이동 -->
+<table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center" id="page_move">
+<tr>
+  <td align="center" height="2">
+    <!--여백-->
+  </td>
+</tr>
+<tr>
+  <td align="center" height="24" bgcolor="#E8E8E8">
+    <!--JSP PAGE START---------------------------------------------------------------------------------->
+    <%
+        String pageno = request.getParameter("pageno");
+        String totalcnt = String.valueOf(ds.getTotalcnt());
+        String js_fn_nm = request.getParameter("js_fn_nm");
+    %>
+    <jsp:include page="/jsp/ss/comm_jsp/page_navigator.jsp">
+        <jsp:param name = "pageno" 		value="<%=pageno%>"/>
+        <jsp:param name = "totalcnt" 	value="<%=totalcnt%>"/>
+        <jsp:param name = "js_fn_nm" 	value="<%=js_fn_nm%>"/>
+        <jsp:param name = "pagesize" 	value="<%=listCount%>"/>
+        <jsp:param name = "page_set_gubun" 	value="0"/>
+    </jsp:include>
+    <!--JSP PAGE END------------------------------------------------------------------------------------>
+  </td>
+</tr>
+</table>
+
+</center>
+<br>
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="ifrm" width=0 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+<form name="boacct_search_form" method="post" action="" >
+   <input type="hidden" name="deptlist" value="<%=request.getParameter("deptlist")%>">
+   <input type="hidden" name="arealist" value="<%=request.getParameter("arealist")%>">
+   <input type="hidden" name="bocd" value="<%=request.getParameter("bocd")%>">
+   <input type="hidden" name="acctitem" value="<%=request.getParameter("acctitem")%>">
+   <input type="hidden" name="rdr_no" value="">
+   <input type="hidden" name="find_type" value="">
+   <input type="hidden" name="pageno" value ="<%=request.getParameter(pageno)%>">							<!-- 현재 페이지 번호 -->
+   <input type="hidden" name="pagesize" value ="<%= listCount%>">			<!-- 한 화면당 리스트 항목 수 -->
+   <input type="hidden" name="js_fn_nm" value ="page_move">
+</form>
+</body>
+</html>
+<script language="JavaScript">
+  parent.document.all.boemp_search_form.acctitem.outerHTML = document.all.acct_detail_form.acctitem.outerHTML;
+  parent.document.all.boemp_search_form.acctitem.value = "<%=request.getParameter("acctitem")%>";
+</script>
+

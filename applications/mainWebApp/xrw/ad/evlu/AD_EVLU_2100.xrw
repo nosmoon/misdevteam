@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<sect_clsf_cd>
+								<item>
+									<label/>
+									<value/>
+									<pcode/>
+								</item>
+							</sect_clsf_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<search_ym/>
+							<search_emp/>
+							<search_scorcode/>
+						</fwdData>
+						<searchData>
+							<search_ym/>
+							<search_dept/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData>
+							<record>
+							</record>
+						</gridData>
+					</resData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[	
+					//오늘 날짜 셋팅
+					var ymd = commCurDate("y");
+					model1.setValue("/root/reqData/searchData/search_ym",ymd);
+					input1.refresh();
+					//조회시작 
+					searchData();
+				]]>
+			</script>
+			<submission id="ad_evlu_2100_l" action="/ad/evlu/2100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/temp"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript">
+			<![CDATA[	
+				function getSearch_ym(){
+					var tmp = model1.getValue("/root/reqData/fwdData/search_ym");
+					return tmp;
+				}
+				function popup_evlu_1100(){
+					window.load("/xrw/ad/evlu/AD_EVLU_1100.xrw","mdichild","mdi7","width:970;height:450;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+				}
+				
+				function popup_evlu_2200(){
+					window.load("/xrw/ad/evlu/AD_EVLU_2200.xrw","mdichild","mdi7","width:970;height:450;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+				}
+				
+				function searchData(){
+					//초기화
+					for(k=0;k<200;k++){
+						datagrid1.removeColumn(false);
+					}
+					datagrid1.refresh();
+					model1.removenode("/root/resData/gridData");
+					model1.makeNode("/root/resData/gridData");
+					datagrid1.caption = "";
+					datagrid1.refresh();
+					//조회
+					model1.send("ad_evlu_2100_l");
+					var col_cnt3 = model1.getValue("/root/dataSet/CURLIST2/totalcnt");
+					//return;
+					if( (submit_completed()) && (col_cnt3 != "0") ){
+						var col_cnt = model1.getValue("/root/dataSet/CURLIST2/totalcnt");
+						var col_all_cnt = model1.getValue("/root/dataSet/COLDATA/MapSize");
+						//alert(col_all_cnt);
+						//colRef설정,컬럼추가
+						for ( i =1; i<=col_all_cnt;i++ ){
+							var col_ref = model1.getValue("/root/dataSet/COLDATA/record/A"+i+"");
+							datagrid1.addColumn("ref:"+col_ref+"");
+						}
+						//caption설정
+						var caption_v = model1.getValue("/root/dataSet/CURLIST2/record/caption");
+						var caption_v2 = model1.getValue("/root/dataSet/CURLIST2/record/caption2");
+						datagrid1.caption = datagrid1.caption+caption_v+caption_v2+caption_v2;
+						model1.copyNode("/root/resData/gridData","/root/dataSet/CURLIST");
+						datagrid1.refresh();
+						
+						for(i=3;i<col_all_cnt;i=i+6){
+							datagrid1.colHidden(i) = true;
+						}
+					
+						for(i=1;i<col_all_cnt;i++){
+							datagrid1.colWidth(i) = 45;
+						}
+						datagrid1.colWidth(1) = 20;
+						datagrid1.colWidth(2) = 20;
+						//버튼으로 바꿈
+						//var inputbutton = "inputbutton";
+						//datagrid1.colType(datagrid1.colRef("T1")) = inputbutton;
+						datagrid1.colstyle(datagrid1.colRef("T1"), "data", "background-image") = "/images/btn_search.gif";
+						datagrid1.colstyle(datagrid1.colRef("T2"), "data", "background-image") = "/images/btn_search.gif";
+						//합계 
+						for ( i =1; i<=col_all_cnt;i++ ){
+							var col_ref = model1.getValue("/root/dataSet/COLDATA/record/A"+i+"");
+							datagrid1.subtotal("clear", -1, datagrid1.colRef(""+col_ref+""));
+						}
+						for ( i =4; i<=col_all_cnt;i++ ){
+							var col_ref = model1.getValue("/root/dataSet/COLDATA/record/A"+i+"");
+							datagrid1.subtotal("sum", -1, datagrid1.colRef(""+col_ref+""), "#,###.#", "background-color:#99ff99", 0, "합계",false);
+						}
+						datagrid1.mergeByFree(datagrid1.rows-1,datagrid1.colRef("PUBC_YYMM"),datagrid1.rows-1,datagrid1.colRef("T2")) ;
+						datagrid1.refresh();
+						model1.removenode("/root/dataSet");
+						//alert(datagrid1.caption);
+					}else{
+						//초기화
+						for(k=0;k<200;k++){
+							datagrid1.removeColumn(false);
+						}
+						datagrid1.refresh();
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						datagrid1.caption = "";
+						datagrid1.refresh();
+						model1.removenode("/root/dataSet");
+						model1.reset();
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,936;2,61;2,71;2,710;2,106;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption2" class="tit01" style="left:10px; top:5px; width:926px; height:29px; ">월별 평가 상세</caption>
+		<group id="group_line" class="gro_line" style="left:10px; top:104px; width:926px; height:3px; "/>
+		<caption id="caption7" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">평가년</caption>
+		<caption id="subtitle" class="tit02" style="left:10px; top:114px; width:130px; height:20px; ">월별 평가 상세</caption>
+		<output id="input1" ref="/root/reqData/searchData/search_ym" class="req" navindex="1" format="yyyy" inputtype="date" caption="발행년월" appearance="output" style="left:98px; top:76px; width:100px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					//요일설정
+					var ymd = model1.getValue("/root/reqData/searchData/search_ym");
+					//조회
+				]]>
+			</script>
+		</output>
+		<button id="btnClose" class="btn02" style="left:883px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					window.close();
+				]]>
+			</script>
+		</button>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" colsep="^" frozenbottomrows="1" frozencols="3" mergecellsfixedrows="bycolrec" multitotal="true" rowsep="|" subtotalposition="below" tooltip="true" style="left:12px; top:135px; width:924px; height:410px; ">
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+					var row = datagrid1.row;
+					var col = datagrid1.col;
+					var t = datagrid1.colAttribute(col,"ref");
+					var t1 = t.substr(0,3);
+					var t2 = t.substr(0,4);
+					if(col == datagrid1.colRef("a7")){
+						window.load("/xrw/ad/evlu/AD_EVLU_2300.xrw","mdichild","mdi1","width:960;height:730;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if(col == datagrid1.colRef("PUBC_YYMM")){
+						model1.removenode("/root/reqData/fwdData/search_ym");
+						model1.makeNode("/root/reqData/fwdData/search_ym");
+						model1.setValue("/root/reqData/fwdData/search_ym",input1.value.substr(0,4)+datagrid1.valueMatrix(row,col).substr(0,2));
+						model1.removenode("/root/reqData/fwdData/search_emp");
+						model1.makeNode("/root/reqData/fwdData/search_emp");
+						var tmp1 = event.clientX;
+						var tmp2 = event.clientY;
+						//alert(tmp);
+						var mdi = window.mdiChildren;
+						//alert("mdi count : " + mdi.length);
+						//alert("mdi name : " + mdi.item.name);
+						if(mdi.length > 0){
+							var mdilength = window.mdichildren.length; 
+							for (i=0; i<mdilength; i++) 
+							{ 
+								var tmpitem = window.mdichildren.item(i).attribute("id");
+								if(tmpitem != "mdi0"){
+									window.mdiChildren.item(tmpitem).close();
+								}
+							} 
+						}
+						window.load("/xrw/ad/evlu/AD_EVLU_2101.xrw","mdichild","","left:"+tmp1+";top:"+tmp2+";width:106;height:46;caption:hidden","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if(col == datagrid1.colRef("T1")){
+						model1.removenode("/root/reqData/fwdData/search_ym");
+						model1.makeNode("/root/reqData/fwdData/search_ym");
+						model1.setValue("/root/reqData/fwdData/search_ym",input1.value.substr(0,4)+datagrid1.valueMatrix(row,col-1).substr(0,2));
+						model1.removenode("/root/reqData/fwdData/search_emp");
+						model1.makeNode("/root/reqData/fwdData/search_emp");
+						popup_evlu_1100();
+					}else if(col == datagrid1.colRef("T2")){
+						model1.removenode("/root/reqData/fwdData/search_ym");
+						model1.makeNode("/root/reqData/fwdData/search_ym");
+						model1.setValue("/root/reqData/fwdData/search_ym",input1.value.substr(0,4)+datagrid1.valueMatrix(row,col-2).substr(0,2));
+						model1.removenode("/root/reqData/fwdData/search_emp");
+						model1.makeNode("/root/reqData/fwdData/search_emp");
+						popup_evlu_2200();
+					}
+					
+					if((t2 == "PAPE")&&(row>2)){
+						model1.removenode("/root/reqData/fwdData/search_ym");//연월 셋팅
+						model1.makeNode("/root/reqData/fwdData/search_ym");
+						model1.setValue("/root/reqData/fwdData/search_ym",input1.value.substr(0,4)+datagrid1.valueMatrix(row,datagrid1.colRef("PUBC_YYMM")).substr(0,2));
+						model1.removenode("/root/reqData/fwdData/search_emp");
+						model1.makeNode("/root/reqData/fwdData/search_emp");
+						var tmp = datagrid1.valueMatrix(3,col-1);//사번위치
+						model1.setValue("/root/reqData/fwdData/search_emp",tmp);
+						model1.removenode("/root/reqData/fwdData/search_scorcode");
+						model1.makeNode("/root/reqData/fwdData/search_scorcode");
+						model1.setValue("/root/reqData/fwdData/search_scorcode","10");//점수코드
+						window.load("/xrw/ad/evlu/AD_EVLU_2200.xrw","mdichild","mdi1","width:960;height:730;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if((t2 == "PUBS")&&(row>2)){
+						model1.removenode("/root/reqData/fwdData/search_ym");
+						model1.makeNode("/root/reqData/fwdData/search_ym");
+						model1.setValue("/root/reqData/fwdData/search_ym",input1.value.substr(0,4)+datagrid1.valueMatrix(row,datagrid1.colRef("PUBC_YYMM")).substr(0,2));
+						model1.removenode("/root/reqData/fwdData/search_emp");
+						model1.makeNode("/root/reqData/fwdData/search_emp");
+						var tmp = datagrid1.valueMatrix(3,col-2);
+						model1.setValue("/root/reqData/fwdData/search_emp",tmp);
+						model1.removenode("/root/reqData/fwdData/search_scorcode");
+						model1.makeNode("/root/reqData/fwdData/search_scorcode");
+						model1.setValue("/root/reqData/fwdData/search_scorcode","20");
+						window.load("/xrw/ad/evlu/AD_EVLU_2200.xrw","mdichild","mdi1","width:960;height:730;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if((t1 == "PRI")&&(row>2)){
+						model1.removenode("/root/reqData/fwdData/search_ym");
+						model1.makeNode("/root/reqData/fwdData/search_ym");
+						model1.setValue("/root/reqData/fwdData/search_ym",input1.value.substr(0,4)+datagrid1.valueMatrix(row,datagrid1.colRef("PUBC_YYMM")).substr(0,2));
+						model1.removenode("/root/reqData/fwdData/search_emp");
+						model1.makeNode("/root/reqData/fwdData/search_emp");
+						var tmp = datagrid1.valueMatrix(3,col-3);
+						model1.setValue("/root/reqData/fwdData/search_emp",tmp);
+						model1.removenode("/root/reqData/fwdData/search_scorcode");
+						model1.makeNode("/root/reqData/fwdData/search_scorcode");
+						model1.setValue("/root/reqData/fwdData/search_scorcode","30");
+						window.load("/xrw/ad/evlu/AD_EVLU_2200.xrw","mdichild","mdi1","width:960;height:730;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if((t1 == "SPC")&&(row>2)){
+						model1.removenode("/root/reqData/fwdData/search_ym");
+						model1.makeNode("/root/reqData/fwdData/search_ym");
+						model1.setValue("/root/reqData/fwdData/search_ym",input1.value.substr(0,4)+datagrid1.valueMatrix(row,datagrid1.colRef("PUBC_YYMM")).substr(0,2));
+						model1.removenode("/root/reqData/fwdData/search_emp");
+						model1.makeNode("/root/reqData/fwdData/search_emp");
+						var tmp = datagrid1.valueMatrix(3,col-4);
+						model1.setValue("/root/reqData/fwdData/search_emp",tmp);
+						model1.removenode("/root/reqData/fwdData/search_scorcode");
+						model1.makeNode("/root/reqData/fwdData/search_scorcode");
+						model1.setValue("/root/reqData/fwdData/search_scorcode","40");
+						window.load("/xrw/ad/evlu/AD_EVLU_2200.xrw","mdichild","mdi1","width:960;height:730;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}else if((t1 == "ADJ")&&(row>2)){
+						model1.removenode("/root/reqData/fwdData/search_ym");
+						model1.makeNode("/root/reqData/fwdData/search_ym");
+						model1.setValue("/root/reqData/fwdData/search_ym",input1.value.substr(0,4)+datagrid1.valueMatrix(row,datagrid1.colRef("PUBC_YYMM")).substr(0,2));
+						model1.removenode("/root/reqData/fwdData/search_emp");
+						model1.makeNode("/root/reqData/fwdData/search_emp");
+						var tmp = datagrid1.valueMatrix(3,col-5);
+						model1.setValue("/root/reqData/fwdData/search_emp",tmp);
+						model1.removenode("/root/reqData/fwdData/search_scorcode");
+						model1.makeNode("/root/reqData/fwdData/search_scorcode");
+						model1.setValue("/root/reqData/fwdData/search_scorcode","50");
+						window.load("/xrw/ad/evlu/AD_EVLU_2200.xrw","mdichild","mdi1","width:960;height:730;caption:hidden;align:center","/root/reqData/fwdData","/root/reqData/fwdData");
+					}
+					
+				]]>
+			</script>
+		</datagrid>
+		<caption id="caption1" class="list_cap01" style="left:255px; top:71px; width:85px; height:28px; ">부서</caption>
+		<select1 id="combo1" ref="/root/reqData/searchData/search_dept" class="req" appearance="minimal" style="left:345px; top:76px; width:125px; height:18px; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value/>
+				</item>
+				<item>
+					<label>애드플래닝</label>
+					<value>541100</value>
+				</item>
+				<item>
+					<label>애드마케팅</label>
+					<value>540600</value>
+				</item>
+				<item>
+					<label>애드뉴미디어</label>
+					<value>541600</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					searchData();
+				]]>
+			</script>
+		</select1>
+		<button id="button3" visibility="hidden" style="left:203px; top:76px; width:18px; height:18px; font-weight:bold; text-align:center; border-color:#c0c0c0; border-style:solid; ">
+			<caption>+</caption>
+		</button>
+		<button id="button5" visibility="hidden" style="left:225px; top:76px; width:18px; height:18px; font-weight:bold; text-align:center; border-color:#c0c0c0; border-style:solid; ">
+			<caption>-</caption>
+		</button>
+		<button id="button1" visibility="hidden" style="left:150px; top:115px; width:100px; height:20px; ">
+			<caption>button1</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					datagrid1.addRow();
+				]]>
+			</script>
+		</button>
+		<script type="javascript" ev:event="onclick">
+			<![CDATA[
+//				var mdi = window.mdiChildren;
+//				//alert("mdi count : " + mdi.length);
+//				//alert("mdi name : " + mdi.item.name);
+//				if(mdi.length > 0){
+//					var mdilength = window.mdichildren.length; 
+//					for (i=0; i<mdilength; i++) 
+//					{ 
+//						var tmpitem = window.mdichildren.item(i).attribute("id");
+//						window.mdiChildren.item(tmpitem).close();
+//					} 
+//					
+//				}
+			]]>
+		</script>
+		<button id="button2" visibility="hidden" style="left:545px; top:80px; width:100px; height:20px; ">
+			<caption>테스트</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					searchData();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

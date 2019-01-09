@@ -1,0 +1,640 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<!--JSP COMMENT START-->
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : ps_rdr_1851_s.jsp
+* 기능 : 독자-지국독자조회
+* 작성일자 : 2007-03-26
+* 작성자 : 전현표
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<%
+    //  dataset 인스턴스 선언부분
+	PS_S_PUBL_RDRDataSet ds = (PS_S_PUBL_RDRDataSet)request.getAttribute("ds");
+
+	// 검색 리스트 초기 카운트
+	int recCount  =  10;
+%>
+<html>
+
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+    function init() {
+        setEventHandler();
+    }
+
+
+    // 독자리스트 검색
+    function list_search(startpage) {
+        var lo_form1    = document.search_form;
+
+        if(window.event) window.event.returnValue = false;
+
+        // 유효성체크
+        if(!validate(lo_form1)) {
+            return false;
+        }
+
+        lo_form1.pageno.value= startpage;
+        makeValue(lo_form1);
+
+        lo_form1.action = "/ps/reader/1856";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+    }
+
+
+    // page 이동
+    function page_move(pageno) {
+        var lo_form1 = document.search_form;
+        if(!pageno) {
+            lo_form1.pageno.value = '1';
+        } else {
+            lo_form1.pageno.value = pageno;
+        }
+
+        list_search(lo_form1.pageno.value);
+    }
+
+
+	// rowspan 되어 있는 2개의 로우에서 마우스 OUT 시 색깔 변경 /
+	function change_row_color_out(obj){
+	    for (i=0; i < document.all.list_info.rows.length; i++) {
+	    	if(document.all.list_info.rows(i) == obj){
+	            document.all.list_info.rows(i).style.backgroundColor = "";
+                //document.all.list_info.rows(i).className = "out";
+				if( (i%2) == 1 && document.all.list_info.rows(i-1) != null){	    // 홀수이면 자신보다 1 더 작은 짝수 로우까지 변경
+	                document.all.list_info.rows(i-1).style.backgroundColor = "";
+                    //document.all.list_info.rows(i-1).className = "out";
+				}else if( (i%2) == 0 && document.all.list_info.rows(i+1) != null){	// 짝수이면 자신보다 1 더 큰 홀수 로우까지 변경
+	                document.all.list_info.rows(i+1).style.backgroundColor = "";
+                    //document.all.list_info.rows(i-1).className = "out";
+				}
+	        }
+	    }
+	}
+
+
+	// rowspan 되어 있는 2개의 로우에서 마우스 IN 시 색깔 변경
+	function change_row_color_in(obj){
+	    for (i=0; i < document.all.list_info.rows.length; i++) {
+	    	if(document.all.list_info.rows(i) == obj){
+	            document.all.list_info.rows(i).style.backgroundColor = "#EDFFF1";
+                //document.all.list_info.rows(i).className = "over";
+				if( (i%2) == 1 && document.all.list_info.rows(i-1) != null){	    // 홀수이면 자신보다 1 더 작은 짝수 로우까지 변경
+	                document.all.list_info.rows(i-1).style.backgroundColor = "#EDFFF1";
+                    //document.all.list_info.rows(i-1).className = "over";
+				}else if( (i%2) == 0 && document.all.list_info.rows(i+1) != null){	// 짝수이면 자신보다 1 더 큰 홀수 로우까지 변경
+	                document.all.list_info.rows(i+1).style.backgroundColor = "#EDFFF1";
+                    //document.all.list_info.rows(i-1).className = "over";
+				}
+	        }
+	    }
+	}
+
+    //독자화면으로 이동
+    function search_rdr(rdr_no,medicd,termsubsno){
+        var lo_form1    = document.rdr_info_form;
+
+        lo_form1.rdr_no.value      =  rdr_no;
+        lo_form1.medicd.value      =  medicd;
+        lo_form1.termsubsno.value  =  termsubsno;
+
+        lo_form1.action = "/ps/reader/1861";
+        lo_form1.method = "post";
+        lo_form1.target = "ifrm" ;
+        lo_form1.submit();
+    }
+
+
+    //검색버튼에 의한 우편번호 검색(팝업)
+    function zip_search() {
+        var lo_form1  = document.rdr_info_form;
+        var ls_name   = "";
+        var job_flg = "A"; //전체 검색 "A" , 지국내 검색 "S"
+		var la_str;
+        lo_form1.acq_bonm.value ="";
+        lo_form1.acq_bocd.value ="";
+
+        ls_name   = "" + ":" + job_flg;
+
+        var ls_uri    = "/ps/common/1101";
+        var ls_return = jsNewModalWinNoS(ls_uri, ls_name, "480", "410");
+
+        var la_str;
+        var la_zip;
+
+        if(ls_return.indexOf("\n") != -1) {
+            la_str = ls_return.split("\n");
+            la_zip = la_str[0].split("-");
+
+            lo_form1.acq_bocd.value = la_str[4]; // 지국코드
+            lo_form1.acq_bonm.value = la_str[5] +" "+ la_str[6]+ ")" + la_str[7]+"-"+ la_str[8]; // 지국코드
+
+            if(la_str[9] == "Y") {
+                lo_form1.sendmthd.value = "70";
+            }else{
+                lo_form1.sendmthd.value = "20";
+            }
+        }
+
+        return;
+    }
+
+    function update_rdrinfo() {
+      var lo_form1 = document.rdr_info_form;
+
+      if(trim(lo_form1.acq_bocd.value) =="") {
+        alert("변경버튼을 이용해 지국변경후 저장하세요");
+        return false;
+      }
+        lo_form1.action = "/ps/reader/1866";
+        lo_form1.method = "post";
+        lo_form1.target = "ifrm" ;
+        lo_form1.submit();
+    }
+
+    // 지역 검색
+    function area_search(){
+        var lo_form1 = document.search_form;
+
+        if(lo_form1.deptcd.value == '') {
+            var str = "<select id=areacd_id name=\"areacd\" class=\"sel_all\">" +
+                          "<option value='' selected>전체</option>" +
+                      "</select>"
+            document.all.areacd_id.outerHTML = str;
+            return;
+        }
+
+        // 부서코드값을 "/ps/common/1100" 서블릿으로 보낸다
+        lo_form1.action = "/ps/send/2336";
+        //lo_form1.common_deptcd.value = lo_form1.deptcd.value;
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+    }
+
+
+
+    // 지국찾기 팝업
+    // 확장현황은 지국찾기가 2개이므로 매개변수를 통해 구분해 처리한다.
+    // 지국지사코드, 지국지사명이 팝업으로부터 넘어온다. 두 값의 구분자는 "\n"
+    function bo_search(){
+        var lo_form1 = document.search_form;
+
+        var	deptcd = lo_form1.deptcd.value;
+        var areacd = lo_form1.areacd.value;
+        var bonm   = lo_form1.corrbonm.value;
+
+        var ls_return = jsNewModalWinNoS("/ps/common/1901", deptcd+":"+areacd+":"+bonm, "725","480");
+        var la_str;
+
+        if(ls_return.indexOf("\n") != -1){
+            la_str = ls_return.split("\n");
+            lo_form1.corrbocd.value = la_str[0];
+            lo_form1.corrbonm.value = la_str[1];
+    /*
+            lo_form1.deptcd.value = la_str[2];
+            lo_form1.areacd.outerHTML =
+                    '<select name="areacd" size="1" id="areacd_id" class="sel_all">' +
+                    '<option value="' +
+                    la_str[4] +
+                    '" selected>' +
+                    la_str[5] +
+                    '</option>';
+    */
+        }
+
+        return;
+    }
+
+    // 엔터키에 의한 지국찾기
+    function bo_enter_search(no){
+        var e = window.event;
+        if(!e || e.keyCode != "13") return;
+        window.event.returnValue=false;
+
+        // 엔터키 검색을 위한 별도의 폼을 이용한다.
+        var lo_form1 = document.bo_enter_search_form;
+        var lo_form2 = document.search_form;
+
+        // 해당지국지사
+        lo_form1.deptcd.value = lo_form2.deptcd.value;
+        lo_form1.areacd.value = lo_form2.areacd.value;
+        lo_form1.bonm.value = lo_form2.corrbonm.value;
+
+        //지국명이 존재하지 않으면 지국검색팝업을 띄운다.
+        if(lo_form1.bonm.value == ''){
+            bo_search();
+            return;
+        }
+
+        // 부서코드,지역코드,지국명을  "/ps/common/1113" 서블릿으로 보낸다
+        lo_form1.action = "/ps/common/1906";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+
+    }
+
+    // 엔터키에 의한 지국찾기 결과처리
+    function bo_enter_search_result(no){
+        // 검색결과가 한건이므로 검색창에 결과값을 설정한다.
+        if(no == '1'){
+
+            var lo_form1 = ifrm.document.bo_detail_form;
+
+            // 해당지국지사
+            var lo_form2 = document.search_form;
+    /*
+            lo_form2.deptcd.value = lo_form1.deptcd.value;
+            lo_form2.areacd.outerHTML =
+                    '<select name="areacd" size="1" id="areacd_id" class="sel_all">' +
+                    '<option value="' +
+                    lo_form1.areacd.value +
+                    '" selected>' +
+                    lo_form1.areanm.value +
+                    '</option>';
+    */
+            lo_form2.corrbocd.value = lo_form1.bocd.value;
+            lo_form2.corrbonm.value = lo_form1.bonm.value;
+
+        // 검색결과가 없거나 여러건이므로 지국찾기 팝업을 띄운다.
+        }else if(no == '2'){
+
+            bo_search();
+        }
+    }
+
+    // 검색 조건 초기화
+    function set_default(){
+
+        var lo_form1 = document.search_form;	// 검색 폼
+
+        // 지국코드,지국명 초기화, 포커스이동
+        lo_form1.deptcd.value = "";
+        lo_form1.areacd.value = "";
+        lo_form1.corrbocd.value = "";
+        lo_form1.corrbonm.value = "";
+        lo_form1.corrbonm.focus();
+    }
+
+    //화면출력
+    function print_list(){
+        var lo_form1    = document.search_form;
+
+        // 유효성체크
+        if(!validate(lo_form1)) {
+            return false;
+        }
+
+        lo_form1.action = "/ps/reader/1871";
+        lo_form1.target = "ifrm";
+        makeValue(lo_form1);
+        lo_form1.submit();
+    }
+
+</script>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >독자
+      &gt; </b> 지국독자조회</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<!--검색시작-->
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+  <form name="search_form" method="post" action="" onsubmit="list_search(1)"  >
+  <input type="hidden" name="corrbocd"     value ="">                  <!-- 해당지국지사코드 -->
+  <input type="hidden" name="pageno"       value="1" >                 <%--현재페이지--%>
+  <input type="hidden" name="pagesize"     value="<%=recCount%>">      <%--한페이지당 레코드수--%>
+  <input type="hidden" name="js_fn_nm"     value="page_move">          <%--페이지이동시 호출되는 자바스크립트 이름--%>
+  <tr>
+    <td class="sea_top" width="80" bgcolor="#EBE9DC"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">신청매체
+    </td>
+    <td class="sea_top" width="250" bgcolor="#EBE9DC">
+    <select name="medicd" size="1" class="sel_all" notEmpty caption="매체명" style="width:100;" >
+        <%
+            // 업무구분명 가져 오는 부분
+            for(int i=0 ; i< ds.medicdcur.size(); i++){
+                PS_S_PUBL_RDRMEDICDCURRecord rec = (PS_S_PUBL_RDRMEDICDCURRecord)ds.medicdcur.get(i);
+
+				if("210".equals(rec.getCicodeval())) {
+        %>
+        <option value="<%=rec.getCicodeval()%>" <% if ("210".equals(rec.getCicodeval())) {%> selected <%} else { }%> >
+        <%=rec.getCicdnm()%>
+        </option>
+        <%
+				}
+            }
+        %>
+    </select>
+     <select name="sh_sendmthd" size="1" style="width:70;" class="sel_all" >
+       <option value="" selected>전체</option>
+       <option value="20" >우편</option>
+       <option value="70" >지국배송</option>
+      </select>
+
+    </td>
+    <td class="sea_top" width="90" bgcolor="#EBE9DC"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">
+     <select name="gubun1" size="1" style="width:60;" class="sel_all" >
+       <option value="Q" selected>수취인명</option>
+       <option value="N" >독자명</option>
+      </select>
+    </td>
+    <td class="sea_top" bgcolor="#EBE9DC">
+      <input type="text" name="nmtext" size="15" class="text_box" >
+    </td>
+    <td class="sea_top" width="80" bgcolor="#EBE9DC" > <img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">독자번호
+    </td>
+    <td class="sea_top" bgcolor="#EBE9DC">
+      <input type="text" name="rdr_no" size="9" maxlength="9" class="text_box"  dataType="number">
+    </td>
+    <td class="sea_top" bgcolor="#EBE9DC" rowspan="3" width="50" align="center">
+      <input type="image" src="/html/comm_img/bu_search03.gif" width="39" height="35" border="0" align="absmiddle" style="cursor:hand" onclick="list_search(1);window.event.returnValue=false;" >
+    </td>
+  </tr>
+  <tr>
+    <td width="80" bgcolor="#EBE9DC" >
+      <img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">전화번호
+    </td>
+    <td bgcolor="#EBE9DC">
+      <select name="gubun2" class="sel_all">
+        <option value="T">자택</option>
+        <option value="W">직장</option>
+        <option value="H">휴대폰</option>
+      </select>
+      <input type="text" name="phone1" size="4" maxlength="4" class="text_box" dataType="number">
+      -
+      <input type="text" name="phone2" size="4" maxlength="4" class="text_box" dataType="number">
+      -
+      <input type="text" name="phone3" size="4" maxlength="4" class="text_box" dataType="number">
+    </td>
+    <td width="90" bgcolor="#EBE9DC" > <img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">주소
+    </td>
+    <td bgcolor="#EBE9DC">
+      <input type="text" name="dlvdtlsaddr" size="17" class="text_box" >
+    </td>
+    <td width="80" bgcolor="#EBE9DC" > <img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">지국확인
+    </td>
+    <td class="" bgcolor="#EBE9DC">
+      <select name="gubun3" class="sel_all">
+        <option value="ALL">전체</option>
+        <option value="N" selected>확인요청</option>
+        <option value="Y">확인완료</option>
+      </select>
+    </td>
+  </tr>
+  <tr bgcolor="#EBE9DC">
+  <td width="80" ><img src="/html/comm_img/ic_title.gif" width="12" height="7">부서<font color="blue">*</font></td>
+    <td width="250">
+        <select name="deptcd" onChange="area_search('');" class="sel_all" ><!-- 부서코드, 코드명 목록 -->
+            <option value='' selected>전체</option>
+            <%= ds.curdeptcdOptHtml("") %>
+        </select>
+    </td>
+    <td width="90" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">지역 <font color="blue">*</font></td>
+    <td>
+        <select name="areacd" size="1" id="areacd_id" class="sel_all" >  <!--지역코드, 지역명 목록-->
+            <option value='' selected>전체</option>
+            <%= ds.areacdcurOptHtml("") %>
+        </select>
+    </td>
+    <td width="80" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">지국</td>
+    <td width="200">
+        <input name="corrbonm" type="text" style="ime-mode:active;" size="10" class="text_box" onkeydown="bo_enter_search();window.event.cancelBubble=true;">
+        <input type="image" src="/html/comm_img/bu_search02.gif" width="39" height="19" align="absmiddle" onclick="javascript:bo_search();window.event.returnValue=false;"> <!--지국검색팝업-->
+        <input type="image" src="/html/comm_img/bu_minus.gif" width="15" height="19" align="absmiddle" onclick="javascript:set_default();window.event.returnValue=false;"> <!--부서,지역,지국 초기화-->
+    </td>
+  </tr>
+  <tr bgcolor="#927F5B">
+    <td colspan="7" height="1" >
+      <!--line -->
+    </td>
+  </tr>
+  <tr>
+    <td colspan="7" height="3" >
+      <!--여백 -->
+    </td>
+  </tr>
+<!--</table>-->
+<!--검색끝-->
+<!--
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+-->
+  <tr>
+    <td bgcolor="#EBE9DC" class="title" width="742" height="27" colspan="6"><B>독자목록</b></td>
+    <td bgcolor="#EBE9DC" width="50" class="title" align="right" height="27">&nbsp;
+      <img src="/html/comm_img/bu_print.gif" width="39" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="print_list();window.event.returnValue=false;">
+    </td>
+  </tr>
+  <tr>
+    <td height="3" colspan="7" align="right"> </td>
+  </tr>
+  </form>
+</table>
+
+<table width="830" border="0" align="center" cellpadding="1" cellspacing="0" class="gray" bgcolor="#FFFFFF" id="list_info">
+  <tr align="center" bgcolor="#dddddd">
+    <td class="gray" width="120">독자명/수취명</td>
+    <td class="gray" width="90" >전화번호</td>
+    <td class="gray" width="350">주소</td>
+    <td class="gray" width="120">관리지국</td>
+    <td class="gray" width="60" >확인여부</td>
+    <td class="gray" width="90" >확인일자</td>
+  </tr>
+<%
+    for ( int i= 0 ; i < 10 ; i++ ) {
+%>
+  <tr>
+    <td class="gray"  >&nbsp;</td>
+    <td class="gray"  >&nbsp;</td>
+    <td class="gray"  >&nbsp;</td>
+    <td class="gray"  >&nbsp;</td>
+    <td class="gray"  >&nbsp;</td>
+    <td class="gray"  >&nbsp;</td>
+  </tr>
+<%
+    }
+%>
+</table>
+
+
+<!---button-->
+<table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center" id="navi">
+  <tr>
+    <td align="center" height="2">
+      <!--여백-->
+    </td>
+  </tr>
+  <tr>
+    <td colspan=5 align="center" bgcolor="#E8E8E8">
+      <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+      <jsp:param name = "curr_page_no"          value="0"/>
+      <jsp:param name = "total_records"         value="0"/>
+      <jsp:param name = "js_fn_nm"              value="page_move"/>
+      <jsp:param name = "records_per_page"      value="10"/>
+      <jsp:param name = "page_set_gubun"        value="0"/>
+      </jsp:include>
+      <!--JSP PAGE END------------------------------------------------------------------------------------>
+    </td>
+  </tr>
+</table>
+
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center" >
+  <tr>
+    <td align="center" height="2" colspan="2">
+      <!--여백-->
+    </td>
+  </tr>
+  <tr bgcolor="#EBE9DC" >
+    <td class="title" ><b>상세정보</b></td>
+    <td bgcolor="#EBE9DC" width="100" class="title" align="right" height="27">
+      <img src="/html/comm_img/bu_save.gif" width="39" height="19" align="absmiddle" border="0" style="cursor:hand"  onclick="javascript:update_rdrinfo();">&nbsp;
+    </td>
+  </tr>
+</table>
+
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center" id="readerDetail" >
+  <form name="rdr_info_form" method="post" action="">
+  <input type="hidden" name="rdr_no" value="">
+  <input type="hidden" name="medicd" value="">
+  <input type="hidden" name="termsubsno" value="">
+
+  <tr>
+    <td>
+      <!--기본정보-->
+      <table width="830" border="0" cellspacing="0" cellpadding="2" class="gray" bgcolor="#ffffff">
+        <tr>
+          <td class="gray" bgcolor="#E8E3C4" width="80">관할지국</td>
+          <td class="gray" width="316" colspan="3">
+            <input type="text" name="acq_bonm" size="20" maxlength="20" value="" class="text_box" >
+            <input type="hidden" name="acq_bocd" value="">
+            <img src="/html/comm_img/bu_change.gif" width="36" height="19" align="absmiddle" border="0" style="cursor:hand"  onclick="javascript:zip_search();">
+          </td>
+          <td class="gray" bgcolor="#E8E3C4" width="100">배달방법</td>
+          <td class="gray" width="125">
+            <select name="sendmthd" size="1" class="sel_all" >
+              <option value="70">지국배송</option>
+              <option value="20">우편</option>
+            </select>
+          </td>
+          <td class="gray" bgcolor="#E8E3C4" width="90">구역/배달</td>
+          <td class="gray" width="125">
+            <input type="text" name="dstccd" size="3" maxlength="3" value="" class="text_box" > &nbsp;/&nbsp;
+            <input type="text" name="dlvno" size="3" maxlength="3" value="" class="text_box" >
+          </td>
+        </tr>
+
+
+        <tr>
+          <td width="80"  class="gray" bgcolor="#DDDDDD" ><b>독자번호</b></td>
+          <td width="131" class="gray" >
+            &nbsp;
+          </td>
+          <td width="60"  class="gray" bgcolor="#DDDDDD">신청매체</td>
+          <td width="125" class="gray"> &nbsp;
+          </td>
+          <td width="90"  class="gray" bgcolor="#DDDDDD">지국정보</td>
+          <td class="gray" colspan="3">
+            &nbsp;
+          </td>
+        </tr>
+
+
+        <tr>
+          <td width="80"  class="gray" bgcolor="#DDDDDD">수취인명</td>
+          <td width="125" class="gray">
+            &nbsp;
+          </td>
+          <td width="60"  class="gray" bgcolor="#DDDDDD">신청일자</td>
+          <td width="125" class="gray">
+            &nbsp;
+          </td>
+          <td width="60"  class="gray" bgcolor="#DDDDDD">구독호수</td>
+          <td width="125" class="gray">
+            &nbsp;
+          </td>
+          <td width="90"  class="gray" bgcolor="#DDDDDD">지사확인일자</td>
+          <td width="125" class="gray">
+            &nbsp;
+          </td>
+        </tr>
+
+
+        <tr>
+          <td class="gray" bgcolor="#DDDDDD" width="80">독자명</td>
+          <td class="gray" width="131">
+            &nbsp;
+          </td>
+          <td class="gray" bgcolor="#DDDDDD" width="60">자택번호</td>
+          <td class="gray" width="125">
+            &nbsp;
+          </td>
+          <td class="gray" bgcolor="#DDDDDD" width="60">휴대폰</td>
+          <td class="gray" width="125">
+            &nbsp;
+          </td>
+          <td class="gray" bgcolor="#DDDDDD" width="90">직장번호</td>
+          <td class="gray" width="125">
+            &nbsp;
+          </td>
+        </tr>
+
+
+        <tr>
+          <td class="gray" bgcolor="#DDDDDD" width="80">주소</td>
+          <td colspan="7" class="gray">
+            &nbsp;
+          </td>
+        </tr>
+
+
+        <tr>
+          <td class="gray" bgcolor="#DDDDDD" width="80">지국독자번호</td>
+          <td class="gray" width="131">
+            &nbsp;
+          </td>
+          <td class="gray" bgcolor="#DDDDDD" width="60">직장명</td>
+          <td class="gray" width="125">
+            &nbsp;
+          </td>
+          <td class="gray" bgcolor="#DDDDDD" width="60">직책</td>
+          <td class="gray" width="125">
+            &nbsp;
+          </td>
+          <td class="gray" bgcolor="#DDDDDD" width="90">지국확인일자</td>
+          <td class="gray" width="125">
+            &nbsp;
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  </form>
+</table>
+
+<form name="bo_enter_search_form" method="post" action="" style="display:none";>
+    <input name="deptcd" type="hidden" value ="">	<!--부서코드-->
+    <input name="areacd" type="hidden" value ="">	<!--지역코드-->
+    <input name="bonm" type="hidden" value ="">		<!--지국명-->
+</form>
+
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="ifrm" width=100 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+</body>
+</html>

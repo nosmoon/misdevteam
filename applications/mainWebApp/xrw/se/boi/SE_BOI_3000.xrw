@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<gs_request>N</gs_request>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+							<arealist/>
+							<yymmdd/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<list_search_form>
+							<deptcd/>
+							<partcd/>
+							<areacd/>
+							<bocd/>
+							<chkyn/>
+							<frdt/>
+							<todt/>
+							<bonm/>
+						</list_search_form>
+						<dtls_search_form>
+							<seq/>
+						</dtls_search_form>
+						<dtls_update_form>
+							<seq/>
+							<rmk/>
+						</dtls_update_form>
+					</reqData>
+					<resData>
+						<gridData>
+							<listGrid>
+								<record>
+									<regdt/>
+									<seq/>
+									<deptnm/>
+									<partnm/>
+									<areanm/>
+									<bonm/>
+									<bocd/>
+									<boemp_id/>
+									<flnm/>
+									<chkyn/>
+								</record>
+							</listGrid>
+						</gridData>
+						<dtlsData>
+							<regdt/>
+							<seq/>
+							<boemp_id/>
+							<flnm/>
+							<tel/>
+							<bocd/>
+							<bonm/>
+							<botel/>
+							<boaddr/>
+							<cont/>
+							<chkyn/>
+							<rmk/>
+							<chkdate/>
+							<chkpers/>
+						</dtlsData>
+						<update_result>
+							<result/>
+						</update_result>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<submission id="PID3000search" action="/se/boi/3010" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/list_search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID3000dtlsSearch" action="/se/boi/3020" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/dtls_search_form" resultref="/root/tempData/resTemp"/>
+			<submission id="PID3000dtlsUpdate" action="/se/boi/3030" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/dtls_update_form" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" ev:event="xforms-model-construct-done">
+			<![CDATA[
+				makeTeamSearch(
+					   "se_boi_3000_a"
+					  , "/se/boi/3000"
+					  , "/root/reqData"  
+			                 , "/root/initData/comboSet"
+					  , "teamComb"
+					  , "partComb"
+					  , "areaComb"
+				  );
+				
+				model.setValue("/root/reqData/list_search_form/frdt", dateAdd('m', -12, getCurrentDate()));
+				//model.setValue("/root/reqData/list_search_form/frdt", getCurrentDate());
+				model.setValue("/root/reqData/list_search_form/todt", getCurrentDate());
+			]]>
+		</script>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function onClickBranchPopup()
+				{
+					openBranch("/root/reqData/list_search_form", "/root/tempData/tempBranch");
+	
+	             			if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+						return;
+					
+					bo_input.value = model.getValue("/root/tempData/tempBranch/bonm");
+					modelCopyValue("/root/reqData/list_search_form/bocd", "/root/tempData/tempBranch/bocd");
+	
+					if(model.getValue("/root/initData/gs_request") == "L")
+					{
+						model.setValue("/root/initData/gs_request", "N");
+						//go_search();
+					}
+				}
+				
+				function set_default(flag)
+				{
+					if(flag == '1') {			// 부서(팀),지역,지국 초기화
+						teamComb.select(0);
+						
+						model.setValue("/root/reqData/list_search_form/bocd", "");
+						bo_input.value = "";
+						model.setFocus("bo_input");
+						
+					} else if(flag == '2') {		// 기간 초기화
+					} else if(flag == '3') {		// 기타 초기화
+					}
+				}
+				
+				function onKeyDown()
+				{
+					if(event.keyCode == 13)
+					{
+						model.setFocus("boSearchBtn");
+						
+						if(bo_input.value == '')
+							onClickBranchPopup();
+						else
+						{
+							//화면별 선처리
+							//modelCopyValue("/root/reqData/reqform/searchForm/common_deptcd", "/root/reqData/reqform/searchForm/deptcd");
+							//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+							//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+							//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+							searchBranchByName("/root/reqData/list_search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+						}
+					}
+				}
+				
+				//지국 enter key 검색 시 callback 함수. onKeyDown
+				function searchBranchCallBack()
+				{
+					//검색 후처리.
+					if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+					{
+						bo_input.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+						modelCopyValue("/root/reqData/list_search_form/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+					}
+					else
+						onClickBranchPopup();
+				}
+				
+				function searchWithBranch()
+				{
+					model.setValue("/root/initData/gs_request", "L");
+					if(bo_input.value == "")
+					{
+						model.setValue("/root/reqData/list_search_form/bocd", "");
+						model.setValue("/root/initData/gs_request", "N");
+						search();
+					}
+					else
+					{
+						//modelCopyValue("/root/reqData/reqform/rdr_dsct_search_form/common_deptcd", "/root/reqData/reqform/rdr_dsct_search_form/deptcd");
+						searchBranchByName("/root/reqData/list_search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+					}
+				}
+				
+				function search()
+				{
+					if(!commReqCheck("PID3000group_scr"))
+					return;
+					remakeNode("/root/tempData");
+					
+					model.send("PID3000search", false);
+					
+					if(!submit_completed())
+						return;
+						
+					model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/listGrid");
+					
+				 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/regdt").length == 0)
+						model.alert("검색결과가 없습니다.");
+														
+					model.removenode("/root/tempData/resTemp");
+					
+					PID3000datagrid1.rebuild();
+					
+					clearChildNodes("/root/reqData/dtls_search_form", true);
+				}
+				
+				function gridClick(separator)
+				{
+					if(separator == '1'){
+						if(PID3000datagrid1.textMatrix(PID3000datagrid1.row, PID3000datagrid1.colRef("seq")) == "")
+						return;
+						
+						//alert( PID3000datagrid1.textMatrix(PID3000datagrid1.row, PID3000datagrid1.colRef("seq")));
+						//alert(PID3000datagrid1.textMatrix(PID3000datagrid1.row, PID3000datagrid1.colRef("regdt")));
+						
+						remakeNode("/root/tempData");
+						
+						model.setValue("/root/reqData/dtls_search_form/seq", PID3000datagrid1.textMatrix(PID3000datagrid1.row, PID3000datagrid1.colRef("seq")));
+					}else{
+						model.setValue("/root/reqData/dtls_search_form/seq", model.getValue("/root/resData/dtlsData/seq"));
+						
+						//alert(model.getValue("/root/reqData/dtls_search_form/seq"));
+					
+					}
+					
+					
+					model.send("PID3000dtlsSearch", false);
+					
+					if(!submit_completed())
+						return;
+						
+					model.copyNode("/root/resData/dtlsData", "/root/tempData/dtlsData");
+					
+					model.refresh();
+					model.removenode("/root/tempData/resTemp");
+					
+				}
+				
+				function save(){
+					if(model.getValue("/root/resData/dtlsData/seq") == "")
+						return;
+					
+					model.setValue("/root/reqData/dtls_update_form/seq", model.getValue("/root/resData/dtlsData/seq"));
+					model.setValue("/root/reqData/dtls_update_form/rmk", model.getValue("/root/resData/dtlsData/rmk"));		
+					
+					remakeNode("/root/tempData");
+					
+					model.send("PID3000dtlsUpdate", false);
+					
+					if(!submit_completed())
+						return;
+						
+					model.copyNode("/root/resData/update_result", "/root/tempData/update_result");
+					
+					if(model.getValue("/root/resData/update_result/result") == "success")
+						alert("저장되었습니다.");
+					
+					model.removenode("/root/tempData/resTemp");
+					
+					gridClick('2');
+					search();
+				}
+				
+				function Excel()
+				{
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+					
+					if(filePath != "") {
+						PID3000datagrid1.saveExcel(filePath);
+						window.exec(filePath);
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="900" idprefix="PID3000" style="font-family:굴림; ">
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btn" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="selectBtn" class="btn02" crud="R" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					searchWithBranch();
+					]]>
+				</script>
+			</button>
+			<button id="closeBtn" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID3000group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:53px; ">
+			<group id="grpCommonSelectQ" style="left:0px; top:0px; width:925px; height:25px; ">
+				<caption id="teamCombCaption" class="list_cap01" style="left:0px; top:0px; width:50px; height:25px; ">팀</caption>
+				<caption id="teamCombCaption2" class="list_cap02" style="left:49px; top:0px; width:110px; height:25px; "/>
+				<select1 id="teamComb" ref="/root/reqData/list_search_form/deptcd" class="req_100" appearance="minimal" style="left:54px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/teamlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="partCombCaption" class="list_cap01" style="left:158px; top:0px; width:50px; height:25px; ">파트</caption>
+				<caption id="partCombCaption2" class="list_cap02" style="left:207px; top:0px; width:110px; height:25px; "/>
+				<select1 id="partComb" ref="/root/reqData/list_search_form/partcd" class="req_100" appearance="minimal" style="left:212px; top:4px; width:100px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/partlist/record">
+							<label ref="dept_nm"/>
+							<value ref="dept_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="areaCombCaption" class="list_cap01" style="left:316px; top:0px; width:50px; height:25px; ">지역</caption>
+				<caption id="areaCombCaption2" class="list_cap02" style="left:365px; top:0px; width:70px; height:25px; "/>
+				<select1 id="areaComb" ref="/root/reqData/list_search_form/areacd" class="req_60" appearance="minimal" style="left:370px; top:4px; width:60px; height:18px; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/arealist/record">
+							<label ref="area_nm"/>
+							<value ref="area_cd"/>
+						</itemset>
+					</choices>
+				</select1>
+				<caption id="boCaption" class="list_cap01" style="left:434px; top:0px; width:74px; height:25px; ">센터</caption>
+				<caption id="boCaption2" class="list_cap02" style="left:506px; top:0px; width:110px; height:25px; "/>
+				<input id="bo_input" ref="/root/reqData/list_search_form/bonm" style="left:513px; top:4px; width:100px; height:18px; ">
+					<script type="javascript" ev:event="onkeydown">
+						<![CDATA[
+						onKeyDown();				
+						]]>
+					</script>
+				</input>
+				<caption id="boSearchCaption" class="list_cap02" style="left:615px; top:0px; width:75px; height:25px; "/>
+				<button id="boSearchBtn" class="btn05" style="left:621px; top:3px; width:40px; height:21px; ">
+					<caption>찾기</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						onClickBranchPopup();				
+						]]>
+					</script>
+				</button>
+				<button id="boResetBtn" class="btn05" style="left:665px; top:3px; width:20px; height:21px; ">
+					<caption>-</caption>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						set_default("1");				
+						]]>
+					</script>
+				</button>
+			</group>
+			<caption id="PID3000caption1" class="list_cap01" style="left:689px; top:0px; width:50px; height:25px; ">확인</caption>
+			<caption id="PID3000caption3" class="list_cap02" style="left:738px; top:0px; width:187px; height:25px; "/>
+			<select1 id="PID3000combo1" ref="/root/reqData/list_search_form/chkyn" appearance="minimal" style="left:748px; top:4px; width:68px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>확인</label>
+						<value>Y</value>
+					</item>
+					<item>
+						<label>미확인</label>
+						<value>N</value>
+					</item>
+				</choices>
+			</select1>
+			<caption id="PID3000caption2" class="list_cap01" style="left:0px; top:24px; width:50px; height:25px; ">기간</caption>
+			<caption id="PID3000caption4" class="list_cap02" style="left:49px; top:24px; width:876px; height:25px; "/>
+			<input id="PID3000input1" ref="/root/reqData/list_search_form/frdt" inputtype="date" dataType="datefrom" caption="시작일자" setHandler="true" relid="PID3000input2" style="left:53px; top:28px; width:100px; height:18px; "/>
+			<caption id="PID3000caption5" style="left:161px; top:30px; width:50px; height:15px; ">~</caption>
+			<input id="PID3000input2" ref="/root/reqData/list_search_form/todt" inputtype="date" dataType="dateto" caption="종료일자" setHandler="true" relid="PID3000input1" style="left:183px; top:28px; width:100px; height:18px; "/>
+		</group>
+		<group id="PID3000group_line" class="gro_line" style="left:10px; top:135px; width:926px; height:5px; "/>
+		<datagrid id="PID3000datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="등록일자^팀^파트^지역^센터^센터코드^모바일아이디^입력자명^확인여부" colsep="^" colwidth="130, 108, 103, 100, 110, 75, 112, 105, 80, 0" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:145px; width:926px; height:265px; ">
+			<col ref="regdt" format="yyyy-mm-dd"/>
+			<col ref="deptnm"/>
+			<col ref="partnm"/>
+			<col ref="areanm"/>
+			<col ref="bonm"/>
+			<col ref="bocd"/>
+			<col ref="boemp_id"/>
+			<col ref="flnm"/>
+			<col ref="chkyn"/>
+			<col ref="seq" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID3000datagrid1.mouseCol>PID3000datagrid1.fixedCols-1 && PID3000datagrid1.mouseRow>PID3000datagrid1.fixedRows-1)
+				       {
+						gridClick('1');
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+		<group id="PID3000dtlsgroup1" class="gro_tab1" style="left:10px; top:415px; width:926px; height:25px; ">
+			<caption id="PID3000caption6" class="list_cap03" style="left:0px; top:0px; width:200px; height:25px; ">모바일 개선사항 상세내역</caption>
+			<caption id="PID3000caption7" class="list_cap02" style="left:199px; top:0px; width:727px; height:25px; "/>
+		</group>
+		<group id="PID3000dtlsgroup2" overflow="scroll" style="left:10px; top:445px; width:926px; height:410px; ">
+			<caption id="PID3000caption8" class="list_cap03" style="left:0px; top:0px; width:100px; height:25px; text-align:left; ">입력자 정보</caption>
+			<caption id="PID3000caption9" class="list_cap01" style="left:99px; top:0px; width:100px; height:25px; text-align:left; ">입력자명</caption>
+			<caption id="PID3000caption10" ref="/root/resData/dtlsData/flnm" class="list_cap02" style="left:198px; top:0px; width:180px; height:25px; text-align:left; "/>
+			<caption id="PID3000caption11" class="list_cap01" style="left:377px; top:0px; width:100px; height:25px; text-align:left; ">입력자ID</caption>
+			<caption id="PID3000caption12" ref="/root/resData/dtlsData/boemp_id" class="list_cap02" style="left:475px; top:0px; width:175px; height:25px; text-align:left; "/>
+			<caption id="PID3000caption13" class="list_cap01" style="left:649px; top:0px; width:100px; height:25px; text-align:left; ">휴대폰 번호</caption>
+			<caption id="PID3000caption14" ref="/root/resData/dtlsData/tel" class="list_cap02" style="left:748px; top:0px; width:178px; height:25px; text-align:left; "/>
+			<caption id="PID3000caption15" class="list_cap03" style="left:0px; top:24px; width:100px; height:49px; text-align:left; ">센터 정보</caption>
+			<caption id="PID3000caption16" class="list_cap01" style="left:99px; top:24px; width:100px; height:25px; text-align:left; ">센터명</caption>
+			<caption id="PID3000caption17" ref="/root/resData/dtlsData/bonm" class="list_cap02" style="left:198px; top:24px; width:180px; height:25px; text-align:left; "/>
+			<caption id="PID3000caption18" class="list_cap01" style="left:377px; top:24px; width:100px; height:25px; text-align:left; ">센터코드</caption>
+			<caption id="PID3000caption19" ref="/root/resData/dtlsData/bocd" class="list_cap02" style="left:475px; top:24px; width:175px; height:25px; text-align:left; "/>
+			<caption id="PID3000caption20" class="list_cap01" style="left:649px; top:24px; width:100px; height:25px; text-align:left; ">센터전화번호</caption>
+			<caption id="PID3000caption21" ref="/root/resData/dtlsData/botel" class="list_cap02" style="left:748px; top:24px; width:178px; height:25px; text-align:left; "/>
+			<caption id="PID3000caption22" class="list_cap01" style="left:99px; top:48px; width:100px; height:25px; text-align:left; ">센터주소</caption>
+			<caption id="PID3000caption23" ref="/root/resData/dtlsData/boaddr" class="list_cap02" style="left:198px; top:48px; width:728px; height:25px; text-align:left; "/>
+			<caption id="PID3000caption24" class="list_cap03" style="left:0px; top:72px; width:100px; height:293px; text-align:left; ">등록 내용</caption>
+			<caption id="PID3000caption25" class="list_cap01" style="left:99px; top:72px; width:100px; height:21px; text-align:left; ">등록일자</caption>
+			<caption id="PID3000caption26" ref="/root/resData/dtlsData/regdt" class="list_cap02" style="left:198px; top:72px; width:728px; height:21px; text-align:left; "/>
+			<caption id="PID3000caption27" class="list_cap01" style="left:99px; top:96px; width:100px; height:121px; text-align:left; ">내용</caption>
+			<caption id="PID3000caption28" class="list_cap02" style="left:198px; top:96px; width:728px; height:121px; "/>
+			<textarea id="PID3000textarea1" ref="/root/resData/dtlsData/cont" style="left:205px; top:100px; width:716px; height:112px; vertical-align:top; "/>
+			<caption id="PID3000caption29" class="list_cap01" style="left:99px; top:220px; width:100px; height:21px; text-align:left; ">담당확인여부</caption>
+			<caption id="PID3000caption30" ref="/root/resData/dtlsData/chkyn" class="list_cap02" style="left:198px; top:220px; width:180px; height:21px; text-align:left; "/>
+			<caption id="PID3000caption31" class="list_cap01" style="left:651px; top:220px; width:100px; height:21px; text-align:left; ">담당확인일자</caption>
+			<caption id="PID3000caption32" ref="/root/resData/dtlsData/chkdate" class="list_cap02" style="left:750px; top:220px; width:176px; height:21px; text-align:left; "/>
+			<caption id="PID3000caption35" class="list_cap01" style="left:377px; top:220px; width:100px; height:21px; text-align:left; ">담당자</caption>
+			<caption id="PID3000caption36" ref="/root/resData/dtlsData/chkpers" class="list_cap02" style="left:475px; top:220px; width:176px; height:21px; text-align:left; "/>
+			<caption id="PID3000caption33" class="list_cap01" style="left:99px; top:244px; width:100px; height:121px; text-align:left; ">담당비고</caption>
+			<caption id="PID3000caption34" class="list_cap02" style="left:198px; top:244px; width:728px; height:121px; "/>
+			<textarea id="PID3000textarea2" ref="/root/resData/dtlsData/rmk" style="left:205px; top:248px; width:716px; height:112px; vertical-align:top; "/>
+			<button id="saveBtn" class="btn02" crud="R" style="left:435px; top:375px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					save();
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

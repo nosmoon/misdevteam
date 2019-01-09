@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<rmsCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</rmsCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<infoexg_form>
+								<search_word/>
+								<js_fn_nm/>
+								<dwloadcnt/>
+								<curr_page_no/>
+								<seq/>
+								<y/>
+								<search_word_kind/>
+								<rmsgexttcd/>
+								<records_per_page/>
+								<brwscnt/>
+								<x/>
+							</infoexg_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<seq/>
+									<clsf/>
+									<answergrp/>
+									<answerseq/>
+									<answerlevl/>
+									<notifrdt/>
+									<notitodt/>
+									<titl/>
+									<brwscnt/>
+									<recomcnt/>
+									<dwloadcnt/>
+									<deptcd/>
+									<deptnm/>
+									<filenm/>
+									<filesize/>
+									<incmgpers/>
+									<incmgpersnm/>
+									<incmgdt/>
+									<rmsgexttcd/>
+									<rmsgexttnm/>
+									<rnum/>
+								</record>
+							</listGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+					
+					search();
+				]]>
+			</script>
+			<submission id="PID1201init" action="/ps/share/1201" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1206search" action="/ps/share/1206" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/infoexg_form" resultref="/root/tempData/initTemp"/>
+			<submission id="PID1241down" action="/ps/share/1241" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqform/infoexg_form" resultref="/root/tempData/initTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function init()
+				{
+					model.send("PID1201init", false);
+					
+					model.refresh();
+					
+					model.setValue("/root/reqData/reqform/infoexg_form/curr_page_no", "1");
+					//model.setValue("/root/reqData/reqform/infoexg_form/records_per_page", "20");
+					model.setValue("/root/reqData/reqform/infoexg_form/records_per_page", "5000");
+					model.setValue("/root/reqData/reqform/infoexg_form/js_fn_nm", "page_move");
+					
+					model.copyNode("/root/initData/comboSet/rmsCombo", "/root/tempData/initTemp/rmsCombo");
+
+					model.removenode("/root/tempData/initTemp");					
+					
+					PID1201combo1.select(0);
+					PID1201combo4.select(0);										
+					PID1201input1.disabled = true;
+				}
+							
+				function search()
+				{
+					remakeNode("/root/tempData/dataTemp");
+					model.send("PID1206search", false);
+					
+				       model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/dataTemp/listGrid");
+					model.removenode("/root/tempData/dataTemp");
+					
+					if(instance1.selectNodes("/root/resData/gridData/listGrid/record/seq").length == 0)
+						model.alert("검색결과가 없습니다.");
+
+					PID1201datagrid1.rebuild();
+				}
+				
+				function write()
+				{
+					window.load("/xrw/ps/share/ps_share_1211_a.xrw", "replace", "INSERT", "", "/root/reqData/reqform/infoexg_form", "/root/reqData/reqform/searchform");
+				}
+				
+				function gridClick()
+				{					
+					model.setValue("/root/reqData/reqform/infoexg_form/seq",  PID1201datagrid1.textMatrix(PID1201datagrid1.row, PID1201datagrid1.colRef("seq")));
+					model.setValue("/root/reqData/reqform/infoexg_form/dwloadcnt",  PID1201datagrid1.textMatrix(PID1201datagrid1.row, PID1201datagrid1.colRef("dwloadcnt")));
+					model.setValue("/root/reqData/reqform/infoexg_form/brwscnt",  PID1201datagrid1.textMatrix(PID1201datagrid1.row, PID1201datagrid1.colRef("brwscnt")));
+									
+					window.load("/xrw/ps/share/ps_share_1221_a.xrw", "replace", "UPDATE", "", "/root/reqData/reqform/infoexg_form", "/root/reqData/reqform/searchform");
+				}				
+				
+				function fileDown()
+				{
+					if(PID1201datagrid1.textMatrix(PID1201datagrid1.row, PID1201datagrid1.colRef("filenm")) == "") {
+						return;
+					} 
+					
+				    	model.setValue("/root/reqData/reqform/infoexg_form/seq", PID1201datagrid1.textMatrix(PID1201datagrid1.row, PID1201datagrid1.colRef("seq")));
+				    	model.setValue("/root/reqData/reqform/infoexg_form/dwloadcnt", PID1201datagrid1.textMatrix(PID1201datagrid1.row, PID1201datagrid1.colRef("dwloadcnt")));
+					
+					model.send("PID1241down", false);
+					
+					if(!submit_completed())
+						return;
+					
+					body.disabled = false;
+					progressBarEnd();
+				}
+				
+				function setInputBox()
+				{
+					var inputVal = PID1201combo4.value;
+					
+					if(inputVal == "")
+					{
+						PID1201input1.disabled = true;
+					} else {
+						PID1201input1.disabled = false;
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1201" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="grpCommonBtn" class="gro_btn" style="left:10px; top:40px; width:926px; height:21px; ">
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+			<button id="PID1201button3" class="btn02" crud="R" style="left:764px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+			<button id="PID1201button1" class="btn02" crud="R" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>등록</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						write();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1201group2" class="gro_sel" style="left:10px; top:95px; width:926px; height:25px; ">
+			<caption id="PID1201caption10" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">출판 공지사항 목록</caption>
+		</group>
+		<group id="PID1201group1" class="gro_sel" style="left:10px; top:65px; width:926px; height:25px; ">
+			<caption id="PID1201caption20" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">수신범위</caption>
+			<select1 id="PID1201combo1" ref="/root/reqData/reqform/infoexg_form/rmsgexttcd" appearance="minimal" style="left:68px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/rmsCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="PID1201caption18" style="left:180px; top:4px; width:57px; height:20px; ">검색조건</caption>
+			<select1 id="PID1201combo4" ref="/root/reqData/reqform/infoexg_form/search_word_kind" appearance="minimal" style="left:240px; top:4px; width:70px; height:18px; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>제목</label>
+						<value>titl</value>
+					</item>
+					<item>
+						<label>작성자</label>
+						<value>makepersnm</value>
+					</item>
+					<item>
+						<label>내용</label>
+						<value>cont</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						setInputBox();
+					]]>
+				</script>
+			</select1>
+			<input id="PID1201input1" ref="/root/reqData/reqform/infoexg_form/search_word" style="left:312px; top:4px; width:100px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID1201button3");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+		</group>
+		<datagrid id="PID1201datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="번호^제목^수신범위^작성자^작성일자^조회수^첨부파일^다운수^추천" colsep="^" colwidth="0, 300, 90, 80, 145, 60, 150, 50, 50, 0" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="reverseseq" rowsep="|" selectionmode="free" tooltip="true" style="left:10px; top:120px; width:926px; height:600px; ">
+			<col ref="seq"/>
+			<col ref="titl" style="color:#0000ff; text-align:left; cursor:hand; ">
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1201datagrid1.mouseCol>PID1201datagrid1.fixedCols-1 && PID1201datagrid1.mouseRow>PID1201datagrid1.fixedRows-1)
+					       {
+							gridClick();
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="rmsgexttnm"/>
+			<col ref="incmgpersnm"/>
+			<col ref="incmgdt_detail" format="yyyy-mm-dd"/>
+			<col ref="brwscnt" style="text-align:right; "/>
+			<col ref="filenm" style="color:#0000ff; text-align:left; cursor:hand; ">
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if(event.button == 1)
+					{
+						if(PID1201datagrid1.mouseCol>PID1201datagrid1.fixedCols-1 && PID1201datagrid1.mouseRow>PID1201datagrid1.fixedRows-1)
+					       {
+							fileDown();
+					       }
+					}				
+					]]>
+				</script>
+			</col>
+			<col ref="dwloadcnt" style="text-align:right; "/>
+			<col ref="recomcnt" style="text-align:right; "/>
+			<col ref="answergrp" visibility="hidden"/>
+		</datagrid>
+		<!--<group id="PID1201group3" style="left:10px; top:570px; width:926px; height:25px; ">
+			<iviewer id="PID1201paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+	</xhtml:body>
+</xhtml:html>

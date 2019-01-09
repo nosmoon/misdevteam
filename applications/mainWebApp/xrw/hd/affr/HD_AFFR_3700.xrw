@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<cmpy_insr_cd>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</cmpy_insr_cd>
+							<grid_cmpy_insr_cd>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</grid_cmpy_insr_cd>
+							<pay_clsf_cd>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</pay_clsf_cd>
+							<grid_pay_clsf_cd>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</grid_pay_clsf_cd>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<cmpy_cd/>
+							<emp_no/>
+							<aplc_fr_dt/>
+							<aplc_to_dt/>
+							<emp_no_tm/>
+							<cmpy_insr_cd>all</cmpy_insr_cd>
+							<dept_cd/>
+							<dept_nm/>
+							<flnm/>
+							<search_yyyymm/>
+							<lvcmpy_clsf>all</lvcmpy_clsf>
+							<org_clsf>all</org_clsf>
+							<pay_fr_dt/>
+							<pay_to_dt/>
+							<acpn_dt/>
+							<nm_korn_tm/>
+							<magam_flag/>
+							<pay_clsf>all</pay_clsf>
+						</searchData>
+						<reqForm/>
+						<multiUpData/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+								<dept_nm/>
+								<emp_no/>
+								<flnm/>
+								<posi_nm/>
+								<prn/>
+								<aplc_dt/>
+								<cmpy_insr_cd/>
+								<pay_dt/>
+								<pay_amt/>
+								<acpn_dt/>
+								<remk/>
+								<dept_cd/>
+								<posi_cd/>
+								<occr_dt/>
+								<seq/>
+								<dty_cd/>
+								<dty_nm/>
+								<pay_cd/>
+								<org_cd/>
+								<aply_yy/>
+								<aply_no/>
+							</record>
+						</gridData>
+						<resForm>
+							<record>
+								<emp_no/>
+								<flnm/>
+								<dept_cd/>
+								<dept_nm/>
+								<dty_cd/>
+								<dty_nm/>
+								<posi_cd/>
+								<posi_nm/>
+								<totalcnt/>
+							</record>
+						</resForm>
+					</resData>
+					<dataSet/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					var save_flag = "N"; //N:기본저장 , Y:업로드저장
+					
+					String.prototype.trim = function() {
+					    return this.replace(/(^\s*)|(\s*$)/gi, "");
+					}
+					
+					String.prototype.replaceAll = function(str1, str2) {
+					    var temp_str = "";
+					    if (this.trim() != "" && str1 != str2) {
+					        temp_str = this.trim();
+					        while (temp_str.indexOf(str1) > -1) {
+					            temp_str = temp_str.replace(str1, str2);
+					        }
+					    }
+					    return temp_str;
+					}
+								
+					function searchList(){
+						/*
+						if(model.getValue("/root/reqData/searchData/search_yyyymm") == ''){
+							model.alert("조회시 적용년월 선택은 필수사항 입니다.");
+							return;
+						}
+						*/
+						
+						model1.send("hd_affr_3720_l");
+						var totalcnt = model1.getValue("/root/tempData/totalcnt");
+						
+						model1.copyNode("/root/resData/gridData", "/root/tempData/CURLIST");
+						model1.removenode("/root/tempData");						
+						datagrid2.refresh();
+						
+						//지급구분 상태에 따른 읽기모드 설정
+						for (var i=datagrid2.fixedRows; i<datagrid2.rows; i++) {
+							var paygb_chk = datagrid2.valueMatrix(i,datagrid2.colRef("org_cd"));
+							
+							if(paygb_chk == "20") {
+								var cmpy_insr_cd_chk = datagrid2.valueMatrix(i,datagrid2.colRef("cmpy_insr_cd"));
+								var pay_cd_chk = datagrid2.valueMatrix(i,datagrid2.colRef("pay_cd"));
+								
+								//조회 데이터 중 단체구분이 회사인데 보험사와 지급구분값이 들어있다면 값을 초기화한다.
+								if(cmpy_insr_cd_chk != ""){
+									datagrid2.valueMatrix(i,datagrid2.colRef("cmpy_insr_cd")) = "";
+								}	
+								if(pay_cd_chk != ""){
+									datagrid2.valueMatrix(i,datagrid2.colRef("pay_cd")) = "";
+								}	
+								//단체구분이 회사지급일때는 보험사와 지급구분을 읽기모드 변경하여 선택할 수 없게 한다.
+								datagrid2.isReadOnly(i, datagrid2.colRef("cmpy_insr_cd")) = true;
+								datagrid2.isReadOnly(i, datagrid2.colRef("pay_cd")) = true;
+							}else{
+								datagrid2.isReadOnly(i, datagrid2.colRef("cmpy_insr_cd")) = false;
+								datagrid2.isReadOnly(i, datagrid2.colRef("pay_cd")) = false;
+							}	
+						}
+						save_flag = "N"; //조회시에 항상 기보모드르 변경해줌
+						gridrowcnt.value = "총 "+ (parseInt(datagrid2.rows)-1) + "건";
+						datagrid2.refresh();
+					}		
+					
+					function setEmp_no(emp_no, flnm){
+						var rowIdx =datagrid2.row;					
+						//model1.setValue("/root/reqData/searchData/flnm",flnm );
+						model1.setValue("/root/reqData/searchData/emp_no",emp_no );
+						model1.send("hd_affr_1202");				
+						model1.copyNode("/root/resData/resForm/record","/root/tempData/record");
+						var totalcnt = model1.getValue("/root/resData/resForm/record/totalcnt");
+						var emp_no = model1.getValue("/root/resData/resForm/record/emp_no");
+						var flnm = model1.getValue("/root/resData/resForm/record/flnm");
+						var dept_cd = model1.getValue("/root/resData/resForm/record/dept_cd");
+						var dept_nm = model1.getValue("/root/resData/resForm/record/dept_nm");
+						var dty_cd = model1.getValue("/root/resData/resForm/record/dty_cd");
+						var dty_nm = model1.getValue("/root/resData/resForm/record/dty_nm");
+						var posi_cd = model1.getValue("/root/resData/resForm/record/posi_cd");
+						var posi_nm = model1.getValue("/root/resData/resForm/record/posi_nm");
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", emp_no);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", flnm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_cd", dept_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", dept_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_cd", dty_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", dty_nm);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_cd", posi_cd);
+						model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", posi_nm);
+						model1.refresh();						
+					}
+									
+					function setEmp_no_pop(emp_no, flnm) {
+						model1.setValue("/root/reqData/searchData/emp_no_tm", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn_tm", flnm);
+						model1.refresh();
+					}						
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[			
+					//보험사종류 콤보박스
+					model1.send("hd_affr_3700_m"); 
+					model1.copyNode("/root/initData/comboSet/cmpy_insr_cd", "/root/tempData/cmpy_insr_cd"); 
+					model1.copyNode("/root/initData/comboSet/grid_cmpy_insr_cd", "/root/tempData/grid_cmpy_insr_cd"); 
+					model1.copyNode("/root/initData/comboSet/pay_clsf_cd", "/root/tempData/pay_clsf_cd"); 
+					model1.copyNode("/root/initData/comboSet/grid_pay_clsf_cd", "/root/tempData/grid_pay_clsf_cd"); 
+					model1.removenode("/root/tempData");
+					
+					datagrid2.removeRow();
+					//datagrid2.addStatus(1, "insert");  //첫째 행의 상태를 insert 모드로 셋팅
+					model1.refresh();
+					//model.alert("화면 최초진입시 전역변수 save_flag 값: "+save_flag);
+				]]>
+			</script>
+			<submission id="hd_affr_1202" action="/hd/affr/1202/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_3700_m" action="/hd/affr/3700" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_affr_3710_a" action="/hd/affr/3710" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_affr_3720_l" action="/hd/affr/3720" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_affr_3711_a" action="/hd/affr/3711" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_affr_3730_a" action="/hd/affr/3730" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="946" pageheight="728">
+		<caption id="caption4" class="list_cap02" style="left:20px; top:93px; width:916px; height:25px; "/>
+		<button id="button2" class="btn02" style="left:688px; top:40px; width:52px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(model.getValue("/root/reqData/searchData/search_yyyymm") == ""){
+						model.alert("데이터 삭제시 적용년월 선택은 필수사항 입니다.");
+						return;
+					}
+					
+					var yyyymm_chk = model.getValue("/root/reqData/searchData/search_yyyymm");
+					
+					//적용년월과 다른 날의 데이터가 그리드에 존재시 걸러내기 위해 추가
+					for(var i=datagrid2.fixedRows; i<datagrid2.rows; i++){
+						var chk_yy = model1.getValue("/root/resData/gridData/record[" + (i) + "]/aply_yy");
+						var chk_no = model1.getValue("/root/resData/gridData/record[" + (i) + "]/aply_no");
+						var chk_aply_yymm = chk_yy + chk_no;
+
+						if(yyyymm_chk != chk_aply_yymm){
+							model1.alert("적용년월에 해당하지 않은 데이터가 조회 결과로 함께 존재하여 삭제 작업을\n진행 할 수 없습니다.\n\n적용년월 기준으로 새롭게 조회 후 삭제하시기 바랍니다.");
+							return;
+						}
+					}
+						
+					if (!rowDelSubmit(datagrid2)) {
+						return;
+					}
+					
+					if (window.alert("삭제 하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+
+					model1.setValue("/root/reqData/multiUpData", datagrid2.getUpdateData());
+					model1.send("hd_affr_3710_a");
+					
+					if(submit_completed()) {
+						model1.refresh();
+						datagrid2.clearStatus();
+						searchList();
+					}			
+				]]>
+			</script>
+		</button>
+		<group id="group3" visibility="hidden" overflow="hidden" style="left:10px; top:164px; width:926px; height:545px; border-color:#aec9e9; border-style:solid; ">
+			<datagrid id="datagrid1" nodeset="/root/reqData/gridData/record" caption="접수번호^사원명^주민번호^신청일^단체구분^지급보험사^지급구분^지급일^지급보험금" colsep="#" colwidth="120, 120, 120, 120, 120, 120, 120, 120, 120" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:1px; top:1px; width:460px; height:539px; ">
+				<col class="req" ref="up_acpn_dt" format="9999-9999-99" caption="접수번호"/>
+				<col class="req" ref="up_flnm" caption="사원명"/>
+				<col class="req" ref="up_prn" caption="주민번호"/>
+				<col class="req" ref="up_aplc_dt" caption="신청일"/>
+				<col class="req" ref="up_org_cd" caption="단체구분"/>
+				<col class="req" ref="up_cmpy_insr_cd" caption="지급보험사"/>
+				<col class="req" ref="up_pay_cd" caption="지급구분"/>
+				<col class="req" ref="up_pay_dt" caption="지급일"/>
+				<col class="req" ref="up_pay_amt" caption="지급보험금"/>
+			</datagrid>
+		</group>
+		<group id="group2" visibility="visible" overflow="hidden" explorerbar="sortshowmove" style="left:10px; top:164px; width:926px; height:506px; border-color:#aec9e9; border-style:solid; ">
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="부서^사번^성명^직급^주민번호^신청일자^단체구분^보험사^지급구분^지급일자^보험금^접수번호(시퀀스)^비고^마감여부" colsep="#" colwidth="120, 80, 80, 70, 110, 100, 100, 120, 120, 100, 85, 105, 150, 65, 10, 10, 10, 10, 10, 10, 10, 10" extendlastcol="scroll" frozencols="4" rowheader="update" rowsep="|" selectionmode="free" style="left:-1px; top:4px; width:920px; height:500px; ">
+				<col ref="dept_nm" caption="부서" style="text-align:left; "/>
+				<col ref="emp_no" type="inputbutton" maxlength="6" caption="사번">
+					<script type="javascript" ev:event="onbuttonclick">
+						<![CDATA[
+							model.removeNodeset("/root/reqData/fwdData");  
+							model.makeNode("/root/reqData/fwdData/func_nm");					
+							model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+							window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;width:460px; height:400px;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+						]]>
+					</script>
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var rowIdx =datagrid2.row;			
+							var emp = datagrid2.valueMatrix(rowIdx,2);
+							var tmp_emp = emp.trim();
+							
+							if(tmp_emp  == ""){
+								alert("사번을 입력하십시오.");
+								model1.setValue("/root/reqData/searchData/emp_no","" );
+								return;
+							}
+							model1.setValue("/root/reqData/searchData/emp_no",emp );
+							model1.setValue("/root/reqData/searchData/flnm","" );
+							model1.send("hd_affr_1202");
+							model1.copyNode("/root/resData/resForm/record","/root/tempData/record");
+							model1.removenode("/root/tempData");
+							var totalcnt = model1.getValue("/root/resData/resForm/record/totalcnt");
+							if(totalcnt == ""){
+								alert("검색결과가 없습니다");
+								model1.setValue("/root/reqData/searchData/emp_no","" );
+								model1.setValue("/root/reqData/searchData/flnm","" );
+								model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", emp_no);
+								model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", flnm);
+								model1.refresh();
+								return;
+							}
+							var emp_no = model1.getValue("/root/resData/resForm/record/emp_no");
+							var flnm = model1.getValue("/root/resData/resForm/record/flnm");
+							var dept_cd = model1.getValue("/root/resData/resForm/record/dept_cd");
+							var dept_nm = model1.getValue("/root/resData/resForm/record/dept_nm");
+							var dty_cd = model1.getValue("/root/resData/resForm/record/dty_cd");
+							var dty_nm = model1.getValue("/root/resData/resForm/record/dty_nm");
+							var posi_cd = model1.getValue("/root/resData/resForm/record/posi_cd");
+							var posi_nm = model1.getValue("/root/resData/resForm/record/posi_nm");
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", emp_no);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", flnm);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_cd", dept_cd);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", dept_nm);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_cd", dty_cd);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", dty_nm);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_cd", posi_cd);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", posi_nm);
+							model1.refresh();
+						]]>
+					</script>
+				</col>
+				<col ref="flnm" type="input" caption="성명">
+					<script type="javascript" ev:event="xforms-value-changed">
+						<![CDATA[
+							var rowIdx =datagrid2.row;					
+							var flnm = datagrid2.valueMatrix(rowIdx,3);
+							var tmp_flnm = flnm.trim();
+							//if(tmp_flnm == "") flnm = "xxx";
+							model1.setValue("/root/reqData/searchData/emp_no","" );
+							model1.setValue("/root/reqData/searchData/flnm",flnm );
+							model1.send("hd_affr_1202");				
+							model1.copyNode("/root/resData/resForm/record","/root/tempData/record");
+							model1.removenode("/root/tempData");
+							var totalcnt = model1.getValue("/root/resData/resForm/record/totalcnt");
+							if(totalcnt == ""){
+								alert("검색결과가 없습니다");
+								model1.setValue("/root/reqData/searchData/emp_no","" );
+								model1.setValue("/root/reqData/searchData/flnm","" );
+								model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", "");
+								model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", "");
+								model1.refresh();
+								return;
+							}					
+							if(totalcnt > 1){
+								model.removeNodeset("/root/reqData/fwdData");  
+								model.makeNode("/root/reqData/fwdData/func_nm");
+								model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+								model.makeNode("/root/reqData/fwdData/nm_korn");
+								model.setValue("/root/reqData/fwdData/nm_korn", flnm);
+								window.load("/xrw/hd/com/HD_COM_1200.xrw","mdichild", "hd_com_1200", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+								return;
+							}
+							var emp_no = model1.getValue("/root/resData/resForm/record/emp_no");
+							var flnm = model1.getValue("/root/resData/resForm/record/flnm");
+							var dept_cd = model1.getValue("/root/resData/resForm/record/dept_cd");
+							var dept_nm = model1.getValue("/root/resData/resForm/record/dept_nm");
+							var dty_cd = model1.getValue("/root/resData/resForm/record/dty_cd");
+							var dty_nm = model1.getValue("/root/resData/resForm/record/dty_nm");
+							var posi_cd = model1.getValue("/root/resData/resForm/record/posi_cd");
+							var posi_nm = model1.getValue("/root/resData/resForm/record/posi_nm");
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/emp_no", emp_no);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/flnm", flnm);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_cd", dept_cd);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dept_nm", dept_nm);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_cd", dty_cd);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/dty_nm", dty_nm);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_cd", posi_cd);
+							model1.setValue("/root/resData/gridData/record[" + (rowIdx) + "]/posi_nm", posi_nm);
+							model1.refresh();
+						]]>
+					</script>
+				</col>
+				<col ref="posi_nm" caption="직급"/>
+				<col ref="prn" type="input" format="999999-9999999" caption="주민번호"/>
+				<col ref="aplc_dt" type="inputdate" caption="신청일자" style="text-align:center; "/>
+				<col ref="org_cd" type="combo" caption="단체구분" style="text-align:left; ">
+					<choices>
+						<item>
+							<label>10 보험사</label>
+							<value>10</value>
+						</item>
+						<item>
+							<label>20 회사</label>
+							<value>20</value>
+						</item>
+					</choices>
+				</col>
+				<col ref="cmpy_insr_cd" type="combo" caption="보험사" style="text-align:left; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/grid_cmpy_insr_cd/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="pay_cd" type="combo" caption="지급구분" style="text-align:left; ">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/grid_pay_clsf_cd/item">
+							<label ref="label"/>
+							<value ref="value"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="pay_dt" type="inputdate" caption="지급일자" style="text-align:center; "/>
+				<col ref="pay_amt" type="input" format="(-)#,###" caption="보험금" style="text-align:right; "/>
+				<col ref="acpn_dt" type="input" format="9999-9999-99" caption="시퀸스" style="text-align:center; "/>
+				<col ref="remk" type="input" caption="비고" style="text-align:left; "/>
+				<col ref="patyinsr_yn" caption="마감여부" style="text-align:center; "/>
+				<col ref="dept_cd" visibility="hidden"/>
+				<col ref="posi_cd" visibility="hidden"/>
+				<col ref="occr_dt" visibility="hidden"/>
+				<col ref="seq" visibility="hidden"/>
+				<col ref="dty_cd" visibility="hidden"/>
+				<col ref="dty_nm" visibility="hidden"/>
+				<col ref="aply_yy" visibility="hidden"/>
+				<col ref="aply_no" visibility="hidden"/>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[								
+						var rowIdx = datagrid2.row;			
+						if(rowIdx == -1){return;}
+						
+						var paygb_chk = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("org_cd"));
+						
+						if(paygb_chk == "20") {
+							var cmpy_insr_cd_chk = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("cmpy_insr_cd"));
+							var pay_cd_chk = datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("pay_cd"));
+							//단체구분이 보험사 -> 회사지급으로 변경된 경우, 보험사코드 값과 지급구분값이 존재하면 초기화 한다.
+							if(cmpy_insr_cd_chk != ""){
+								datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("cmpy_insr_cd")) = "";
+							}	
+							if(pay_cd_chk != ""){
+								datagrid2.valueMatrix(datagrid2.row,datagrid2.colRef("pay_cd")) = "";
+							}	
+							//단체구분이 회사지급일때는 보험사와 지급구분을 읽기모드 변경하여 선택할 수 없게 한다.
+							datagrid2.isReadOnly(datagrid2.row, datagrid2.colRef("cmpy_insr_cd")) = true;
+							datagrid2.isReadOnly(datagrid2.row, datagrid2.colRef("pay_cd")) = true;
+							
+							
+						}else{
+							datagrid2.isReadOnly(datagrid2.row, datagrid2.colRef("cmpy_insr_cd")) = false;
+							datagrid2.isReadOnly(datagrid2.row, datagrid2.colRef("pay_cd")) = false;
+						}	
+							
+					]]>
+				</script>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						//멀티그리드 사용시 첫번째 행의 동그라미 상태값을 셋팅해주는데 필수 스크립트
+						rowStatus(datagrid2);
+					]]>
+				</script>
+			</datagrid>
+		</group>
+		<group id="group1" class="gro_btn" style="left:10px; top:145px; width:926px; height:17px; ">
+			<button id="button1" class="btn_grid03" style="left:873px; top:0px; width:53px; height:17px; ">
+				<caption>행추가</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var dept_nm = model1.getValue("/root/resData/gridData/record[1]/dept_nm");
+					
+						var nodeList = root.selectNodes("/root/resData/gridData/record");
+						var rowIdx = nodeList.length;
+						
+						if (datagrid2.rows == 2 && datagrid2.rowStatus(1) == 0 ) {
+							if(dept_nm == ""){
+								datagrid2.isReadOnly(1, 1, 1, 11) = false;							
+								datagrid2.addStatus(1, "insert");		
+								model1.refresh();
+							}else{
+								datagrid2.addRow(true, true);	
+								model1.refresh();
+							}
+						}else{
+							datagrid2.addRow(true, true);
+							model1.refresh();
+						}
+ 					]]>
+				</script>
+			</button>
+			<caption id="caption14" style="left:15px; top:0px; width:600px; height:17px; font-size:9pt; color:#3366ff; ">
+				<![CDATA[*데이터 저장/수정/삭제 작업이 필요한 경우 꼭 적용년월 선택->조회 한 후 사용하시기 바랍니다.]]>
+			</caption>
+		</group>
+		<button id="button5" class="btn02" style="left:634px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					group2.attribute("visibility")="visible";
+					group3.attribute("visibility")="hidden";
+					searchList();
+					datagrid2.clearStatus();
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn04" style="left:348px; top:40px; width:87px; height:21px; color:#ff9900; ">
+			<caption>엑셀업로드</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				
+					group2.attribute("visibility")="hidden";
+					group3.attribute("visibility")="visible";
+
+					var filename = window.fileDialog("open", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					
+					if (filename!="") {
+						model1.reset();
+						datagrid1.loadExcel(filename,  1,false);
+						//datagrid1.deleteRow(1); //업로드 데이터외 기본 제목이 한줄 생겨나올경우
+						
+						for(var i = datagrid1.fixedRows; i<=datagrid1.rows-datagrid1.fixedRows; i++){
+							datagrid1.rowStatus(i) = 3;
+						}
+						gridrowcnt.value = "총 "+ (parseInt(datagrid1.rows - datagrid1.fixedRows)) + " 건";
+						save_flag = "Y";
+						//model.alert("save_flag==>"+save_flag);
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button6" class="btn02" style="left:886px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			      	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="caption36" class="tit02" style="left:10px; top:49px; width:190px; height:20px; font-weight:bold; ">단체보험금 지급 관리</caption>
+		<caption id="gridrowcnt" style="left:842px; top:670px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+		<button id="button4" class="btn02" style="left:742px; top:40px; width:52px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+					if(save_flag == "N"){ //기본저장
+						//model.alert("기본저장모드일때 여길 탄다");
+						
+						if(model.getValue("/root/reqData/searchData/search_yyyymm") == ""){
+							model.alert("적용년월 선택은 필수사항 입니다.");
+							return;
+						}
+						
+						//그리드에서는 먹히지 않음
+						//if(!commReqCheck("group2")) {
+						//	return;
+						//}
+					
+						if(!rowInSubmit(datagrid2)) {
+							return;
+						}						
+						
+						if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						
+						model1.setValue("/root/reqData/multiUpData", datagrid2.getUpdateData());
+						model1.send("hd_affr_3710_a");
+						
+						if(submit_completed()) {
+							group2.attribute("visibility")="visible";
+							group3.attribute("visibility")="hidden";							
+							model1.refresh();
+							datagrid2.clearStatus();						
+							searchList();
+						}
+					}else{ //엑셀저장
+						//model.alert("엑셀업로드저장모드일때 여길 탄다");
+						
+						if(model.getValue("/root/reqData/searchData/search_yyyymm") == ""){
+							model.alert("엑셀업로드 저장시 적용년월 선택은 필수사항 입니다.");
+							return;
+						}
+					
+						if (!rowInSubmit(datagrid1)) {
+							return;
+						}						
+						
+						if (window.alert("해당 적용년월에 등록된 모든 데이터가 삭제되고\n\n현재 업로드되는 데이터로 새로 등록됩니다.\n\n저장하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						
+						model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+						model1.send("hd_affr_3711_a");
+						
+						if(submit_completed()) {
+							group2.attribute("visibility")="visible";
+							group3.attribute("visibility")="hidden";
+							save_flag = "N"; //업로드 저장 후 일반저장모드로 다시 변경한다.
+							model1.refresh();
+							datagrid1.clearStatus();
+							searchList();
+						}						
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="caption10" class="list_cap02" style="left:20px; top:69px; width:916px; height:25px; "/>
+		<caption id="caption2" class="list_cap01" style="left:325px; top:69px; width:76px; height:25px; ">사번/성명</caption>
+		<input id="input3" ref="/root/reqData/searchData/emp_no_tm" inputtype="button" maxlength="6" style="left:404px; top:72px; width:85px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/func_nm");
+					model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no_pop");
+					window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode == 13) {
+						var emp_no = input3.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no_tm", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn_tm", "");
+					
+						setInfoSearchInput(emp_no, "", "", "setEmp_no_pop"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no_tm", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/nm_korn_tm", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onmaxlength">
+				<![CDATA[
+						var emp_no = input3.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no_tm", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn_tm", "");
+					
+						setInfoSearchInput(emp_no, "", "", "setEmp_no_pop"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no_tm", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/nm_korn_tm", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+				]]>
+			</script>
+		</input>
+		<input id="input4" ref="/root/reqData/searchData/nm_korn_tm" style="left:492px; top:72px; width:85px; height:18px; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode == 13) {
+						var nm_korn = input4.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no_tm", "");
+						model1.setValue("/root/reqData/searchData/nm_korn_tm", nm_korn);
+					
+						setInfoSearchInput("", nm_korn, "", "setEmp_no_pop"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no_tm", model1.getValue("/root/tempData/emp_no")); // 사번
+						model1.setValue("/root/reqData/searchData/nm_korn_tm", model1.getValue("/root/tempData/nm_korn")); // 성명
+						model1.removenode("/root/tempData");
+						model1.refresh();
+					}
+				]]>
+			</script>
+		</input>
+		<caption id="caption8" style="left:507px; top:100px; width:15px; height:15px; text-align:center; ">~</caption>
+		<button id="button7" class="btn02" style="left:579px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					group2.attribute("visibility")="visible";
+					group3.attribute("visibility")="hidden";
+					save_flag = "N";
+					//model.alert("초기화 save_flag==>"+save_flag);
+					model1.reset();
+					datagrid2.clearStatus();
+				]]>
+			</script>
+		</button>
+		<input id="input6" ref="/root/reqData/searchData/pay_to_dt" inputtype="date" format="yyyy-mm-dd" style="left:525px; top:96px; width:100px; height:18px; "/>
+		<caption id="caption5" class="list_cap01" style="left:645px; top:69px; width:76px; height:25px; ">단체구분</caption>
+		<caption id="caption7" class="list_cap01" style="left:645px; top:93px; width:76px; height:25px; ">보험사</caption>
+		<select1 id="radio1" ref="/root/reqData/searchData/org_clsf" appearance="full" cols="3" overflow="visible" style="left:726px; top:72px; width:204px; height:20px; border-style:none; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value>all</value>
+				</item>
+				<item>
+					<label>보험사</label>
+					<value>10</value>
+				</item>
+				<item>
+					<label>회사</label>
+					<value>20</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				]]>
+			</script>
+		</select1>
+		<caption id="caption9" class="list_cap02" style="left:20px; top:117px; width:916px; height:25px; "/>
+		<caption id="caption11" class="list_cap01" style="left:325px; top:117px; width:76px; height:25px; ">접수번호</caption>
+		<input id="input8" ref="/root/reqData/searchData/acpn_dt" format="9999-9999-99" style="left:404px; top:121px; width:85px; height:18px; "/>
+		<caption id="caption6" class="list_cap01" style="left:10px; top:117px; width:76px; height:25px; ">퇴직구분</caption>
+		<select1 id="radio2" ref="/root/reqData/searchData/lvcmpy_clsf" appearance="full" cols="3" overflow="visible" style="left:91px; top:121px; width:199px; height:20px; border-style:none; ">
+			<choices>
+				<item>
+					<label>전체</label>
+					<value>all</value>
+				</item>
+				<item>
+					<label>재직자</label>
+					<value>10</value>
+				</item>
+				<item>
+					<label>퇴직자</label>
+					<value>20</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				]]>
+			</script>
+		</select1>
+		<caption id="caption21" class="list_cap01" style="left:10px; top:93px; width:76px; height:25px; ">신청일자</caption>
+		<input id="input1" ref="/root/reqData/searchData/aplc_fr_dt" inputtype="date" format="yyyy-mm-dd" style="left:89px; top:96px; width:100px; height:18px; "/>
+		<input id="input2" ref="/root/reqData/searchData/aplc_to_dt" inputtype="date" format="yyyy-mm-dd" style="left:206px; top:96px; width:100px; height:18px; "/>
+		<caption id="caption3" style="left:190px; top:100px; width:15px; height:15px; text-align:center; ">~</caption>
+		<caption id="caption1" class="list_cap01" style="left:325px; top:93px; width:76px; height:25px; ">지급일자</caption>
+		<input id="input5" ref="/root/reqData/searchData/pay_fr_dt" inputtype="date" format="yyyy-mm-dd" style="left:404px; top:96px; width:100px; height:18px; "/>
+		<caption id="caption12" class="list_cap01" style="left:10px; top:69px; width:76px; height:25px; ">적용년월</caption>
+		<input id="input9" ref="/root/reqData/searchData/search_yyyymm" inputtype="date" format="yyyy-mm" style="left:89px; top:72px; width:100px; height:18px; ">
+			<hint>
+				<![CDATA[적용년월 미입력시 전체조회]]>
+			</hint>
+		</input>
+		<select1 id="combo1" ref="/root/reqData/searchData/cmpy_insr_cd" appearance="minimal" style="left:726px; top:96px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/cmpy_insr_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+		<button id="button8" class="btn04" style="left:796px; top:40px; width:87px; height:21px; ">
+			<caption>엑셀다운</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					//excel 파일로 저장한다.
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+							
+					if(filePath != "") {
+						datagrid2.saveExcel(filePath);
+						window.exec(filePath);
+					}		
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn02" style="left:437px; top:40px; width:52px; height:21px; color:#ff9900; ">
+			<caption>마감</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(model.getValue("/root/reqData/searchData/search_yyyymm") == ""){
+							model.alert("마감작업시 적용년월 선택은 필수사항 입니다.");
+							return;
+					}
+					
+					var tmp_search_yyyymm = model.getValue("/root/reqData/searchData/search_yyyymm");
+					var magam_yy = tmp_search_yyyymm.substr(0,4);
+					var magam_mm = tmp_search_yyyymm.substr(4,2);
+						
+					if (window.alert(magam_yy+"년 "+magam_mm+"월 데이터를 마감하시겠습니까?", "확인", 1) != 1) {
+							return;
+					}
+					
+					model1.setValue("/root/reqData/searchData/magam_flag", "Y"); //마감
+					model1.send("hd_affr_3730_a");
+					
+					if(submit_completed()){
+						model1.refresh();
+						datagrid2.clearStatus();
+						searchList();
+					}
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn04" style="left:490px; top:40px; width:87px; height:21px; color:#ff9900; ">
+			<caption>마감취소</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					if(model.getValue("/root/reqData/searchData/search_yyyymm") == ""){
+							model.alert("마감취소 작업시 적용년월 선택은 필수사항 입니다.");
+							return;
+					}
+					
+					var tmp_search_yyyymm = model.getValue("/root/reqData/searchData/search_yyyymm");
+					var magam_yy = tmp_search_yyyymm.substr(0,4);
+					var magam_mm = tmp_search_yyyymm.substr(4,2);
+						
+					if (window.alert(magam_yy+"년 "+magam_mm+"월 데이터를 마감 취소하시겠습니까?", "확인", 1) != 1) {
+							return;
+					}
+					
+					model1.setValue("/root/reqData/searchData/magam_flag", "N"); //마감취소
+					model1.send("hd_affr_3730_a");
+					
+					if(submit_completed()){
+						model1.refresh();
+						datagrid2.clearStatus();
+						searchList();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="caption13" class="list_cap01" style="left:645px; top:117px; width:76px; height:25px; ">지급구분</caption>
+		<select1 id="combo2" ref="/root/reqData/searchData/pay_clsf" appearance="minimal" style="left:726px; top:121px; width:100px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/pay_clsf_cd/item">
+					<label ref="label"/>
+					<value ref="value"/>
+				</itemset>
+			</choices>
+		</select1>
+	</xhtml:body>
+</xhtml:html>

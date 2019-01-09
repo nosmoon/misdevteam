@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<!--===========================================================================-->
+<!-- NAME : HD_15YADJM_1000.xrw                                                -->
+<!-- DESC : 2016년연말정산자료등록화면-상단메인				   				   -->
+<!-- VER  : v1.0                                                               -->
+<!-- Copyright 2015 by CHOSUN MEDIA.                                           -->
+<!-- All rights reserved.                                                      -->
+<!--===========================================================================-->
+<!--               변         경         사         항                         -->
+<!--===========================================================================-->
+<!--   DATE      AUTHOR                   DESCRIPTION(요청자 정보)             -->
+<!--===========================================================================-->
+<!-- 20151130    최호정      최초작성	 									   -->
+<!--===========================================================================-->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>2016연말정산</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<combo1>
+								<item/>
+							</combo1>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<infoData>
+							<dty_nm/>
+							<dty_cd/>
+							<dept_nm/>
+							<dept_cd/>
+							<flnm/>
+							<emp_no/>
+							<posi_nm/>
+							<posi_cd/>
+							<emp_clsf/>
+							<emp_clsf_nm/>
+							<in_cmpy_dt/>
+							<lvcmpy_dt/>
+						</infoData>
+					</initData>
+					<reqData>
+						<searchData>
+							<adjm_rvrs_yy/>
+							<prn/>
+							<dept_cd/>
+							<dept_nm/>
+							<emp_no/>
+							<nm_korn/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+							<emp_no/>
+							<select_case/>
+						</fwdData>
+						<multiUpData/>
+						<reqForm>
+						</reqForm>
+						<priv_yn/>
+					</reqData>
+					<resData>
+						<gridData>
+							<record>
+							</record>
+						</gridData>
+						<resForm>
+						</resForm>
+						<msg/>
+						<resPhoto type="xsd:base64Binary"/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript" src="/js/CRMComm.js"/>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript">
+				<![CDATA[
+					function se_openZip(bogb, zip1Ref, zip2Ref, addrRef){
+						var tempReq = "/root/tempData/posttemp";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						tempReq = "/root/tempData/posttemp/send";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						tempReq = "/root/tempData/posttemp/send/zip";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						tempReq = "/root/tempData/posttemp/send/disp_flag";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						tempReq = "/root/tempData/posttemp/recv";
+						if(instance1.selectSingleNode(tempReq) == null){
+							model.makeNode(tempReq);
+						}
+						//"L"이면 지국항목 안보임
+						model.setValue("/root/tempData/posttemp/send/disp_flag", bogb);
+						model.setValue("/root/tempData/posttemp/send/zip", model.getValue(zip1Ref)+model.getValue(zip2Ref));
+						
+						openZip("/root/tempData/posttemp/send", "/root/tempData/posttemp/recv","new");
+						
+						model.setValue(zip1Ref, model.getValue("/root/tempData/posttemp/recv/zip1"));
+						model.setValue(zip2Ref, model.getValue("/root/tempData/posttemp/recv/zip2"));
+						model.setValue(addrRef, model.getValue("/root/tempData/posttemp/recv/addr"));
+						
+						model.refresh();
+					}
+					
+					function yadjmPopyp(){
+						window.load("/xrw/hd/yadjm/HD_YADJM_1221.xrw","mdichild",  "pop1", "width:950px; height:750px;");
+					}
+					
+					function searchYear(){
+						var adjm_rvrs_yy = model1.getValue("/root/reqData/searchData/adjm_rvrs_yy");
+						if (adjm_rvrs_yy == ""){
+							//alert("연말정산년도를 입력하세요.");
+							return "not";
+						}else{
+							return adjm_rvrs_yy;
+						}
+						
+					}
+					
+					function searchEmp_no(){
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						if (emp_no == ""){
+							//alert("사번을 검색하세요.");
+							return "not";
+						}else{
+							return emp_no;
+						}
+					}
+					
+					function searchFlnm(){
+						var flnm = model1.getValue("/root/reqData/searchData/nm_korn");
+						if (flnm == ""){
+							//alert("성명을 검색하세요.");
+							return "not";
+						}else{
+							return flnm;
+						}
+					}
+					
+					function setEmp_no(emp_no){
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						//model1.setValue("/root/resData/resForm/emp_no", emp_no);//주소 emp_no셋팅
+						
+						model1.send("hd_yadjm_3000");
+						model1.copyNode("/root/reqData/searchData", "/root/dataSet/CURLIST/record");
+						model1.removenode("/root/dataSet");
+						
+					      // var year = commCurDate("y")-1;
+					
+						var year = "2016" //정산년도 강제 셋팅_최호정
+						model1.makeNode("/root/reqData/searchData/adjm_rvrs_yy");
+						model1.setValue("/root/reqData/searchData/adjm_rvrs_yy", year);
+						
+						//각각 하위 window에 셋팅
+						//iv1.window.javaScript.loadData();
+						button10.dispatch("DOMActivate");
+						
+						//model1.refresh();
+					}
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					function CurTab(fID, fName, fBool){
+						this.id = fID;
+						this.name = fName;
+						this.status = fBool;
+						model1.makeNode("/root/reqData/fwdData/select_case");
+						model1.setValue("/root/reqData/fwdData/select_case",fID);
+					}
+					
+					function getCurTab_id(){
+						return this.id;
+					}
+					
+					function searchData(){
+						var emp_no = input4.currentText;
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/nm_korn", "");
+						model1.setValue("/root/reqData/searchData/prn", "");
+						
+						setInfoSearchInput(emp_no, "", "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no",model1.getValue( "/root/tempData/emp_no"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+						
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						setEmp_no(emp_no);
+						model1.refresh();
+					}
+					function session_used_value(){//일반사용자별 권한
+						var rtn = model1.getValue("/root/reqData/priv_yn");
+						if (rtn == "true"){
+							rtn = true;
+						}else{
+							
+							rtn = false;
+						}
+						return rtn;
+					}
+					function session_used_value_master(){//관리자
+						var rtn = false;
+						var obj = htmldocument.SessionInfo;
+						var emp_no = obj.emp_no.value;
+						var cmpy_cd = obj.cmpycd.value;
+						
+						if(cmpy_cd == "100")
+						{
+							if( emp_no=="it0014" || emp_no=="it0022" 
+							|| emp_no == "209008"  //김의준
+							|| emp_no == "213010"  //은한결
+						//	|| emp_no == "194030" //백승민
+						//	|| emp_no == "189061" //김성태
+							|| emp_no == "209004" //김주호
+						//	|| emp_no == "204024" //최상선
+							|| emp_no == "210021" //임광현
+							|| emp_no == "207008" //이길재
+						//	|| emp_no == "211023" //나현철
+							|| emp_no == "206010" // 윤세영
+						//	|| emp_no == "213019" //권오헌
+							|| emp_no == "216003" //이유진
+							|| emp_no == "196024" //김보연
+							|| emp_no == "215008" //서연정
+							|| emp_no == "214018" //조병연
+							|| emp_no == "215517" //이다영
+							|| emp_no == "215529" //김소희
+							|| emp_no == "216020" //강경완
+					        || emp_no == "213017" //최소이
+							|| emp_no == "215017" //박세홍
+							|| emp_no == "194030" //백승민
+							){
+								rtn = true;
+								button2.visible = true;
+							} else {
+									var rtn = model1.getValue("/root/reqData/priv_yn");
+									if (rtn == "true"){
+										rtn = true;
+									}else{
+										rtn = false;
+									}
+							}	
+					    }
+						
+						if(cmpy_cd == "500")  //tv조선 오인성, 테스트,  2015년도 정문영 ,이수정 추가 , 2016.08.24 송관석 추가 
+						{
+							if(  emp_no == "212022"  || emp_no == "216582" || emp_no == "199049") // 211008 ,199049 emp_no == "211095" || emp_no == "211013"|| emp_no == "211052"
+							{
+								rtn = true;
+							}
+						}
+						
+						if(cmpy_cd == "326")   // 뉴스프레스 조병구
+						{
+							if(  emp_no == "213016" ) 
+							{
+								rtn = true;
+							}
+						}
+						
+						if(cmpy_cd == "550")  //미디어랩 김명안
+						{
+							if(  emp_no == "214013"|| emp_no == "216011"|| emp_no == "it0010") 
+							{
+								rtn = true;
+							}
+						}
+						
+						return rtn;
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[			
+					
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "연말정산 기초자료 등록";
+						iv_Title.visible = false;  		// 숨김
+						iv_PopTitle.visible = true; 	 	// 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  		// 보임
+						iv_PopTitle.visible = false; 	// 숨김
+						var pageID = model.getValue("/root/initData/pageInfo/pageID");
+					}
+				
+					var obj = htmldocument.SessionInfo;
+					var emp_no = obj.emp_no.value;
+					var cmpy_cd = obj.cmpycd.value;
+					
+
+				  	setEmp_no(emp_no); // 사원 기본정보 가꼬오기..
+					
+					if (session_used_value_master()) { //관리자사용유저면 
+						input21.disabled = false; //정산년도
+						input4.disabled = false;  //관리자용 사번검색 활성
+						output3.disabled = false; //관리자용 이름검색 활성
+						button2.visible = true;   //저장버튼 활성
+					}
+					
+					 model1.send("hd_yadjm_2014_6003");
+					
+					model1.setValue("/root/reqData/priv_yn",model1.getValue("/root/dataSet/CURLIST/record/priv_yn"));
+					model1.removenode("/root/dataSet");
+					
+					if (session_used_value()) { //일반사용유저면 저장버튼 활성
+						button2.visible = true;
+					}
+					
+					
+					model1.refresh();
+				]]>
+			</script>
+			<!-- 2015년 연말정산시 아래 submission 을 그대로 사용함_20151130-->
+			<submission id="hd_yadjm_3000" action="/hd/yadjm/3000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_yadjm_2014_6003" action="/hd/yadjm/20146003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" visibility="visible" pagewidth="946" pageheight="980" style="font-family:굴림; ">
+		<caption id="caption14" class="list_cap02" style="left:89px; top:41px; width:78px; height:25px; text-align:center; "/>
+		<caption id="caption7" class="list_cap02" style="left:349px; top:41px; width:155px; height:25px; text-align:center; "/>
+		<caption id="caption17" class="list_cap02" style="left:166px; top:41px; width:184px; height:25px; text-align:center; "/>
+		<switch id="switch1" style="left:11px; top:64px; width:915px; height:915px; ">
+			<case id="case1" overflow="hidden">
+				<iviewer id="iv1" src="./HD_16YADJM_5200.xrw" style="left:0px; top:0px; width:910px; height:830px; "/>
+			</case>
+			<case id="case2" overflow="hidden">
+				<iviewer id="iv2" src="./HD_16YADJM_5300.xrw" style="left:0px; top:0px; width:910px; height:900px; "/>
+			</case>
+		</switch>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button4" class="btn02" style="left:881px; top:42px; width:53px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			     		 if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+				 ]]>
+			</script>
+		</button>
+		<output id="input21" ref="/root/reqData/searchData/adjm_rvrs_yy" class="req" format="####" editable="true" disabled="true" appearance="output" maxlength="4" style="left:93px; top:44px; width:70px; height:18px; text-align:center; "/>
+		<output id="input9" ref="/root/reqData/searchData/dept_nm" appearance="output" style="left:172px; top:45px; width:168px; height:18px; text-align:center; "/>
+		<button id="button10" class="tab06" group="tab" selected="true" style="left:507px; top:42px; width:105px; height:23px; ">
+			<caption>자료입력</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					model.toggle("case1");
+					CurTab("iv1", "case1", true);
+					iv1.window.javaScript.loadData();
+					model.refresh();
+				]]>
+			</script>
+			<hint>
+				<![CDATA[소득공제입력]]>
+			</hint>
+		</button>
+		<button id="button11" class="tab06" visibility="visible" group="tab" style="left:615px; top:42px; width:105px; height:23px; ">
+			<caption>정산결과</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					
+					 if( iv1.window.javaScript.col_chk() == "Y")
+					{ 
+						if( iv1.window.javaScript.save_chk() == "Y")
+						{
+							model.toggle("case2");
+							CurTab("iv2", "case2", true);
+							//iv1.window.javaScript.imsi_Save(); //임시저장
+							iv2.window.javaScript.setEmp_no_i(model1.getValue("/root/reqData/searchData/emp_no"));
+							model.refresh();
+						}
+					}
+					
+				]]>
+			</script>
+			<hint>
+				<![CDATA[연말정산계산및결과조회]]>
+			</hint>
+		</button>
+		<button id="button1" class="btn02" style="left:825px; top:42px; width:53px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					button10.selected = "true";
+			     	button10.dispatch("DOMActivate");
+				 ]]>
+			</script>
+		</button>
+		<button id="button2" class="btn04" disabled="false" visibility="hidden" style="left:732px; top:42px; width:88px; height:21px; text-align:center; vertical-align:middle; ">
+			<caption>저    장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				   //alert("연말정산 기간이 끝났습니다. ");
+					iv1.window.javaScript.dataSave();
+				 ]]>
+			</script>
+		</button>
+		<input id="input4" ref="/root/reqData/searchData/emp_no" class="req" disabled="true" editable="true" inputtype="button" maxlength="6" format="999999" style="left:353px; top:45px; width:71px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/func_nm");
+					model.setValue("/root/reqData/fwdData/func_nm", "setEmp_no");
+					window.load("/xrw/hd/com/HD_COM_1000.xrw","mdichild", "hd_com_1000", "align:center; caption:hidden;", "/root/reqData/fwdData", "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="onmaxlength">
+				<![CDATA[
+					searchData();
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode ==13){
+						searchData();
+					}
+				]]>
+			</script>
+		</input>
+		<input id="output3" ref="/root/reqData/searchData/nm_korn" disabled="true" editable="true" imemode="hangul" appearance="output" style="left:426px; top:45px; width:73px; height:18px; text-align:center; ">
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+					if (event.keyCode ==13){
+						var nm_korn = output3.currentText;
+						
+						model1.setValue("/root/reqData/searchData/nm_korn", nm_korn);
+						model1.setValue("/root/reqData/searchData/emp_no", "");
+						model1.setValue("/root/reqData/searchData/prn", "");
+						
+						setInfoSearchInput("", nm_korn, "", "setEmp_no"); // 사번, 성명, 주민번호
+						if(model1.getValue("/root/tempData/totalcnt") != 1){
+							return;
+						} // 카운트
+						model1.setValue("/root/reqData/searchData/emp_no",model1.getValue( "/root/tempData/emp_no"));
+						model1.removenode("/root/tempData");
+						model1.refresh();
+						
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						setEmp_no(emp_no);
+						model1.refresh();
+					}
+				]]>
+			</script>
+		</input>
+		<caption id="caption13" class="list_cap03" style="left:11px; top:41px; width:79px; height:25px; text-align:center; ">정산년도</caption>
+		<button id="button3" class="btn_grid02" visibility="hidden" style="left:10px; top:25px; width:70px; height:17px; ">
+			<caption>권한</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					window.load("/xrw/hd/yadjm/HD_16YADJM_6000.xrw","mdi",  "mdi1", "left:10;top:40;width:700px; height:50px;caption:hidden" ,"/root/reqData/fwdData","/root/reqData/fwdData");
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

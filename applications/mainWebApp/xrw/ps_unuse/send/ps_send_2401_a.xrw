@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<mcCombo>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</mcCombo>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<reqform>
+								<clos_list>
+									<js_fn_nm/>
+									<medicd/>
+									<curr_page_no/>
+									<fryymm/>
+									<toyymm/>
+									<pagesize/>
+								</clos_list>
+								<clos_form>
+									<closyymm/>
+									<medicd/>
+									<curr_page_no/>
+									<accflag/>
+								</clos_form>
+							</reqform>
+						</searchData>
+						<reqform/>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<infoGrid>
+								<record>
+									<clsfcd/>
+									<closseq/>
+									<closyymm/>
+									<frsubscd/>
+									<tosubscd/>
+									<closdt/>
+									<closyn/>
+									<medicd/>
+									<medinm/>
+									<lumpcnt/>
+									<addcnt/>
+									<totcnt/>
+									<lumpamt/>
+									<addamt/>
+									<totamt/>
+									<etc1/>
+									<etc2/>
+									<etc3/>
+									<rnum/>
+								</record>
+							</infoGrid>
+							<detailGrid>
+								<record>
+									<clsfcd/>
+									<closseq/>
+									<closyymm/>
+									<closdt/>
+									<mediser_no/>
+									<lumpcnt/>
+									<retncnt/>
+									<closcnt/>
+									<lumpamt/>
+									<retnamt/>
+									<closamt/>
+								</record>
+							</detailGrid>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					model.send("PID2401subInit", false);
+
+					model.setValue("/root/reqData/searchData/reqform/clos_list/curr_page_no",  "1");
+					model.setValue("/root/reqData/searchData/reqform/clos_form/curr_page_no",  "1");
+					//model.setValue("/root/reqData/searchData/reqform/clos_list/pagesize",  "10");
+					model.setValue("/root/reqData/searchData/reqform/clos_list/pagesize",  "5000");
+					model.setValue("/root/reqData/searchData/reqform/clos_list/js_fn_nm", model.getValue("/root/tempData/initTemp/js_fn_nm"));
+					model.setValue("/root/reqData/searchData/reqform/clos_list/fryymm", model.getValue("/root/tempData/initTemp/fryymm"));
+					model.setValue("/root/reqData/searchData/reqform/clos_list/toyymm", model.getValue("/root/tempData/initTemp/toyymm"));
+					model.setValue("/root/reqData/searchData/reqform/clos_form/closyymm", model.getValue("/root/tempData/initTemp/closyymm"));
+					
+					model.copyNode("/root/initData/comboSet/mcCombo", "/root/tempData/initTemp/mcCombo");
+					model.removenode("/root/tempData/initTemp");
+					
+					model.refresh();
+					PID2401combo1.select(0);
+
+				]]>
+			</script>
+			<submission id="PID2401subInit" action="/ps/send/2401" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData/initTemp"/>
+			<submission id="PID2411search" action="/ps/send/2411" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/clos_list" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID2421search" action="/ps/send/2421" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/clos_form" resultref="/root/tempData/dataTemp"/>
+			<submission id="PID2415excel" action="/ps/send/2415" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData/reqform/clos_form" resultref="/root/tempData/dataTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/common.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function search()
+				{
+					remakeNode("/root/tempData/dataTemp");
+					
+					if(!commValidate(PID2401group_scr))
+						return;
+					
+					model.send("PID2411search", false);
+					
+				       model.copyNode("/root/resData/gridData/infoGrid", "/root/tempData/dataTemp/infoGrid");
+				       PID2401caption4.text = model.getValue("/root/tempData/dataTemp/totalCount");
+				       
+					model.removenode("/root/tempData/dataTemp");
+					
+					if(instance1.selectNodes("/root/resData/gridData/infoGrid/record/closyymm").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					PID2401datagrid1.rebuild();
+					
+					remakeNode("/root/resData/gridData/detailGrid");
+					PID2401datagrid2.rebuild();
+				}
+				
+				function close()
+				{
+					window.close();
+				}
+				
+				function gridClick() 
+				{
+					if( PID2401datagrid1.textMatrix(PID2401datagrid1.row, PID2401datagrid1.colRef("closyymm")) == "")
+					{
+						return;
+					}
+											
+					PID2401input3.value= PID2401datagrid1.textMatrix(PID2401datagrid1.row, PID2401datagrid1.colRef("closyymm"));
+					
+					model.setValue("/root/reqData/searchData/reqform/clos_form/medicd", PID2401datagrid1.textMatrix(PID2401datagrid1.row, PID2401datagrid1.colRef("medicd")));
+								
+					remakeNode("/root/tempData/dataTemp");
+
+					model.send("PID2421search", false);
+
+				       model.copyNode("/root/resData/gridData/detailGrid", "/root/tempData/dataTemp/detailGrid");
+
+					model.removenode("/root/tempData/dataTemp");
+					
+					if(instance1.selectNodes("/root/resData/gridData/detailGrid/record/mediser_no").length == 0)
+						model.alert("검색결과가 없습니다.");
+						
+					PID2401datagrid2.rebuild();													
+				}			
+				
+				function excelDown()
+				{
+					if( PID2401input3.value == "" ) {
+					       alert( "정산년월을 선택하세요" );
+					       return;
+				       }
+    
+					model.send("PID2415excel", false);
+					
+					body.disabled = false;
+				       progressBarEnd();
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID2401" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="grpCommonBtn" class="gro_btn" style="left:10px; top:50px; width:926px; height:21px; ">
+			<button id="btnCommonSearch" class="btn02" style="left:819px; top:0px; width:52px; height:21px; ">
+				<caption>엑셀</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						excelDown();										
+					]]>
+				</script>
+			</button>
+			<button id="btnCommonClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						close();
+					]]>
+				</script>
+			</button>
+			<button id="PID2401button1" class="btn02" style="left:765px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						search();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID2401group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:25px; ">
+			<caption id="PID2401caption14" class="list_cap01" style="left:338px; top:0px; width:90px; height:25px; text-align:left; ">매체</caption>
+			<caption id="PID2401caption15" class="list_cap01" style="left:0px; top:0px; width:90px; height:25px; text-align:left; ">반송일자</caption>
+			<caption id="PID2401caption20" class="list_cap02" style="left:89px; top:0px; width:250px; height:25px; "/>
+			<caption id="PID2401caption1" class="list_cap02" style="left:427px; top:0px; width:499px; height:25px; "/>
+			<select1 id="PID2401combo1" ref="/root/reqData/searchData/reqform/clos_list/medicd" appearance="minimal" style="left:431px; top:4px; width:100px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/mcCombo/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="PID2401input1" ref="/root/reqData/searchData/reqform/clos_list/fryymm" class="req" format="yyyy-mm" caption="시작년월" style="left:93px; top:4px; width:60px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID2401button1");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<input id="PID2401input2" ref="/root/reqData/searchData/reqform/clos_list/toyymm" class="req" format="yyyy-mm" caption="종료년월" style="left:179px; top:4px; width:60px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					if(event.keyCode == 13)
+					{
+						model.setFocus("PID2401button1");
+						search();
+					}
+					]]>
+				</script>
+			</input>
+			<caption id="PID2401caption2" style="left:155px; top:5px; width:20px; height:20px; text-align:center; ">-</caption>
+		</group>
+		<group id="PID2401group1" style="left:10px; top:370px; width:926px; height:25px; ">
+			<caption id="PID2401caption45" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">호수별 마감 상세내역</caption>
+		</group>
+		<group id="PID2401group3" style="left:10px; top:110px; width:926px; height:25px; ">
+			<caption id="PID2401caption57" class="list_cap03" style="left:0px; top:0px; width:926px; height:25px; text-align:left; ">정산년월</caption>
+			<input id="PID2401input3" ref="/root/reqData/searchData/reqform/clos_form/closyymm" format="yyyy-mm" style="left:60px; top:4px; width:80px; height:18px; "/>
+		</group>
+		<datagrid id="PID2401datagrid2" nodeset="/root/resData/gridData/detailGrid/record" caption="호수^일괄건수^반송건수^총건수^일괄금액^반송금액^총금액" colsep="^" colwidth="130, 130, 130, 129, 130, 130, 123" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:400px; width:925px; height:315px; ">
+			<col ref="mediser_no"/>
+			<col ref="lumpcnt" format="#,###" style="text-align:right; "/>
+			<col ref="retncnt" format="#,###" style="text-align:right; "/>
+			<col ref="closcnt" format="#,###" style="text-align:right; "/>
+			<col ref="lumpamt" format="#,###" style="text-align:right; "/>
+			<col ref="retnamt" format="#,###" style="text-align:right; "/>
+			<col ref="closamt" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<!--<group id="PID2401group2" style="left:10px; top:340px; width:926px; height:25px; ">
+			<iviewer id="PID2401paging" src="../common/iv_common_paging.xrw" style="left:0px; top:0px; width:926px; height:25px; "/>
+		</group>-->
+		<datagrid id="PID2401datagrid1" nodeset="/root/resData/gridData/infoGrid/record" caption="정산년월^정산일자^일괄건수^반송건수^총건수^일괄금액^반송금액^총금액" colsep="^" colwidth="115, 115, 115, 115, 115, 115, 115, 96, 0" ellipsis="true" explorerbar="sortshowmove" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:140px; width:926px; height:195px; ">
+			<col ref="closyymm" format="yyyy-mm"/>
+			<col ref="closdt" format="yyyy-mm-dd"/>
+			<col ref="lumpcnt" format="#,###" style="text-align:right; "/>
+			<col ref="addcnt" format="#,###" style="text-align:right; "/>
+			<col ref="totcnt" format="#,###" style="font-weight:bold; text-align:right; "/>
+			<col ref="lumpamt" format="#,###" style="text-align:right; "/>
+			<col ref="addamt" format="#,###" style="text-align:right; "/>
+			<col ref="totamt" format="#,###" style="font-weight:bold; text-align:right; "/>
+			<col ref="medicd" visibility="hidden"/>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+				if(event.button == 1)
+				{
+					if(PID2401datagrid1.mouseCol>PID2401datagrid1.fixedCols-1 && PID2401datagrid1.mouseRow>PID2401datagrid1.fixedRows-1)
+				       {
+						gridClick();
+				       }
+				}				
+				]]>
+			</script>
+		</datagrid>
+		<group id="PID2401group4" style="left:10px; top:335px; width:926px; height:25px; ">
+			<caption id="PID2401caption3" style="left:785px; top:5px; width:50px; height:20px; ">총건수</caption>
+			<caption id="PID2401caption4" style="left:840px; top:4px; width:50px; height:20px; text-align:right; "/>
+			<caption id="PID2401caption5" style="left:900px; top:5px; width:20px; height:20px; ">건</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<xx_combo_010>
+							</xx_combo_010>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<issu_yn>1</issu_yn>
+							<occr_dt_fr/>
+							<occr_dt_to/>
+							<issu_tm/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+							<bankaccountcode/>
+							<bankcode/>
+							<bank/>
+							<branch/>
+							<bankaccount/>
+							<bankaccountowner/>
+							<memo/>
+							<useinsert/>
+							<chk/>
+							<temp/>
+							<useinsert_nm/>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<multiUpData/>
+						<multiUpData2/>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<receiptcodeidx/>
+								<category/>
+								<receiptcode/>
+								<receiptcodetype/>
+								<description/>
+								<useinsert/>
+								<chk/>
+							</record>
+						</gridData>
+						<gridData2>
+							<record>
+								<!-- datagrid1 -->
+								<receiptcodeidx/>
+								<category/>
+								<receiptcode/>
+								<receiptcodetype/>
+								<description/>
+								<useinsert/>
+								<chk/>
+							</record>
+						</gridData2>
+						<resForm>
+						</resForm>
+						<totcnt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function funSearch(){
+						
+						datagrid1.clearStatus();
+						
+						model1.removeNode("/root/dataSet");
+						model1.makeNode("/root/dataSet");
+
+						model1.send("tn_bas_4001");
+						model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST");
+						model1.copyNode("/root/resData/gridData2", "/root/dataSet/CURLIST2");
+
+					//	model1.copyNode("/root/resData/gridData", "/root/dataSet/CURLIST2");
+
+						model1.removeNode("/root/dataSet");
+						model1.makeNode("/root/dataSet");
+
+						datagrid1.refresh();
+						var totcnt = datagrid1.rows;
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+					}
+					
+					function rowInSubmit2(datagrid){
+						var rows = datagrid.rows;
+						var rtn_value = false;
+						var a = 0;
+						for(a; a < rows; a++){
+							if(datagrid.rowStatus(a) == "1"){
+								datagrid.deleteRow(a);
+								a = 0;
+							}
+						}
+						for(var i = 1; i < rows; i++){
+							if(datagrid.rowStatus(i) != "0" && datagrid.rowStatus(i) != "2" && datagrid.rowStatus(i) != "3"){
+								datagrid.rowStatus(i) = "0";
+							}
+						}
+						for(var i = 1; i < rows; i++){
+							//저장대상이 존재하면 리턴값 True
+							if(datagrid.rowStatus(i) == "2" || datagrid.rowStatus(i) == "3"){
+								rtn_value = true;
+							}
+						}
+						
+						if (!rtn_value)
+						rtn_value = false;
+					}
+					
+										
+					function rowDelSubmit2(datagrid){
+						var rows = datagrid.rows;
+						var rtn_value = false;
+						var a = 0;
+						for(a; a < rows; a++){
+							if(datagrid.rowStatus(a) == "1" || datagrid.rowStatus(a) == "3"){
+								datagrid.deleteRow(a);
+								a = 0;
+							}
+						}
+						for(var j = 1; j < rows; j++){
+							if(datagrid.rowStatus(j) != "4" && datagrid.rowStatus(j) != "0"){
+								datagrid.rowStatus(j) = "0";
+								//datagrid.deleteRow(i);
+							}
+						}
+						for(var i = 1; i < rows; i++){
+							//삭제대상이 존재하면 리턴값 True
+							if(datagrid.rowStatus(i) == "4"){
+								rtn_value = true;
+							}
+						}
+						
+						if (!rtn_value)
+						rtn_value = false;
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model.send("tn_bas_4000_m");
+					
+					model1.copyNode("/root/initData/comboSet/xx_combo_010", "/root/dataSet/XX_COMBO_010");
+					model1.removenode("/root/dataSet");
+					
+					//model1.setValue("/root/reqData/reqForm/mode", "I");
+					//button6.disabled = true;
+					model1.refresh();
+					//load();
+					
+					funSearch();
+				]]>
+			</script>
+			<submission id="tn_bas_4000_m" action="/tn/bas/4000" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="tn_bas_4001" action="/tn/bas/4001" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="tn_bas_4002" action="/tn/bas/4002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="1600" pageheight="900" guideline="2,37;2,68;2,38;2,68;2,678;1,948;1,931;1,933;1,83;" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:0%; top:0.55%; width:100%; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:0.63%; top:5.00%; width:98.5%; height:26px; ">
+			<button id="button4" class="btn02" style="left:96.38%; top:0.00%; width:3.30%; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+				 		viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button8" class="btn02" style="left:81.22%; top:0.00%; width:3.30%; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+						funSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button9" class="btn02" style="left:85.03%; top:0.00%; width:3.30%; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						funSearch();
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:92.64%; top:0.00%; width:3.30%; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						
+				//		var temp = model1.getValue("/root/reqData/reqForm/chk");
+
+				//		if(temp == "") return;
+						
+						
+						if (window.alert("저장 하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						
+						if (rowInSubmit2(datagrid1)=="false" && rowInSubmit2(datagrid2)=="false"){
+							alert("저장할 데이터가 없습니다. ");
+							return;
+						}
+						
+						model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+						model1.setValue("/root/reqData/multiUpData2", datagrid2.getUpdateData());
+						
+						model1.send("tn_bas_4002");
+						
+						if(submit_completed()) {
+							
+							//alert("저장이 완료되었습니다.");
+							model1.reset();
+							datagrid1.clearStatus();
+							datagrid2.clearStatus();
+							
+							funSearch();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" style="left:88.83%; top:0.00%; width:3.30%; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						
+						
+						if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						
+						if (rowDelSubmit2(datagrid1)=="false" && rowDelSubmit2(datagrid2)=="false"){
+							alert("삭제할 데이터가 없습니다. ");
+							return;
+						}
+
+						model1.setValue("/root/reqData/multiUpData", datagrid1.getUpdateData());
+						model1.setValue("/root/reqData/multiUpData2", datagrid2.getUpdateData());
+						
+						model1.send("tn_bas_4002");
+						
+						
+						if(submit_completed()) {
+							
+							
+							model1.reset();
+							datagrid1.clearStatus();
+							datagrid2.clearStatus();
+							
+							funSearch();
+						}
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" style="left:0.63%; top:9.56%; width:98.50%; height:40.00%; ">
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" visibility="visible" caption="코드^유형^설명^사용여부^코드 인덱스^대상" colsep="#" colwidth="65, 200, 500, 90, 120, 140" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:0.00%; top:9.72%; width:99.56%; height:87.22%; ">
+				<col class="req" ref="receiptcode" type="input"/>
+				<col class="req" ref="receiptcodetype" type="input"/>
+				<col ref="description" type="input"/>
+				<col class="req" ref="useinsert" type="combo">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/xx_combo_010/item">
+							<label ref="cd_nm"/>
+							<value ref="cd"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="receiptcodeidx" visibility="hidden"/>
+				<col ref="category" visibility="hidden"/>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							rowStatus(datagrid1);
+
+					]]>
+				</script>
+			</datagrid>
+			<button id="button6" class="btn_grid03" style="left:95.39%; top:1.67%; width:3.49%; height:4.72%; ">
+				<caption>행입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					
+						var category = model1.getValue("/root/resData/gridData/record[1]/category");
+						var nodeList = root.selectNodes("/root/resData/gridData/record");
+						var rowIdx = nodeList.length;
+						var row = rowIdx +1 ;
+						
+						if (datagrid1.rows == 2 && datagrid1.rowStatus(1) == 0 ) {
+							if(category == ""){
+								datagrid1.addStatus(1, "insert");
+							}else{
+								datagrid1.addRow(true, true);
+							}
+						}else{
+							datagrid1.addRow(true, true);
+						}
+						
+						model1.refresh();
+
+
+					]]>
+				</script>
+			</button>
+			<caption id="caption9" class="tit02" style="left:0.00%; top:1.11%; width:21.26%; height:5.56%; font-weight:bold; ">개인 ( 소득세법 제 45호의 2 서식 )</caption>
+		</group>
+		<group id="group1" style="left:0.63%; top:52.67%; width:98.50%; height:40.00%; ">
+			<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" visibility="visible" caption="코드^유형^설명^사용여부^코드 인덱스^대상" colsep="#" colwidth="65, 200, 500, 90, 120, 140" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:0.00%; top:8.06%; width:99.56%; height:72.50%; ">
+				<col class="req" ref="receiptcode" type="input"/>
+				<col class="req" ref="receiptcodetype" type="input"/>
+				<col ref="description" type="input"/>
+				<col class="req" ref="useinsert" type="combo">
+					<choices>
+						<itemset nodeset="/root/initData/comboSet/xx_combo_010/item">
+							<label ref="cd_nm"/>
+							<value ref="cd"/>
+						</itemset>
+					</choices>
+				</col>
+				<col ref="receiptcodeidx" visibility="hidden"/>
+				<col ref="category" visibility="hidden"/>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+											rowStatus(datagrid2);
+
+					]]>
+				</script>
+			</datagrid>
+			<button id="button3" class="btn_grid03" style="left:95%; top:1.67%; width:3.49%; height:4.72%; ">
+				<caption>행입력</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					
+						var category = model1.getValue("/root/resData/gridData2/record[1]/category");
+						var nodeList = root.selectNodes("/root/resData/gridData2/record");
+						var rowIdx = nodeList.length;
+						
+						if (datagrid2.rows == 2 && datagrid2.rowStatus(1) == 0 ) {
+							if(category == ""){
+								datagrid2.addStatus(1, "insert");
+							}else{
+								datagrid2.addRow(true, true);
+							}
+						}else{
+							datagrid2.addRow(true, true);
+						}
+					]]>
+				</script>
+			</button>
+			<caption id="caption1" class="tit02" style="left:0.00%; top:1.11%; width:21.26%; height:5.56%; font-weight:bold; ">법인 ( 법인세법 제 63호의 3 서식 )</caption>
+		</group>
+	</xhtml:body>
+</xhtml:html>

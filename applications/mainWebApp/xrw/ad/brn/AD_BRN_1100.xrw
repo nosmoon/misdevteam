@@ -1,0 +1,581 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+						</comboSet>
+						<pageInfo/>
+						<hndl_nm/>
+					</initData>
+					<codeData>
+					</codeData>
+					<reqData>
+						<fwdData/>
+						<searchData>
+							<frdt/>
+							<todt/>
+							<dt_clsf>01</dt_clsf>
+							<dlco_no/>
+							<dlco_nm/>
+							<pubc_yymm/>
+						</searchData>
+						<reqForm>
+						</reqForm>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<curlist>
+								<record>
+									<sale_stmt_issu_yn/>
+									<pubc_dt/>
+									<pubc_slip_no/>
+									<medi_nm/>
+									<sect/>
+									<dn/>
+									<cm/>
+									<arow/>
+									<slcrg_pers_nm/>
+									<mchrg_pers_nm/>
+									<dlco_nm/>
+									<advt_fee/>
+									<vat/>
+									<tot_pubc_amt/>
+								</record>
+							</curlist>
+							<curlist2>
+								<record>
+									<dlco_nm/>
+									<pubc_dt/>
+									<advt_clas_nm/>
+									<dn/>
+									<cm/>
+									<uprc/>
+									<advt_fee/>
+									<vat/>
+									<pubc_tot_amt/>
+								</record>
+							</curlist2>
+							<curlist3>
+								<record>
+									<hndl_nm_cd/>
+									<pubc_dt/>
+									<sect/>
+									<advt_cont/>
+									<dn/>
+									<cm/>
+									<hndl_evlt/>
+									<other/>
+									<remk/>
+									<slcrg_nm/>
+									<slcrg_remk/>
+								</record>
+							</curlist3>
+						</gridData>
+					</resData>
+					<tempData>
+						<keyData>
+						</keyData>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				//강남광고지사는 지사평가 조회탭 제외
+				var emp_no = model.property("ss_emp_no");
+				if(emp_no == "00038160"){
+					button3.visible = false;
+				}
+				//지사명 컬럼 김영한과장님만 보이게함
+				var emp_no_2  = model.property("ss_emp_no").substring(0,2);
+				if(emp_no_2 == "it" || emp_no == "195054"){
+					datagrid3.colHidden(0) = false;
+				}					
+				var currentdt = getCurrentDate();
+				var frdt = dateAdd("d", -7, currentdt);	//현재일자
+				var todt = dateAdd("d",0, currentdt);	//현재일자
+				
+				model.setValue("/root/reqData/searchData/frdt", frdt);   //기본조회
+				model.setValue("/root/reqData/searchData/todt", todt);  //기본조회
+				model.setValue("/root/reqData/searchData/pubc_yymm",getCurrentMonth());
+				
+				model.toggle("case1");
+				
+				model.refresh();				
+					
+				]]>
+			</script>
+			<submission id="ad_brn_1110_l" action="/ad/brn/1110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/curlist"/>
+			<submission id="ad_brn_1120_l" action="/ad/brn/1120" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/curlist2"/>
+			<submission id="ad_brn_1130_l" action="/ad/brn/1130" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData/curlist3"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript">
+			<![CDATA[	
+			function setDlcoInfo(dlco_no, dlco_nm){					
+				model.setValue("/root/reqData/searchData/dlco_no", dlco_no);
+				model.setValue("/root/reqData/searchData/dlco_nm", dlco_nm);					
+				inp_dlco_no.refresh();
+				inp_dlco_nm.refresh();
+			}	
+			
+			function goReport(gubun){
+				// 오즈관련 노드 초기화..					
+				resetOznode();					
+									
+				// ozr경로 및 odi 파일명으로 사용될 노드 및 value셋팅 ( OZR파일경로 .ozr 제거)					
+				makeNodeValue("/root/oz_data/ozrName", "ad/SP_AD_TAX_2550_P");										
+							
+				var pubc_yymm	= model.getValue( "/root/reqData/searchData/pubc_yymm");
+				var dlco_no		= model.getValue( "/root/reqData/searchData/dlco_no");
+		
+				if ( pubc_yymm == "" ){
+					commAlert("게재년월이 없습니다.");
+					return;
+				}
+								 
+				makeNodeValue("/root/oz_data/odiParam/iv_cmpy_cd"     		, model.property("ss_cmpycd"));
+				makeNodeValue("/root/oz_data/odiParam/iv_hndl_plac_cd"		, model.property("ss_emp_no"));	
+				makeNodeValue("/root/oz_data/odiParam/iv_pubc_yymm"		, pubc_yymm	);
+				
+							
+				// 레포트뷰어 호출.					
+				openOzwin("/root/oz_data");	
+			}
+	
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="756" guideline="1,10;1,936;2,59;2,71;" style="font-family:굴림; ">
+		<caption id="caption4" class="list_cap02" style="left:10px; top:70px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button7" class="btn02" crud="R" style="left:656px; top:40px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="button9" class="btn02" crud="R" style="left:599px; top:40px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){
+					if(validateReq()){
+						model.send("ad_brn_1110_l");	
+												
+						for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){	
+							var sect = datagrid1.valueMatrix(i, datagrid1.colRef("sect"));
+							if(sect == ""){
+								datagrid1.cellstyle("background-image", i, datagrid1.colRef("sect")) = "";
+							}else{			
+								datagrid1.cellstyle("background-image", i, datagrid1.colRef("sect")) = "/images/pdf.gif";
+							}
+						}
+						datagrid1.subtotalPosition = "below";
+						
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("advt_fee"),"#,###", TOTAL_STYLE, 2, "합 계");	
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("vat"),"#,###", TOTAL_STYLE, 2, "합 계");	
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("tot_pubc_amt"),"#,###", TOTAL_STYLE, 2, "합 계");	
+						datagrid1.subtotal("sum", -1, datagrid1.colRef("coms"),"#,###", TOTAL_STYLE, 2, "합 계");	
+						//datagrid1.subtotal("sum", -1, datagrid1.colRef("cnt"),"#,###", TOTAL_STYLE, 1, "합 계");	
+					
+						if(datagrid1.rows > 20){
+							datagrid1.attribute("frozenbottomrows") = 1;
+						}	
+											
+					}
+				}else if(iSel == 1){
+					if(validateReq()){
+						model.send("ad_brn_1120_l");	
+						
+						datagrid2.subtotalPosition = "below";
+						
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("dn"),"#,###.9", "background-color:#FFFFCC", 1, "소 계");
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("cm"),"#,###.9", "background-color:#FFFFCC", 1, "소 계");
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("uprc"),"#,###", "background-color:#FFFFCC", 1, "소 계");	
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("advt_fee"),"#,###", "background-color:#FFFFCC", 1, "소 계");	
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("vat"),"#,###", "background-color:#FFFFCC", 1, "소 계");	
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("pubc_tot_amt"),"#,###", "background-color:#FFFFCC", 1, "소 계");
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("coms"),"#,###", "background-color:#FFFFCC", 1, "소 계");
+						
+
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("dn"),"#,###.9", TOTAL_STYLE, 0, "합 계");	
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("cm"),"#,###.9", TOTAL_STYLE, 0, "합 계");						
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("uprc"),"#,###", TOTAL_STYLE, 0, "합 계");	
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("advt_fee"),"#,###", TOTAL_STYLE, 0, "합 계");	
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("vat"),"#,###", TOTAL_STYLE, 0, "합 계");	
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("pubc_tot_amt"),"#,###", TOTAL_STYLE, 0, "합 계");
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("coms"),"#,###", TOTAL_STYLE, 0, "합 계");
+					
+						if(datagrid2.rows > 30){ 
+							datagrid2.attribute("frozenbottomrows") = 1;
+						}	
+						
+						datagrid2.mergecells= "byrestriccol";
+						datagrid2.mergeCol(1) = false;
+						datagrid2.mergeCol(2) = false;
+						datagrid2.mergeCol(3) = false;
+						datagrid2.mergeCol(4) = false;
+						datagrid2.mergeCol(5) = false;
+						datagrid2.mergeCol(6) = false;
+						datagrid2.mergeCol(7) = false;		
+						datagrid2.mergeCol(8) = false;				
+					}
+				}else if(iSel == 2){
+					if(validateReq()){
+						model.send("ad_brn_1130_l");
+						//지사명 컬럼 김영한과장님만 보이게함
+						var emp_no    = model.property("ss_emp_no");
+						var emp_no_2  = model.property("ss_emp_no").substring(0,2);
+						if(emp_no_2 == "it" || emp_no == "195054"){
+							datagrid3.colHidden(0) = false;
+						}							
+					}
+				}
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn02" style="left:886px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				
+				]]>
+			</script>
+		</button>
+		<button id="button4" class="btn02" crud="R" style="left:713px; top:40px; width:52px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){
+					if(!checkGridData(datagrid1)){
+						alert("처리할 내역이 없습니다.");
+						return;
+					}
+					
+					var filename = window.fileDialog("save", ",", false, "기본조회 게재내역", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						datagrid1.saveExcel(filename, "sheetname: 기본조회 게재내역;");
+					}
+				}else if(iSel == 1){
+					if(!checkGridData(datagrid2)){
+						alert("처리할 내역이 없습니다.");
+						return;
+					}
+					
+					var filename = window.fileDialog("save", ",", false, "광고주별조회 게재내역", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						datagrid2.saveExcel(filename, "sheetname: 광고주별조회 게재내역;");
+					}
+				}else if(iSel == 2){
+					if(!checkGridData(datagrid3)){
+						alert("처리할 내역이 없습니다.");
+						return;
+					}
+					
+					var filename = window.fileDialog("save", ",", false, "지사평가조회 내역", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						datagrid3.saveExcel(filename, "sheetname: 지사평가조회 내역;");
+					}					
+				}
+				]]>
+			</script>
+		</button>
+		<input id="inp_dlco_no" ref="/root/reqData/searchData/dlco_no" navindex="4" autonext="false" format="99999999" style="left:439px; top:75px; width:55px; height:18px; ">
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				var dlco_no = inp_dlco_no.currentText;
+				model.setValue("/root/reqData/searchData/dlco_no", lpad(dlco_no, 8, "0"));
+				inp_dlco_no.refresh();
+		
+				commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);						
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[
+				if(event.keyCode== "13"){
+					var dlco_no = inp_dlco_no.currentText;
+					model.setValue("/root/reqData/searchData/dlco_no", lpad(dlco_no, 8, "0"));
+					inp_dlco_no.refresh();
+			
+					commonSubmission("9004", inp_dlco_no.currentText,  inp_dlco_no, inp_dlco_nm);					
+				}
+				]]>
+			</script>
+		</input>
+		<input id="input21" ref="/root/reqData/searchData/todt" class="req" navindex="2" inputtype="date" format="yyyy-mm-dd" caption="게재기간" style="left:190px; top:75px; width:85px; height:18px; "/>
+		<caption id="caption34" style="left:174px; top:76px; width:15px; height:17px; ">~</caption>
+		<caption id="caption13" class="list_cap01" style="left:365px; top:70px; width:70px; height:28px; ">광고주</caption>
+		<input id="input2" ref="/root/reqData/searchData/frdt" class="req" navindex="1" inputtype="date" format="yyyy-mm-dd" caption="게재기간" style="left:85px; top:75px; width:85px; height:18px; "/>
+		<caption id="caption8" class="list_cap01" style="left:10px; top:70px; width:70px; height:28px; ">게재기간</caption>
+		<input id="inp_dlco_nm" ref="/root/reqData/searchData/dlco_nm" navindex="5" inputtype="button" style="left:499px; top:75px; width:150px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				showAdvcsSearchPopup("Y", "Y", "", "", "", inp_dlco_nm.currentText); 
+				]]>
+			</script>
+			<script type="javascript" ev:event="onkeypress">
+				<![CDATA[					
+				if(event.keyCode== "13"){
+					findDlcoNoByName("1", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+				}					
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				findDlcoNoByName("1", inp_dlco_nm.currentText, inp_dlco_no, inp_dlco_nm);
+				]]>
+			</script>
+		</input>
+		<select1 id="combo2" ref="/root/reqData/searchData/dt_clsf" navindex="3" appearance="minimal" style="left:285px; top:75px; width:67px; height:18px; ">
+			<choices>
+				<item>
+					<label>당일</label>
+					<value>01</value>
+				</item>
+				<item>
+					<label>당월</label>
+					<value>02</value>
+				</item>
+				<item>
+					<label>전월</label>
+					<value>03</value>
+				</item>
+			</choices>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+					
+					var currentdt = getCurrentDate();
+					var currentmt = getCurrentMonth();				
+								
+					var dt_clsf = model.getValue("/root/reqData/searchData/dt_clsf"); //선택한 콤보박스 값..
+									
+					if(dt_clsf == "01"){  
+						var frdt = dateAdd("d", 0, currentdt);	//당일
+						var todt = dateAdd("d",0, currentdt);	//당일
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt); 
+					}else if(dt_clsf == "02"){
+						var frdt = currentdt.substring(0,6)+"01"; //당월의 1일부터
+						var todt = dateAdd("d",0, currentdt);	//당월의 현재일 
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt); 
+					}else if(dt_clsf == "03") {
+						var frdt = dateAdd("m", -1, currentmt+"01");
+						var pre_month = frdt.substring(0,6);
+						var todt = pre_month+commLastDay(pre_month); 	//전월의 말일 
+						
+						model.setValue("/root/reqData/searchData/frdt", frdt); 
+						model.setValue("/root/reqData/searchData/todt", todt);
+					}	
+				
+					model.refresh();
+					
+				]]>
+			</script>
+		</select1>
+		<switch id="switch1" class="gro_sel" style="left:10px; top:129px; width:926px; height:610px; ">
+			<case id="case1" selected="true" style="left:0px; top:0px; width:926px; height:610px; ">
+				<!--계산서&#xA;발행-->
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" caption="발행^게재일^전표번호^매체^면^단^CM^행^담당^담당^광고주^광고료^부가세^게재총액^요율^수수료|발행^게재일^전표번호^매체^면^단^CM^행^영업^관리^광고주^광고료^부가세^게재총액^요율^수수료" colsep="^" colwidth="35, 75, 110, 40, 45, 35, 35, 35, 55, 55, 115, 80, 65, 82, 35, 80" explorerbar="sort" frozencols="5" mergecellsfixedrows="byrowrec" rowheader="seq" rowsep="|" subtotalposition="above" style="left:6px; top:5px; width:914px; height:600px; ">
+					<col ref="sale_stmt_issu_yn"/>
+					<col ref="pubc_dt" format="yyyy-mm-dd"/>
+					<col ref="pubc_slip_no" format="999-99999999-9999"/>
+					<col ref="medi_nm"/>
+					<col ref="sect" style="padding-right:16; background-position:center right; "/>
+					<col ref="dn"/>
+					<col ref="cm"/>
+					<col ref="arow"/>
+					<col ref="slcrg_pers_nm"/>
+					<col ref="mchrg_pers_nm"/>
+					<col ref="dlco_nm" style="text-align:left; word-wrap:none; "/>
+					<col ref="advt_fee" format="#,###" style="text-align:right; "/>
+					<col ref="vat" format="#,###" style="text-align:right; "/>
+					<col ref="tot_pubc_amt" format="#,###" style="text-align:right; "/>
+					<col ref="coms_rate" format="##.#" style="text-align:right; "/>
+					<col ref="coms" format="#,###" style="text-align:right; "/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+/*						
+					var row = datagrid1.row;				
+					var pubc_slip_no = model.getValue("/root/resData/gridData/record["+row+"]/pubc_slip_no");
+					windowLoadPubc2(pubc_slip_no);
+*/					
+						]]>
+					</script>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						
+						if(!isDataRegion(datagrid1))	return;
+						
+						if(datagrid1.col==datagrid1.colRef("sect")){					
+							var side_cd 	= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("side_cd"));
+							var pubc_dt 	= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("pubc_dt"));
+							var sect    	= datagrid1.valueMatrix(datagrid1.row, datagrid1.colRef("sect"));
+							
+							
+							if(sect == "")	return;
+		
+							loadPDF(pubc_dt, sect, side_cd);
+						}
+						]]>
+					</script>
+					<script type="javascript" ev:event="onbeforesort">
+						<![CDATA[
+						datagrid1.subtotal("clear", -1, datagrid1.colRef("advt_fee"),"#,###", TOTAL_STYLE, 1, "합 계");	
+						datagrid1.attribute("frozenbottomrows") = 0				
+						]]>
+					</script>
+					<script type="javascript" ev:event="onaftersort">
+						<![CDATA[
+
+							datagrid1.subtotalPosition = "below";
+							
+							datagrid1.subtotal("sum", -1, datagrid1.colRef("advt_fee"),"#,###", TOTAL_STYLE, 1, "합 계");	
+							datagrid1.subtotal("sum", -1, datagrid1.colRef("vat"),"#,###", TOTAL_STYLE, 1, "합 계");	
+							datagrid1.subtotal("sum", -1, datagrid1.colRef("tot_pubc_amt"),"#,###", TOTAL_STYLE, 1, "합 계");	
+							datagrid1.subtotal("sum", -1, datagrid1.colRef("coms"),"#,###", TOTAL_STYLE, 1, "합 계");
+		//					datagrid1.subtotal("sum", -1, datagrid1.colRef("cnt"),"#,###", TOTAL_STYLE, 1, "합 계");	
+						
+		//					if(datagrid1.rows > 20){
+									datagrid1.attribute("frozenbottomrows") = 1;
+		//					}	
+						
+						]]>
+					</script>
+				</datagrid>
+			</case>
+			<case id="case2" style="left:0px; top:0px; width:962px; height:656    px; ">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData/curlist2/record" caption="광고주^게재일^구분^단^CM^단가^광고료^부가세^총액^요율^수수료" colsep="^" colwidth="120, 80, 60, 52, 55, 80, 110, 90, 110,40,100" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowsep="|" style="left:5px; top:5px; width:914px; height:600px; ">
+					<col ref="dlco_nm" style="text-align:left; vertical-align:top; word-wrap:none; "/>
+					<col ref="pubc_dt" format="yyyy-mm-dd"/>
+					<col ref="advt_clas_nm"/>
+					<col ref="dn" format="#,###.9"/>
+					<col ref="cm" format="#,###.9"/>
+					<col ref="uprc" format="#,###" style="text-align:right; "/>
+					<col ref="advt_fee" format="#,###" style="text-align:right; "/>
+					<col ref="vat" format="#,###" style="text-align:right; "/>
+					<col ref="pubc_tot_amt" format="#,###" style="text-align:right; "/>
+					<col ref="coms_rate" format="##.#" style="text-align:right; "/>
+					<col ref="coms" format="#,###" style="text-align:right; "/>
+					<script type="javascript" ev:event="onbeforesort">
+						<![CDATA[
+						datagrid2.subtotal("clear", -1, datagrid2.colRef("uprc"),"#,###", TOTAL_STYLE, 1, "소 계");	
+						datagrid2.subtotal("clear", -1, datagrid2.colRef("uprc"),"#,###", TOTAL_STYLE, 1, "합 계");	
+						datagrid2.attribute("frozenbottomrows") = 0;
+						]]>
+					</script>
+					<script type="javascript" ev:event="onaftersort">
+						<![CDATA[
+						datagrid2.subtotalPosition = "below";
+						
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("uprc"),"#,###", "background-color:#FFFFCC", 0, "소 계");	
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("advt_fee"),"#,###", "background-color:#FFFFCC", 0, "소 계");	
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("vat"),"#,###", "background-color:#FFFFCC", 0, "소 계");	
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("pubc_tot_amt"),"#,###", "background-color:#FFFFCC", 0, "소 계");
+						datagrid2.subtotal("sum", 0, datagrid2.colRef("coms"),"#,###", "background-color:#FFFFCC", 0, "소 계");
+						
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("uprc"),"#,###", TOTAL_STYLE, 1, "합 계");	
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("advt_fee"),"#,###", TOTAL_STYLE, 1, "합 계");	
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("vat"),"#,###", TOTAL_STYLE, 1, "합 계");	
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("pubc_tot_amt"),"#,###", TOTAL_STYLE, 1, "합 계");	
+						datagrid2.subtotal("sum", -1, datagrid2.colRef("coms"),"#,###", TOTAL_STYLE, 1, "합 계");	
+					
+						if(datagrid2.rows > 20){
+								datagrid2.attribute("frozenbottomrows") = 1;
+						}
+						]]>
+					</script>
+					<script type="javascript" ev:event="onclick">
+						<![CDATA[
+						if(isDataRegion(datagrid2))	return;
+						
+						if(datagrid2.col 	!= datagrid2.colRef("dlco_nm")){
+							event.preventDefault();
+						}						
+						]]>
+					</script>
+				</datagrid>
+			</case>
+			<case id="case3" style="left:0px; top:0px; width:962px; height:656    px; ">
+				<datagrid id="datagrid3" nodeset="/root/resData/gridData/curlist3/record" caption="지사^게재일^면^광고내용^단^CM^구분^타사^담당^비고^담당의견" colsep="^" colwidth="80, 80, 40, 160, 30, 30, 60, 60, 60, 150, 190" mergecellsfixedcols="bycolrec" mergecellsfixedrows="byrowrec" rowsep="|" style="left:5px; top:5px; width:914px; height:600px; ">
+					<col ref="hndl_nm_cd" type="output" visibility="hidden" style="text-align:left; word-wrap:none; "/>
+					<col ref="pubc_dt" type="output" format="yyyy-mm-dd" caption="게재일자" style="text-align:center; word-wrap:none; "/>
+					<col ref="sect" type="output" style="text-align:center; word-wrap:none; "/>
+					<col ref="advt_cont" type="output" style="text-align:left; word-wrap:none; "/>
+					<col ref="dn" type="output" format="#,###.9" style="text-align:right; word-wrap:none; "/>
+					<col ref="cm" type="output" format="#,###.9" style="text-align:right; word-wrap:none; "/>
+					<col ref="hndl_evlt" type="output" style="word-wrap:none; "/>
+					<col ref="other" type="output" style="word-wrap:none; "/>
+					<col ref="slcrg_nm" type="output" style="text-align:left; word-wrap:none; "/>
+					<col ref="remk" type="output" style="text-align:left; word-wrap:none; "/>
+					<col ref="slcrg_remk" type="output" style="text-align:left; word-wrap:none; "/>
+				</datagrid>
+			</case>
+		</switch>
+		<button id="button1" class="tab06" group="tab" crud="R" style="left:115px; top:107px; width:105px; height:23px; ">
+			<caption>광고주별 조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				input1.disabled = false;
+				model.toggle("case2");
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="tab06" group="tab" selected="true" crud="R" style="left:10px; top:107px; width:105px; height:23px; ">
+			<caption>기본조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				input1.disabled = false;
+				model.toggle("case1");
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:655px; top:70px; width:70px; height:28px; ">게재년월</caption>
+		<input id="input1" ref="/root/reqData/searchData/pubc_yymm" inputtype="date" format="yyyy-mm" caption="게재년월" style="left:729px; top:75px; width:70px; height:18px; "/>
+		<button id="button2" class="btn05" crud="R" style="left:772px; top:40px; width:110px; height:21px; ">
+			<caption>게재및 대행료대장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				goReport("P");				
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="tab06" group="tab" crud="R" style="left:220px; top:107px; width:105px; height:23px; ">
+			<caption>지사평가 조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				//지사명 컬럼 김영한과장님만 보이게함
+				var emp_no  = model.property("ss_emp_no").substring(0,2);
+				if(emp_no == "it" || model.property("ss_emp_no") == "195054"){
+					datagrid3.colHidden(0) = false;
+				}	
+				input1.disabled = true;
+				model.toggle("case3");
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

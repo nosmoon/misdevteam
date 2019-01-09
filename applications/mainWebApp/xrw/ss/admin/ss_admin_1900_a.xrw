@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="/css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData/>
+						<searchData/>
+						<reqform>
+							<search_form>
+								<bonm/>
+								<bocd/>
+							</search_form>
+							<search_form2>
+								<bonm/>
+								<bocd/>
+							</search_form2>
+							<save_form>
+								<trsfbocd/>
+								<acptbocd/>
+								<dlvcd/>
+								<new_addrcd/>
+							</save_form>
+						</reqform>
+						<multiUpDate/>
+					</reqData>
+					<resData>
+						<resform/>
+						<gridData>
+							<listGrid>
+								<record>
+									<dlvcd/>
+									<addrnm/>
+									<rdr_cnt/>
+									<new_addrcd/>
+								</record>
+							</listGrid>
+							<listGrid2>
+								<record>
+									<addrcd/>
+									<addrnm/>
+									<useyn/>
+								</record>
+							</listGrid2>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					init();
+				]]>
+			</script>
+			<submission id="PID1900searchTrsf" ref="/root/reqData/reqform/search_form" action="/ss/admin/1901" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1900searchAcpt" ref="/root/reqData/reqform/search_form2" action="/ss/admin/1902" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+			<submission id="PID1900save" ref="/root/reqData/reqform/save_form" action="/ss/admin/1903" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/tempData/resTemp"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/CRMComm.js"/>
+		<script type="javascript" src="/js/CRMTeamComm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			function init()
+			{
+				PID1900datagrid1.fixedcellcheckbox(0, PID1900datagrid1.colRef("check"), true) = true;
+			}
+			
+			function onKeyDown()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("btnSearchBranchQ");
+					
+					if(iptCommonmBranchQ.value == '')
+						onClickBranchPopup();
+					else
+					{
+						//화면별 선처리
+						//modelCopyValue("/root/reqData/reqform/searchForm/common_deptcd", "/root/reqData/reqform/searchForm/deptcd");
+						//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+						//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+						//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+						searchBranchByName("/root/reqData/reqform/search_form", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack()", "/root/initData/gs_request");
+					}
+				}
+			}
+			
+			function onClickBranchPopup()
+			{
+				//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+				openBranch("/root/reqData/reqform/search_form", "/root/tempData/tempBranch");
+
+               		if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+					return;
+				
+				iptCommonmBranchQ.value = model.getValue("/root/tempData/tempBranch/bonm");
+				PID1900input1.value = model.getValue("/root/tempData/tempBranch/bocd");
+				modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/tempBranch/bocd");
+
+				if(model.getValue("/root/initData/gs_request") == "L")
+				{
+					model.setValue("/root/initData/gs_request", "N");					
+				}
+				searchTrsf();
+			}
+			
+			function searchBranchCallBack()
+			{
+				//검색 후처리.
+				if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+				{
+					iptCommonmBranchQ.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+					PID1900input1.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bocd");
+					modelCopyValue("/root/reqData/reqform/search_form/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+					searchTrsf();
+				}
+				else
+					onClickBranchPopup();
+			}
+			
+			function onKeyDown2()
+			{
+				if(event.keyCode == 13)
+				{
+					model.setFocus("btnSearchBranchQ");
+					
+					if(iptCommonmBranchQ2.value == '')
+						onClickBranchPopup2();
+					else
+					{
+						//화면별 선처리
+						//modelCopyValue("/root/reqData/reqform/searchForm/common_deptcd", "/root/reqData/reqform/searchForm/deptcd");
+						//검색 공통 모듈 호출. param : "입력param path", "출력 path", "callback함수", flag 값을 가지고 있는 path"
+						//처리순서 : 지국조회 -> callback함수 호출 -> flag값에 따른 처리.
+						//callbak함수는 옵션. search() 및 searchWithBranch() 함수가 존재해야 함.
+						searchBranchByName("/root/reqData/reqform/search_form2", "/root/tempData/resTemp/branchGrid", "searchBranchCallBack2()", "/root/initData/gs_request");
+					}
+				}
+			}
+			
+			function onClickBranchPopup2()
+			{
+				//openBranch("parameter. deptcd,partcd,areacd,bonm", "result. deptcd, deptnm, areacd, areanm, bocd, bonm") - part도 추가될 것으로 보임.
+				openBranch("/root/reqData/reqform/search_form2", "/root/tempData/tempBranch");
+
+               		if(model.getValue("/root/tempData/tempBranch/bocd") == "")
+					return;
+				
+				iptCommonmBranchQ2.value = model.getValue("/root/tempData/tempBranch/bonm");
+				PID1900input2.value = model.getValue("/root/tempData/tempBranch/bocd");
+				modelCopyValue("/root/reqData/reqform/search_form2/bocd", "/root/tempData/tempBranch/bocd");
+
+				if(model.getValue("/root/initData/gs_request") == "L")
+				{
+					model.setValue("/root/initData/gs_request", "N");					
+				}
+				searchAcpt();
+			}
+			
+			function searchBranchCallBack2()
+			{
+				//검색 후처리.
+				if((instance1.selectNodes("/root/tempData/resTemp/branchGrid/record/bocd")).length == 1)
+				{
+					iptCommonmBranchQ2.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bonm");
+					PID1900input2.value = model.getValue("/root/tempData/resTemp/branchGrid/record/bocd");
+					modelCopyValue("/root/reqData/reqform/search_form2/bocd", "/root/tempData/resTemp/branchGrid/record/bocd");
+					searchAcpt();
+				}
+				else
+					onClickBranchPopup2();
+			}
+			
+			function searchTrsf()
+			{	
+				remakeNode("/root/tempData/resTemp");
+				
+				model.send("PID1900searchTrsf", false);
+				
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid", "/root/tempData/resTemp/listGrid");
+						 	
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid/record/dlvcd").length == 0)
+					model.alert("검색결과가 없습니다.");
+													
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1900datagrid1.rebuild();
+			}
+			
+			function searchAcpt()
+			{				
+				remakeNode("/root/tempData/resTemp");
+				
+				model.send("PID1900searchAcpt", false);
+				
+				if(!submit_completed())
+					return;
+					
+				model.copyNode("/root/resData/gridData/listGrid2", "/root/tempData/resTemp/listGrid");
+						 	
+			 	if(instance1.selectNodes("/root/resData/gridData/listGrid2/record/addrcd").length == 0)
+					model.alert("검색결과가 없습니다.");
+													
+				model.removenode("/root/tempData/resTemp");
+				
+				PID1900datagrid2.rebuild();
+			}
+			
+			function save()
+			{					
+				if(model.getValue("/root/reqData/reqform/search_form/bocd")==""){
+					alert("인계센터가 검색되지 않았습니다.");
+					return;
+				}	
+				
+				if(model.getValue("/root/reqData/reqform/search_form2/bocd")==""){
+					alert("인수센터가 검색되지 않았습니다.");
+					return;
+				}
+				
+				model.setValue("/root/reqData/reqform/save_form/trsfbocd", model.getValue("/root/reqData/reqform/search_form/bocd"));
+				model.setValue("/root/reqData/reqform/save_form/acptbocd", model.getValue("/root/reqData/reqform/search_form2/bocd"));
+				
+				makeNodesetToAppendForm("/root/resData/gridData/listGrid/record", "/root/tempData/gridTemp", "check", "Y", "##", true);	
+				
+				model.setValue("/root/reqData/reqform/save_form/dlvcd", model.getValue("/root/tempData/gridTemp/dlvcd"));
+				model.setValue("/root/reqData/reqform/save_form/new_addrcd", model.getValue("/root/tempData/gridTemp/new_addrcd"));
+			
+				if(model.getValue("/root/reqData/reqform/save_form/new_addrcd") == "")
+				{
+					alert("승인할 건을 1건이상 선택해주세요.");
+					return;
+				}
+				
+				if(model.alert("저장 하겠습니까?", "", 4) == "6") {
+					model.send("PID1900save", false);
+							
+					if(submit_completed()){
+						searchTrsf();
+						searchAcpt();	
+					}else{	
+						return;
+					}					
+				}			
+			}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" idprefix="PID1900" style="font-family:굴림; ">
+		<import id="iv_Title" src="../common/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					close();
+					]]>
+				</script>
+			</button>
+			<button id="btnSave" class="btn02" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					save();
+					]]>
+				</script>
+			</button>
+		</group>
+		<group id="PID1900group_scr" class="gro_sel" style="left:10px; top:100px; width:440px; height:510px; ">
+			<caption id="PID1900caption1" class="list_cap01" style="left:0px; top:0px; width:80px; height:25px; ">인계센터</caption>
+			<caption id="PID1700caption2" class="list_cap02" style="left:79px; top:0px; width:361px; height:25px; "/>
+			<input id="iptCommonmBranchQ" ref="/root/reqData/reqform/search_form/bonm" style="left:84px; top:4px; width:90px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					onKeyDown();				
+					]]>
+				</script>
+			</input>
+			<input id="PID1900input1" ref="/root/reqData/reqform/search_form/bocd" disabled="true" style="left:180px; top:4px; width:50px; height:18px; "/>
+			<button id="PID1900button1" class="btn_grid02" style="left:235px; top:5px; width:42px; height:17px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					onClickBranchPopup();				
+					]]>
+				</script>
+			</button>
+			<datagrid id="PID1900datagrid1" nodeset="/root/resData/gridData/listGrid/record" caption="^주소코드^주소명^건수^변경주소코드" colwidth="20,60,200,60,80" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" colsep="^" tooltip="true" style="left:0px; top:30px; width:440px; height:460px; ">
+				<col ref="check" type="checkbox" checkvalue="Y,N"/>
+				<col ref="dlvcd" style="text-align:left; "/>
+				<col ref="addrnm" style="text-align:left; "/>
+				<col ref="rdr_cnt"/>
+				<col ref="new_addrcd" type="input" maxlength="3"/>
+				<script type="javascript" ev:event="xforms-select">
+					<![CDATA[
+						if(PID1900datagrid1.col == 1 && PID1900datagrid1.row == 0) {
+							for(var i=1; i<PID1900datagrid1.rows; i++) {
+								PID1900datagrid1.valueMatrix(i,1) = "Y";
+							}
+						}					
+					]]>
+				</script>
+				<script type="javascript" ev:event="xforms-deselect">
+					<![CDATA[
+						if(PID1900datagrid1.col == 1 && PID1900datagrid1.row == 0) {
+							for(var i=1; i<PID1900datagrid1.rows; i++) {
+								PID1900datagrid1.valueMatrix(i,1) = "N";
+							}
+						}
+					]]>
+				</script>
+			</datagrid>
+		</group>
+		<group id="PID1900group_scr2" class="gro_sel" style="left:449px; top:100px; width:440px; height:510px; ">
+			<caption id="PID1900caption3" class="list_cap01" style="left:0px; top:0px; width:80px; height:25px; ">인수센터</caption>
+			<caption id="PID1700caption4" class="list_cap02" style="left:79px; top:0px; width:250px; height:25px; "/>
+			<input id="iptCommonmBranchQ2" ref="/root/reqData/reqform/search_form2/bonm" style="left:84px; top:4px; width:90px; height:18px; ">
+				<script type="javascript" ev:event="onkeydown">
+					<![CDATA[
+					onKeyDown2();				
+					]]>
+				</script>
+			</input>
+			<input id="PID1900input2" ref="/root/reqData/reqform/search_form2/bocd" disabled="true" style="left:180px; top:4px; width:50px; height:18px; "/>
+			<button id="PID1900button2" class="btn_grid02" style="left:235px; top:5px; width:42px; height:17px; ">
+				<caption>찾기</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					onClickBranchPopup2();				
+					]]>
+				</script>
+			</button>
+			<datagrid id="PID1900datagrid2" nodeset="/root/resData/gridData/listGrid2/record" caption="주소코드^주소명^사용여부" colwidth="60,180,70" ellipsis="true" explorerbar="sortshowmove" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" colsep="^" tooltip="true" style="left:0px; top:30px; width:330px; height:460px; ">
+				<col ref="addrcd" style="text-align:left; "/>
+				<col ref="addrnm" style="text-align:left; "/>
+				<col ref="useyn" style="text-align:center; "/>
+			</datagrid>
+		</group>
+	</xhtml:body>
+</xhtml:html>

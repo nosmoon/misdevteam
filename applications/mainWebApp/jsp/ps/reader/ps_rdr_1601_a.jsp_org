@@ -1,0 +1,683 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+
+<%---------------------------------------------------------------------------------------------------
+* 파일명   : ps_rdr_1601_a.jsp
+* 기능     : 모닝+ 현금영수증 초기
+* 작성일자 : 2004-04-21
+* 작성자   : 김상옥
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자   :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+
+<%
+    //dataset 인스턴스 선언부분
+    CO_L_RDRCRTS_GRAD_APLCDataSet ds = (CO_L_RDRCRTS_GRAD_APLCDataSet)request.getAttribute("ds");
+
+    //화면에 보여줄 레코드 수 설정
+    int   showRecCnt  =  5;
+%>
+
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+<!--
+    //이벤트초기화
+    function jsInit() {
+        setEventHandler();
+    }
+
+
+    //검색버튼
+    function sear_button(pageno,flag) {
+        var lo_form1 = document.search_form;
+
+        //event check.
+        if(window.event) window.event.returnValue = false;
+
+        lo_form1.hd_aplcdt_fr.value    = lo_form1.sh_aplcdt_fr.value;
+        lo_form1.hd_aplcdt_to.value    = lo_form1.sh_aplcdt_to.value;
+        lo_form1.hd_medicd.value       = lo_form1.sh_medicd.value;
+        lo_form1.hd_rdr_no.value       = lo_form1.sh_rdr_no.value;
+        lo_form1.hd_apl_nm.value       = lo_form1.sh_apl_nm.value;
+        lo_form1.hd_rdr_nm.value       = lo_form1.sh_rdr_nm.value;
+        lo_form1.hd_prn1.value         = lo_form1.sh_prn1.value;
+        lo_form1.hd_prn2.value         = lo_form1.sh_prn2.value;
+        lo_form1.hd_phone1.value       = lo_form1.sh_phone1.value;
+        lo_form1.hd_phone2.value       = lo_form1.sh_phone2.value;
+        lo_form1.hd_phone3.value       = lo_form1.sh_phone3.value;
+        lo_form1.hd_dtlsprocstat.value = lo_form1.sh_dtlsprocstat.value;
+        lo_form1.hd_cashrcptstat.value = lo_form1.sh_cashrcptstat.value;
+        if(flag=='M') {
+	        //lo_form1.hd_cashrcptstat.value = '';
+ lo_form1.search_type.value = 'M';
+ lo_form1.sh_cashrcptstat.disabled = true;
+	        //lo_form1.sh_cashrcptstat.value = '';
+        } else if(flag=='C') {
+        	//lo_form1.hd_dtlsprocstat.value = '';
+ lo_form1.search_type.value = 'C';
+ lo_form1.sh_dtlsprocstat.disabled = true;
+        	//lo_form1.sh_dtlsprocstat.value = '';
+        }
+        //lo_form1.hd_dtlsprocclsf.value = lo_form1.sh_dtlsprocclsf.value;
+
+        if (!chk_search(pageno)) {
+            if(flag=='M') {
+                lo_form1.sh_cashrcptstat.disabled = false;
+                //lo_form1.sh_cashrcptstat.value = '';
+            } else if(flag=='C') {
+                lo_form1.sh_dtlsprocstat.disabled = true;
+                //lo_form1.sh_dtlsprocstat.value = '';
+            }
+			return;
+        }
+    }
+
+
+    //PAGE버튼
+    function list_search(pageno) {
+        var lo_form1 = document.search_form;
+
+        //기존 검색조건과 변경여부 체크
+        lo_form1.sh_aplcdt_fr.value    = lo_form1.hd_aplcdt_fr.value;
+        lo_form1.sh_aplcdt_to.value    = lo_form1.hd_aplcdt_to.value;
+        lo_form1.sh_medicd.value       = lo_form1.hd_medicd.value;
+        lo_form1.sh_rdr_no.value       = lo_form1.hd_rdr_no.value;
+        lo_form1.sh_rdr_nm.value       = lo_form1.hd_rdr_nm.value;
+        lo_form1.sh_apl_nm.value       = lo_form1.hd_apl_nm.value;
+        lo_form1.sh_prn1.value         = lo_form1.hd_prn1.value;
+        lo_form1.sh_prn2.value         = lo_form1.hd_prn2.value;
+        lo_form1.sh_phone1.value       = lo_form1.hd_phone1.value;
+        lo_form1.sh_phone2.value       = lo_form1.hd_phone2.value;
+        lo_form1.sh_phone3.value       = lo_form1.hd_phone3.value;
+        //lo_form1.sh_dtlsprocstat.value = lo_form1.hd_dtlsprocstat.value;
+        //lo_form1.sh_cashrcptstat.value = lo_form1.hd_cashrcptstat.value;
+        //lo_form1.sh_dtlsprocclsf.value = lo_form1.hd_dtlsprocclsf.value;
+
+        if(lo_form1.search_type.value=='M') {
+	        //lo_form1.hd_cashrcptstat.value = '';
+  lo_form1.sh_cashrcptstat.disabled = true;
+	        //lo_form1.sh_cashrcptstat.value = '';
+        } else if(lo_form1.search_type.value=='C') {
+        	//lo_form1.hd_dtlsprocstat.value = '';
+  lo_form1.sh_dtlsprocstat.disabled = true;
+        	//lo_form1.sh_dtlsprocstat.value = '';
+        }
+
+        if (!chk_search(pageno)) return;
+    }
+
+
+    //독자등급 신청 검색 리스트 조회
+    function chk_search(pageno) {
+        var lo_form1 = document.search_form;
+
+        lo_form1.pageno.value   =   pageno;
+
+        //입력항목 전체 체크
+        if(!validate(lo_form1)) return false;
+
+        makeValue(lo_form1);
+
+        //lo_form1.methdod = "post";
+        //lo_form1.action  = "/ps/reader/1616";
+        //lo_form1.target  = "showifrm";
+        //lo_form1.submit();
+
+        lo_form1.method = "post";
+        lo_form1.action = "/ps/reader/1606";
+        lo_form1.target = "gradifrm";
+        lo_form1.submit();
+    }
+
+
+    //저장버튼
+    function save_button() {
+        var lo_form1 = document.grad_form;
+
+		for(var j=0; j < <%=showRecCnt%>; j++) {
+
+			var inx_grad_check = "grad_check"+j;
+			var inx_dtlsprocstat = "dtlsprocstat"+j;
+			var inx_errresncd = "errresncd"+j;
+			var inx_cashrcptstat = "cashrcptstat"+j;
+
+			if(lo_form1.all[inx_grad_check].checked) {
+	    		if(lo_form1.all[inx_dtlsprocstat].value =='30' && lo_form1.all[inx_errresncd].value == '') {
+		    		alert("독자미확인시에는 오류사유를 선택하셔야 합니다.");
+			    	lo_form1.all[inx_errresncd].focus();
+				    return false;
+	    		}
+			}
+		}
+
+        lo_form1.action = "/ps/reader/1611";
+        lo_form1.target = "gradifrm";
+        lo_form1.method = "post";
+        lo_form1.submit();
+    }
+
+
+    //하위 체크박스 전체 체크 또는 해제
+    function checkAll() {
+        //filtering
+        if (!window.event) return;
+
+        var lo_form1  =  document.grad_form;
+        var li_len    =  new Number(lo_form1.listcnt.value);
+
+        if (li_len < 1) return;
+
+        var lo_src    =  window.event.srcElement;
+        var ls_name   =  window.event.srcElement.name;
+
+        for(var i=0; i<li_len; i++) {
+            if (lo_src.checked) {
+                if (document.all(ls_name + new String(i)).disabled == true)  continue;
+
+                document.all(ls_name + new String(i)).checked = true;
+            }
+            else {
+                document.all(ls_name + new String(i)).checked = false;
+            }
+        }
+    }
+
+	// 목록에서 선택된 로우 전역변수
+	var go_sel_row;
+
+	// rowspan 되어 있는 2개의 로우에서 마우스 OUT 시 색깔 변경 /
+	function change_row_color_out(obj){
+	    for (i=0; i < document.all.list_zone.rows.length; i++) {
+	    	if(document.all.list_zone.rows(i) == obj){
+				if(obj != go_sel_row){
+	            	document.all.list_zone.rows(i).style.backgroundColor = "";
+	            }
+                //document.all.list_zone.rows(i).className = "out";
+				if( (i%2) == 1 && document.all.list_zone.rows(i-1) != null){	    // 짝수이면 자신보다 1 더 작은 홀수 로우까지 변경
+					if(obj != go_sel_row){
+	                	document.all.list_zone.rows(i-1).style.backgroundColor = "";
+	                }
+                    //document.all.list_zone.rows(i-1).className = "out";
+				}else if( (i%2) == 0 && document.all.list_zone.rows(i+1) != null){	// 홀수이면 자신보다 1 더 큰 짝수 로우까지 변경
+					if(obj != go_sel_row){
+	                	document.all.list_zone.rows(i+1).style.backgroundColor = "";
+					}
+                    //document.all.list_zone.rows(i+1).className = "out";
+				}
+	        }
+	    }
+	}
+
+
+	// rowspan 되어 있는 2개의 로우에서 마우스 IN 시 색깔 변경
+	function change_row_color_in(obj){
+	    for (i=0; i < document.all.list_zone.rows.length; i++) {
+	    	if(document.all.list_zone.rows(i) == obj){
+	            document.all.list_zone.rows(i).style.backgroundColor = "#EDFFF1";
+                //document.all.list_zone.rows(i).className = "over";
+				if( (i%2) == 1 && document.all.list_zone.rows(i-1) != null){	    // 짝수이면 자신보다 1 더 작은 홀수 로우까지 변경
+	                document.all.list_zone.rows(i-1).style.backgroundColor = "#EDFFF1";
+                    //document.all.list_zone.rows(i-1).className = "over";
+				}else if( (i%2) == 0 && document.all.list_zone.rows(i+1) != null){	// 홀수이면 자신보다 1 더 큰 짝수 로우까지 변경
+	                document.all.list_zone.rows(i+1).style.backgroundColor = "#EDFFF1";
+                    //document.all.list_zone.rows(i+1).className = "over";
+				}
+	        }
+	    }
+	}
+
+	// rowspan 되어 있는 2개의 로우에서 마우스 선택된 로우 색깔 바꾸기
+	function change_row_color_click(obj){
+		go_sel_row = obj;
+		lo_table = obj.parentNode;
+
+	    for (i=2; i < document.all.list_zone.rows.length; i++) {
+	    	if(document.all.list_zone.rows(i) == go_sel_row || document.all.list_zone.rows(i-1) == go_sel_row){
+	            document.all.list_zone.rows(i).style.backgroundColor = "#BFD2DD";
+                //document.all.list_zone.rows(i).className = "over";
+				if( (i%2) == 1 && document.all.list_zone.rows(i-1) != null){	    // 짝수이면 자신보다 1 더 작은 홀수 로우까지 변경
+	                document.all.list_zone.rows(i-1).style.backgroundColor = "#BFD2DD";
+                    //document.all.list_zone.rows(i-1).className = "over";
+				}else if( (i%2) == 0 && document.all.list_zone.rows(i+1) != null){	// 홀수이면 자신보다 1 더 큰 짝수 로우까지 변경
+	                document.all.list_zone.rows(i+1).style.backgroundColor = "#BFD2DD";
+                    //document.all.list_zone.rows(i+1).className = "over";
+				}
+	        } else {
+				if( (i%2) == 1 && document.all.list_zone.rows(i-1) != null){	    // 짝수이면 자신보다 1 더 작은 홀수 로우까지 변경
+	                lo_table.rows[i-1].style.backgroundColor='#FFFFFF';
+	                lo_table.rows[i].style.backgroundColor='#FFFFFF';
+                    //document.all.list_zone.rows(i-1).className = "over";
+				}else if( (i%2) == 0 && document.all.list_zone.rows(i+1) != null){	// 홀수이면 자신보다 1 더 큰 짝수 로우까지 변경
+	                lo_table.rows[i].style.backgroundColor='#FFFFFF';
+	                lo_table.rows[i+1].style.backgroundColor='#FFFFFF';
+                    //document.all.list_zone.rows(i+1).className = "over";
+				}
+			}
+	    }
+	}
+
+	//독자명 넘겨서 검색 하기
+	function select_membnm(aplc_rdrnm,medicd,rownum) {
+		var lo_form1  =  showifrm.document.search_form;
+		lo_form1.sh_searnm.value = aplc_rdrnm;
+		lo_form1.sh_medicd.value = medicd;
+		lo_form1.hd_rownum.value = rownum;
+lo_form1.sh_searcd.value = "NM";
+        lo_form1.sh_phone1.value = "";
+        lo_form1.sh_phone2.value = "";
+        lo_form1.sh_phone3.value = "";
+
+		showifrm.sear_button(1);
+	}
+
+
+	// 선택된 로우 색깔 바꾸기
+	function change_sel_row(obj){
+		go_sel_row = obj;
+		obj.style.backgroundColor='#BFD2DD';
+		lo_table = obj.parentNode;
+		for(i=1; i<lo_table.rows.length-1; i++){
+			if(lo_table.rows[i] != go_sel_row){
+				lo_table.rows[i].style.backgroundColor='#FFFFFF';
+			}
+		}
+	}
+
+	// 목록에서 마우스 OUT
+	function mouse_out(obj){
+		if(obj != go_sel_row){
+			obj.style.backgroundColor='#FFFFFF';
+		}
+	}
+
+	//항목 Disabled,Enabled
+	function jsDisEnabled(row) {
+		var lo_form1 = document.grad_form;
+
+		if(row == 'A') {
+			for(row_i=0;row_i<5;row_i++) {
+				lo_form1.errresncd[row_i].disabled =  true;
+			    lo_form1.errresncd[row_i].value    =  "";
+			}
+		} else {
+		//처리 사유 선택
+			var ls_dtlsprocstat  =  lo_form1.dtlsprocstat[row].value;
+
+			//반송종류의 값에 따라 Disabled,Enabled 체크
+			if (ls_dtlsprocstat=="30") {   // 독자 오류
+				lo_form1.errresncd[row].disabled  =  false;
+				//lo_form1.errresncd[row].focus();
+			} else if (ls_dtlsprocstat!="30") {   // 신청중-독자확인
+				lo_form1.errresncd[row].disabled =  true;
+			    lo_form1.errresncd[row].value    =  "";
+				//lo_form1.errresncd[row].focus();
+			}
+		}
+	}
+
+	//항목 Disabled,Enabled
+	function jsDisEnabled_1(row) {
+		var lo_form1 = document.grad_form;
+
+		var inx_grad_check = "grad_check"+row;
+		var inx_dtlsprocstat = "dtlsprocstat"+row;
+		var inx_errresncd = "errresncd"+row;
+
+
+		//처리 사유 선택
+		var ls_dtlsprocstat  =  lo_form1.all[inx_dtlsprocstat].value;
+
+		//반송종류의 값에 따라 Disabled,Enabled 체크
+		if (ls_dtlsprocstat=="30") {   // 독자 오류
+			lo_form1.all[inx_errresncd].disabled  =  false;
+			//lo_form1.all[inx_errresncd].focus();
+		} else if (ls_dtlsprocstat!="30") {   // 신청중-독자확인
+			lo_form1.all[inx_errresncd].disabled =  true;
+		    lo_form1.all[inx_errresncd].value    =  "";
+			//lo_form1.all[inx_errresncd].focus();
+		}
+	}
+
+    // 독자번호/매체코드로 모닝플러스 회원 조회
+    function select_mplist(bocd,rdr_no,medicd) {
+        var lo_form1    = document.mpsearch_form;
+
+        lo_form1.bocd_p.value      	 =  bocd;
+        lo_form1.rdr_no_p.value      =  rdr_no;
+        lo_form1.medicd_p.value      =  medicd;
+
+        var ls_win = "scrollbars=no,toolbar=no,location=no,directories=no,width=620, height=200 resizable=no,mebar=no,left=140,top=50";
+        window.open("about:blank" , "rdr_detail", ls_win);
+        lo_form1.target = "rdr_detail";
+        lo_form1.action = "/ps/reader/1626";
+    //    lo_form1.target = "_blank";
+        lo_form1.method = "post";
+        lo_form1.submit();
+    }
+
+	//항목 Disabled,Enabled
+	function select_errresncd(row) {
+		var lo_form1 = document.grad_form;
+
+		var inx_rdr_no = "rdr_no"+row;
+
+	    lo_form1.all[inx_rdr_no].value    =  "";
+	}
+
+-->
+</script>
+
+</head>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray"  onload="jsInit();jsDisEnabled('A');search_form.sh_aplcdt_fr.focus();">
+<table width="100%" border="0" cellspacing="0" cellpadding="0">
+  <tr>
+    <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >독자
+      &gt; </b> 모닝+현금영수증</td>
+  </tr>
+  <tr>
+    <td height="10">
+      <!--내용을 위한 여백-->
+    </td>
+  </tr>
+</table>
+<!--검색시작-->
+<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+  <form name="search_form" method="post" action="" >
+  <input type="hidden" name="pageno"          value="1" >               <%--현재페이지--%>
+  <input type="hidden" name="pagesize"        value="<%=showRecCnt%>">  <%--한페이지당 레코드수--%>
+  <input type="hidden" name="js_fn_nm"        value="list_search">      <%--페이지이동시 호출되는 자바스크립트 이름--%>
+
+  <%--페이지 이동시 기존 검색조건과 같도록 유지하기 위한 Hidden Type--%>
+  <input type="hidden" name="hd_aplcdt_fr"    value="">                 <%--신청일자(from)--%>
+  <input type="hidden" name="hd_aplcdt_to"    value="">                 <%--신청일자(to)--%>
+  <input type="hidden" name="hd_medicd"       value="">                 <%--신청매체--%>
+  <input type="hidden" name="hd_rdr_no"       value="">                 <%--독자번호--%>
+  <input type="hidden" name="hd_apl_nm"       value="">                 <%--신청자명--%>
+  <input type="hidden" name="hd_rdr_nm"       value="">                 <%--구독자명--%>
+  <input type="hidden" name="hd_prn1"         value="">                 <%--주민번호1--%>
+  <input type="hidden" name="hd_prn2"         value="">                 <%--주민번호2--%>
+  <input type="hidden" name="hd_phone1"       value="">                 <%--전화번호1--%>
+  <input type="hidden" name="hd_phone2"       value="">                 <%--전화번호2--%>
+  <input type="hidden" name="hd_phone3"       value="">                 <%--전화번호3--%>
+  <input type="hidden" name="hd_dtlsprocstat" value="">                 <%--모플회원--%>
+  <input type="hidden" name="hd_dtlsprocclsf" value="">                 <%--처리구분--%>
+  <input type="hidden" name="hd_cashrcptstat" value="">                 <%--현금영수증--%>
+  <input type="hidden" name="search_type"     value="">
+
+  <tr bgcolor="#EBE9DC">
+    <td class="title">
+      <table width="830" border="0" cellspacing="0" cellpadding="2">
+        <tr>
+          <td width="60"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">신청일자</td>
+          <td>
+            <input type="text" name="sh_aplcdt_fr" size="10" maxlength="10" class="text_box" value="<%=Util.addDate(Util.getDate(),-180)%>" caption="신청일자" dataType="date" notEmpty >
+            -
+            <input type="text" name="sh_aplcdt_to" size="10" maxlength="10" class="text_box" value="<%=Util.getDate()%>" caption="신청일자" dataType="date" notEmpty >
+          </td>
+          <td width="80"><img src="/html/comm_img/ic_title.gif" width="12" height="7">신청매체</td>
+          <td>
+             <select name="sh_medicd" size="1" class="sel_all" style="width:100;" >
+               <option value="ALL" selected >전체</option>
+<%--신청매체 콤보박스 구성--%>
+<%
+    for(int i=0; i<ds.medicdcur.size(); i++){
+        CO_L_RDRCRTS_GRAD_APLCMEDICDCURRecord medicdcurRec = (CO_L_RDRCRTS_GRAD_APLCMEDICDCURRecord)ds.medicdcur.get(i);
+%>
+               <option value="<%= medicdcurRec.cicodeval%>"><%= medicdcurRec.cicdnm%></option>
+<%
+    }
+%>
+             </select>
+          </td>
+          <td width="60" ><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">독자번호</td>
+          <td>
+            <input type="text" name="sh_rdr_no" size="9" maxlength="9" class="text_box">
+          </td>
+          <td width="60" ><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">신청자명</td>
+          <td>
+            <input type="text" name="sh_apl_nm" size="10" maxlength="15" class="text_box">
+          </td>
+        </tr>
+
+        <tr>
+          <td width="60"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">주민번호</td>
+          <td>
+            <input type="text" name="sh_prn1" size="6" maxlength="6" class="text_box" caption="주민번호" dataType="number" >
+            <input type="text" name="sh_prn2" size="7" maxlength="7" class="text_box" caption="주민번호" dataType="number" >
+          </td>
+          <td width="80" ><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">전화/휴대폰</td>
+          <td>
+            <input type="text" name="sh_phone1" size="4" maxlength="4" class="text_box">
+            <input type="text" name="sh_phone2" size="4" maxlength="4" class="text_box">
+            <input type="text" name="sh_phone3" size="4" maxlength="4" class="text_box">
+          </td>
+          <td width="60" ><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">구독자명</td>
+          <td>
+            <input type="text" name="sh_rdr_nm" size="10" maxlength="15" class="text_box">
+          </td>
+          <td>&nbsp;</td><td>&nbsp;</td>
+        </tr>
+		<tr>
+          <td width="60"  class="title"><img src="/html/comm_img/ic_title.gif" width="12" height="7">모플회원</td>
+          <td  class="title">
+            <select name="sh_dtlsprocstat" size="1" class="sel_all" style="width:70;" >
+              <option value="ALL" selected >전체</option>
+<%--모플회원 콤보박스 구성--%>
+<%
+    for(int i=0; i<ds.dtlsprocstatcur.size(); i++){
+        CO_L_RDRCRTS_GRAD_APLCDTLSPROCSTATCURRecord dtlsprocstatcurRec = (CO_L_RDRCRTS_GRAD_APLCDTLSPROCSTATCURRecord)ds.dtlsprocstatcur.get(i);
+%>
+              <option value="<%= dtlsprocstatcurRec.cicodeval%>"><%= dtlsprocstatcurRec.cicdnm%></option>
+<%
+    }
+%>
+            </select>
+            <input type="image" src="/html/comm_img/bu_search.gif"  width="36" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="sear_button(1,'M');window.event.returnValue=false;">
+          </td>
+
+          <td width="80" class="title"><img src="/html/comm_img/ic_title.gif" width="12" height="7">현금영수증</td>
+          <td class="title">
+            <select name="sh_cashrcptstat" size="1" class="sel_all" style="width:70;" >
+              <option value="ALL" selected >전체</option>
+<%--현금영수증 콤보박스 구성--%>
+<%
+    for(int i=0; i<ds.cashrcptstatcur.size(); i++){
+        CO_L_RDRCRTS_GRAD_APLCCASHRCPTSTATCURRecord cashrcptstatcurRec = (CO_L_RDRCRTS_GRAD_APLCCASHRCPTSTATCURRecord)ds.cashrcptstatcur.get(i);
+%>
+              <option value="<%= cashrcptstatcurRec.cicodeval%>"><%= cashrcptstatcurRec.cicdnm%></option>
+<%
+    }
+%>
+            </select>
+            <input type="image" src="/html/comm_img/bu_search.gif"  width="36" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="sear_button(1,'C');window.event.returnValue=false;">
+          </td>
+          <td class="title">&nbsp;</td><td class="title">&nbsp;</td>
+          <td class="title">&nbsp;</td><td class="title">&nbsp;</td>
+
+		</tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td height="3">
+      <!--여백-->
+    </td>
+  </tr>
+  </form>
+</table>
+<!--검색끝-->
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+  <tr>
+    <td bgcolor="#EBE9DC" class="title" width="742" height="27"><b>독자우대가입신청목록</b></td>
+    <td bgcolor="#EBE9DC" width="100" class="title" align="right" height="27">
+      <img src="/html/comm_img/bu_save02.gif" width="36" height="19" align="absmiddle" border="0" style="cursor:hand" onclick="save_button();window.event.returnValue=false;">
+    </td>
+  </tr>
+  <tr>
+    <td height="3" colspan="2">
+      <!--여백-->
+    </td>
+  </tr>
+</table>
+<!--list start -->
+<table width="830" border="0" align="center" cellpadding="1" cellspacing="0" bgcolor="#ffffff" class="gray" id="list_zone">
+  <form name="grad_form" method="post" action="">
+
+  <input type="hidden" name="listcnt"	value="<%=showRecCnt%>">
+  <tr bgcolor="#dddddd" align="center">
+    <td class="gray" width="20"  rowspan="2"><input type="checkbox" name="grad_check" onClick="checkAll();"></td>
+    <td class="gray" width="65"  >신청일자</td>
+    <td class="gray" width="50" >신청자</td>
+    <td class="gray" width="55" >구독자</td>
+    <td class="gray" width="90" >회원아이디</td>
+    <td class="gray" width="70"  >지사</td>
+    <td class="gray" width="60"  >매체</td>
+    <td class="gray" width="70"  >독자번호</td>
+<!--    <td class="gray" width="80"  >회원종류</td>-->
+    <td class="gray" width="75"  >모플회원</td>
+    <td class="gray" width="80"  >오류사유</td>
+    <td class="gray" width="65"  >처리일자</td>
+    <td class="gray" width="60"  >현금영수증</td>
+  </tr>
+  <tr bgcolor="#dddddd" align="center">
+    <td class="gray" colspan="3" >전화/휴대폰</td>
+    <td class="gray" width="90" >주민번호</td>
+    <td class="gray" colspan="2" >이메일</td>
+    <td class="gray" colspan="5" >주소</td>
+  </tr>
+<%--화면에 보여줄 기본 레코드수에 따라 포멧에 맞게 Display--%>
+<%
+    for(int i=0; i < showRecCnt ; i++) {
+%>
+  <tr>
+    <td class="gray" rowspan="2"><input type="checkbox" name="grad_check<%=i%>" onClick="checkAll();" disabled ></td>
+    <td class="gray"  align="center" >&nbsp;</td>
+    <td class="gray" align="left"   >&nbsp;</td>
+    <td class="gray" align="left"   >&nbsp;</td>
+    <td class="gray" align="left"   >&nbsp;</td>
+    <td class="gray"  align="center" >
+      <select name="bocd" size="1" class="sel_all" style="width:60;">
+        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>
+<%--지사 콤보박스 구성--%>
+<%
+        for(int j=0; j<ds.pusbocdcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCPUSBOCDCURRecord pusbocdcurRec = (CO_L_RDRCRTS_GRAD_APLCPUSBOCDCURRecord)ds.pusbocdcur.get(j);
+%>
+        <option value="<%= pusbocdcurRec.bocd%>"><%= pusbocdcurRec.bonm%></option>
+<%
+        }
+%>
+      </select>
+    </td>
+    <td class="gray"  align="center" >&nbsp;</td>
+    <td class="gray"  align="center" >
+      <input type="text" name="rdr_no"      size="9" maxlength="9" class="text_box" value="">
+    </td>
+
+<%----------------------------------
+------------------------------------
+
+    <td class="gray"  align="center" >
+      <select name="rdrgrad" size="1" class="sel_all" style="width:70;">
+        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>
+//등급 콤보박스 구성
+<%
+         for(int j=0; j<ds.gradcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCGRADCURRecord gradcurRec = (CO_L_RDRCRTS_GRAD_APLCGRADCURRecord)ds.gradcur.get(j);
+%>
+        <option value="<%= gradcurRec.cicodeval%>"><%= gradcurRec.cicdnm%></option>
+<%
+    }
+%>
+      </select>
+    </td>
+------------------------------------------------%>
+
+    <td class="gray"  align="center" >
+      <select name="dtlsprocstat" size="1" class="sel_all" style="width:70;"  onchange="jsDisEnabled(<%=i%>);">
+<%--        <option value="" <% if (true) {%> selected <%} else { }%> >선택</option>--%>
+<%--모플회원 콤보박스 구성--%>
+<%
+         for(int j=0; j<ds.dtlsprocstatcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCDTLSPROCSTATCURRecord dtlsprocstatcurRec = (CO_L_RDRCRTS_GRAD_APLCDTLSPROCSTATCURRecord)ds.dtlsprocstatcur.get(j);
+%>
+        <option value="<%= dtlsprocstatcurRec.cicodeval%>"><%= dtlsprocstatcurRec.cicdnm%></option>
+<%
+    }
+%>
+      </select>
+    </td>
+
+
+    <td class="gray"  align="center" >
+      <select name="errresncd" size="1" class="sel_all" style="width:70;">
+        <option value="" <% if (true) {%> selected <% } else { }%> >선택</option>
+//오류사유 콤보박스 구성
+<%
+         for(int j=0; j<ds.errresncdcur.size(); j++){
+            CO_L_RDRCRTS_GRAD_APLCERRRESNCDCURRecord errresncdcurRec = (CO_L_RDRCRTS_GRAD_APLCERRRESNCDCURRecord)ds.errresncdcur.get(j);
+%>
+        <option value="<%= errresncdcurRec.cicodeval%>"><%= errresncdcurRec.cicdnm%></option>
+<%
+    }
+%>
+      </select></td>
+    <td class="gray"  align="center" >&nbsp;</td>
+    <td class="gray"  align="center" >&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="gray" colspan="3" align="left"   >&nbsp;</td>
+    <td class="gray" align="center" >&nbsp;</td>
+    <td class="gray" colspan="2" align="left"   >&nbsp;</td>
+    <td class="gray" colspan="5" align="left"   >&nbsp;</td>
+  </tr>
+<%
+    }
+%>
+  </form>
+</table>
+<!---button-->
+<table  width="830" cellpadding="0" border="0" cellspacing="0" class="title2" align="center" id="page_zone">
+  <tr>
+    <td height="20" bgcolor="#E8E8E8">
+      <div align="center">
+        <!--JSP PAGE START---------------------------------------------------------------------------------->
+        <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+        <jsp:param name  ="curr_page_no"        value="1"/>
+        <jsp:param name  ="total_records"       value="0"/>
+        <jsp:param name  ="js_fn_nm"            value="list_search"/>
+        <jsp:param name  ="records_per_page"    value="<%=showRecCnt%>"/>
+        <jsp:param name  ="page_set_gubun"      value="0"/>
+        </jsp:include>
+        <!--JSP PAGE END------------------------------------------------------------------------------------>
+      </div>
+    </td>
+  </tr>
+</table>
+<%--비교대상--%>
+<table width="830" border="0" cellspacing="0" cellpadding="2" align="center" id="compare_zone">
+  <tr>
+    <td valign="top" align="center">
+      <iframe name="showifrm" src="/ps/reader/1616" frameborder="0"  height="400" width="830" marginheight="0" marginwidth="0" scrolling="no"></iframe>
+    </td>
+  </tr>
+</table>
+<form name="mpsearch_form" method="post" action="">
+  <input type="hidden" name="bocd_p"	value="">
+  <input type="hidden" name="rdr_no_p"	value="">
+  <input type="hidden" name="medicd_p"	value="">
+</form>
+<iframe name="gradifrm" width=100 height=0></iframe>
+</body>
+</html>

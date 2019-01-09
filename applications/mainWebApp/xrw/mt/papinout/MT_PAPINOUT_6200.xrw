@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<fac_clsf>
+								<item>
+									<value/>
+									<label/>
+								</item>
+							</fac_clsf>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<fac_clsf/>
+							<issu_dt_fr/>
+							<issu_dt_to/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm/>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm/>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<msg/>
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<issu_dt/>
+								<fac_clsf/>
+								<pap_std/>
+								<issu_pcnt/>
+								<clr_pcnt/>
+								<bw_pcnt/>
+								<slip_qty/>
+								<prt_wgt/>
+							</record>
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					    function date(gubun)
+					   {
+					     	    var d = new Date();
+					     	    var rec = "";
+								var brec = "";
+					     	    var dd = "";
+					     	    var mm = "";
+					     	    rec = "" + d.getYear();
+					     	    if( gubun == 'FROM')
+					     	    {
+					     	    		dd = "01";
+					     	    }
+					     	    else if( gubun == 'TO')
+					     	    {
+						     	    if(d.getDate() < 10 ) dd = "0" + d.getDate();
+						     	    else                       dd = d.getDate();
+					     	    }
+								else if( gubun == 'BBFROM')
+					     	    {
+						     	    mm = d.getMonth()-1;
+									if(mm< 10 )  mm = "0" + (mm) ;
+									else if (mm>= 10 )mm = (mm) ;
+									
+									if(mm == "12")  
+									{
+										brec =  "" + (new Date(d.getYear(),0 ,0)).getYear();
+									}
+									else{
+										brec =  "" + d.getYear();
+									}
+									rec = brec+mm+commLastDay(brec+mm+"01");
+					     	    }
+								else if( gubun == 'BBTO')
+					     	    {
+						     	    mm = d.getMonth();
+									if(mm< 10 )  mm = "0" + (mm) ;
+									else if (mm>= 10 )mm = (mm) ;
+									
+									if(mm == "12")  
+									{
+										brec =  "" + (new Date(d.getYear(),0 ,0)).getYear();
+									}
+									else{
+										brec =  "" + d.getYear();
+									}
+									rec = brec+mm+commLastDay(brec+mm+"01") - 1;
+					     	    }
+					     	    
+					     	    if( d.getMonth() + 1 < 10 )  rec = rec + "0" + (d.getMonth() + 1 )  + dd;
+					     	    else if ( d.getMonth() + 1 >= 10 )  rec = rec  + (d.getMonth() + 1) + dd;
+					     	    
+					     	    return (rec);
+					  }
+					  function InitPage(){
+					  	model1.copyNode("/root/initData/pageInfo",parent.root.initData.pageInfo);
+					  	  
+						model1.setValue("/root/reqData/searchData/issu_dt_fr",  date("BBFROM"));
+					   	model1.setValue("/root/reqData/searchData/issu_dt_to", date("BBTO"));
+					 	model1.send("mt_papinout_6201");
+					 	
+					 	model1.copyNode("/root/initData/comboSet/fac_clsf", "/root/tempData/fac_clsf");
+					 	
+						model1.setValue("/root/reqData/searchData/fac_clsf","25");
+					 	group2.refresh();
+					  }
+				]]>
+			</script>
+			<submission id="mt_papinout_6201" action="/mt/papinout/6201" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="mt_papinout_6202" action="/mt/papinout/6202" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body pagewidth="890" pageheight="575">
+		<group id="group2" class="gro_sel" style="left:20px; top:40px; width:855px; height:24px; ">
+			<caption id="caption4" class="list_cap01" style="left:0px; top:0px; width:100px; height:24px; text-align:center; ">공장</caption>
+			<caption id="caption5" class="list_cap02" style="left:99px; top:0px; width:175px; height:24px; text-align:center; "/>
+			<caption id="caption33" class="list_cap01" style="left:273px; top:0px; width:105px; height:24px; text-align:center; ">발행일자</caption>
+			<caption id="caption34" class="list_cap02" style="left:377px; top:0px; width:468px; height:24px; text-align:center; "/>
+			<select1 id="combo1" ref="/root/reqData/searchData/fac_clsf" appearance="minimal" style="left:104px; top:3px; width:135px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/fac_clsf/item">
+						<value ref="value"/>
+						<label ref="label"/>
+					</itemset>
+				</choices>
+			</select1>
+			<input id="input1" ref="/root/reqData/searchData/issu_dt_fr" class="req" inputtype="date" caption="발행일자 FROM" style="left:383px; top:3px; width:125px; height:18px; "/>
+			<input id="input2" ref="/root/reqData/searchData/issu_dt_to" class="req" inputtype="date" caption="발행일자 TO" style="left:535px; top:3px; width:125px; height:18px; "/>
+			<caption id="caption1" style="left:514px; top:5px; width:15px; height:15px; ">~</caption>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="소모일자^공장^규격^면수^칼라면^흑백면^인쇄부수^인쇄중량" colsep="^" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" subtotalposition="below" style="left:20px; top:75px; width:845px; height:480px; ">
+			<col ref="issu_dt" format="yyyy-mm-dd"/>
+			<col ref="fac_clsf"/>
+			<col ref="pap_std"/>
+			<col ref="issu_pcnt" format="#,###" style="text-align:right; "/>
+			<col ref="clr_pcnt" format="#,###" style="text-align:right; "/>
+			<col ref="bw_pcnt" format="#,###" style="text-align:right; "/>
+			<col ref="slip_qty" format="#,###" style="text-align:right; "/>
+			<col ref="prt_wgt" format="#,###" style="text-align:right; "/>
+		</datagrid>
+		<group id="group3" style="left:20px; top:10px; width:845px; height:21px; ">
+			<button id="button3" class="btn02" style="left:680px; top:0px; width:50px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					datagrid1.subtotal("clear", -1, 4);
+							datagrid1.subtotal("clear",  -1, 5);
+							datagrid1.subtotal("clear", -1, 6);
+							datagrid1.subtotal("clear",  -1,7);
+							datagrid1.subtotal("clear", -1, 8);
+					InitPage();
+					]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" style="left:795px; top:0px; width:50px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn02" CRUD="R" style="left:740px; top:0px; width:50px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							if(  commReqCheck(group2) == false ) return; //필수사항 CHK
+							
+							model1.send("mt_papinout_6202");
+							model1.copyNode("/root/resData/gridData" ,"/root/tempData/gridData");
+							
+							datagrid1.refresh();
+							
+							datagrid1.subtotal("clear", -1, 4);
+							datagrid1.subtotal("clear",  -1, 5);
+							datagrid1.subtotal("clear", -1, 6);
+							datagrid1.subtotal("clear",  -1,7);
+							datagrid1.subtotal("clear", -1, 8);
+					
+							datagrid1.subtotal("sum", -1, 4, "#,###", "background-color:#ffff00; font-weight:bold; color:#0000ff;", 1, "총계");
+						       datagrid1.subtotal("sum", -1, 5, "#,###", "background-color:#ffff00; font-weight:bold; color:#0000ff;", 1, "총계");
+						       datagrid1.subtotal("sum", -1, 6, "#,###", "background-color:#ffff00; font-weight:bold; color:#0000ff;", 1, "총계");
+						       datagrid1.subtotal("sum", -1, 7, "#,###", "background-color:#ffff00; font-weight:bold; color:#0000ff;", 1, "총계");
+						       datagrid1.subtotal("sum", -1, 8, "#,###", "background-color:#ffff00; font-weight:bold; color:#0000ff;", 1, "총계");
+							
+							
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,331 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<bldg_cd>
+								<item>
+									<label/>
+									<value/>
+								</item>
+							</bldg_cd>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<cmpy_cd/>
+							<bldg_cd/>
+							<leas_to_dt1/>
+							<leas_to_dt2/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm>
+							<cmpy_cd/>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<mode/>
+							<cmpy_cd/>
+							<int_rate/>
+							<cntr_chek/>
+							<mang_chek/>
+							<incr_rate/>
+						</resForm>
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<msg>
+							<errMsg/>
+							<errCode/>
+						</msg>
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<!-- datagrid2 -->
+							<!-- datagrid3 -->
+							<record>
+								<leas_mm/>
+								<bldg_nm/>
+								<aset_nm/>
+								<leas_dlco_ern_nm/>
+								<leas_prd/>
+								<cntr_no/>
+								<cntr_leas_amt/>
+								<cntr_mang_amt/>
+								<cntr_gurt_amt/>
+								<incr_amt/>
+								<gurt_int_amt/>
+								<impl_pfls/>
+								<cmpy_cd/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					//공통코드 조회하여 콤보박스에 설정
+					model1.send("as_leas_1501");
+					makeComboSet("", "/root/tempData/dataSet/CURLIST1/record", "/root/initData/comboSet/bldg_cd", "cdabrvnm_cd", "cd");
+					//model1.removeNodeset("/root/tempData/dataSet");
+					
+					
+					var now = new Date();
+					//오늘날짜 구하기 -> today
+					var year = now.getYear();
+					var month = now.getMonth()+1;
+					var date = now.getDate();
+					if(month < 10)
+						month = "0" + month;
+					if(date < 10)
+						date = "0" + date;
+					var today = year + month + date; //오늘날짜
+                                     
+                                     //오늘날짜에서 +한달 구하기.
+                                     var addMon = addMonth(year, month, date, 1);
+                                     year = addMon.getYear();
+					month = addMon.getMonth()+1;
+					date = addMon.getDate();
+					if(month < 10)
+						month = "0" + month;
+					if(date < 10)
+						date = "0" + date;
+						
+					var mtry_month = year + month + date; //오늘날짜 +한달
+                                     
+                                     //오늘날짜에서 +한달+10일 구하기.
+                                     var addDate = addDay(year, month, date, 10);
+					year = addDate.getYear();
+					month = addDate.getMonth()+1;
+					date = addDate.getDate();
+					if(month < 10)
+						month = "0" + month;
+					if(date < 10)
+						date = "0" + date;
+						
+					var mtry_date = year + month + date; //오늘날짜 +한달+10일
+					
+					model1.setValue("/root/reqData/searchData/leas_to_dt1" , today);
+					model1.setValue("/root/reqData/searchData/leas_to_dt2" , mtry_date);
+					model1.refresh();
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+				function addDay(yyyy, mm, dd, pDay) { // 년, 월, 일, 계산할 일자 (년도는 반드시 4자리로 입력)
+					var oDate; // 리턴할 날짜 객체 선언
+					dd = dd*1 + pDay*1; // 날짜 계산
+					mm--; // 월은 0~11 이므로 하나 빼준다
+					oDate = new Date(yyyy, mm, dd) // 계산된 날짜 객체 생성 (객체에서 자동 계산)
+					return oDate;
+				}
+				
+				function addMonth(yyyy, mm, dd, pMonth) { // 년, 월, 일, 계산할 월 (년도는 반드시 4자리로 입력)
+					var cDate; // 계산에 사용할 날짜 객체 선언
+					var oDate; // 리턴할 날짜 객체 선언
+					var cYear, cMonth, cDay // 계산된 날짜값이 할당될 변수
+					mm = mm*1 + ((pMonth*1)-1); // 월은 0~11 이므로 하나 빼준다
+					cDate = new Date(yyyy, mm, dd) // 계산된 날짜 객체 생성 (객체에서 자동 계산)
+					cYear = cDate.getFullYear(); // 계산된 년도 할당
+					cMonth = cDate.getMonth(); // 계산된 월 할당
+					cDay = cDate.getDate(); // 계산된 일자 할당
+					oDate = (dd == cDay) ? cDate : new Date(cYear, cMonth, 0); // 넘어간 월의 첫쨋날 에서 하루를 뺀 날짜 객체를 생성한다.
+					return oDate;
+				}
+				]]>
+			</script>
+			<submission id="as_leas_1501" action="/as/leas/1501" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+			<submission id="as_leas_1502" action="/as/leas/1502" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/as_common.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:10px; top:69px; width:926px; height:26px; ">
+			<caption id="caption62" class="list_cap02" style="left:55px; top:0px; width:690px; height:26px; "/>
+			<caption id="caption44" class="list_cap01" style="left:0px; top:0px; width:100px; height:26px; ">건물구분</caption>
+			<caption id="caption65" class="list_cap01" style="left:350px; top:0px; width:80px; height:26px; ">만기일자</caption>
+			<input id="input26" ref="/root/reqData/searchData/leas_to_dt2" class="req" navindex="3" inputtype="date" caption="만기일자TO" style="left:598px; top:4px; width:100px; height:18px; background-color:#ffffcc; "/>
+			<input id="input19" ref="/root/reqData/searchData/leas_to_dt1" class="req" navindex="2" inputtype="date" caption="만기일자FROM" style="left:434px; top:4px; width:100px; height:18px; background-color:#ffffcc; "/>
+			<caption id="caption3" style="left:556px; top:6px; width:20px; height:15px; text-align:center; ">~</caption>
+			<select1 id="combo1" ref="/root/reqData/searchData/bldg_cd" class="req" navindex="1" appearance="minimal" caption="건물구분" style="left:104px; top:4px; width:126px; height:18px; background-color:#ffffcc; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/bldg_cd/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+			</select1>
+		</group>
+		<group id="group_line" class="gro_line" style="left:10px; top:103px; width:926px; height:5px; "/>
+		<group id="group_tit" class="gro_tit2" style="left:10px; top:124px; width:250px; height:20px; ">
+			<caption id="subtitle" class="tit02" style="left:0px; top:0px; width:165px; height:20px; ">임대만기대상내역</caption>
+		</group>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="월^건물구분^임대대상물건^임대인^만기일자^계약번호^임대료^관리비^보증금^임대관리비인상액^보증금간주이자^총수입^caption1" colsep="^" colwidth="36, 77, 230, 133, 126, 65, 67, 68, 75, 103, 96, 93, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:155px; width:925px; height:558px; ">
+			<col ref="leas_mm"/>
+			<col ref="bldg_nm" style="text-align:left; "/>
+			<col ref="aset_nm" style="text-align:left; "/>
+			<col ref="leas_dlco_ern_nm" style="text-align:left; "/>
+			<col ref="leas_prd"/>
+			<col ref="cntr_no"/>
+			<col ref="cntr_leas_amt" format="#,###" style="text-align:right; "/>
+			<col ref="cntr_mang_amt" format="#,###" style="text-align:right; "/>
+			<col ref="cntr_gurt_amt" format="#,###" style="text-align:right; "/>
+			<col ref="incr_amt" format="#,###" style="text-align:right; "/>
+			<col ref="gurt_int_amt" format="#,###" style="text-align:right; "/>
+			<col ref="impl_pfls" format="#,###" style="text-align:right; "/>
+			<col ref="cmpy_cd" visibility="hidden"/>
+		</datagrid>
+		<group id="group1" class="gro_tab1" style="left:310px; top:118px; width:625px; height:27px; ">
+			<caption id="caption37" class="list_cap02" style="left:80px; top:0px; width:475px; height:26px; "/>
+			<caption id="caption61" class="list_cap03" style="left:50px; top:0px; width:85px; height:26px; ">간주이자율</caption>
+			<input id="input2" ref="/root/resData/resForm/int_rate" navindex="4" inputtype="input" format="#,###" appearance="input" style="left:139px; top:4px; width:51px; height:18px; font-weight:bold; text-align:right; "/>
+			<caption id="caption36" class="list_cap03" style="left:220px; top:0px; width:121px; height:26px; ">임대관리비인상율</caption>
+			<input id="input1" ref="/root/resData/resForm/incr_rate" navindex="5" inputtype="input" format="#,###" appearance="input" style="left:345px; top:4px; width:65px; height:18px; font-weight:bold; text-align:right; "/>
+			<button id="button2" class="btn_grid04" style="left:555px; top:5px; width:65px; height:17px; ">
+				<caption>반영</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						if (datagrid1.valueMatrix(1, 1) == "") {
+							return;
+						}
+						
+						//보증금간주이자 구하기.
+						var int_rate = parseInt(model1.getValue("/root/resData/resForm/int_rate")) / 100;  //간주이자율
+						var gurt_amt = 0;  //보증금
+						
+						if ( model1.getValue("/root/resData/resForm/int_rate") != "") {
+							for (i = 1; i < datagrid1.rows; i++) {
+								gurt_amt = parseInt(datagrid1.valueMatrix(i, 9));
+								datagrid1.valueMatrix(i, 11) = int_rate * gurt_amt;  //간주이자율 * 보증금
+							}		
+						}
+						
+						//임대관리비인상액 구하기.
+						var incr_rate = parseInt(model1.getValue("/root/resData/resForm/incr_rate")) / 100;  //임대관리비인상율
+						var cntr_leas_amt = 0;  //임대료
+						var cntr_mang_amt = 0;  //관리비 
+						if ( model1.getValue("/root/resData/resForm/cntr_chek") == "1" && model1.getValue("/root/resData/resForm/mang_chek") == "1" ) {  //임대료,관리비 둘다 체크하였을 경우.
+							for (i = 1; i < datagrid1.rows; i++) {
+								cntr_leas_amt = parseInt(datagrid1.valueMatrix(i, 7));
+								var incr_amt_leas = incr_rate * cntr_leas_amt;  //임대관리비인상율 * 임대료
+								cntr_mang_amt = parseInt(datagrid1.valueMatrix(i, 8));
+								var incr_amt_mang = incr_rate * cntr_mang_amt;  //임대관리비인상율 * 관리비
+								datagrid1.valueMatrix(i, 10) = incr_amt_leas + incr_amt_mang;
+							}
+							//return;
+						}
+						else if ( model1.getValue("/root/resData/resForm/cntr_chek") == "1") {  //임대료만 체크하였을 경우.
+							for (i = 1; i < datagrid1.rows; i++) {
+								cntr_leas_amt = parseInt(datagrid1.valueMatrix(i, 7));
+								datagrid1.valueMatrix(i, 10) = incr_rate * cntr_leas_amt;  //임대관리비인상율 * 임대료
+							}
+							//return;
+						}
+						else if ( model1.getValue("/root/resData/resForm/mang_chek") == "1") {  //관리비만 체크하였을 경우.
+							for (i = 1; i < datagrid1.rows; i++) {
+								cntr_mang_amt = parseInt(datagrid1.valueMatrix(i, 8));
+								datagrid1.valueMatrix(i, 10) = incr_rate * cntr_mang_amt;  //임대관리비인상율 * 관리비
+							}
+							//return;
+						}
+						
+						//총수입 구하기.
+						for (i = 1; i < datagrid1.rows; i++) {
+							var a = parseInt(datagrid1.valueMatrix(i, 7));  //임대료
+							var b = parseInt(datagrid1.valueMatrix(i, 8));  //관리비
+							var c = parseInt(datagrid1.valueMatrix(i, 10));  //임대관리비인상액
+							var d = parseInt(datagrid1.valueMatrix(i, 11));  //보증금간주이자
+							datagrid1.valueMatrix(i, 12) = a + b+ c+ d;  //총수입
+						}
+					]]>
+				</script>
+			</button>
+			<caption id="caption1" style="left:193px; top:4px; width:15px; height:20px; ">%</caption>
+			<caption id="caption2" style="left:415px; top:4px; width:15px; height:20px; ">%</caption>
+			<select id="checkbox3" ref="/root/resData/resForm/cntr_chek" navindex="6" overflow="visible" appearance="full" style="left:433px; top:5px; width:55px; height:18px; border-style:none; ">
+				<choices>
+					<item>
+						<label>임대료</label>
+						<value>1</value>
+					</item>
+				</choices>
+			</select>
+			<select id="checkbox1" ref="/root/resData/resForm/mang_chek" navindex="7" overflow="visible" appearance="full" style="left:490px; top:5px; width:55px; height:18px; border-style:none; ">
+				<choices>
+					<item>
+						<label>관리비</label>
+						<value>1</value>
+					</item>
+				</choices>
+			</select>
+		</group>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_btnA" class="gro_btn" style="left:10px; top:40px; width:926px; height:21px; ">
+			<button id="btnClose" class="btn02" style="left:874px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					]]>
+				</script>
+			</button>
+			<button id="btnReset" class="btn02" style="left:820px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:698px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (commReqCheck(group_scr)) {
+						model1.send("as_leas_1502");
+						model1.copyNode("/root/resData/gridData", "/root/tempData/dataSet/CURLIST1");
+						model1.removeNodeset("/root/tempData/dataSet");
+						model1.refresh();
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn03" navindex="8" style="left:753px; top:0px; width:63px; height:21px; ">
+				<caption>엑셀저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+						datagrid1.saveExcel(filename, "sheetname:sheet1;colhiddenextend:false;rowhiddenextend:false;exportfalsecols:0;row_0:label;");
+					]]>
+				</script>
+			</button>
+		</group>
+	</xhtml:body>
+</xhtml:html>

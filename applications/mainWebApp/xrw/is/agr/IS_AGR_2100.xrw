@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet_ad.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>직접간접수주내역</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<teamlist/>
+							<partlist/>
+						</comboSet>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+							<scat_dt_fr/>
+							<scat_dt_to/>
+							<dept_cd/>
+							<sub_dept_cd/>
+							<chrg_pers/>
+						</fwdData>
+						<searchData>
+							<scat_dt_fr/>
+							<scat_dt_to/>
+							<dept_cd/>
+							<sub_dept_cd/>
+							<chrg_pers/>
+							<chrg_pers_nm/>
+						</searchData>
+						<reqForm/>
+						<multiUpdateData/>
+					</reqData>
+					<resData>
+						<resForm/>
+						<gridData1>
+							<record>
+								<dept_cd_nm/>
+								<sub_dept_cd_nm/>
+								<chrg_pers_nm/>
+								<rvord_type_amt01/>
+								<rvord_type_amt01_rate/>
+								<rvord_type_amt02/>
+								<rvord_type_amt02_rate/>
+								<rvord_type_amt_subtot/>
+								<rvord_type_amt03/>
+								<rvord_type_amt_tot/>
+								<t_no/>
+								<dept_cd/>
+								<sub_dept_cd/>
+								<chrg_pers/>
+							</record>
+						</gridData1>
+						<gridData2>
+							<record>
+								<scat_dt/>
+								<dlco_nm/>
+								<advcs_cd_nm/>
+								<indt_cd_nm/>
+								<advt_nm/>
+								<sale_clsf_nm/>
+								<spc_sale_clsf_nm/>
+								<dept_cd_nm/>
+								<sub_dept_cd_nm/>
+								<chrg_pers/>
+								<std_cd_nm/>
+								<uprc/>
+								<qunt/>
+								<suply_amt/>
+								<purc_uprc/>
+								<purc_amt/>
+								<prft_amt/>
+								<prft_rate/>
+							</record>
+						</gridData2>
+					</resData>
+					<tempData>
+						<keyData/>
+					</tempData>
+					<msgData/>
+				</root>
+			</instance>
+			<submission id="is_agr_2100_m" action="/is/agr/2100" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/initData/comboSet/is_agr_2100_m/dataSet"/>
+			<submission id="is_agr_2110_l" action="/is/agr/2110" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/gridData1/record"/>
+			<submission id="is_agr_2120_l" action="/is/agr/2120" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/resData/gridData2/record"/>
+			<submission id="hd_com_1002" action="/hd/com/1002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/fwdData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+				model.setValue("/root/reqData/searchData/scat_dt_fr", getCurrentDate());			
+				model.setValue("/root/reqData/searchData/scat_dt_to", getCurrentDate());		
+				
+				makeTeamSearch(
+								   "is_agr_2100_m"
+								  , "/is/agr/2100"
+								  , "/root/reqData"  
+		                           			  , "/root/initData/comboSet"
+								  , "team_combo"
+								  , "part_combo"
+								  );
+								  
+				switch1.selectedIndex = 0;				  
+				model.refresh();				
+				]]>
+			</script>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/ad_common.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+		<script type="javascript">
+			<![CDATA[
+			/**탭1. 콤보박스 환경설정한다. **/
+			function makeTeamSearch(submitId, action, ref, resultref, teamCombo, partCombo){
+
+				modelSendNoMake(submitId, action, ref, resultref);
+				if(!submit_completed()) return;
+				
+				var teamEvent = 'selectTeam("' + resultref + '", "' + teamCombo + '", "' + partCombo + '");';
+				//var partEvent = 'selectPart("' + resultref + '", "' + teamCombo + '", "' + partCombo + '", "' + areaCombo + '");';
+				//teamEvent = teamEvent + partEvent;
+			
+				eval(teamCombo + ".attribute('xforms-select') = '" + teamEvent + "'");
+				//eval(partCombo + ".attribute('xforms-select') = '" + partEvent + "'");
+				
+				makeComboGubun("A", resultref + "/teamlist", "record", "dept_nm", "dept_cd");
+				makeComboGubun("A", resultref + "/partlist", "record", "dept_nm", "dept_cd");
+								
+				selectTeam(resultref, teamCombo, partCombo);
+				//selectPart(resultref, teamCombo, partCombo, areaCombo); 보류
+				model.refresh();
+			    //eval(teamCombo + ".select(0)");
+			}
+			
+			/** 팀이 선택되면 파트의 값을 변경한다. **/
+			function selectTeam(resultref, teamCombo, partCombo){
+				var key        = eval(teamCombo + ".value");
+				var arr        = instance1.selectSingleNode(resultref + "/partlist_temp/record"); 
+
+				if(arr == null){
+					var len = null;
+				}else{
+					var len = arr.length;
+				}
+			
+				var val, record, dept_cd, dept_nm, node2, node3;
+				var node = resultref + "/partlist";
+				var nodeTemp = resultref + "/partlist_temp";
+				var index = 1;
+				model.removeNodeset(node);
+			
+			//alert('part='+len);	
+			//alert('dept_cd='+model.getValue(nodeTemp + "/record/dept_cd"));
+			//alert('dept_nm='+model.getValue(nodeTemp + "/record/dept_nm"));
+			
+				if(len==0){
+					val          = model.getValue(nodeTemp + "/record/supr_dept_cd");
+					if ( key == val || key == "" ){
+							model.makeNode(node + "/record[" + 1 + "]");
+							model.makeNode(node + "/record[" + 1 + "]/dept_cd");
+							model.makeNode(node + "/record[" + 1 + "]/dept_nm");
+							
+							model.setValue(node + "/record[" + 1 + "]/dept_cd", model.getValue(nodeTemp + "/record/dept_cd"));
+							model.setValue(node + "/record[" + 1 + "]/dept_nm", model.getValue(nodeTemp + "/record/dept_nm"));
+					}
+				}else if(len > 1){
+					for ( var i = 1 ; i <= len ; i++ ){
+						val          = model.getValue(nodeTemp + "/record[" + i + "]/supr_dept_cd");
+						if ( key == val || key == "" ){
+								model.makeNode(node + "/record[" + index + "]");
+								model.makeNode(node + "/record[" + index + "]/dept_cd");
+								model.makeNode(node + "/record[" + index + "]/dept_nm");
+								
+								model.setValue(node + "/record[" + index + "]/dept_cd", model.getValue(nodeTemp + "/record[" + i + "]/dept_cd"));
+								model.setValue(node + "/record[" + index + "]/dept_nm", model.getValue(nodeTemp + "/record[" + i + "]/dept_nm"));
+								
+								index++;
+				
+						}
+					}
+				}
+				
+				model.refresh();
+				makeComboGubun("A", resultref + "/partlist", "record", "dept_nm", "dept_cd");
+				
+				eval(partCombo + ".select(0)");
+			}
+			
+			function setMenu_srch(menu_id, menu_nm){		
+				model.setValue("/root/reqData/searchData/chrg_pers", menu_id);
+				model.setValue("/root/reqData/searchData/chrg_pers_nm", menu_nm);
+			
+				model.refresh();	
+			}	
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="1,10;1,935;2,61;2,71;2,124;2,98;2,103;2,118;2,696;" style="font-family:굴림; ">
+		<caption id="caption12" class="list_cap02" style="left:10px; top:71px; width:926px; height:28px; "/>
+		<caption id="caption6" tyle="left:15px; top:180px; width:940px; height:0px;" style="left:0px; top:10px; width:0px; height:0px; ">caption6</caption>
+		<import id="iv_Title" src="/common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_line" class="gro_line" style="left:10px; top:108px; width:926px; height:5px; "/>
+		<button id="button4" class="btn02" crud="R" style="left:775px; top:40px; width:50px; height:21px; ">
+			<caption>엑셀</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				var iSel = switch1.selectedIndex;
+				var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+				
+				if(iSel == 0){
+					if(commReqCheck("case1")){
+						if(filename!=""){						
+							datagrid1.saveExcel(filename, "sheetname:sheetname:직접간접수주내역;(매출내역)colhiddenextend:false;rowhiddenextend:false;exportfalsecols:0;row_0:label;");
+						}
+					}
+				}else if(iSel == 1){
+					if(commReqCheck("case2")){
+						if(filename!=""){						
+							datagrid2.saveExcel(filename, "sheetname:직접간접수주내역;(매출상세내역);colhiddenextend:false;rowhiddenextend:false;exportfalsecols:0;row_0:label;");
+						}
+					}
+				}												
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn02" crud="R" style="left:828px; top:40px; width:50px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				model.reset();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn02" style="left:882px; top:40px; width:50px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[				
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));								
+				]]>
+			</script>
+		</button>
+		<caption id="caption1" class="list_cap01" style="left:10px; top:71px; width:85px; height:28px; ">배포일자</caption>
+		<switch id="switch1" class="gro_sel" style="left:10px; top:146px; width:924px; height:551px; ">
+			<case id="case1" selected="true" style="left:0px; top:0px; width:925px; height:639px; ">
+				<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="팀^파트^담당자^직접매출^직접비율^간접매출^간접비율^매출소계^기타매출^매출합계^dept_cd^sub_dept_cd^chrg_pers^t_no" colsep="^" colwidth="100, 100, 60, 100, 60, 100, 60, 100, 100, 100, 100, 100, 100, 100" explorerbar="sort" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:5px; top:50px; width:910px; height:495px; line-spacing:0; ">
+					<col ref="dept_cd_nm" style="text-align:left; "/>
+					<col ref="sub_dept_cd_nm" style="text-align:left; "/>
+					<col ref="chrg_pers_nm"/>
+					<col ref="rvord_type_amt01" format="(-)#,###" style="text-align:left; "/>
+					<col ref="rvord_type_amt01_rate" format="(-)#,###.99" style="text-align:right; "/>
+					<col ref="rvord_type_amt02" format="(-)#,###" style="text-align:right; "/>
+					<col ref="rvord_type_amt02_rate" format="(-)#,###.99" style="text-align:right; "/>
+					<col ref="rvord_type_amt_subtot" format="(-)#,###" style="text-align:right; "/>
+					<col ref="rvord_type_amt03" format="(-)#,###" style="text-align:right; "/>
+					<col ref="rvord_type_amt_tot" format="(-)#,###" style="text-align:right; "/>
+					<col ref="dept_cd" visibility="hidden"/>
+					<col ref="sub_dept_cd" visibility="hidden"/>
+					<col ref="chrg_pers" visibility="hidden"/>
+					<col ref="t_no" visibility="hidden"/>
+					<script type="javascript" ev:event="ondblclick">
+						<![CDATA[
+						var row = datagrid1.row;
+												
+						if(row < datagrid1.fixedRows)	return;
+												
+						if (!datagrid1.isCell(event.target)) return;						
+						var scat_dt_fr = model.getValue("/root/reqData/searchData/scat_dt_fr");
+						var scat_dt_to = model.getValue("/root/reqData/searchData/scat_dt_to");
+						var dept_cd = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("dept_cd"));
+						var sub_dept_cd = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("sub_dept_cd"));
+						var chrg_pers = datagrid1.valueMatrix(datagrid1.row,datagrid1.colRef("chrg_pers"));
+						
+						var r_chrg_pers = model.getValue("/root/reqData/searchData/chrg_pers");
+						                                   
+						if(r_chrg_pers != null){
+							chrg_pers = r_chrg_pers;
+						}						
+						
+						model.setValue("/root/reqData/fwdData/scat_dt_fr", scat_dt_fr);
+						model.setValue("/root/reqData/fwdData/scat_dt_to", scat_dt_to);
+						model.setValue("/root/reqData/fwdData/dept_cd", dept_cd);
+						model.setValue("/root/reqData/fwdData/sub_dept_cd", sub_dept_cd);
+						model.setValue("/root/reqData/fwdData/chrg_pers", chrg_pers);
+						
+						model.send("is_agr_2120_l");
+
+						model.toggle("case2");
+						button2.selected = "true"
+						]]>
+					</script>
+				</datagrid>
+				<caption id="caption2" style="left:5px; top:5px; width:489px; height:20px; color:#993300; ">* 데이터 조회 후 해당 내역을 마우스 더블클릭하면 상세 전단 내역을 확인할 수 있습니다.</caption>
+				<caption id="caption5" style="left:499px; top:5px; width:428px; height:42px; color:#0000ff; ">
+					<![CDATA[1. 직접매출 : 매출구분이[배포]이며 수주형태가 [직접]인 내역
+2. 간접매출 : 매출구분이[배포]이며 수주형태가 [이관]인 내역
+3. 기타매출 : 매출구분이[배포]을 제외한 내역]]>
+				</caption>
+			</case>
+			<case id="case2">
+				<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="배포일자^거래처^광고주^업종^광고명^매출구분^특집매출구분^팀^파트^담당자^규격^수주단가^수주수량^수주금액^배포단가^배포금액^이익금^이익률^이익율" colsep="^" colwidth="80, 130, 130, 60, 100, 70, 80, 80, 80, 60, 80, 80, 80, 80, 80, 80, 80, 80" explorerbar="sort" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:5px; top:5px; width:910px; height:510px; ">
+					<col ref="scat_dt" format="yyyy-mm-dd"/>
+					<col ref="dlco_nm" style="text-align:left; "/>
+					<col ref="advcs_cd_nm" style="text-align:left; "/>
+					<col ref="indt_cd_nm"/>
+					<col ref="advt_nm" style="text-align:left; "/>
+					<col ref="sale_clsf_nm" style="text-align:left; "/>
+					<col ref="spc_sale_clsf_nm" style="text-align:left; "/>
+					<col ref="dept_cd_nm" style="text-align:left; "/>
+					<col ref="sub_dept_cd_nm" style="text-align:left; "/>
+					<col ref="chrg_pers"/>
+					<col ref="std_cd_nm"/>
+					<col ref="uprc" format="(-)#,###.99" style="text-align:right; "/>
+					<col ref="qunt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="suply_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="purc_uprc" format="(-)#,###.99" style="text-align:right; "/>
+					<col ref="purc_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="prft_amt" format="(-)#,###" style="text-align:right; "/>
+					<col ref="prft_rate" format="(-)#,###.99" style="text-align:right; "/>
+				</datagrid>
+			</case>
+		</switch>
+		<button id="button2" class="tab05" group="tab" style="left:102px; top:124px; width:92px; height:23px; ">
+			<caption>매출 상세내역</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.toggle("case2");
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="tab05" group="tab" selected="true" style="left:10px; top:124px; width:143px; height:23px; ">
+			<caption>매출내역</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.toggle("case1");
+				]]>
+			</script>
+		</button>
+		<button id="button7" class="btn02" crud="R" style="left:719px; top:40px; width:50px; height:18px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[	
+				var iSel = switch1.selectedIndex;
+				
+				if(iSel == 0){
+					if(commReqCheck("case1")){
+						model.send("is_agr_2110_l");
+						
+						datagrid1.mergecells= "byrestriccol";
+						datagrid1.mergeCol(1) = true;
+						datagrid1.mergeCol(2) = true;
+						datagrid1.mergeCol(3) = true;
+						datagrid1.mergeByFree(datagrid1.rows-2,2,datagrid1.rows-2,3);
+						datagrid1.mergeByFree(datagrid1.rows-1,1,datagrid1.rows-1,3);	
+						
+						/**계_색상 시작**/
+						for(var i=datagrid1.fixedRows; i<datagrid1.rows; i++){
+							var t_ton			=	datagrid1.valueMatrix(i, datagrid1.colRef("t_no"));
+
+							
+							if(t_ton == "4"){
+								datagrid1.rowstyle( i, "data", "background-color" ) 	= "#A9A9A9";
+							}else if(t_ton == "3" ){
+								datagrid1.rowstyle( i, "data", "background-color" ) 	= "#C0C0C0";								
+							}else if(t_ton == "2"){
+								datagrid1.rowstyle( i, "data", "background-color" ) 	= "#DDDDDD";
+							}else{
+								datagrid1.rowstyle( i, "data", "background-color" ) 	= "#FFFFFF";
+							}
+						}
+						/**계_색상 종료**/						
+						
+						
+						
+					}
+				}else if(iSel == 1){
+					//if(commReqCheck("case2")){
+					//	model.send("is_agr_2120_l");
+					//}
+				}														
+				]]>
+			</script>
+		</button>
+		<caption id="caption14" style="left:187px; top:77px; width:15px; height:17px; ">~</caption>
+		<input id="input2" ref="/root/reqData/searchData/scat_dt_to" navindex="2" inputtype="date" format="yyyy-mm-dd" style="left:203px; top:76px; width:85px; height:18px; "/>
+		<input id="input4" ref="/root/reqData/searchData/scat_dt_fr" navindex="1" inputtype="date" format="yyyy-mm-dd" style="left:98px; top:76px; width:85px; height:18px; "/>
+		<caption id="caption44" class="list_cap01" style="left:700px; top:71px; width:85px; height:28px; ">담당자</caption>
+		<caption id="caption46" class="list_cap01" style="left:292px; top:71px; width:85px; height:28px; ">팀</caption>
+		<caption id="caption16" class="list_cap01" style="left:497px; top:71px; width:85px; height:28px; ">파트</caption>
+		<select1 id="team_combo" ref="/root/reqData/searchData/dept_cd" appearance="minimal" style="left:381px; top:75px; width:110px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/teamlist/record">
+					<label ref="dept_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<select1 id="part_combo" ref="/root/reqData/searchData/sub_dept_cd" appearance="minimal" style="left:586px; top:75px; width:110px; height:18px; ">
+			<choices>
+				<itemset nodeset="/root/initData/comboSet/partlist/record">
+					<label ref="dept_nm"/>
+					<value ref="dept_cd"/>
+				</itemset>
+			</choices>
+		</select1>
+		<input id="inp_chrg_pers_nm" ref="/root/reqData/searchData/chrg_pers_nm" autonext="false" style="left:862px; top:75px; width:70px; height:18px; text-align:left; "/>
+		<input id="inp_chrg_pers" ref="/root/reqData/searchData/chrg_pers" inputtype="button" format="999999" caption="담당자" style="left:790px; top:75px; width:67px; height:18px; ">
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+				model.makeNode("/root/reqData/fwdData/func_nm");
+				model.setValue("/root/reqData/fwdData/func_nm", "setMenu_srch");//팝업에서 함수호출명 
+				
+				
+				window.load("/xrw/hd/com/HD_COM_1000.xrw"
+							,"mdichild"
+							, "hd_com_1000"
+							, "align:center; caption:hidden;width:460px; height:400px;"
+							, "/root/reqData/fwdData"
+							, "/root/reqData/fwdData");
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+				if (inp_chrg_pers.value.length == 6) {
+					model.removeNodeset("/root/reqData/fwdData");  
+					model.makeNode("/root/reqData/fwdData/emp_no");
+					model.setValue("/root/reqData/fwdData/emp_no", inp_chrg_pers.value);
+					model.send("hd_com_1002");
+					
+					if (model.getValue("/root/tempData/record/emp_no") != "") {
+						inp_chrg_pers_nm.value = model.getValue("/root/tempData/record/nm_korn");
+					}else {
+						inp_chrg_pers.value = "";
+						inp_chrg_pers_nm.value = "";
+					}
+				}else {
+					inp_chrg_pers.value = "";
+					inp_chrg_pers_nm.value = "";
+				}				
+				]]>
+			</script>
+		</input>
+	</xhtml:body>
+</xhtml:html>

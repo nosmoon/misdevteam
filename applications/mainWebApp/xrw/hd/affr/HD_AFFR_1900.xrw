@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet ype="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>두자녀출산 축하금</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<pageInfo/>
+						<comboSet>
+						</comboSet>
+					</initData>
+					<tempData/>
+					<reqData>
+						<searchData>
+							<congr_condl_dt_fr/>
+							<congr_condl_dt_to/>
+						</searchData>
+						<reqForm>
+							<cmpy_cd/>
+							<emp_no/>
+							<occr_dt/>
+							<seq/>
+							<flnm/>
+							<dept_cd/>
+							<dept_nm/>
+							<dty_cd/>
+							<dty_nm/>
+							<posi_cd/>
+							<posi_nm/>
+							<proc_stat/>
+							<congr_condl_dt/>
+						</reqForm>
+						<multiUpData/>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<gridData>
+							<record/>
+						</gridData>
+						<resForm>
+							<temp/>
+						</resForm>
+						<totcnt/>
+					</resData>
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+						//maintitle.text = "사원찾기";
+						window.height = 440;
+						window.width = 765;
+						datagrid2.fixedcellcheckbox(0, datagrid2.colRef("chkbox"), false) = true;
+						//model1.copyNode("/root/resData/gridData", "");
+						datagrid2.visible = true;
+						var to_day = monthdate(-1);
+						
+//						var mon_date = todaydate("-");
+						var mon_date = monthdate(1);
+						to_day = to_day.replaceAll("-","");
+						mon_date = mon_date.replaceAll("-","");
+						model1.setValue("/root/reqData/searchData/congr_condl_dt_fr",to_day);
+						model1.setValue("/root/reqData/searchData/congr_condl_dt_to",mon_date);
+						model1.refresh();	
+						
+				]]>
+			</script>
+			<script type="javascript">
+				<![CDATA[
+					String.prototype.trim = function()
+					 {
+					   return this.replace(/(^\s*)|(\s*$)/gi, "");
+					 }
+					 String.prototype.replaceAll = function(str1, str2)
+					 {
+					   var temp_str = "";
+					   if (this.trim() != "" && str1 != str2)
+					   {
+					     temp_str = this.trim();
+					     while (temp_str.indexOf(str1) > -1)
+					     {
+					       temp_str = temp_str.replace(str1, str2);
+					     }
+					   }
+					   return temp_str;
+					  }
+				
+					function roomDay(){	
+						var v1 = model1.getValue("/root/reqData/reqForm/use_frdt");
+						var v2 = model1.getValue("/root/reqData/reqForm/use_todt");
+						if(v1 < v2 ){
+							var day_dds = dayDiff(v1,v2);
+							model1.setValue("/root/reqData/reqForm/use_dds",day_dds);
+							model1.refresh();
+						}else{
+							model1.setValue("/root/reqData/reqForm/use_dds","0");
+							model1.refresh();
+						}								  
+					}		
+					
+					 function dayDiff(v1,v2){ 
+					 	if(v1 != "" && v2 != ""){
+							var sdate = new Date(v1.substring(0,4),v1.substring(4,6),v1.substring(6,8));  
+						 	var edate = new Date(v2.substring(0,4),v2.substring(4,6),v2.substring(6,8));  
+							return  Math.ceil((edate - sdate) / 1000 / 24 / 60 / 60); 
+					 	}
+					  }								
+					function sendfuc(tel_no,ptph_no,email_addr,use_day1,emp_no,dept_nm,dty_nm,posi_nm,nm_korn,dept_cd,dty_cd,posi_cd){
+						model.setValue("/root/reqData/reqForm/tel_no",tel_no);
+						model.setValue("/root/reqData/reqForm/ptph_no",ptph_no);
+						model.setValue("/root/reqData/reqForm/email_addr",email_addr);
+						model.setValue("/root/reqData/reqForm/use_day1",use_day1);
+						model.setValue("/root/reqData/reqForm/emp_no",emp_no);
+						model.setValue("/root/reqData/reqForm/dept_nm",dept_nm);
+						model.setValue("/root/reqData/reqForm/dept_cd",dept_cd);
+						model.setValue("/root/reqData/reqForm/dty_nm",dty_nm);
+						model.setValue("/root/reqData/reqForm/dty_cd",dty_cd);
+						model.setValue("/root/reqData/reqForm/posi_nm",posi_nm);
+						model.setValue("/root/reqData/reqForm/posi_cd",posi_cd);
+						model.setValue("/root/reqData/reqForm/nm_korn",nm_korn);
+						model.refresh();
+					}		
+					
+					function searchList(){
+						var ss_emp_no = getProperty("ss_emp_no");
+						//model1.setValue("/root/reqData/searchData/cmpy_cd", "100");
+						model1.setValue("/root/reqData/searchData/emp_no", ss_emp_no);
+						model1.send("hd_affr_1200");
+						model1.copyNode("/root/resData/gridData", "/root/tempData");
+						model1.copyNode("/root/initData/comboSet", "/root/tempData");
+						model1.refresh();
+					}		
+					
+					function setEmp_no(emp_no, flnm){
+						model1.setValue("/root/reqData/searchData/srch_emp_no", emp_no);
+						model1.setValue("/root/reqData/searchData/flnm", flnm);
+						model1.refresh(); 
+						//defaultLoad();
+					}
+					function setEmp_no1(emp_no, flnm){
+ 						model1.setValue("/root/reqData/searchData/emp_no",emp_no);		
+ 						model1.send("hd_affr_1102");
+						inputSettingValue();
+ 						
+ 						model1.refresh();
+					}
+					
+						//오늘 날짜
+						function todaydate(val){
+							var e_date = new Date();
+							var year = e_date.getFullYear(); 
+							var month = e_date.getMonth() + 1;
+							var day = e_date.getDate();
+							if (("" + month).length==1){month = "0"+month;}
+							if (("" + day).length==1){day = "0"+day;}
+							if(val == '-'){
+								e_date = year+""+month+""+day;
+							}
+							else{
+								e_date = year+"-"+month+"-"+day;
+							}
+							return e_date;
+						}			
+						//한달후 날짜	
+						function monthdate(val){
+						 m = 1+parseInt(val);
+						 var f_date = "";
+						 var cDate=new Date();
+						 var year=cDate.getYear();
+						 var month=(cDate.getMonth()+ (parseInt(m))).toString();
+						 month = month.length==1?"0"+month:month;
+						 if (month=="00"){
+						  month="12";
+						  year--;
+						 }
+						 var day=cDate.getDate().toString();
+						 day = day.length==1?"0"+day:day;
+						 f_date = year+month+day;
+						 return f_date;  
+						}	
+						function setDept_cd(dept_cd, dept_nm) {
+						      model1.setValue("/root/reqData/searchData/dept_cd", dept_cd);
+						      model1.setValue("/root/reqData/searchData/dept_nm", dept_nm);
+						      model1.refresh(); 
+					     } 									
+ 
+					
+					function inputSettingValue(){
+						var emp_no = model1.getValue("/root/tempData/sendData/emp_no");
+ 						var flnm = model1.getValue("/root/tempData/sendData/flnm");
+ 						var dept_cd = model1.getValue("/root/tempData/sendData/dept_cd");
+ 						var dept_nm = model1.getValue("/root/tempData/sendData/dept_nm");
+ 						var dty_cd = model1.getValue("/root/tempData/sendData/dty_cd");
+ 						var dty_nm = model1.getValue("/root/tempData/sendData/dty_nm");
+ 						var posi_cd = model1.getValue("/root/tempData/sendData/posi_cd");
+ 						var posi_nm = model1.getValue("/root/tempData/sendData/posi_nm");
+ 						var tel_no = model1.getValue("/root/tempData/sendData/tel_no");
+ 						var ptph_no = model1.getValue("/root/tempData/sendData/ptph_no");
+ 						var email_id = model1.getValue("/root/tempData/sendData/email_id");
+						model1.setValue("/root/reqData/reqForm/emp_no",emp_no);
+						model1.setValue("/root/reqData/reqForm/flnm",flnm);
+						model1.setValue("/root/reqData/reqForm/dept_cd",dept_cd);
+						model1.setValue("/root/reqData/reqForm/dept_nm",dept_nm);
+						model1.setValue("/root/reqData/reqForm/dty_cd",dty_cd);
+						model1.setValue("/root/reqData/reqForm/dty_nm",dty_nm);
+						model1.setValue("/root/reqData/reqForm/posi_cd",posi_cd); 
+						model1.setValue("/root/reqData/reqForm/posi_nm",posi_nm); 
+						model1.setValue("/root/reqData/reqForm/tel_no",tel_no);
+						model1.setValue("/root/reqData/reqForm/ptph_no",ptph_no);
+						model1.setValue("/root/reqData/reqForm/email_addr",email_id);						
+						}
+				]]>
+			</script>
+			<submission id="hd_affr_1900" action="/hd/affr/1900/" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+	</xhtml:head>
+	<xhtml:body pagewidth="760" pageheight="430" guideline="1,749;">
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" visibility="hidden" caption="선택^부서^사번^성명^직책^직급^경조일자^진행상태" colsep="#" colwidth="62, 90, 90, 90, 90, 90, 90, 100, 70, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:100px; width:740px; height:305px; ">
+			<col ref="chkbox" type="checkbox"/>
+			<col ref="dept_nm"/>
+			<col ref="emp_no"/>
+			<col ref="flnm"/>
+			<col ref="dty_nm"/>
+			<col ref="posi_nm"/>
+			<col ref="congr_condl_dt" format="yyyy-mm-dd"/>
+			<col ref="proc_stat" style="text-align:center; "/>
+			<col ref="dept_cd" visibility="hidden"/>
+			<col ref="dty_cd" visibility="hidden"/>
+			<col ref="posi_cd" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="occr_dt" visibility="hidden"/>
+		</datagrid>
+		<button id="button6" class="btn02" style="left:699px; top:10px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+			      window.close();
+			     ]]>
+			</script>
+		</button>
+		<button id="button8" class="btn02" style="left:644px; top:10px; width:52px; height:21px; ">
+			<caption>확인</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var cnt = 0;
+					var emp_no = new Array();						
+					var flnm = new Array();
+					var dept_nm = new Array();
+					var dty_nm = new Array();
+					var posi_nm = new Array();
+
+					for(var i=0; i<datagrid2.rows;i++){
+						if(datagrid2.valueMatrix(i, datagrid2.colRef("chkbox")) == "true") {
+							emp_no[cnt] = datagrid2.valueMatrix(i,3);						
+							flnm[cnt] = datagrid2.valueMatrix(i,4);
+							dept_nm[cnt] = datagrid2.valueMatrix(i,2);
+							dty_nm[cnt] = datagrid2.valueMatrix(i,5);
+							posi_nm[cnt] = datagrid2.valueMatrix(i,6);
+							cnt++;
+						}					
+
+					}
+					window.opener.javaScript.sendData(emp_no,flnm,dept_nm,dty_nm,posi_nm,cnt);
+					window.close();
+				]]>
+			</script>
+		</button>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:0px; height:0px; "/>
+		<caption id="caption43" class="tit02" style="left:10px; top:75px; width:165px; height:20px; font-weight:bold; ">두 자녀 출산 축하금</caption>
+		<button id="button1" class="btn02" style="left:588px; top:10px; width:52px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if (!commReqCheck(group1))
+						return;
+						
+					//model1.reset();
+					//datagrid2.fixedcellischeck(0,datagrid2.colRef("chkbox")) = false;					
+					model1.send("hd_affr_1900");
+					model1.copyNode("/root/resData/gridData", "/root/tempData");
+					//model1.copyNode("/root/resData/reqForm", "");
+					datagrid2.clearStatus();
+					model1.refresh();
+					var totcnt = datagrid2.rows;
+					model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+					model1.refresh();
+				
+				]]>
+			</script>
+		</button>
+		<caption id="caption2" ref="/root/resData/totcnt" style="left:662px; top:405px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:10px; top:5px; width:575px; height:27px; ">두자녀 출산 축하금 조회</caption>
+		<group id="group1" style="left:10px; top:40px; width:740px; height:26px; ">
+			<caption id="caption19" class="list_cap02" style="left:75px; top:0px; width:665px; height:26px; "/>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:0px; width:76px; height:26px; ">경조일자</caption>
+			<caption id="caption14" style="left:175px; top:7px; width:15px; height:15px; ">~</caption>
+			<input id="input2" ref="/root/reqData/searchData/congr_condl_dt_fr" class="req" inputtype="date" caption="경조일자(From)" style="left:80px; top:4px; width:90px; height:18px; "/>
+			<input id="input3" ref="/root/reqData/searchData/congr_condl_dt_to" class="req" inputtype="date" caption="경조일자(To)" style="left:190px; top:4px; width:90px; height:18px; "/>
+		</group>
+	</xhtml:body>
+</xhtml:html>

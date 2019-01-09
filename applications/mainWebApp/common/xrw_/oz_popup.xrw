@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<!--***************************************************
+// 함 수 명 :  OZ 레포트 공통팝업
+// 내     용  : 레포트를 인쇄할 공통 화면을 오픈한다.
+// 작 성 자 : 노상현
+// 작 성 일 : 2009-05-15
+***************************************************-->
+<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<xhtml:head>
+		<xhtml:title>- 조선일보 CIIS -</xhtml:title>
+		<model id="model1">
+			<!-- 인스턴스 시작-->
+			<instance id="instance1">
+				<root xmlns="">
+					<oz_data>
+					</oz_data>
+				</root>
+			</instance>
+			<!-- 인스턴스 끝-->
+			<!--************************* 각 페이지 스타트 함수 부분  시작 ****************************-->
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					ozviwerInstall();
+					createOZReport("/root/oz_data");
+				]]>
+			</script>
+			<!--************************* 각 페이지 스타트 함수 부분  끝 ****************************-->
+		</model>
+		<!--************************* 글로벌 자바스크립트 함수 부분  시작 ****************************-->
+		<!--************************* 글로벌 자바스크립트 함수 부분  끝 ****************************-->
+		<script type="javascript">
+			<![CDATA[
+				function ozviwerInstall(){
+				    ZTransferX.InstallNamespace = "ChosunCIIS";
+				    ZTransferX.InstallBase = "<PROGRAMS>/Forcs";
+				    //ZTransferX.InstallRegistOnly = "-1";
+				    ZTransferX.DownloadServer = "http://ciis.chosun.com/html/ozactivex";
+				    ZTransferX.DownloadPort = "80";
+				    ZTransferX.DownloadInstruction = "OzViewer.idf";
+				    
+				    ZTransferX.StartInstall();
+				  /*
+				  document.write('<OBJECT width = "0" height = "0" ID="ZTransferX" CLASSID="CLSID:C7C7225A-9476-47AC-B0B0-FF3B79D55E67" codebase="http://ciis.chosun.com/html/ozactivex/ZTransferX.cab#version=2,1,1,6">');
+				  document.write('<PARAM NAME="download.Server" VALUE="http://ciis.chosun.com/html/ozactivex">');
+				  document.write('<PARAM NAME="download.Port" VALUE="80');
+				  document.write('<PARAM NAME="download.Instruction" VALUE="OzViewer.idf">');
+				  document.write('<PARAM NAME="install.Base" VALUE="<PROGRAMS>/Forcs">');
+				  document.write('<PARAM NAME="install.Namespace" VALUE="ChosunCIIS">');
+				  document.write('<PARAM NAME="useprogress" VALUE="1">');
+				  document.write('<PARAM NAME="debug" VALUE="-1">');
+				  document.write('</OBJECT>');
+				  */
+				}
+			
+				function createOZReport(paramXPath,servletUrl){
+					
+					var param = "";
+					var childCountNode = instance1.selectSingleNode("/root/oz_data/childCount");
+
+					if(childCountNode == null){
+						var childCount = 0;
+					}else{
+						var childCount = childCountNode.value;
+					}
+					
+					if(childCount > 0){
+						// 멀티 리포트 조회 후 처음 화면에 선택될 리포트를 지정 합니다. -1일 경우 기존 동작과 마찬가지로 마지막으로 조회된 리포트가 선택되어 표시됩니다.
+						param = "viewer.focus_doc_index=0"+ "\n";
+						// 하나의 오즈 뷰어에 여러 개의 보고서를 보여줄 때 메인 보고서 외에 추가되는 차일드 보고서의 개수를 설정합니다.						
+						param += "viewer.childcount=" + childCount+ "\n";
+						// 트리 보기 메뉴와 아이콘의 활성화 여부를 설정합니다.
+						param += "viewer.showtree=true"+"\n";
+						// 다중문서 형식의 보고서를 한번에 모두 인쇄할지 여부를 설정합니다.					
+						param += "print.alldocument=true"+ "\n";
+						// 멀티폼을 하나의 리포트 처럼 이용할 지 여부를 설정합니다. True이면 멀티폼의 페이지 번호등이 연결됩니다.					
+						param += "global.concatpage=true"+ "\n";
+					}
+
+					//오즈서버의 IP와 Port를 넣어준다.
+					if( servletUrl == null || servletUrl == ""){
+						servletUrl = "http://ciis.chosun.com/oz30/server";
+					}
+
+					var childName;
+					var paramNode;
+					var previewNode;
+					var preview;
+					var printsizeNode;
+					var printsize;				
+					var ozrParamNode;
+					var ozrName;
+					var odiName;
+					var conParamNodes;
+					var conParamCount;
+					var odiParamNodes;
+					var odiParamCount;
+					
+					for(var k = 0; k <= childCount;k++){
+
+						//오즈데이타가 들어있는 xpath(샘플안에는 /root/oz_data)
+						if(k == 0){
+							childName = "";
+							paramNode = instance1.selectSingleNode(paramXPath);
+						}else{
+							childName = "child"+k;
+							paramNode = instance1.selectSingleNode(paramXPath+"/"+childName);
+						}
+
+						//var conParamNodes = paramNode.childNodes.item(0).childNodes;
+						//debugger;
+						previewNode = paramNode.selectSingleNode("preview");
+						if(previewNode == null){
+							preview = "preview"
+						}else{
+							preview = previewNode.value;
+						}
+						
+						
+						printsizeNode = paramNode.selectSingleNode("printsize");
+						if(printsizeNode == null){
+							printsize = "A4";
+						}else{
+							printsize = printsizeNode.value;
+						}
+						
+						
+						ozrParamNode = paramNode.selectSingleNode("ozrName");
+						ozrName = ozrParamNode.value + ".ozr";
+						odiName = ozrParamNode.value.substring(ozrParamNode.value.indexOf("/",0)+1);
+						
+						if(paramNode.selectSingleNode("conParam") != null){
+							conParamNodes = paramNode.selectSingleNode("conParam").childNodes;
+							conParamCount = conParamNodes.length;
+						}else{
+							conParamCount = 0;
+						}
+						
+						//var odiParamNodes = paramNode.childNodes.item(1).childNodes;
+						odiParamNodes = paramNode.selectSingleNode("odiParam").childNodes;
+						odiParamCount = odiParamNodes.length;
+						
+						if(childName != ""){
+							childName += ".";
+						}
+	
+						//오즈를 실행하기위해서 param값들을 세팅해준다.
+						param += childName + "connection.servlet="+servletUrl+ "\n";
+						param += childName + "connection.reportname="+ozrName+"\n";
+						param += childName + "odi.odinames="+odiName+ "\n";
+						
+						if ((printsize == "") || (printsize == "A4")) {
+							param += childName + "print.size="+"A4"+ "\n";
+						}else{
+							param += childName + "print.size="+printsize+ "\n";
+						}
+						//param +="viewer.configmode=html"+ "\n";					
+	/*
+						param = "connection.server="+serverIP+ "\n";
+						param += "connection.port="+serverPort+ "\n";
+	*/					
+						param += childName + "connection.pcount="+conParamCount+ "\n";
+						for( var i = 0 ; i < conParamCount ; i++){
+							
+							var nextNode = conParamNodes.nextNode();
+							var paramName = nextNode.nodeName;
+							
+							var paramValue = nextNode.value;
+							if( i != conParamCount-1){
+								param += childName + "connection.args"+(i+1)+"="+paramName+"="+paramValue+"\n";
+							}else{
+								param += childName + "connection.args"+(i+1)+"="+paramName+"="+paramValue+"\n";
+							}
+						}
+	
+						param += childName + "odi."+odiName+".pcount="+odiParamCount+ "\n";
+						for( var i = 0 ; i < odiParamCount ; i++){
+							var nextNode = odiParamNodes.nextNode();
+							var paramName = nextNode.nodeName;
+							var paramValue = nextNode.value;
+							if( i != odiParamCount-1){
+								param += childName + "odi."+odiName+".args"+(i+1)+"="+paramName+"="+paramValue+"\n";
+							}else{
+								param += childName + "odi."+odiName+".args"+(i+1)+"="+paramName+"="+paramValue+"\n";
+							}	
+						}
+					}
+					
+					param +="applet.configmode=html"+"\n";
+					param +="applet.isframe=true"+"\n";
+					
+					//param +="applet.mode=preview"+"\n";
+					
+					if ((preview == "") || (preview == "preview")) {
+						param +="applet.mode=preview"+"\n";
+					}else{
+						param +="applet.mode=export"+"\n";
+					}				
+					//alert(param);
+					
+					//오즈를 실행한다.
+					ozViewer.CreateReport(param);//oz를 실행(ozViewer는 오즈의 ID)
+
+				}
+			
+			]]>
+		</script>
+	</xhtml:head>
+	<!--************************* 화면 부분 시작 ****************************-->
+	<!--xhtml:body scroll="none" pagewidth="982" pageheight="770" guideline="1,1006;" style="background-color:#F9F7EC; border-left-width:4px; border-top-width:1px; margin:0; margin-left:0; margin-top:0; margin-right:0; "-->
+	<xhtml:body scroll="auto" pagewidth="982" autorefresh="true" pageheight="770" guideline="1,1006;" style="background-color:#F9F7EC; border-left-width:4px; border-top-width:1px; margin:0; margin-left:0; margin-top:0; margin-right:0; ">
+		<!--group id="grp_search" class="search" style="left:4px; top:4px; width:1008px; height:30px; ">
+			<button id="btn_close" class="top_2" navindex="2" style="left:948px; top:5px; width:48px; height:19px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="DOMActivate">
+					<![CDATA[
+							window.close();
+						]]>
+				</script>
+			</button>
+		</group-->
+		<!--group id="group1" class="search" scroll="none" style="left:2px; top:2px; width:978px; height:768px; "-->
+		<group id="group1" class="search" scroll="none" style="left:0px; top:0px; width:100%; height:100%; ">
+			<object id="ZTransferX" clsid="{c7c7225a-9476-47ac-b0b0-ff3b79d55e67}" codebase="http://ciis.chosun.com/html/ozactivex/ZTransferX.cab#version=2,1,1,6" style="left:100px; top:40px; width:0px; height:0px; color:#000000; background-color:#333300; "/>
+			<!--************************* OZViewer 부분 시작 ****************************-->
+			<!--object id="ozViewer" clsid="{64da633f-e73b-4344-83bf-48483346cd53}" style="left:0px; top:0px; width:978px; height:764px; border-width:1px; border-style:solid; "/-->
+			<object id="ozViewer" clsid="{64da633f-e73b-4344-83bf-48483346cd53}" style="left:0px; top:0px; width:100%; height:100%; border-width:1px; border-style:solid; "/>
+		</group>
+		<!--************************* OZViewer 부분 끝 ****************************-->
+		<!--************************* 화면 부분 끝 ****************************-->
+	</xhtml:body>
+</xhtml:html>

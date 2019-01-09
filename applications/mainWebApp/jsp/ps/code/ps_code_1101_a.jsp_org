@@ -1,0 +1,509 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<!--JSP COMMENT START------------------------------------------------------------------------------->
+<%---------------------------------------------------------------------------------------------------
+* 파일명   : ps_code_1101_a.jsp
+* 기능     : 매체 코드관리 초기화면
+* 작성일자 : 2004-02-20
+* 작성자   : 장수환
+---------------------------------------------------------------------------------------------------%>
+
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<!--JSP COMMENT END--------------------------------------------------------------------------------->
+<%
+    //  dataset 인스턴스 선언부분
+    PS_S_SEPBK_CODEDataSet ds = (PS_S_SEPBK_CODEDataSet)request.getAttribute("ds");  // request dataset
+
+    // 페이지당 보여줄 라인수
+    String records_per_page = "10";
+    int li_per = Integer.parseInt(records_per_page) ;
+%>
+<!--DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"-->
+<html>
+<head>
+
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+</head>
+
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+    // 화면 open시 event설정
+    function init(){
+        setEventHandler();
+        //setEnterKeyEventHandler();
+        setInputBackgroundColor();
+    }
+
+
+    // 매체단가 내역 조회처리
+    function list_search(curr_page_no){
+        var lo_form1 = list_form;
+        var lo_from2 = sep_book_form;
+
+        if(!validate(lo_form1)) { return false; }
+        else{
+            makeValue(lo_form1);
+        }
+        lo_form1.curr_page_no.value = curr_page_no ;
+        lo_form1.action = "/ps/code/1106";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+        setEventHandler();
+    }
+
+
+    // navigator선택시 페이지 move처리
+    function page_move(curr_page_no) {
+        var lo_form = document.list_form;
+
+        if(!curr_page_no) {
+            lo_form.curr_page_no.value = '1';
+        } else {
+            lo_form.curr_page_no.value = curr_page_no;
+        }
+
+        list_search(curr_page_no);
+    }
+
+
+    //화면초기화
+    function detail_reset() {
+        var lo_form1 = document.dtl_form;
+        var lo_form2 = document.sep_book_form;
+
+        // 처리 구분 flag를 초기화시킨다
+        lo_form2.accflag.value = '';
+        lo_form2.sep_bookcd.value = '';           //매체코드
+
+        lo_form1.sep_bookcd.value = '';           //매체코드
+
+        lo_form1.action = "/ps/code/1131";
+        lo_form1.target = "ifrm";
+        lo_form1.method = "post";
+        lo_form1.submit();
+    }
+
+
+    // 상세정보를 표기한다
+    function detail_view(str1) {
+        var lo_form1 = document.dtl_form;
+        var lo_form2 = document.sep_book_form;
+
+        //처리구분 flag를 'U'로 설정한다.
+        lo_form2.accflag.value = 'U';
+        lo_form2.sep_bookcd.value = str1;           //매체코드
+
+        lo_form1.sep_bookcd.value = str1;           //매체코드
+
+        lo_form1.action = "/ps/code/1131";
+        lo_form1.target = "ifrm";
+        lo_form1.method = "post";
+        lo_form1.submit();
+    }
+
+
+    // 상세정보를 신규등록 처리한다
+    function detail_insert() {
+        var lo_form1 = document.sep_book_form;
+
+        // 처리구분 flag가 신규대상인지 check한다.
+        if(lo_form1.accflag.value == 'U'){
+                alert("신규등록 대상이 아닙니다. 수정버튼을 선택하세요.");
+                return;
+        }
+
+        if(lo_form1.basiyymm.value != ""){
+            //기준년월 체크
+            if(!isDate(lo_form1.basiyymm.value+'01')) {
+                alert('기준년월이 형식에 맞지 않습니다.');
+                lo_form1.basiyymm.focus();
+                lo_form1.basiyymm.select();
+                return;
+            }
+        }
+
+        if(!validate(lo_form1)) { return false; }
+        else{
+            makeValue(lo_form1);
+        }
+
+		if((lo_form1.medicd.value=='210' || lo_form1.medicd.value=='421') && lo_form1.mediser_no.value.length != 4 ) {
+			alert('매체호수는 4자리 입니다.(예:0004 or 1840)');
+			return lo_form1.mediser_no.focus();
+		} else if(!(lo_form1.medicd.value=='210' || lo_form1.medicd.value=='421') && lo_form1.mediser_no.value.length != 6) {
+			alert('매체호수는 6자리 입니다.(예:200502)');
+			return lo_form1.mediser_no.focus();
+		}
+
+        var ls_check = confirm("저장 하시겠습니까?");
+        if(!ls_check) return ;
+        lo_form1.method = "post";
+        lo_form1.action = "/ps/code/1116";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+        // 상세화면을 초기화 시킨다.
+        //detail_reset();
+    }
+
+
+    // 기존 상세정보를 수정등록 처리한다
+    function detail_update() {
+        var lo_form1 = document.sep_book_form;
+
+        // 처리구분 flag가 신규대상인지 check한다.
+        if(lo_form1.accflag.value != 'U' ){
+            alert("수정등록 대상이 아닙니다. 저장버튼을 선택하세요.");
+            return;
+        }
+
+        if(lo_form1.medicd_before.value != lo_form1.medicd.value) {
+            alert("매체코드는 변경하실수 없습니다.");
+            lo_form1.medicd.value=lo_form1.medicd_before.value;
+            return false;
+        }
+
+/*
+		if((lo_form1.medicd.value=='210' || lo_form1.medicd.value=='421') && lo_form1.mediser_no.value.length != 4 ) {
+			alert('매체호수는 4자리 입니다.(예:0004 or 1840)');
+			return lo_form1.mediser_no.focus();
+		} else if(!(lo_form1.medicd.value=='210' || lo_form1.medicd.value=='421') && lo_form1.mediser_no.value.length != 6) {
+			alert('매체호수는 6자리 입니다.(예:200502)');
+			return lo_form1.mediser_no.focus();
+		}
+*/
+
+        if(lo_form1.basiyymm.value != ""){
+            //기준년월 체크
+            if(!isDate(lo_form1.basiyymm.value+'01')) {
+                alert('기준년월이 형식에 맞지 않습니다.');
+                lo_form1.basiyymm.focus();
+                lo_form1.basiyymm.select();
+                return;
+            }
+        }
+        if(!validate(lo_form1)) { return false; }
+        else{
+            makeValue(lo_form1);
+        }
+        var ls_check = confirm("수정 하시겠습니까?");
+        if(!ls_check) return ;
+        lo_form1.method = "post";
+        lo_form1.action = "/ps/code/1121";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+
+        // 상세화면을 초기화 시킨다.
+        //detail_reset();
+    }
+
+
+    // 기존 상세정보를 삭제 처리한다
+    function detail_delete() {
+        var lo_form1 = document.sep_book_form;
+
+        // 처리구분 flag가 신규대상인지 check한다.
+        if(lo_form1.accflag.value != 'U' ){
+            alert("삭제처리 대상이 아닙니다. 리스트목록에서 확인하세요.");
+            return;
+        }
+
+        if(!validate(lo_form1)) { return false; }
+        else{
+            makeValue(lo_form1);
+        }
+
+        lo_form1.method = "post";
+        lo_form1.action = "/ps/code/1126";
+        lo_form1.target = "ifrm";
+        lo_form1.submit();
+
+        // 상세화면을 초기화 시킨다.
+        //detail_reset();
+    }
+</script>
+
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="gray" onload="init()">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle" >코드
+          &gt; </b> 단행본등록</td>
+    </tr>
+    <tr>
+      <td height="10">
+        <!--내용을 위한 여백-->
+      </td>
+    </tr>
+  </table>
+
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <!--등록?-->
+    <form name="sep_book_form" method="post" action="">
+      <input name="cmpycd"        type="hidden" value="">
+      <input name="accflag"       type="hidden" value="">
+      <input name="sep_bookcd"    type="hidden" value="">
+      <input name="medicd_before" type="hidden" value="">
+    <tr>
+      <td valign="top" align="center">
+        <table width="829" border="0" cellspacing="0" cellpadding="2" align="center">
+          <tr>
+            <td bgcolor="#EBE9DC" class="title" width="742" height="27"><b>매체 등록</b> </td>
+            <td bgcolor="#EBE9DC" width="230" class="title" align="right" height="27">
+              <img src="/html/comm_img/bu1_reset.gif" width="73"  align="absmiddle" border="0" onclick="javascript:detail_reset();window.event.returnValue=false;"  style="cursor:hand">
+              <img src="/html/comm_img/bu_save.gif"   width="39"  align="absmiddle" border="0" onclick="javascript:detail_insert();window.event.returnValue=false;" style="cursor:hand">
+              <img src="/html/comm_img/bu_edit.gif"   width="36"  align="absmiddle" border="0" onclick="javascript:detail_update();window.event.returnValue=false;" style="cursor:hand">
+              <img src="/html/comm_img/bu_del.gif"    width="39"  align="absmiddle" border="0" onclick="javascript:detail_delete();window.event.returnValue=false;" style="cursor:hand">
+            </td>
+          </tr>
+          <tr>
+            <td height="3" colspan="2">
+              <!--여백-->
+            </td>
+          </tr>
+        </table>
+
+        <table width="830" border="0"  align="center" cellpadding="2" cellspacing="0" bgcolor="#FFFFFF" class="gray" id="sepbk_info">
+          <tr>
+            <td  width="80" bgcolor="#dddddd" class="gray">매체코드명<font color="red">*</font></td>
+            <td class="gray">
+              <input name="sep_bookcdnm" type="text" size="16" class="text_box" caption="매체코드명" notEmpty >
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">매체코드<font color="red">*</font></td>
+            <td class="gray">
+              <select name="medicd" class="sel_all">
+                <%= ds.medicdcurOptHtml("") %>
+              </select>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray"> 매체호수<font color="red">*</font></td>
+            <td class="gray">
+              <input name="mediser_no" type="text" size="8" class="text_box" caption="매체호수" notEmpty >
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">매체구분<font color="red">*</font></td>
+            <td class="gray">
+              <select name="medi_clsf" class="sel_all" caption="매체구분" notEmpty>
+                <option  value="">선택</option>
+                <%= ds.mediclsfcurOptHtml("") %>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td  width="80" bgcolor="#dddddd" class="gray">발행구분</td>
+            <td class="gray">
+              <select name="issuclsf" class="sel_all">
+                <option  value="">선택</option>
+                <%= ds.issuclsfOptHtml("") %>
+              </select>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">기준년월<font color="red">*</font></td>
+            <td class="gray">
+              <input name="basiyymm" type="text" size="6" maxlength="6" dataType="number" caption="기준년월" class="text_box" notEmpty>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">단가</td>
+            <td class="gray">
+              <input name="uprc" type="text" size="8" class="text_box" dataType="number" comma>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">구독단가</td>
+            <td class="gray">
+              <input name="subsuprc" type="text" size="8" class="text_box" dataType="number" comma>
+            </td>
+          </tr>
+          <tr>
+            <td  width="80" bgcolor="#dddddd" class="gray">할제</td>
+            <td class="gray">
+              <input name="dcrate" type="text" size="8" class="text_box" dataType="number" comma>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">내용분류코드<font color="red">*</font></td>
+            <td class="gray">
+              <select name="contclascd" class="sel_all" notEmpty caption="내용분류코드">
+                <option  value="">선택</option>
+                <%= ds.contclascurOptHtml("") %>
+              </select>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">저자</td>
+            <td class="gray">
+              <input name="author" type="text" size="8" class="text_box">
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">판형</td>
+            <td class="gray">
+              <select name="type" class="sel_all">
+                <option  value="">선택</option>
+                <%= ds.typecurOptHtml("") %>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td  width="80" bgcolor="#dddddd" class="gray">규격</td>
+            <td class="gray">
+              <input name="std" type="text" size="8" class="text_box">
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">쪽수</td>
+            <td class="gray">
+              <input name="page" type="text" size="8" class="text_box" dataType="number" comma>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">표지모델</td>
+            <td class="gray">
+              <input name="covermodl" type="text" size="8" class="text_box">
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">등록일자</td>
+            <td class="gray">
+              <input name="reg_dt" type="text" size="10" class="text_box" caption="등록일자" dataType="date">
+            </td>
+          </tr>
+          <tr>
+            <td  width="80" bgcolor="#dddddd" class="gray">연장횟수</td>
+            <td class="gray">
+              <input name="extdtms" type="text" size="8" class="text_box" dataType="number" comma>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">절판여부</td>
+            <td class="gray">
+              <select name="absenceyn" class="sel_all">
+                <option  value="">선택</option>
+                <%= ds.absenceyncurOptHtml("") %>
+              </select>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">절판일자</td>
+            <td class="gray">
+              <input name="absencedt" type="text" size="10" class="text_box" caption="절판일자" dataType="date">
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">절판처리일자</td>
+            <td class="gray">
+              <input name="absenceprocdt" type="text" size="10" class="text_box" caption="절판처리일자" dataType="date">
+            </td>
+          </tr>
+          <tr>
+            <td  width="80" bgcolor="#dddddd" class="gray">뭉치단위</td>
+            <td class="gray">
+              <input name="bundunit" type="text" size="8" class="text_box" caption="뭉치단위" dataType="number" comma >
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">단위중량</td>
+            <td class="gray">
+              <input name="unitmidlqunt" type="text" size="8" class="text_box" caption="단위중량" dataType="number" comma >
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">파지기준중량</td>
+            <td class="gray">
+              <input name="pjbasimidlqunt" type="text" size="8" class="text_box" caption="파지기준중량" dataType="number" comma>
+            </td>
+            <td width="80" bgcolor="#dddddd" class="gray">시리즈코드</td>
+            <td class="gray">
+              <select name="sericd" class="sel_all">
+                <option  value="">선택</option>
+                <%= ds.sericdcurOptHtml("") %>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td  width="80" bgcolor="#dddddd" class="gray">종료기준년월</td>
+            <td class="gray">
+              <input name="endbasiyymm" type="text" size="8" class="text_box" caption="종료기준년월" dataType="number" readonly >
+            </td>
+
+            <td width="80" bgcolor="#dddddd" class="gray">메모</td>
+            <td colspan="5" class="gray">
+              <input name="memo" type="text" size="65" maxlength="350" class="text_box">
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    </form>
+
+    <tr>
+        <td height="10" colspan="2">
+        <!--여백-->
+        </td>
+    </tr>
+
+    <!--검색 -->
+    <form name="list_form" method="post" action="">
+      <input name="curr_page_no" type="hidden" value ="1">
+      <input name="records_per_page" type="hidden" value ='<%=records_per_page%>'>
+      <input name="js_fn_nm" type="hidden" value ="page_move">
+    <tr>
+      <td>
+        <table width="830" border="0" cellspacing="0" cellpadding="2" align="center">
+          <tr>
+            <td bgcolor="#EBE9DC" width="40" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle"><B>매체</B></td>
+            <td bgcolor="#EBE9DC" class="title"title width="150">
+              <select name="medicd" class="sel_all">
+				<option value="ALL"> 전체</option>
+                <%= ds.medicdcurOptHtml("") %>
+              </select>
+            </td>
+            <td bgcolor="#EBE9DC" width="60" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">매체호수</td>
+            <td bgcolor="#EBE9DC" class="title" width="150">
+              <input name="mediser_no" type="text" size="7" class="text_box">
+            </td>
+            <td bgcolor="#EBE9DC" width="70" class="title"><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">매체명</td>
+            <td bgcolor="#EBE9DC" class="title">
+              <input name="sep_bookcdnm" type="text" size="10" class="text_box" value="">
+              <img src="/html/comm_img/bu_search.gif" width="36"  border="0" align="absmiddle"onclick="list_search(1);window.event.returnValue=false;" style="cursor:hand">
+            </td>
+          </tr>
+          <tr>
+            <td height="3" colspan="4">
+              <!--여백-->
+            </td>
+          </tr>
+        </table>
+        <!--list start -->
+        <table width="830" border="0" style="font-size:12px" cellpadding="1" cellspacing="0" align="center" class="gray" bgcolor="#FFFFFF" id="list_info">
+          <tr align="center" bgcolor="#dddddd" >
+            <td width="120" class="gray">코드값</td>
+            <td width="*"   class="gray">매체코드명</td>
+            <td width="120" class="gray">매체명</td>
+            <td width="100" class="gray">매체호수</td>
+            <td width="120" class="gray">발행구분</td>
+          </tr>
+
+<%
+    for(int i=0;i<li_per;i++) {
+%>
+          <tr>
+            <td width="120" class="gray">&nbsp;</td>
+            <td width="*"   class="gray">&nbsp;</td>
+            <td width="120" class="gray">&nbsp;</td>
+            <td width="100" class="gray">&nbsp;</td>
+            <td width="120" class="gray">&nbsp;</td>
+          </tr>
+<%
+    }
+%>
+        </table>
+        <!---button-->
+        <!-- 매체 조회 FROM END -->
+        <table width="830" border="0" cellspacing="0" cellpadding="0" align="center" class="title2" id="navi">
+          <tr>
+            <td align="center" height="2">
+              <!--여백-->
+            </td>
+          </tr>
+          <tr>
+            <td colspan=5 align="center" bgcolor="#E8E8E8">
+              <jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+              <jsp:param name = "curr_page_no"          value="0"/>
+              <jsp:param name = "total_records"         value="0"/>
+              <jsp:param name = "js_fn_nm"              value=""/>
+              <jsp:param name = "records_per_page"      value="10"/>
+              <jsp:param name = "page_set_gubun"        value="0"/>
+              </jsp:include>
+              <!--JSP PAGE END------------------------------------------------------------------------------------>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    </form>
+
+    <form name="dtl_form" method="post" action="">
+      <input name="sep_bookcd"    type="hidden" value="">
+    </form>
+  </table>
+  <iframe name="ifrm" width=800 height=0></iframe>
+</body>
+</html>

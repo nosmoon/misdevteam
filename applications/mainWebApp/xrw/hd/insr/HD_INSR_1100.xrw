@@ -1,0 +1,233 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events">
+	<xhtml:head>
+		<xhtml:title>국민연금현황관리</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet/>
+						<pageInfo/>
+					</initData>
+					<reqData>
+						<reqForm>
+							<search_yyyymm/>
+							<emp_no/>
+						</reqForm>
+						<multiUpDate/>
+						<searchData>
+						</searchData>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<emp_no/>
+								<flnm/>
+								<noti_yy/>
+								<noti_mm/>
+								<prn/>
+								<slf_burd_amt/>
+								<cmpy_burd_amt/>
+							</record>
+						</gridData>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<msg/>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<emp_no/>
+								<nm_korn/>
+								<dept_cd/>
+								<dept_cd_nm/>
+								<dty_cd/>
+								<dty_cd_nm/>
+								<posi_cd/>
+								<posi_cd_nm/>
+								<last_slf_burd_amt/>
+								<slf_burd_amt/>
+								<np_amt/>
+								<slf_minus_np/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<submission id="hd_insr_1100" action="/hd/insr/1100" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/reqForm/search_yyyymm" resultref="/root/tempData"/>
+			<submission id="hd_insr_1101" action="/hd/insr/1101" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript">
+			<![CDATA[
+				function searchList(){
+					if(input1.currentText==""){
+						alert("조회년월이 없습니다.");
+						return;
+					}else{
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						group3.attribute("visibility")="visible";
+						group4.attribute("visibility")="hidden";
+						caption1.value = "조회년월";
+						model1.setValue("/root/reqData/reqForm/search_yyyymm",input1.currentText);
+						model1.send("hd_insr_1100");
+						model1.copyNode("/root/resData/gridData", "/root/tempData/CURLIST");
+						datagrid1.refresh();
+						rowCnt.value = "총 "+ (parseInt(datagrid1.rows - datagrid1.fixedRows)) + " 건";
+						model1.removenode("/root/tempData");
+						model1.setfocus("input1");
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="728" style="font-family:굴림; background-image:../../images/bg_946.gif; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<caption id="rowCnt" style="left:797px; top:695px; width:125px; height:20px; font-weight:bold; text-align:right; "/>
+		<group id="group1" style="left:10px; top:45px; width:926px; height:21px; ">
+			<button id="button1" class="btn02" navindex="-1" style="left:423px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();	
+					]]>
+				</script>
+			</button>
+			<button id="button2" class="btn02" navindex="-1" style="left:478px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						searchList();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" navindex="-1" style="left:533px; top:0px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var search_yyyymm = model1.getValue("/root/reqData/reqForm/search_yyyymm") ;
+						var tmp1 = search_yyyymm.substr(0,4);
+						var tmp2 = search_yyyymm.substr(4,5);
+						
+						if(!commGridReqCheck("datagrid2")) return;
+						
+						if( search_yyyymm == ""){
+							alert("적용년월이 없습니다.");
+							return;
+						}else{
+							if(!rowInSubmit(datagrid2)){return;}
+							alert("기존데이터가 있을 경우 삭제 한 후  "+tmp1+"년 "+tmp2+"월에 저장이 됩니다.");
+						}
+						
+						if (window.alert("저장 하시겠습니까?", "확인", 1) != 1) {
+							return;
+						}
+						
+						model1.setValue("/root/reqData/multiUpDate", datagrid2.getUpdateData());
+						model1.send("hd_insr_1101");
+						model1.removenode("/root/dataSet");
+						
+						if(submit_completed()) {
+							model1.reset();
+							model1.setValue("/root/reqData/reqForm/search_yyyymm",search_yyyymm) ;
+							input1.refresh();
+							searchList();
+						}
+						
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn04" navindex="-1" style="left:679px; top:0px; width:88px; height:21px; ">
+				<caption>엑셀다운로드</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							//excel 파일로 저장한다.
+							var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+							
+							if(filePath != "") {
+								datagrid1.saveExcel(filePath);
+								window.exec(filePath);
+							}		
+						]]>
+				</script>
+			</button>
+			<button id="button5" class="btn02" navindex="-1" style="left:865px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+							 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+							}else{
+								window.close();
+							}
+						]]>
+				</script>
+			</button>
+			<button id="button6" class="btn04" navindex="-1" style="left:588px; top:0px; width:87px; height:21px; ">
+				<caption>엑셀업로드</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						group3.attribute("visibility")="hidden";
+						group4.attribute("visibility")="visible";
+						caption1.value = "적용년월";
+						var filename = window.fileDialog("open", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+						if(filename!=""){
+							datagrid2.loadExcel(filename,  1,false);
+							datagrid2.deleteRow(1);
+						}
+						for(var i = datagrid2.fixedRows; i<=datagrid2.rows-datagrid2.fixedRows; i++){
+							datagrid2.rowStatus(i) = 3;
+						}
+						rowCnt.value = "총 "+ (parseInt(datagrid2.rows - datagrid2.fixedRows)) + " 건";
+					]]>
+				</script>
+			</button>
+			<button id="button7" class="btn04" navindex="-1" style="left:770px; top:0px; width:90px; height:21px; ">
+				<caption>불일치check</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+							window.load("/xrw/hd/insr/HD_INSR_1101.xrw","mdichild", "hd_insr_1101", "left:0; top:100; caption:hidden; width:946; height:300;", "", "");
+						]]>
+				</script>
+			</button>
+		</group>
+		<group id="group2" overflow="hidden" style="left:10px; top:84px; width:926px; height:35px; border-color:#aec9e9; border-style:solid; ">
+			<caption id="caption1" class="list_cap01" style="left:-1px; top:-1px; width:80px; height:35px; text-align:center; ">조회년월</caption>
+			<input id="input1" ref="/root/reqData/reqForm/search_yyyymm" inputtype="date" format="yyyy-mm" style="left:85px; top:8px; width:100px; height:18px; "/>
+		</group>
+		<group id="group3" visibility="visible" overflow="hidden" explorerbar="sortshowmove" style="left:10px; top:145px; width:926px; height:545px; border-color:#aec9e9; border-style:solid; ">
+			<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="부서^사번^성명^직책^직급^전월공제금액^당월공제금액^당월고지금액^변동금액^|부서^사번^성명^직책^직급^전월공제금액^당월공제금액^당월고지금액^(전월공제-당월고지)^" colsep="^" colwidth="100, 80, 70, 80, 70, 120, 120, 120, 120" explorerbar="sortshowmove" mergecellsfixedcols="bycol" mergecellsfixedrows="byrowrec" rowheader="seq" rowsep="|" style="left:2px; top:2px; width:920px; height:539px; ">
+				<col ref="dept_cd_nm" style="text-align:left; "/>
+				<col ref="emp_no"/>
+				<col ref="nm_korn"/>
+				<col ref="dty_cd_nm"/>
+				<col ref="posi_cd_nm"/>
+				<col ref="last_slf_burd_amt" format="#,###" style="text-align:right; "/>
+				<col ref="slf_burd_amt" format="#,###" style="text-align:right; "/>
+				<col ref="np_amt" format="#,###" style="text-align:right; "/>
+				<col ref="slf_minus_np" format="#,###" style="text-align:right; "/>
+				<script type="javascript" ev:event="ondblclick">
+					<![CDATA[
+						if(datagrid1.row == 0) return;
+						var selectedIdx = datagrid1.selectedRow(0) - 1;
+						//alert(selectedIdx);
+						model1.setValue("/root/reqData/reqForm/emp_no", model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/emp_no"));
+						//alert(model1.getValue("/root/reqData/reqForm/emp_no"));
+						window.load("/xrw/hd/insr/HD_INSR_1000.xrw","mdichild", "hd_insr_1000", "width:985; height:765; caption:hidden;", "/root/reqData/reqForm/emp_no", "/root/resData/resForm/emp_no");
+					]]>
+				</script>
+			</datagrid>
+		</group>
+		<group id="group4" visibility="hidden" overflow="hidden" style="left:10px; top:145px; width:926px; height:545px; border-color:#aec9e9; border-style:solid; ">
+			<datagrid id="datagrid2" nodeset="/root/reqData/gridData/record" caption="주민등록번호^국민연금금액(개인)^" colsep="#" colwidth="120, 120" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:1px; top:1px; width:260px; height:539px; ">
+				<col class="req" ref="prn" format="999999-9999999" caption="주민등록번호"/>
+				<col class="req" ref="slf_burd_amt" format="#,###" caption="국민연금금액(개인)"/>
+			</datagrid>
+		</group>
+	</xhtml:body>
+</xhtml:html>

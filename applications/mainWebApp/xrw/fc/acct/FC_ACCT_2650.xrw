@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>연결합계잔액시산표조회(FC_ACCT_2650)</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터 -->
+						<session/>
+						<!-- 서버의 세션 정보 -->
+						<comboSet>
+							<!-- 선택계열(콤보박스,체크박스,리스트박스,라디오버튼)의 정보 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo/>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영시 사용(화면ID등) -->
+					</initData>
+					<reqData>
+						<!-- 서버에 전달하고자 하는 데이터 (submit시 처리) -->
+						<fwdData/>
+						<!-- popup등의 페이지전환시 데이타 입출력에 사용 -->
+						<searchData>
+							<cmpy_cd/>
+							<fisc_mm/>
+							<fisc_mm_fr/>
+							<fisc_mm_to/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<reqForm/>
+						<!-- 입력처리 formData 복수사용시 하위노드로 1,2,3으로 정의-->
+						<multiUpDate>
+						</multiUpDate>
+						<!-- Grid의 MultiUpDate유형 사용시 처리 -->
+					</reqData>
+					<resData>
+						<!-- 서버로부터 전달 받은 데이터 (submit의 결과) -->
+						<resForm>
+							<!-- (submit의 결과) formData 복수사용시 하위노드로 1,2,3으로 정의 -->
+							<dataSet>
+								<CURLIST>
+									<record>
+										<clos_dt/>
+									</record>
+								</CURLIST>
+							</dataSet>
+						</resForm>
+						<!-- (submit의 결과) gridData 복수사용시 하위노드로 1,2,3으로 정의 -->
+						<gridData>
+							<fc_acct_2651_l>
+								<dataSet>
+									<CURLIST>
+										<record>
+											<cmpy_cd_nm/>
+											<sum_cbamt/>
+											<jan_cbamt/>
+											<acct_subj_nm/>
+											<jan_dbamt/>
+											<sum_dbamt/>
+											<acct_levl/>
+											<insd_acct_cd/>
+										</record>
+									</CURLIST>
+								</dataSet>
+							</fc_acct_2651_l>
+						</gridData>
+						<MsgData/>
+						<!-- (submit의 결과) 전달 받은 MsgData -->
+					</resData>
+					<tempData>
+						<!-- 데이터를 가공할 임시저장소 -->
+						<!-- 해당화면의 키값등의 데이터의 저장소 -->
+					</tempData>
+					<!-- 저장소 -->
+				</root>
+			</instance>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					send_fc_acct_5841_l();
+				]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<script type="javascript" src="/js/fcmc_common.js"/>
+			<submission id="fc_acct_5841_l" action="/fc/acct5000/5841" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/resData/resForm/dataSet"/>
+			<submission id="fc_acct_2651_l" action="/fc/acct2000/2651" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<script type="javascript" ev:event="xforms-model-construct-done">
+				<![CDATA[
+					//init_controls();
+					set_column_visibility();					
+				]]>
+			</script>
+			<submission id="fc_acct_2652_a" action="/fc/acct2000/2652" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript">
+			<![CDATA[
+				var	_oth_clsf = "1";
+				
+				function set_column_visibility() {
+					//모든 컬럼을 감춘다.
+					hide_all_columns(datagrid1);
+					//모든 컬럼을 보여준다.
+					show_all_columns(datagrid1);
+				}			
+				function init_controls(){	
+					set_default(datagrid1);
+					set_format("string_l",datagrid1,"2");
+					set_format("number4",datagrid1,"0,1,3,4");
+				}								
+				function send_fc_acct_5841_l(){
+
+					model.send("fc_acct_5841_l");
+					
+					if(model.getValue("/root/resData/resForm/dataSet/CURLIST/totalcnt") == 0)
+					{
+						show_message("검색결과가 없습니다.");
+						return;
+					}					
+					var clos_dt = model.getValue("/root/resData/resForm/dataSet/CURLIST/record/clos_dt");
+					srch_fisc_mm.value = clos_dt.substring(0,6);
+					
+					//개발용
+					//srch_fisc_mm.value = "201409";
+				}			
+				
+				function send_fc_acct_2651_l(){
+					if (!check_reqItem(srch_fisc_mm,"trim","focus","회계년월은 필수입력항목입니다.")) { return false; }
+
+					model.setValue("/root/reqData/searchData/cmpy_cd", getProperty("ss_cmpycd"));
+					model.setValue("/root/reqData/searchData/fisc_mm_fr",model.getValue("/root/reqData/searchData/fisc_mm").substring(0,4) + "00");
+					model.setValue("/root/reqData/searchData/fisc_mm_to",model.getValue("/root/reqData/searchData/fisc_mm"));
+					model.send("fc_acct_2651_l");
+
+
+					if(model.getValue("/root/tempData/CURLIST/totalcnt") <= 1)
+					{
+						show_message("검색결과가 없습니다.");
+						//model.reset();
+						return;
+					}					
+					
+					model.copyNode("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST", "/root/tempData/CURLIST");
+					model.removeNodeSet("/root/tempData/CURLIST");
+					datagrid1.refresh();
+					
+					for(i=1; i<datagrid1.rows; i++){
+						var acct_levl = model.getValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/acct_levl");
+						var acct_subj_nm = model.getValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/acct_subj_nm");			
+						var acct_cd = model.getValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/insd_acct_cd");
+						
+						if(acct_levl == "1"){
+							model.setValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/acct_subj_nm", acct_subj_nm);							
+						}
+						else if(acct_levl == "2"){
+							model.setValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/acct_subj_nm", "  "  + acct_subj_nm);
+						}
+						else if (acct_levl == "3"){
+							model.setValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/acct_subj_nm", "    "  + acct_subj_nm);							
+						}
+						else if (acct_levl == "4"){
+							model.setValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/acct_subj_nm", "      "  + acct_subj_nm);
+						}
+						else if (acct_levl == "5"){
+							model.setValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/acct_subj_nm", "        "  + acct_subj_nm);
+						}
+						else{
+							model.setValue("/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record["+i+"]/acct_subj_nm", "          "  + acct_subj_nm);
+						}
+						
+						if(acct_cd == "999999999") {
+							datagrid1.cellstyle("background-color", i, 1, i, 6) = "#e8e8e8";
+						} else {
+							datagrid1.cellstyle("background-color", i, 1, i, 6) = "#ffffff";
+						}
+					}	
+
+					model.refresh();
+				}
+				
+				function send_fc_acct_2652_a(){
+					if (!check_reqItem(srch_fisc_mm,"trim","focus","회계년월은 필수입력항목입니다.")) { return false; }
+
+					model.setValue("/root/reqData/searchData/cmpy_cd", getProperty("ss_cmpycd"));
+					model.setValue("/root/reqData/searchData/fisc_mm", srch_fisc_mm.value);
+					model.send("fc_acct_2652_a");
+
+					if(model.getValue("/root/resData/resForm/dataSet/errcode") != "")
+					{
+						show_message(model.getValue("/root/resData/resForm/dataSet/errmsg"));
+						model.reset();
+						return;
+					} else {
+						alert("생성이 완료되었습니다");
+
+						btn_select.dispatch("onclick");
+					}
+				}
+			]]>
+		</script>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="2,34;2,39;2,40;2,49;2,70;2,79;2,80;2,104;2,106;2,112;2,113;2,117;2,118;2,136;2,133;2,157;2,158;2,366;2,377;2,376;2,393;2,408;2,409;1,936;1,927;1,926;1,459;1,449;2,755;">
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/fc_acct_2651_l/dataSet/CURLIST/record" caption="회사명^차변합계^차변잔액^계정과목^대변잔액^대변합계^^" colsep="^" colwidth="110, 140, 140, 250, 140, 140, 0, 0" extendlastcol="scroll" fixedcols="1" mergecellsfixedcols="bycol" rowsep="|" style="left:10px; top:125px; width:926px; height:606px; ">
+			<col ref="cmpy_cd_nm" type="output" style="text-align:center; "/>
+			<col ref="sum_cbamt" type="output" format="(-)#,###" style="text-align:right; "/>
+			<col ref="jan_cbamt" type="output" format="(-)#,###" style="text-align:right; "/>
+			<col ref="acct_subj_nm" type="output" style="text-align:left; "/>
+			<col ref="jan_dbamt" type="output" format="(-)#,###" style="text-align:right; "/>
+			<col ref="sum_dbamt" type="output" format="(-)#,###" style="text-align:right; "/>
+			<col ref="acct_levl" type="output" visibility="hidden"/>
+			<col ref="insd_acct_cd" type="output" visibility="hidden"/>
+		</datagrid>
+		<group id="group_line" class="gro_line" style="left:10px; top:113px; width:926px; height:5px; "/>
+		<group id="grp_buttons" class="gro_sel" style="left:10px; top:50px; width:926px; height:21px; ">
+			<button id="btn_select" class="btn02" crud="R" style="left:761px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						send_fc_acct_2651_l();						
+					]]>
+				</script>
+			</button>
+			<button id="btn_help" class="btn02" crud="R" style="left:816px; top:0px; width:52px; height:21px; ">
+				<caption>엑셀</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					var grid = null;
+					
+					if(_oth_clsf == "1"){			
+						grid = datagrid1;
+					}
+					
+					var filename = window.fileDialog("save", ",", false, "", "xls", "Excel File(*.xls)|*.xls");
+					if(filename!=""){
+						grid.saveExcel(filename, "sheetname: ");
+					}
+					]]>
+				</script>
+			</button>
+			<button id="btnClose" class="btn02" style="left:871px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						formClose();
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" crud="R" style="left:706px; top:0px; width:52px; height:21px; ">
+				<caption>생성</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						send_fc_acct_2652_a();						
+					]]>
+				</script>
+			</button>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<group id="group_scr" class="gro_sel" style="left:10px; top:80px; width:926px; height:26px; ">
+			<caption id="caption2" class="list_cap03" style="left:0px; top:0px; width:110px; height:26px; text-align:center; ">회계년월</caption>
+			<caption id="caption3" class="list_cap02" style="left:109px; top:0px; width:815px; height:26px; text-align:center; "/>
+			<input id="srch_fisc_mm" ref="/root/reqData/searchData/fisc_mm" class="req" navindex="1" format="yyyy-mm" style="left:115px; top:3px; width:60px; height:18px; ">
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						if(srch_fisc_mm.value.length == 6){
+							send_fc_acct_2651_l();
+						}
+					]]>
+				</script>
+			</input>
+		</group>
+	</xhtml:body>
+</xhtml:html>

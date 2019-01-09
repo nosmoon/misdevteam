@@ -1,0 +1,253 @@
+<%@ page contentType="text/html; charset=KSC5601"%>
+<%@ include file="/jsp/ps/comm_jsp/ps_common.jsp" %>
+<%---------------------------------------------------------------------------------------------------
+* 파일명 : pa_send_1901_a.jsp
+* 기능 : 지로 정상발송 화면
+* 작성일자 : 2004/03/11
+* 작성자 : 장수환
+---------------------------------------------------------------------------------------------------%>
+<%---------------------------------------------------------------------------------------------------
+* 수정내역 :
+* 수정자 :
+* 수정일자 :
+* 백업파일명 :
+---------------------------------------------------------------------------------------------------%>
+<!--JSP COMMENT END--------------------------------------------------------------------------------->
+<%
+    //	dataset 인스턴스 선언부분
+    PS_S_SEND_LUMP_PROCDataSet ds = (PS_S_SEND_LUMP_PROCDataSet)request.getAttribute("ds");  // request dataset
+
+    // 화면당 보여줄 Row수
+    int li_per = 20;
+%>
+<html>
+<head>
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=euc-kr">
+<link rel="stylesheet" href="/html/comm_css/pbs.css" type="text/css">
+<script language="JavaScript" src="/html/comm_js/common.js"></script>
+<script language="JavaScript">
+
+function jsinit(){
+    setEventHandler();
+}
+
+// 입금일자와 입금 방법으로 개별 입금 사항 조회
+function normsend_list(startpage) {
+	var lo_form1 = document.normsend_form;
+
+	if(!validate(lo_form1)) return false;
+
+	makeValue(lo_form1);
+
+	// 오늘날짜와 비교
+	if(!isValidDate(lo_form1,lo_form1.girosenddt)) {
+		return false;
+	}
+
+	lo_form1.curr_page_no.value = startpage;
+	lo_form1.action = "/ps/send/1906";
+	lo_form1.target = "ifrm";
+	lo_form1.submit();
+}
+
+// 오늘날짜와 비교
+function isValidDate(form,to) {
+
+	if(to.value > <%=Util.getDate()%>) {
+		alert("오늘 날짜 보다 커서는 안 됩니다.");
+		to.value=<%=Util.getDate()%>;
+		to.focus();
+		return false;
+	}
+	return true;
+}
+
+// 페이지 이동
+function page_move(curr_page_no) {
+	var lo_form2 = document.normsend_form;
+	//alert("curr_page_no=="+curr_page_no);
+
+	if(!curr_page_no) {
+		lo_form2.curr_page_no.value = '1';
+	} else {
+		lo_form2.curr_page_no.value = curr_page_no;
+	}
+	normsend_list(curr_page_no);
+}
+
+//OZ PRINT 설정
+function print_list(){
+    var lo_form1    = document.normsend_form;
+
+	if(!validate(lo_form1)) return false;
+
+	makeValue(lo_form1);
+
+	// 오늘날짜와 비교
+	//if(!isValidDate(lo_form1,lo_form1.girosenddt)) {
+	//	return false;
+	//}
+
+    lo_form1.action = "/ps/send/1911";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+}
+
+//OZ 지로 봉투출력
+function print_case(){
+    var lo_form1    = document.normsend_form;
+
+	if(!validate(lo_form1)) return false;
+
+	makeValue(lo_form1);
+    lo_form1.action = "/ps/send/1916";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+}
+
+//OZ 지로출력
+function print_ocr(){
+    var lo_form1    = document.normsend_form;
+
+	if(!validate(lo_form1)) return false;
+
+	makeValue(lo_form1);
+    lo_form1.action = "/ps/send/1921";
+    lo_form1.target = "ifrm";
+    lo_form1.submit();
+}
+</script>
+</head>
+<body bgcolor="#F8F7F7" text="#000000" leftmargin="0" topmargin="0" marginwidth="0" marginheight="0" class="scroll1" onload="jsinit();normsend_form.girosenddt.focus();">
+	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+		<tr>
+			<td bgcolor="#797777" height="25" class="home"><b><img src="/html/comm_img/ic_map.gif" width="25" height="20" align="absmiddle">발송
+			&gt; </b>지로발송 &gt; 정상발송</td>
+		</tr>
+		<tr>
+			<td height="10">
+			<!--내용을 위한 여백-->
+			</td>
+		</tr>
+	</table>
+	<table width="830" border="0" cellspacing="0" cellpadding="0" align="center">
+		<tr>
+			<td>
+			<!--search-->
+			<form name="normsend_form" method="post" action="">
+
+			<input name="curr_page_no" type="hidden" value ="1">
+			<input name="records_per_page" type="hidden" value ="<%=li_per%>">
+			<!--			<input name="total_records" type="hidden" value="0"> -->
+			<input name="js_fn_nm" type="hidden" value ="page_move">
+
+			<table width="830" border="0" cellspacing="0" cellpadding="2" class="title1" bgcolor="#EBE9DC">
+				<tr>
+					<td bgcolor="#EBE9DC" width="70"  ><img src="/html/comm_img/ic_title.gif" width="11" height="7" align="absmiddle">발송일자 <font color="red">*</font></td>
+					<td width="150">
+					<input name="girosenddt" type="text" size="10" class="text_box" value="<%=Util.addDate(Util.getDate(),-1)%>" caption="발송일자"  datatype="date" notEmpty>
+					</td>
+                    <td width="70" ><img src="/html/comm_img/ic_title.gif" width="12" height="7" align="absmiddle">발송지사</td>
+                    <td width="150" >
+                      <select name="sendbrch" size="1"  class="sel_all">
+                        <option value='ALL'  selected  >전체</option>
+                        <%= ds.bocdcurOptHtml("") %>
+                      </select>
+                    <td align="right">
+                    <input type="image" src="/html/comm_img/bu_search.gif" width="36" height="19" align="absmiddle" border="0" onClick="javascript:normsend_list(1)" style="cursor:hand;">
+                    </td>
+
+                    </td>
+				</tr>
+			</table>
+			</td>
+		</tr>
+		<tr>
+			<td height="3">
+			<!--여백 -->
+			</td>
+		</tr>
+		<tr>
+			<td height="10">
+			<!--타이틀 -->
+				<table width="830" border="0" cellspacing="0" cellpadding="2">
+					<tr>
+						<td height="27" class="title" bgcolor="#EBE9DC"><b>정상발송목록</b></td>
+						<td height="27" class="title" width="200" align="right" bgcolor="#EBE9DC">
+						<img src="/html/comm_img/bu_print04.gif" width="63" height="19" align="absmiddle" border="0" onclick="print_case();window.event.returnValue=false;" style="cursor:hand;">
+						<img src="/html/comm_img/bu_print05.gif" width="63" height="19" align="absmiddle" border="0" onclick="print_ocr();window.event.returnValue=false;" style="cursor:hand;">
+						<img src="/html/comm_img/bu_print.gif" width="39" height="19" align="absmiddle" border="0" onclick="print_list();window.event.returnValue=false;" style="cursor:hand;"></td>
+					</tr>
+					<tr>
+						<td height="3" colspan="2">
+						<!--여백-->
+						</td>
+					</tr>
+				</table>
+				<!--리스트 -->
+				<table cellspacing="0" width="830" cellpadding="0" border="0" id="normsend_list">
+					<tr><td>
+						<table cellspacing="0" width="830" cellpadding="1" border="0" class="gray" bgcolor="#FFFFFF">
+							<tr>
+								<td width="130" class="gray" bgcolor="#dddddd" align="center" > 발송지사</td>
+								<td width="170" class="gray" bgcolor="#dddddd" align="center" > 독자번호</td>
+								<td width="170" class="gray" bgcolor="#dddddd" align="center" > 성명</td>
+								<td width="120" class="gray" bgcolor="#dddddd" align="center" > 매체종류</td>
+								<td width="120" class="gray" bgcolor="#dddddd" align="center" > 약정일</td>
+								<td width="120" class="gray" bgcolor="#dddddd" align="center" > 약정금액</td>
+							</tr>
+<%
+	for ( int i= 0 ; i < li_per ; i++ ) {
+%>
+							<tr>
+								<td width="130" class="gray" align="center" > &nbsp; </td>
+								<td width="170" class="gray" align="center" > &nbsp; </td>
+								<td width="170" class="gray" align="center" > &nbsp; </td>
+								<td width="120" class="gray" align="center" > &nbsp; </td>
+								<td width="120" class="gray" align="center" > &nbsp; </td>
+								<td width="120" class="gray" align="right"  > &nbsp; </td>
+							</tr>
+<%
+	}
+%>
+						</table>
+					</td></tr><tr><td>
+				<!---button-->
+				<table width="830" border="0" cellspacing="0" cellpadding="0" class="title2" align="center">
+					<tr>
+						<td align="center" height="2">
+						<!--여백-->
+						</td>
+					</tr>
+					<tr>
+						<td align="center" height="24" bgcolor="#E8E8E8">               <!--JSP PAGE START---------------------------------------------------------------------------------->
+						<jsp:include page="/jsp/ps/comm_jsp/page_navigator.jsp">
+						<jsp:param name = "curr_page_no" 		value="0"/>
+						<jsp:param name = "total_records" 	value="0"/>
+						<jsp:param name = "js_fn_nm" 			value="page_move"/>
+						<jsp:param name = "records_per_page" 	value="<%=li_per%>"/>
+						<jsp:param name = "page_set_gubun" 	value="0"/>
+						</jsp:include>
+
+						<!--JSP PAGE END------------------------------------------------------------------------------------>
+						</td>
+					</tr>
+				</table>
+			</td></tr>
+		</table>
+	</td>
+	</tr>
+</form>
+</table>
+
+<!--HTML IFRAME START------------------------------------------------------------------------------->
+<iframe name="ifrm" width=830 height=0></iframe>
+<!--HTML IFRAME END--------------------------------------------------------------------------------->
+
+<!--JSP FOOTER START-------------------------------------------------------------------------------->
+<!--%@ include file=="/common/footer.jsp" %-->
+<!--JSP FOOTER END---------------------------------------------------------------------------------->
+
+</body>
+</html>

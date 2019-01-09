@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="/css/style_sheet.css" type="text/css" ?>
+<!-- *********************************************************************************************
+* 파일명 : SE_BNS_1400.xrw
+* 기능 :  판매 - 배달용품관리 - 배달용품발송일자관리
+* 작성일자 : 2009.04.28
+* 작성자 : 김대준
+*********************************************************************************************** -->
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:my="http://www.comsquare.co.kr/example" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>Untitle</xhtml:title>
+		<script type="javascript">
+			<![CDATA[
+				function goSearch(){
+					var yymm		= model.getValue("/root/reqData/searchData/yymm");
+					var medi_cd	= model.getValue("/root/reqData/searchData/medi_cd");
+					
+					if ( yymm == ""  ){
+						commAlert("기준년월이 없습니다");
+						return;
+					}
+					
+					if ( medi_cd == ""  ){
+						commAlert("매체코드가 없습니다");
+						return;
+					}
+
+					model.setValue("/root/reqData/searchData2/yymm"		, yymm	);
+					model.setValue("/root/reqData/searchData2/medi_cd"	, medi_cd);
+
+					var action = "se_bns_1410_l";
+					model.send(action);
+					
+					se_chkGridCnt("datagrid1");
+					
+					inputTf(false);
+					
+					model.refresh();
+				}
+
+				function inputTf(tf){
+					var rows		= datagrid1.rows;
+					var cols		= datagrid1.cols;
+					
+					datagrid1.isReadOnly(1, 1, rows - 1, cols - 1) = tf;
+				}
+				
+				function getBnsItem(gubun){
+					var rows = datagrid1.rows;
+					var selectRow 	= datagrid1.row;
+					var row;
+					if ( rows == datagrid1.fixedRows + 1)
+					{
+						row			= "";
+					} else {
+						row			= "[" + selectRow + "]";
+					}
+					
+					var oriVal 	= datagrid1.valueMatrix(selectRow, 5);
+					
+					var root		= "/root/resData/gridData/curlist/record" + row;
+					if ( gubun == "P" ){
+						model.setValue("/root/reqData/searchData/bns_item_cd", "");
+						model.setValue("/root/reqData/searchData/bns_item_nm", "");
+						root		= "/root/reqData/searchData";
+					}
+					
+					se_getBnsItem("G", root, "/root/resData/gridData/curlist/record", "bns_item_cd", "bns_item_nm", "medi_cd", "datagrid1");
+					var newVal	= datagrid1.valueMatrix(selectRow, 5);
+					
+					if ( oriVal != newVal ){
+						datagrid1.addStatus(selectRow, "update");
+					}
+				}
+				
+				function goSave(){
+					var val = window.alert("저장 하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var rows = datagrid1.rows;
+					var val;
+					var update	= false;
+					var basi_mm, bns_item_cd, divn_dt, chg_issu_dt;
+					for ( var i = 1 ; i <= rows - 1; i++ ){
+						basi_mm		= datagrid1.valueMatrix(i, 4);
+						bns_item_cd	= datagrid1.valueMatrix(i, 5);
+						divn_dt		= datagrid1.valueMatrix(i, 7);
+						chg_issu_dt	= datagrid1.valueMatrix(i, 8);
+
+						if ( basi_mm != "" || bns_item_cd != "" || divn_dt != "" || chg_issu_dt != "" ){
+
+							val	= datagrid1.valueMatrix(i, 4);
+							if ( val == "" ){
+								commAlert(i + "행의 발행기준월이 없습니다.");
+								return;
+							}
+							
+							val	= datagrid1.valueMatrix(i, 5);
+							if ( val == "" ){
+								commAlert(i + "행의 배달용품 코드가 없습니다.");
+								return;
+							}
+							
+							val	= datagrid1.valueMatrix(i, 6);
+							if ( val == "" ){
+								commAlert(i + "행의 배달용품명이 없습니다.");
+								return;
+							}
+							
+							val	= datagrid1.valueMatrix(i, 7);
+							if ( val == "" ){
+								commAlert(i + "행의 배분일자가 없습니다.");
+								return;
+							}
+							
+							datagrid1.addStatus(i, "update");
+							update = true;
+						}
+					}
+					
+					if ( !update ){
+						commAlert("저장할 내역이 없습니다.");
+						return;
+					}
+					
+					model.setValue("/root/reqData/searchData2/multiUpDate", datagrid1.getUpdateData());
+					
+					var action = "se_bns_1420_a";
+					model.send(action);
+					goSearch();
+				}
+				
+				function goDelete(){
+					var val = window.alert("삭제 하시겠습니까?", "확인", 1) ;
+					// 1은 확인 2는 취소
+					if ( val == 2 ){
+						return;
+					}
+					
+					var yymm = model.getValue("/root/reqData/searchData2/yymm");
+					if ( yymm == "" ){
+						commAlert("조회후 삭제할 수 있습니다.");
+						return;
+					}
+					
+					var action = "se_bns_1430_d";
+					model.send(action);
+					goSearch();
+				}
+			]]>
+		</script>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<session/>
+						<comboSet>
+							<medilist>
+								<record>
+									<cd/>
+									<cdnm/>
+									<cd_abrv_nm/>
+								</record>
+							</medilist>
+						</comboSet>
+						<pageInfo>
+						</pageInfo>
+						<rowInfo/>
+					</initData>
+					<reqData>
+						<fwdData>
+						</fwdData>
+						<searchData>
+							<yymm/>
+							<medi_cd/>
+							<bns_item_cd/>
+							<bns_item_nm/>
+						</searchData>
+						<reqform>
+						</reqform>
+						<searchData2>
+							<yymm/>
+							<medi_cd/>
+							<multiUpDate/>
+						</searchData2>
+					</reqData>
+					<resData>
+						<resform>
+						</resform>
+						<gridData>
+							<curlist>
+								<record>
+									<dt/>
+									<day/>
+									<send_yn/>
+									<medi_cd/>
+									<basi_mm/>
+									<bns_item_cd/>
+									<bns_item_nm/>
+									<divn_dt/>
+									<chg_issu_dt/>
+								</record>
+							</curlist>
+						</gridData>
+						<MsgData/>
+					</resData>
+					<tempData>
+					</tempData>
+				</root>
+			</instance>
+			<script id="script1" type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					var action = "se_bns_1400_m";
+					model.send(action);
+					
+					var yymm		= model.getValue("/root/initData/yymm");			  
+					model.setValue("/root/reqData/searchData/yymm", yymm);
+					
+					combo1.select(0);
+					
+					inputTf(true);
+					
+					model.refresh();
+				]]>
+			</script>
+			<submission id="se_bns_1400_m" action="/se/bns/1400" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/initData/comboSet"/>
+			<submission id="se_bns_1410_l" ref="/root/reqData/searchData" action="/se/bns/1410" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData"/>
+			<submission id="se_bns_1420_a" ref="/root/reqData/searchData2" action="/se/bns/1420" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/MsgData"/>
+			<submission id="se_bns_1430_d" ref="/root/reqData/searchData2" action="/se/bns/1430" method="post" mediatype="application/x-www-form-urlencoded" resultref="/root/resData/MsgData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/se_comm.js"/>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="765" guideline="1,10;1,936;2,63;2,70;2,725;2,120;2,102;" style="font-family:돋움; font-size:12px; ">
+		<group id="group_line" class="gro_line" style="left:10px; top:102px; width:926px; height:5px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/curlist/record" datatype="xml" caption="발송일^요일^발행여부^발행기준월^배달용품코드^배달용품명^배분일자^발송일수정" colwidth="100, 40, 70, 80, 90, 320, 100, 100" mergecellsfixedrows="bycolrec" rowheader="update" selectionmode="free" rowsep="|" colsep="#" style="left:10px; top:120px; width:926px; height:605px; ">
+			<col ref="dt" format="yyyy-mm-dd"/>
+			<col ref="day"/>
+			<col ref="send_yn"/>
+			<col ref="basi_mm" type="input" format="yyyymm"/>
+			<col ref="bns_item_cd" type="inputbutton"/>
+			<col ref="bns_item_nm" type="input" style="text-align:left; "/>
+			<col ref="divn_dt" type="inputdate" style="text-align:left; "/>
+			<col ref="chg_issu_dt" type="inputdate" format="yyyy-mm-dd"/>
+			<col ref="medi_cd" type="inputdate" visibility="hidden" format="yyyy-mm-dd"/>
+			<script type="javascript" ev:event="onbuttonclick">
+				<![CDATA[
+					var col = datagrid1.col;
+					if ( col == 5 ){
+						getBnsItem("P");
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onendedit">
+				<![CDATA[
+					var col 	= datagrid1.col;
+					var row	= datagrid1.row;					
+					if ( col == 5 ){
+						datagrid1.valueMatrix(row, 6) = "";
+						getBnsItem("G");
+					}
+					
+					if ( col == 6 ){
+						datagrid1.valueMatrix(row, 5) = "";
+						getBnsItem("G");
+					}
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_scr" ref="/root/reqData/searchData/medi_cd" class="gro_sel" style="left:10px; top:70px; width:926px; height:26px; ">
+			<caption id="caption74" class="list_cap02" style="left:0px; top:0px; width:926px; height:26px; "/>
+			<caption id="caption7" class="list_cap01" style="left:0px; top:0px; width:80px; height:26px; ">기준년월</caption>
+			<input id="input3" ref="/root/reqData/searchData/yymm" navindex="1" class="req" format="yyyy-mm" caption="지급시작일자" style="left:87px; top:4px; width:90px; height:22px; ">
+				<script type="javascript" ev:event="onkeyup">
+					<![CDATA[
+					if ( event.keyCode == 13 ){
+						var value = input3.currentText.replace("-", "");
+						model.setValue("/root/reqData/searchData/yymm", value);
+						goSearch();
+					}
+				]]>
+				</script>
+			</input>
+			<select1 id="combo1" ref="/root/reqData/searchData/medi_cd" appearance="minimal" style="left:264px; top:4px; width:110px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/medilist/record">
+						<label ref="cd_abrv_nm"/>
+						<value ref="cd"/>
+					</itemset>
+				</choices>
+			</select1>
+			<caption id="caption1" class="list_cap01" style="left:187px; top:0px; width:70px; height:26px; ">매체</caption>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<button id="button2" class="btn03" crud="C" style="left:806px; top:44px; width:63px; height:21px; ">
+			<caption>삭제</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goDelete();
+				]]>
+			</script>
+		</button>
+		<button id="btnClose" class="btn03" style="left:873px; top:44px; width:63px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));    
+				]]>
+			</script>
+		</button>
+		<button id="button3" class="btn03" crud="R" style="left:672px; top:44px; width:63px; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSearch();
+				]]>
+			</script>
+		</button>
+		<button id="button1" class="btn03" crud="C" style="left:739px; top:44px; width:63px; height:21px; ">
+			<caption>저장</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					goSave();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>

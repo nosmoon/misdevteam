@@ -1,0 +1,488 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<!--
+        * 자동 검색 및 확인 처리 기능 설명
+ 	* 20090708
+ 	* 노상현
+	/root/reqData/fwdData/autoSearch  값이 1 일때.
+	  1. 넘겨받은 사원명 또는 사번을 이용하여 조회한다.
+	/root/reqData/fwdData/autoSearch  값이 2 일때,
+         1. 넘겨받은 사원명 또는 사번을 이용하여 조회한다.
+	  2. 조회된 건수가 2건이상이면 화면을 표시하고 1건이거나 없을경우 확인버튼을 호출한다.
+-->
+		<xhtml:title>사원찾기</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+							<dept_cd_1>
+								<item/>
+							</dept_cd_1>
+							<dept_cd_2>
+								<item/>
+							</dept_cd_2>
+							<dept_cd_3>
+								<item/>
+							</dept_cd_3>
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						<title/>
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<searchData>
+							<cmpy_cd/>
+							<emp_no/>
+							<nm_korn/>
+							<emp_clsf_cd/>
+							<dept_cd/>
+							<dept_cd_2/>
+							<dept_cd_3/>
+							<dept_cd_1/>
+							<lvcmpy/>
+						</searchData>
+						<!-- 검색조건 처리 -->
+						<formData/>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<multiUpDate/>
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<fwdData>
+							<func_nm/>
+							<emp_no/>
+							<nm_korn/>
+							<autoSearch/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<dept_temp/>
+							<dept_tm/>
+						</resForm>
+						<gridData>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<emp_no/>
+								<nm_korn/>
+								<dept_nm/>
+								<emp_clsf_nm/>
+								<lvcmpy_dt/>
+							</record>
+							<sub>
+							</sub>
+							<!-- datagrid2 -->
+							<detail/>
+							<!-- datagrid3 -->
+						</gridData>
+						<msg/>
+						<totcnt/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[var autoSearch = model.getValue("/root/reqData/fwdData/autoSearch");]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					radio1.select(0);
+					window.height = 405;
+					window.width = 460;
+				
+					maintitle.text = "사원찾기";
+					model1.send("hd_com_1011");
+					if(submit_completed()){
+						model1.copyNode("/root/initData/comboSet/dept_cd_1", "/root/tempData/offi");
+						model1.copyNode("/root/initData/comboSet/dept_cd_2", "/root/tempData/dept");
+						model1.copyNode("/root/initData/comboSet/dept_cd_3", "/root/tempData/emp_clsf_cd");
+						model1.removenode("/root/tempData");
+						
+						model.setValue("/root/initData/title", "사원찾기");
+						model.refresh();
+						
+						var funcName = model1.getValue("/root/reqData/fwdData/func_nm");
+						
+						//var autoSearch = model.getValue("/root/reqData/fwdData/autoSearch");
+						combo1.refresh();
+						combo2.refresh();
+						combo3.refresh();
+						
+						if(autoSearch == "1" || autoSearch == "2"){
+							//alert(model.getValue("/root/reqData/fwdData/emp_no"));
+							input25.value = model.getValue("/root/reqData/fwdData/nm_korn");
+							input30.value = model.getValue("/root/reqData/fwdData/emp_no");
+							if(input25.value != "" || input30.value != ""){
+								btnA4.dispatch("onclick");
+							}else{
+								autoSearch = "";
+								window.left = 300;
+								window.top = 80;
+							}
+						}						
+					}
+				]]>
+			</script>
+			<submission id="hd_com_1011" action="/hd/com/1011" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_com_1003" action="/hd/com/1003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm/dept_tm" resultref="/root/tempData"/>
+			<submission id="hd_com_1022" action="/hd/com/1022" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<script type="javascript" src="/js/TFCommon.js"/>
+	</xhtml:head>
+	<!--<xhtml:body class="pop400" pagewidth="450" pageheight="400" guideline="1,10;1,440;" style="font-family:굴림; ">-->
+	<xhtml:body class="pop450" pagewidth="450" pageheight="400" guideline="1,10;1,440;" style="font-family:굴림; ">
+		<group id="group_tit" class="gro_tit1_400" style="left:10px; top:5px; width:430px; height:29px; ">
+			<caption id="maintitle" ref="/root/initData/title" class="tit01" style="left:0px; top:0px; width:430px; height:32px; ">제목 - Main Title</caption>
+		</group>
+		<!--<import id="iv_Title" src="../../../common/xrw/iv_TitleBar_pop400.xrw" style="left:10px; top:5px; width:0px; height:0px; "/>-->
+		<!--<group id="group_line" class="gro_line" style="left:10px; top:173px; width:380px; height:5px; "/>-->
+		<group id="group_line" class="gro_line" style="left:10px; top:137px; width:430px; height:5px; "/>
+		<group id="group1" class="gro_sel" style="left:10px; top:35px; width:430px; height:97px; ">
+			<caption id="caption25" class="list_cap01" style="left:0px; top:0px; width:75px; height:25px; text-align:center; ">사 원 명</caption>
+			<caption id="caption44" class="list_cap02" style="left:288px; top:0px; width:142px; height:25px; text-align:center; "/>
+			<caption id="caption48" class="list_cap01" style="left:214px; top:0px; width:75px; height:25px; text-align:center; ">사     번</caption>
+			<caption id="caption50" class="list_cap02" style="left:74px; top:0px; width:141px; height:25px; text-align:center; "/>
+			<input id="input30" ref="/root/reqData/searchData/emp_no" navindex="2" maxlength="6" format="999999" style="left:293px; top:4px; width:130px; height:18px; background-color:#ffffff; ">
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+					if (event.keyCode ==13){
+						var emp_no_sub = input30.currentText;
+						var nm_korn_sub = input25.currentText
+						model1.makeNode("/root/reqData/searchData/emp_no");
+						model1.makeNode("/root/reqData/searchData/nm_korn");
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no_sub);
+						model1.setValue("/root/reqData/searchData/nm_korn", nm_korn_sub);
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						var nm_korn = model1.getValue("/root/reqData/searchData/nm_korn");
+						if (emp_no == '' && nm_korn == ''){
+							alert("검색하고자 하는 사번이나 사원명을 입력해주십시오.");
+							return;
+						}
+						model1.send("hd_com_1022");
+						model1.copyNode("/root/resData/gridData","/root/tempData");
+						model1.removenode("/root/tempData");
+						datagrid2.refresh();
+						model1.refresh();
+						var totcnt = datagrid2.rows;
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+					}
+					]]>
+				</script>
+				<script type="javascript" ev:event="onmaxlength">
+					<![CDATA[
+						var emp_no_sub = input30.currentText;
+						var nm_korn_sub = input25.currentText
+						model1.makeNode("/root/reqData/searchData/emp_no");
+						model1.makeNode("/root/reqData/searchData/nm_korn");
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no_sub);
+						model1.setValue("/root/reqData/searchData/nm_korn", nm_korn_sub);
+						var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						var nm_korn = model1.getValue("/root/reqData/searchData/nm_korn");
+						if (emp_no == '' && nm_korn == ''){
+							alert("검색하고자 하는 사번이나 사원명을 입력해주십시오.");
+							return;
+						}
+						model1.send("hd_com_1022");
+						model1.copyNode("/root/resData/gridData","/root/tempData");
+						model1.removenode("/root/tempData");
+						datagrid2.refresh();
+						model1.refresh();
+						var totcnt = datagrid2.rows;
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+					]]>
+				</script>
+			</input>
+			<caption id="caption1" class="list_cap01" style="left:0px; top:24px; width:75px; height:25px; text-align:center; ">국</caption>
+			<caption id="caption2" class="list_cap01" style="left:0px; top:48px; width:75px; height:25px; text-align:center; ">부     서</caption>
+			<caption id="caption3" class="list_cap01" style="left:0px; top:72px; width:75px; height:25px; text-align:center; ">사원구분</caption>
+			<caption id="caption4" class="list_cap02" style="left:74px; top:24px; width:356px; height:25px; text-align:center; "/>
+			<caption id="caption5" class="list_cap02" style="left:74px; top:48px; width:356px; height:25px; text-align:center; "/>
+			<caption id="caption6" class="list_cap02" style="left:74px; top:72px; width:356px; height:25px; text-align:center; "/>
+			<select1 id="combo1" ref="/root/reqData/searchData/dept_cd_1" navindex="3" appearance="minimal" style="left:78px; top:28px; width:171px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dept_cd_1/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						var comboVal = combo1.value;
+						var combo = comboVal.substring(0,2);
+//						var temp = datagrid2.rows;
+//						for(var i=1; i< temp;  i++) {
+//							datagrid2.deleteRow(1);
+//						}
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						
+						if(combo == "11" || combo == "13" || combo == "17" || combo == "18" || combo == "27" || combo == "32" || combo == "46" || combo == "63" || combo == "66" || combo == "67" || combo == "63"){
+							combo2.deselect();
+							var getValue = combo1.label;
+							model1.setValue("/root/resData/resForm/dept_temp", getValue);
+							model1.refresh();
+							var getComboLabel = combo1.label;
+							var getComboValue = combo1.Value;
+							model1.setValue("/root/reqData/searchData/dept_cd", getComboValue);
+							model1.send("hd_com_1003");
+							model1.copyNode("/root/initData/comboSet/dept_cd_2", "/root/tempData/dept");
+							model1.removenode("/root/tempData");
+							combo2.refresh();
+							combo2.disabled = true; 
+						}else{
+							model1.setValue("/root/reqData/searchData/dept_cd", combo);
+							model1.setValue("/root/resData/resForm/dept_temp", combo);
+							model1.setValue("/root/resData/resForm/dept_tm", combo);
+							model1.send("hd_com_1003");
+							model1.copyNode("/root/initData/comboSet/dept_cd_2", "/root/tempData/dept");
+							model1.removenode("/root/tempData");
+							combo2.refresh();
+							combo2.disabled = false; 
+						}
+						btnA4.dispatch("onclick");
+					]]>
+				</script>
+			</select1>
+			<select1 id="combo2" ref="/root/reqData/searchData/dept_cd_2" navindex="4" appearance="minimal" style="left:78px; top:51px; width:171px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dept_cd_2/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+//						var temp = datagrid2.rows;
+//						for(var i=1; i< temp;  i++) {
+//							datagrid2.deleteRow(1);
+//						}
+						model1.removenode("/root/resData/gridData");
+						model1.makeNode("/root/resData/gridData");
+						var comboVal = combo2.value;
+						model1.setValue("/root/reqData/searchData/dept_cd", comboVal);
+						var selectedIdx = combo2.label;
+						model1.setValue("/root/resData/resForm/dept_temp", selectedIdx);
+						model1.refresh();
+						btnA4.dispatch("onclick");
+					]]>
+				</script>
+			</select1>
+			<output id="input1" ref="/root/resData/resForm/dept_temp" style="left:252px; top:51px; width:171px; height:18px; background-color:#ffffff; "/>
+			<select1 id="combo3" ref="/root/reqData/searchData/emp_clsf_cd" navindex="5" appearance="minimal" style="left:78px; top:76px; width:171px; height:18px; ">
+				<choices>
+					<itemset nodeset="/root/initData/comboSet/dept_cd_3/item">
+						<label ref="label"/>
+						<value ref="value"/>
+					</itemset>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						btnA4.dispatch("onclick");
+					]]>
+				</script>
+			</select1>
+			<input id="input25" ref="/root/reqData/searchData/nm_korn" navindex="1" imemode="hangul" style="left:78px; top:4px; width:130px; height:18px; background-color:#ffffff; ">
+				<script type="javascript" ev:event="onkeypress">
+					<![CDATA[
+						if (event.keyCode ==13){
+							var emp_no_sub = input30.currentText;
+							var nm_korn_sub = input25.currentText
+							model1.makeNode("/root/reqData/searchData/emp_no");
+							model1.makeNode("/root/reqData/searchData/nm_korn");
+							model1.setValue("/root/reqData/searchData/emp_no", emp_no_sub);
+							model1.setValue("/root/reqData/searchData/nm_korn", nm_korn_sub);
+							var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+							var nm_korn = model1.getValue("/root/reqData/searchData/nm_korn");
+							if (emp_no == '' && nm_korn == ''){
+								alert("검색하고자 하는 사번이나 사원명을 입력해주십시오.");
+								return;
+							}
+							model1.send("hd_com_1022");
+							model1.copyNode("/root/resData/gridData","/root/tempData");
+							model1.removenode("/root/tempData");
+							datagrid2.refresh();
+							model1.refresh();
+							var totcnt = datagrid2.rows;
+							model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+							model1.refresh();
+						}
+					]]>
+				</script>
+			</input>
+			<select1 id="radio1" ref="/root/reqData/searchData/lvcmpy" appearance="full" cols="3" overflow="visible" style="left:259px; top:75px; width:141px; height:20px; border-style:none; ">
+				<choices>
+					<item>
+						<label>전체</label>
+						<value/>
+					</item>
+					<item>
+						<label>재직</label>
+						<value>1</value>
+					</item>
+					<item>
+						<label>퇴직</label>
+						<value>2</value>
+					</item>
+				</choices>
+				<script type="javascript" ev:event="xforms-value-changed">
+					<![CDATA[
+						btnA4.dispatch("onclick");
+					]]>
+				</script>
+			</select1>
+		</group>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData/record" caption="사번^사원명^부서명^사원구분^퇴직일자" colsep="^" colwidth="60, 60, 115, 60, 70" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" noeset="/root/gridData/main/a" style="left:10px; top:147px; width:430px; height:223px; ">
+			<col ref="emp_no"/>
+			<col ref="nm_korn"/>
+			<col ref="dept_nm" style="text-align:left; "/>
+			<col ref="emp_clsf_nm"/>
+			<col ref="lvcmpy_dt" format="yyyy-mm-dd"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(datagrid2.row == 0) return;			
+					
+					var selectedIdx = datagrid2.selectedRow(0);
+					var emp_no = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/emp_no");
+					model1.makeNode("/root/reqData/fwdData/emp_no");
+					model1.setValue("/root/reqData/fwdData/emp_no", emp_no);
+					
+					var nm_korn = model1.getValue("/root/resData/gridData/record["+ selectedIdx +"]/nm_korn");
+					model1.makeNode("/root/reqData/fwdData/nm_korn");
+					model1.setValue("/root/reqData/fwdData/nm_korn", nm_korn);
+				]]>
+			</script>
+			<script type="javascript" ev:event="ondblclick">
+				<![CDATA[
+						
+					if (-1 != event.target.lastIndexOf("scroll.thumb")) {
+						return;
+					}     
+					
+					var grid = eval(event.currentTarget);
+					var rowid = grid.row;
+					var colid = grid.col;
+					     
+					if (rowid < grid.fixedRows || colid < grid.fixedCols) {
+						return;
+					}
+				
+					if ((datagrid2.mouseCol > 0) && (datagrid2.mouseCol < datagrid2.cols) && (datagrid2.mouseRow >= datagrid2.fixedRows))  {
+				
+						var emp_no = datagrid2.valueMatrix(datagrid2.selectedRow(0), 1);
+						var nm_korn = datagrid2.valueMatrix(datagrid2.selectedRow(0), 2);	
+						
+						var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+		
+					
+						eval("window.opener.javascript." + retFunc + "('" + emp_no + "', '" + nm_korn + "')");
+						
+						window.close();	
+					}
+				]]>
+			</script>
+		</datagrid>
+		<group id="group2" class="gro_btn" style="left:209px; top:9px; width:231px; height:21px; ">
+			<button id="btnA4" class="btn02" style="left:65px; top:0px; width:52px; height:21px; ">
+				<caption>조회</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						/*var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+						var nm_korn = model1.getValue("/root/reqData/searchData/nm_korn");
+						if (emp_no == '' && nm_korn == ''){
+							alert("검색하고자 하는 사번이나 사원명을 입력해주십시오.");
+							return;
+						}*/
+						model1.send("hd_com_1022");
+						model1.copyNode("/root/resData/gridData","/root/tempData");
+						model1.removenode("/root/tempData");
+						
+						datagrid2.refresh();
+						
+						if(autoSearch == "2"){
+							//alert(datagrid2.rows);
+							
+//							body.visible= true;
+//							//debugger;
+							if(datagrid2.rows == 2){
+							   //datagrid2.select(1,1) = true;
+							   model1.setValue("/root/reqData/fwdData/emp_no", datagrid2.valueMatrix(1 , 1));
+							   model1.setValue("/root/reqData/fwdData/nm_korn", datagrid2.valueMatrix(1 , 2));
+							   button3.dispatch("onclick");
+							}else{
+								autoSearch = "";
+								window.left = 300;
+								window.top = 80;
+								//alert(window.left+":"+window.top);
+							}
+						}
+						model1.refresh();
+						var totcnt = datagrid2.rows;
+						model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+							
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:10px; top:0px; width:52px; height:21px; ">
+				<caption>초기화</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						model1.reset();
+					]]>
+				</script>
+			</button>
+			<button id="button3" class="btn02" style="left:119px; top:0px; width:52px; height:21px; ">
+				<caption>확인</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						var emp_no = model1.getValue("/root/reqData/fwdData/emp_no");
+						var nm_korn = model1.getValue("/root/reqData/fwdData/nm_korn");
+						if (emp_no == ''){
+							alert("사원을 선택해주십시오.");
+							return;
+						} else {
+							//model1.setValue("/root/reqData/fwdData/autoSearch","");
+							var retFunc = model1.getValue("/root/reqData/fwdData/func_nm");
+							eval("window.opener.javascript." + retFunc + "('" + emp_no + "', '" + nm_korn + "')");
+							window.close();
+						}
+					]]>
+				</script>
+			</button>
+			<button id="button4" class="btn02" style="left:177px; top:0px; width:52px; height:21px; ">
+				<caption>종료</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+						window.close();				
+					]]>
+				</script>
+			</button>
+		</group>
+		<caption id="caption14" ref="/root/resData/totcnt" style="left:353px; top:370px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+		<script type="javascript" ev:event="onkeypress">
+			<![CDATA[
+				if(event.keyCode == "27"){
+					window.close();	
+				}
+			]]>
+		</script>
+	</xhtml:body>
+</xhtml:html>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet href="../../../css/style_sheet.css" type="text/css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>약정납입현황</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<reqForm>
+						</reqForm>
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<srch_date/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+					</reqData>
+					<resData>
+						<resForm>
+						</resForm>
+						<gridData>
+							<record>
+								<cmpy_cd/>
+								<partitiontype/>
+								<paymethodname/>
+								<promise_cnt/>
+								<promise_price/>
+								<payment_cnt/>
+								<payment_price/>
+								<pymt_rate/>
+							</record>
+						</gridData>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+				
+					function dateSrch()
+					{
+						var now_dt = "";
+						var now_date = new Date();
+						var year = now_date.getYear();
+						var month = now_date.getMonth() + 1;
+						var day = now_date.getDate();    
+						var month_tm = '0' + month;
+						var day_tm = '0' + day;  
+						if(month_tm.length == 3){
+							month_tm = month_tm.substring(1, 3);
+						}
+						if(day_tm.length == 3){
+							day_tm = day_tm.substring(1, 3);
+						}
+						now_dt = year + month_tm + day_tm;
+					       return(now_dt);
+					
+					}
+				
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					model1.setValue("/root/reqData/searchData/srch_date", dateSrch());					
+					
+					datagrid1.removeRow();
+					model1.refresh();	
+				]]>
+			</script>
+			<script type="javascript" src="/js/CIISComm.js"/>
+			<script type="javascript" src="/js/TFCommon.js"/>
+			<submission id="tn_rpt_1400_l" action="/tn/rpt/1400" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData/dataSet"/>
+		</model>
+	</xhtml:head>
+	<xhtml:body class="main" pagewidth="946" pageheight="760" guideline="2,706;" style="font-family:굴림; ">
+		<group id="group_scr" class="gro_sel" style="left:1.06%; top:9.21%; width:97.89%; height:3.29%; ">
+			<caption id="caption4" class="list_cap02" style="left:8.53%; top:0.00%; width:91.47%; height:100.00%; text-align:center; "/>
+			<caption id="caption2" class="list_cap01" style="left:0.00%; top:0.00%; width:8.64%; height:100.00%; text-align:center; ">조회날짜</caption>
+			<input id="input6" ref="/root/reqData/searchData/srch_date" inputtype="date" format="yyyy-mm-dd" style="left:9.83%; top:16.00%; width:11.88%; height:72.00%; text-align:center; "/>
+		</group>
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:99%; height:29px; background-stretch:stretch; "/>
+		<button id="btnA1" class="btn02" style="left:78.75%; top:5.26%; width:5.50%; height:21px; ">
+			<caption>조회</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model.removeNodeset("/root/resData/gridData/record");  
+					datagrid1.mergecellsfixedrows = "byrow";
+					if(model.getValue("/root/reqData/searchData/srch_date") == ""){
+						model.alert("조회날짜를 선택한 후 조회 버튼을 눌러주시기 바랍니다.");
+						return;
+					} 
+					datagrid1.mergeCol(2) = false;
+					datagrid1.mergeCol(3) = false;
+					datagrid1.mergeCol(4) = false;
+					datagrid1.mergeCol(5) = false;
+					datagrid1.mergeCol(6) = false;
+					datagrid1.mergeCol(7) = false;
+					
+					model1.send("tn_rpt_1400_l");
+					model1.copyNode("/root/resData/gridData","/root/tempData/dataSet/CURLIST");
+			
+					model1.refresh();	
+					
+					datagrid1.subtotal("sum", -1, 3, "(-)#,###", "background-color:#ffff88; font-weight:bold; color:#0000ff;", 1, "계");
+					datagrid1.subtotal("sum", -1, 4, "(-)#,###", "background-color:#ffff88; font-weight:bold; color:#0000ff;", 1, "계");
+					datagrid1.subtotal("sum", -1, 5, "(-)#,###", "background-color:#ffff88; font-weight:bold; color:#0000ff;", 1, "계");
+					datagrid1.subtotal("sum", -1, 6, "(-)#,###", "background-color:#ffff88; font-weight:bold; color:#0000ff;", 1, "계");
+					datagrid1.cellStyle("text-align", datagrid1.rows-1, 1, datagrid1.rows-1, 1) = "center";
+					datagrid1.multiTotals = true;	
+					
+					var obj = htmldocument.SessionInfo;	
+					var totalrate = datagrid1.valuematrix(parseInt(datagrid1.rows)-1,6)/datagrid1.valuematrix(parseInt(datagrid1.rows)-1,4);
+				
+					datagrid1.valuematrix(parseInt(datagrid1.rows)-1,7) = totalrate.toFixed(2)*100 + "%"
+																				
+				    rowCnt.value = "총 "+ (parseInt(datagrid1.rows)-1) + " 건";
+				]]>
+			</script>
+		</button>
+		<button id="btnA4" class="btn02" style="left:93.66%; top:5.26%; width:5.50%; height:2.76%; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+				  viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+				]]>
+			</script>
+		</button>
+		<button id="button10" class="btn04" style="left:84.25%; top:5.26%; width:9.30%; height:21px; ">
+			<caption>엑셀다운로드</caption>
+			<script type="javascript" ev:event="DOMActivate">
+				<![CDATA[
+					var filePath = window.fileDialog("save", "", false, "", "xls", "Excel Files(*.xls)|*.xls");
+					
+					if(filePath != "") {
+						datagrid1.saveExcel(filePath);
+						window.exec(filePath);
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="rowCnt" style="left:88.27%; top:93.42%; width:9.20%; height:2.63%; font-weight:bold; text-align:right; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData/record" caption="구분^구분^약정건수^약정금액^납입건수^납입금액^납입률" colsep="#" colwidth="100, 144, 110, 170, 110, 170, 100" explorerbar="sortshowmove" extendlastcol="scroll" mergecells="bycol" mergecellsfixedrows="byrow" rowheader="seq" rowsep="|" subtotalposition="below" style="left:1.06%; top:13.82%; width:97.89%; height:78.42%; ">
+			<col ref="partitiontype" caption="구분"/>
+			<col ref="paymethodname" caption="구분"/>
+			<col ref="promise_cnt" format="(-)#,###" caption="약정건수" style="text-align:right; "/>
+			<col ref="promise_price" format="(-)#,###" caption="약정금액" style="text-align:right; "/>
+			<col ref="payment_cnt" format="(-)#,###" caption="납입건수" style="text-align:right; "/>
+			<col ref="payment_price" format="(-)#,###" caption="납입금액" style="text-align:right; "/>
+			<col ref="pymt_rate" caption="납입률" style="text-align:right; "/>
+		</datagrid>
+	</xhtml:body>
+</xhtml:html>

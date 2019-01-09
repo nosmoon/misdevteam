@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="EUC-KR"?>
+<?xml-stylesheet type="text/css" href="../../../css/style_sheet.css" ?>
+<xhtml:html xmlns:ex="http://www.comsquare.co.kr/xforms/excel" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="http://www.comsquare.co.kr/example" xmlns:ms="urn:schemas-microsoft-com:xslt" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.w3.org/2002/01/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:cs="http://www.comsquare.co.kr/xforms">
+	<xhtml:head>
+		<xhtml:title>부서원직무 및 파트부여</xhtml:title>
+		<model id="model1">
+			<instance id="instance1">
+				<root xmlns="">
+					<initData>
+						<!-- 화면 로딩시의 초기 데이터를 담당 -->
+						<session/>
+						<!-- 서버의 세션 정보를 담당한다 -->
+						<comboSet>
+							<!-- 선택계열의 정보를 담당 -->
+						</comboSet>
+						<!-- 콤보리스트와 같은 선택게열의 데이터는 <item>을 반복함으로써 list를 구성한다. -->
+						<pageInfo>
+							<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+						</pageInfo>
+						<!-- 해당 화면의 필요한 기타 정보들을 추가운영 할 수 있다 -->
+					</initData>
+					<reqData>
+						<!-- 전달하고자 하는 데이터를 담당 ( submit 함수에서 처리) -->
+						<!-- 검색조건 처리 -->
+						<!-- formData 팝업,화면전환시 data이동시 -->
+						<!-- MultiUpDate유형 사용시 처리 -->
+						<searchData>
+							<emp_no/>
+							<nm_korn/>
+							<cmpy_cd/>
+						</searchData>
+						<fwdData>
+							<func_nm/>
+						</fwdData>
+						<multiUpData/>
+					</reqData>
+					<resData>
+						<!-- 전달 받은 데이터를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 formData를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 데이터를 가공할 임시저장소 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorCode를 담당 ( submit의 결과가 담김) -->
+						<!-- 전달 받은 errorMsg를 담당 ( submit의 결과가 담김) -->
+						<resForm>
+							<temp/>
+							<grid/>
+							<tm_frdt/>
+						</resForm>
+						<msg>
+							<errMsg/>
+							<errCode/>
+						</msg>
+						<gridData1>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<cmpy_cd/>
+								<part_cd/>
+								<emp_no/>
+								<nm_korn/>
+								<dty_cd/>
+								<dty_nm/>
+								<posi_cd/>
+								<posi_nm/>
+								<cur_jobkind_cd/>
+								<cur_jobkind_nm/>
+							</record>
+							<sub/>
+							<!-- datagrid2 -->
+							<detail/>
+							<!-- datagrid3 -->
+						</gridData1>
+						<gridData2>
+							<!-- 전달 받은 grid데이터를 담당 ( submit의 결과가 담김) -->
+							<record>
+								<!-- datagrid1 -->
+								<frdt/>
+								<todt/>
+								<part_cd/>
+								<in_cmpy_posk_nm/>
+								<chrg_job/>
+								<dtls_job/>
+								<aprv_stat_yn/>
+								<cmpy_cd/>
+								<part_nm/>
+								<aprv_stat/>
+								<seq/>
+								<emp_no/>
+								<in_cmpy_posk_cd/>
+							</record>
+							<sub/>
+							<!-- datagrid2 -->
+							<detail/>
+							<!-- datagrid3 -->
+						</gridData2>
+						<totcnt/>
+						<totcnt2/>
+						<tm_emp_no/>
+					</resData>
+					<tempData/>
+				</root>
+			</instance>
+			<script type="javascript">
+				<![CDATA[
+					function loadData(emp_no){
+						model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+						model1.send("hd_job_1000");
+						if(model1.getValue("/root/resData/gridData1/record[1]/emp_no") == ""){
+							datagrid2.isReadOnly(1, 1, 1, 6) = true;
+						}else if(model1.getValue("/root/resData/gridData1/record[1]/emp_no") != ""){
+							datagrid2.isReadOnly(1, 1, 1, 6) = false;
+						}
+						model1.copyNode("/root/resData/gridData2", "/root/dataSet/CURLIST");
+						model1.setValue("/root/resData/resForm/grid", "1");
+						model1.removenode("/root/dataSet");
+						model1.refresh();
+						var totalcnt = model1.getValue("/root/resData/gridData2/totalcnt");
+						for(var i = 1; i < Number(totalcnt) + 1; i++){
+							//alert(model1.getValue("/root/resData/gridData2/record[" + (i) + "]/aprv_stat") + " " + i);
+							if(model1.getValue("/root/resData/gridData2/record[" + (i) + "]/aprv_stat") == "Y"){
+								datagrid2.isReadOnly(i, 1, i, 6) = true;
+							}else if(model1.getValue("/root/resData/gridData2/record[" + (i) + "]/aprv_stat") == "N"){
+								datagrid2.isReadOnly(i, 1, i, 6) = false;
+							}
+						}
+						model1.refresh();
+						//datagrid2.autoResize = true;
+						var totcnt = datagrid2.rows;
+						model1.setValue("/root/resData/totcnt2", "총 " + Number(totcnt - 1) + " 건");
+						model1.refresh();
+						
+						model1.setValue("/root/resData/resForm/temp", "1");
+						var rows = datagrid2.rows;
+						
+						if(model1.getValue("/root/resData/gridData2/record[" + (rows - 1) + "]/aprv_stat") == "Y"){
+							datagrid2.addRow(true, true);
+							datagrid2.isReadOnly(rows, 1, rows, 6) = false;
+							
+							var nodeList = root.selectNodes("/root/resData/gridData2/record");
+							var rowIdx = nodeList.length;
+							
+							var obj = htmldocument.SessionInfo;
+		    	 				setProperty("ss_cmpycd"   , obj.cmpycd.value);
+							model1.setValue("/root/resData/gridData2/record[" + (rowIdx) + "]/cmpy_cd", obj.cmpycd.value);
+							model1.setValue("/root/resData/gridData2/record[" + (rowIdx) + "]/emp_no", emp_no);
+							model1.refresh();
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="xforms-ready">
+				<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "부서원직무 및 파트부여";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					datagrid2.isReadOnly(1, 1, 1, 6) = true;
+					//datagrid2.deleteRow(1, "delete");
+					//datagrid2.isReadOnly(1, 1, 1, 10) = true;
+					//maintitle.text = "부서원직무/파트부여(부서장)";
+					model1.send("hd_job_1001");
+					model1.copyNode("/root/resData/gridData1", "/root/dataSet/CURLIST");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					var totcnt = datagrid1.rows;
+					model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+					model1.refresh();
+				]]>
+			</script>
+			<submission id="hd_job_1001" action="/hd/job/1001" mediatype="application/x-www-form-urlencoded" method="post" resultref="/root/tempData"/>
+			<submission id="hd_job_1000" action="/hd/job/1000" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData/searchData" resultref="/root/tempData"/>
+			<submission id="hd_job_1002" action="/hd/job/1002" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/reqData" resultref="/root/tempData"/>
+			<submission id="hd_job_1003" action="/hd/job/1003" mediatype="application/x-www-form-urlencoded" method="post" ref="/root/resData/resForm/tm_frdt" resultref="/root/tempData"/>
+		</model>
+		<script type="javascript" src="/js/TFCommon.js"/>
+		<script type="javascript" src="/js/CIISComm.js"/>
+		<!--<script type="javascript" src="/js/ad_common.js"/>-->
+	</xhtml:head>
+	<!--<xhtml:body class="main" pagewidth="946" pageheight="765">-->
+	<xhtml:body class="main" pagewidth="946" pageheight="728" guideline="2,49;2,70;2,82;2,80;2,681;1,936;1,934;1,939;" style="font-family:굴림; ">
+		<import id="iv_Title" src="../../../common/xrw/iv_TitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<import id="iv_PopTitle" src="../../../common/xrw/iv_PopTitleBar.xrw" style="left:10px; top:5px; width:926px; height:29px; "/>
+		<datagrid id="datagrid1" nodeset="/root/resData/gridData1/record" caption="파트^사번^성명^직책^직급^현직무" colsep="^" colwidth="130, 100, 100, 130, 130, 300, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="seq" rowsep="|" style="left:10px; top:85px; width:926px; height:275px; ">
+			<col ref="part_nm"/>
+			<col ref="emp_no"/>
+			<col ref="nm_korn"/>
+			<col ref="dty_nm"/>
+			<col ref="posi_nm" style="text-align:left; "/>
+			<col ref="cur_jobkind_nm" style="text-align:left; "/>
+			<col ref="cmpy_cd" visibility="hidden"/>
+			<col ref="dty_cd" visibility="hidden"/>
+			<col ref="posi_cd" visibility="hidden"/>
+			<col ref="part_cd" visibility="hidden"/>
+			<col ref="cur_jobkind_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+						
+				if (-1 != event.target.lastIndexOf("scroll.thumb")) {
+					return;
+				}     
+				
+				var grid = eval(event.currentTarget);
+				var rowid = grid.row;
+				var colid = grid.col;
+				     
+				if (rowid < grid.fixedRows || colid < grid.fixedCols) {
+					return;
+				}
+				
+				if(datagrid1.row == 0) return;	
+				
+					datagrid2.clearStatus();	
+				
+					var selectValue = "";
+					var selectedIdx = datagrid1.selectedRow(0);
+				
+					var emp_no = model1.getValue("/root/resData/gridData1/record["+ selectedIdx +"]/emp_no");
+					model1.setValue("/root/reqData/searchData/emp_no", emp_no);
+					var cmpy_cd = model1.getValue("/root/resData/gridData1/record["+ selectedIdx +"]/cmpy_cd");
+					model1.setValue("/root/reqData/searchData/cmpy_cd", cmpy_cd);
+					model1.send("hd_job_1000");
+					if(model1.getValue("/root/resData/gridData1/record[1]/emp_no") == ""){
+						datagrid2.isReadOnly(1, 1, 1, 6) = true;
+					}else if(model1.getValue("/root/resData/gridData1/record[1]/emp_no") != ""){
+						datagrid2.isReadOnly(1, 1, 1, 6) = false;
+					}
+					model1.copyNode("/root/resData/gridData2", "/root/dataSet/CURLIST");
+					model1.setValue("/root/resData/resForm/grid", "1");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					var totalcnt = model1.getValue("/root/resData/gridData2/totalcnt");
+					for(var i = 1; i < Number(totalcnt) + 1; i++){
+						//alert(model1.getValue("/root/resData/gridData2/record[" + (i) + "]/aprv_stat") + " " + i);
+						if(model1.getValue("/root/resData/gridData2/record[" + (i) + "]/aprv_stat") == "Y"){
+							datagrid2.isReadOnly(i, 1, i, 6) = true;
+						}else if(model1.getValue("/root/resData/gridData2/record[" + (i) + "]/aprv_stat") == "N"){
+							datagrid2.isReadOnly(i, 1, i, 6) = false;
+						}
+					}
+					model1.refresh();
+					//datagrid2.autoResize = true;
+					var totcnt = datagrid2.rows;
+					model1.setValue("/root/resData/totcnt2", "총 " + Number(totcnt - 1) + " 건");
+					model1.refresh();
+					
+					model1.setValue("/root/resData/resForm/temp", "1");
+					var rows = datagrid2.rows;
+					model1.setValue("/root/resData/tm_emp_no", emp_no);
+					
+					if(model1.getValue("/root/resData/gridData2/record[" + (rows - 1) + "]/aprv_stat") == "Y"){
+						datagrid2.addRow(true, true);
+						datagrid2.isReadOnly(rows, 1, rows, 6) = false;
+						
+						var nodeList = root.selectNodes("/root/resData/gridData2/record");
+						var rowIdx = nodeList.length;
+						
+						var obj = htmldocument.SessionInfo;
+	    	 				setProperty("ss_cmpycd"   , obj.cmpycd.value);
+						model1.setValue("/root/resData/gridData2/record[" + (rowIdx) + "]/cmpy_cd", obj.cmpycd.value);
+						model1.setValue("/root/resData/gridData2/record[" + (rowIdx) + "]/emp_no", emp_no);
+						model1.refresh();
+					}
+				]]>
+			</script>
+		</datagrid>
+		<datagrid id="datagrid2" nodeset="/root/resData/gridData2/record" caption="시작일^종료일^파트^직무^담당업무^세부업무^진행상태" colsep="#" colwidth="95, 95, 130, 150, 300, 500, 70, 100, 100, 100, 100, 100, 100" extendlastcol="scroll" mergecellsfixedrows="bycolrec" rowheader="update" rowsep="|" selectionmode="free" style="left:10px; top:403px; width:925px; height:297px; ">
+			<col ref="frdt" type="inputdate"/>
+			<col ref="todt" type="inputdate"/>
+			<col ref="part_nm" type="inputbutton" style="text-align:left; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var cell = datagrid2.selectedCells;
+						var row = cell.item(0).row;
+						var cd   =  "";		// model.getValue("/root/resData/resform/medi_cd");
+						var cdnm =  "";		// model.getValue("/root/resData/resform/medi_cd_nm");	
+							
+						var resultRef1 = "/root/resData/gridData2/record[" + (row) + "]/part_cd";
+						var resultRef2 = "/root/resData/gridData2/record[" + (row) + "]/part_nm";
+						
+						showCommonCodePopup1("01", "F18", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+						
+						if(datagrid2.rowStatus(row) == 0){
+							datagrid2.rowStatus(row) = 2;
+						}
+
+						model.refresh();
+					]]>
+				</script>
+			</col>
+			<col ref="in_cmpy_posk_nm" type="inputbutton" style="text-align:left; ">
+				<script type="javascript" ev:event="onbuttonclick">
+					<![CDATA[
+						var cell = datagrid2.selectedCells;
+						var row = cell.item(0).row;
+						var cd   =  "";		// model.getValue("/root/resData/resform/medi_cd");
+						var cdnm =  "";		// model.getValue("/root/resData/resform/medi_cd_nm");	
+							
+						var resultRef1 = "/root/resData/gridData2/record[" + (row) + "]/in_cmpy_posk_cd";
+						var resultRef2 = "/root/resData/gridData2/record[" + (row) + "]/in_cmpy_posk_nm";
+						
+						showCommonCodePopup1("01", "07", cd, cdnm, "Y", resultRef1, resultRef2, "", "", "", "", "", "", "", "", "", "", "", "");
+						
+						if(datagrid2.rowStatus(row) == 0){
+							datagrid2.rowStatus(row) = 2;
+						}
+
+						model.refresh();
+					]]>
+				</script>
+			</col>
+			<col ref="chrg_job" type="input" maxlength="50" style="text-align:left; "/>
+			<col ref="dtls_job" type="input" maxlength="512" style="text-align:left; "/>
+			<col ref="aprv_stat_yn"/>
+			<col ref="cmpy_cd" visibility="hidden"/>
+			<col ref="part_cd" visibility="hidden"/>
+			<col ref="aprv_stat" visibility="hidden"/>
+			<col ref="seq" visibility="hidden"/>
+			<col ref="emp_no" visibility="hidden"/>
+			<col ref="in_cmpy_posk_cd" visibility="hidden"/>
+			<script type="javascript" ev:event="xforms-value-changed">
+				<![CDATA[
+						
+					if (-1 != event.target.lastIndexOf("scroll.thumb")) {
+						return;
+					}     
+					
+					var grid = eval(event.currentTarget);
+					var rowid = grid.row;
+					var colid = grid.col;
+					     
+					if (rowid < grid.fixedRows || colid < grid.fixedCols) {
+						return;
+					}
+					
+					var row = datagrid2.row;
+					var cell = datagrid2.selectedCells;
+					
+					var codeVal;
+					var cellCol = cell.item(0).col;
+					var cellRow = cell.item(0).row;
+					var selectValue = datagrid2.valueMatrix(cellRow, cellCol);
+					if (selectValue.indexOf(' ') > -1){
+						codeVal = selectValue.substring(0, selectValue.indexOf(' '));
+					} else {
+						codeVal = selectValue;
+					}
+					if (codeVal != ''){
+						if (cellCol == 1){
+							if(row != 1){
+								var nodeList = root.selectNodes("/root/resData/gridData2/record");
+								var rowIdx = nodeList.length;
+								
+								var tm_frdt = model1.getValue("/root/resData/gridData2/record[" + (Number(row)) + "]/frdt");
+								var fr_frdt = model1.getValue("/root/resData/gridData2/record[" + (Number(row - 1)) + "]/frdt");
+								if(tm_frdt < fr_frdt){
+									alert("이전 직무이력 시작일보다 빠를 수 없습니다.");
+									return;
+								}
+								
+								var tm_frdt2 = model1.getValue("/root/resData/gridData2/record[" + (Number(row)) + "]/frdt");
+								var fr_todt2 = model1.getValue("/root/resData/gridData2/record[" + (Number(row)) + "]/todt");
+								if(fr_todt2 != "" && tm_frdt2 > fr_todt2){
+									alert("직무이력 종료일이 시작일 보다 빠를 수 없습니다.");
+									return;
+								}
+								
+								model1.setValue("/root/resData/resForm/tm_frdt", tm_frdt);
+								model1.send("hd_job_1003");
+								model1.setValue("/root/resData/gridData2/record[" + (rowIdx - 1) + "]/todt", model1.getValue("/root/dataSet/CURLIST/record/ov_frdt_tm"));
+								model1.removenode("/root/dataSet");
+								
+								var aprv_stat = model1.getValue("/root/resData/gridData2/record[" + (rowIdx - 1) + "]/aprv_stat");
+								//if(aprv_stat == 'Y'){
+									datagrid2.rowStatus(rowIdx - 1) = 2;
+								//}
+							}
+						}
+						if (cellCol == 2){
+							var nodeList = root.selectNodes("/root/resData/gridData2/record");
+							var rowIdx = nodeList.length;
+							
+							var tm_frdt2 = model1.getValue("/root/resData/gridData2/record[" + (Number(row)) + "]/frdt");
+							var fr_todt2 = model1.getValue("/root/resData/gridData2/record[" + (Number(row)) + "]/todt");
+							if(tm_frdt2 > fr_todt2){
+								alert("직무이력 종료일이 시작일 보다 빠를 수 없습니다.");
+								return;
+							}
+						}
+					}
+				]]>
+			</script>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var selectedIdx = datagrid2.row;
+				
+					var aprv_stat = model1.getValue("/root/resData/gridData2/record["+ selectedIdx +"]/aprv_stat");
+					var emp_no = model1.getValue("/root/resData/gridData2/record["+ selectedIdx +"]/emp_no");
+					if(aprv_stat == "Y"){
+						alert("인사승인된 자료는 삭제가 불가능 합니다.");
+					}else{
+						rowStatus(datagrid2);
+						//datagrid2.addStatus(datagrid2.row, "delete");
+						model1.setValue("/root/resData/resForm/temp", "1");
+					}
+				]]>
+			</script>
+		</datagrid>
+		<group id="group_btnG1" class="gro_btn" style="left:12px; top:375px; width:926px; height:25px; ">
+			<button id="button5" class="btn02" style="left:815px; top:4px; width:52px; height:21px; ">
+				<caption>삭제</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (window.alert("삭제하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					if (!rowDelSubmit(datagrid2)) {
+						return;
+					}
+					model1.setValue("/root/reqData/multiUpData", datagrid2.getUpdateData());
+					model1.send("hd_job_1002");
+					if(submit_completed()) {
+						//model1.reset();
+						datagrid2.clearStatus();
+						loadData(emp_no);
+					}
+					]]>
+				</script>
+			</button>
+			<button id="button1" class="btn02" style="left:870px; top:4px; width:52px; height:21px; ">
+				<caption>저장</caption>
+				<script type="javascript" ev:event="onclick">
+					<![CDATA[
+					if (!rowInSubmit(datagrid2)) {
+						return;
+					}
+					var row = datagrid2.row;
+					var tm_frdt = model1.getValue("/root/resData/gridData2/record[" + (Number(row)) + "]/frdt");
+					var fr_frdt = model1.getValue("/root/resData/gridData2/record[" + (Number(row - 1)) + "]/frdt");
+					if(tm_frdt < fr_frdt){
+						alert("이전 직무이력 시작일보다 빠른 수 없습니다.");
+						return;
+					}
+							
+					var tm_frdt2 = model1.getValue("/root/resData/gridData2/record[" + (Number(row)) + "]/frdt");
+					var fr_todt2 = model1.getValue("/root/resData/gridData2/record[" + (Number(row)) + "]/todt");
+					if(fr_todt2 != "" && tm_frdt2 > fr_todt2){
+						alert("직무이력 종료일이 시작일 보다 빠를 수 없습니다.");
+						return;
+					}
+					var temp = model1.getValue("/root/resData/resForm/temp");
+					var grid = model1.getValue("/root/resData/resForm/grid");
+					var emp_no = model1.getValue("/root/reqData/searchData/emp_no");
+					//if(grid == ""){
+					//	alert("등록 및 삭제 하실 사원을 선택 후  자장 버튼을 클릭 해주세요.");
+					//	return;
+					//}
+					//if(temp == ""){
+					//	alert("등록 및 삭제 하실 데이터를 입력 또는 선택하신 후 저장 해주세요.");
+					//	return;
+					//}
+					var rows = datagrid2.rows;
+					//if(model1.getValue("/root/resData/gridData2/record[" + (Number(rows - 1)) + "]/todt") == ""){
+					//	alert("종료일을 입력해주세요.");
+					//	return;
+					//}
+					if (window.alert("저장하시겠습니까?", "확인", 1) != 1) {
+						return;
+					}
+					model1.setValue("/root/reqData/multiUpData", datagrid2.getUpdateData());
+					model1.send("hd_job_1002");
+					if(submit_completed()) {
+						//model1.reset();
+						datagrid2.clearStatus();
+						loadData(emp_no);
+					}
+					]]>
+				</script>
+			</button>
+		</group>
+		<button id="btnA4" class="btn02" style="left:884px; top:45px; width:52px; height:21px; ">
+			<caption>종료</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+					 	viewer("mainFrame").window.javaScript.closeMDIWindow(model.getValue("/root/initData/pageInfo/pageID"));
+					}else{
+						window.close();
+					}
+				]]>
+			</script>
+		</button>
+		<caption id="caption10" class="tit02" style="left:10px; top:64px; width:85px; height:20px; font-weight:bold; ">사원정보</caption>
+		<caption id="caption12" class="tit02" style="left:10px; top:380px; width:105px; height:20px; font-weight:bold; ">직무이력등록</caption>
+		<caption id="caption14" ref="/root/resData/totcnt" style="left:849px; top:360px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+		<caption id="caption1" ref="/root/resData/totcnt2" style="left:849px; top:700px; width:87px; height:20px; font-weight:bold; text-align:right; "/>
+		<button id="button6" class="btn_grid02" style="left:770px; top:382px; width:54px; height:17px; background-image:../../../images/btn_s_3.gif; ">
+			<caption>행추가</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					var nodeList = root.selectNodes("/root/resData/gridData/record");
+					var rowIdx = nodeList.length;
+					if (datagrid2.rows == 2 && datagrid2.rowStatus(1) == 0 ) {
+						datagrid2.addStatus(1, "insert");
+						//datagrid1.isReadOnly(1, 1, 1, 5) = false;
+					} else {
+						datagrid2.addRow(true, true);
+					}
+					var rows = datagrid2.rows - 1;
+					var nodeList = root.selectNodes("/root/resData/gridData2/record");
+					var rowIdx = nodeList.length;
+					
+					var obj = htmldocument.SessionInfo;
+    	 				setProperty("ss_cmpycd"   , obj.cmpycd.value);
+					model1.setValue("/root/resData/gridData2/record[" + (rowIdx) + "]/cmpy_cd", obj.cmpycd.value);
+					model1.setValue("/root/resData/gridData2/record[" + (rowIdx) + "]/emp_no", model1.getValue("/root/resData/tm_emp_no"));
+					model1.refresh();
+					]]>
+			</script>
+		</button>
+		<button id="button2" class="btn02" style="left:830px; top:45px; width:52px; height:21px; ">
+			<caption>초기화</caption>
+			<script type="javascript" ev:event="onclick">
+				<![CDATA[
+					model1.reset();
+					if(model.getValue("/root/initData/pageInfo/pageID") == ""){
+						maintitle.text = "부서원직무 및 파트부여";
+						iv_Title.visible = false;  // 숨김
+						iv_PopTitle.visible = true;  // 보임
+					}else if(model.getValue("/root/initData/pageInfo/pageID") != ""){
+						iv_Title.visible = true;  // 보임
+						iv_PopTitle.visible = false;  // 숨김
+					}
+					datagrid2.isReadOnly(1, 1, 1, 6) = true;
+					//datagrid2.deleteRow(1, "delete");
+					//datagrid2.isReadOnly(1, 1, 1, 10) = true;
+					//maintitle.text = "부서원직무/파트부여(부서장)";
+					model1.send("hd_job_1001");
+					model1.copyNode("/root/resData/gridData1", "/root/dataSet/CURLIST");
+					model1.removenode("/root/dataSet");
+					model1.refresh();
+					var totcnt = datagrid1.rows;
+					model1.setValue("/root/resData/totcnt", "총 " + Number(totcnt - 1) + " 건");
+					model1.refresh();
+				]]>
+			</script>
+		</button>
+	</xhtml:body>
+</xhtml:html>
